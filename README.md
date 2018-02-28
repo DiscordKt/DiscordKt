@@ -8,21 +8,12 @@ for public use.
 
 sample bot:
 ```kotlin
-fun main(args: Array<String>)  =
-    startBot("token", "ownerId", "!", "guildID", "me.aberrantfox.epicbot.commands") {
-        registerCommandPrecondition {
-            it.author.id == config.ownerID
-        }
-    }
-
-fun otherMain() {
-    val sample = startBot("token", "ownerId", "!", "guildID", "me.aberrantfox.epicbot.commands")
-    sample.registerCommandPrecondition {
-        it.author.toMember(it.guild).isOwner
+fun main(args: Array<String>) {
+    startBot(args[0], args[1], "!", args[2], "me.aberrantfox.kjdautils.examples") {
+        registerCommandPrecondition { it.author.id == it.config.ownerID }
     }
 }
 
-//in any file in the package me.aberrantfox.epicbot.commands
 @CommandSet
 fun helpCommand() = commands {
     command("help") {
