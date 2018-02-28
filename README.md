@@ -1,6 +1,10 @@
 ##### Purpose
-The purpose of this is to provide a nice kotlin wrapper over JDA 
-and to add a bunch of extension functions for utility purposes/cleaner code.
+The purpose of this is to provide a nice kotlin wrapper over JDA and to add a bunch of extension functions for utility 
+purposes/cleaner code.
+
+##### Note
+This is still in a very alpha stage, this section of the README will be updated with a maven import when it is ready 
+for public use.
 
 sample bot:
 ```kotlin
