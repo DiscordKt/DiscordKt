@@ -1,4 +1,4 @@
-package me.aberrantfox.hotbot.extensions.jda
+package me.aberrantfox.kjdautils.extensions.jda
 
 import net.dv8tion.jda.core.entities.Role
 

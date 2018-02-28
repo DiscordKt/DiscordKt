@@ -1,7 +1,7 @@
 package me.aberrantfox.kjdautils.api.permissions
 
 import me.aberrantfox.kjdautils.extensions.jda.getHighestRole
-import me.aberrantfox.hotbot.extensions.jda.isEqualOrHigherThan
+import me.aberrantfox.kjdautils.extensions.jda.isEqualOrHigherThan
 import me.aberrantfox.kjdautils.extensions.jda.toMember
 import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
 import me.aberrantfox.kjdautils.extensions.stdlib.idToUser
