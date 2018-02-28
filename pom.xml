@@ -6,11 +6,11 @@
 
     <groupId>me.aberrantfox</groupId>
     <artifactId>KJDAUtils</artifactId>
-    <version>1.0.0</version>
+    <version>0.1.0</version>
 
     <properties>
         <kotlin.version>1.2.21</kotlin.version>
-        <jda.version>3.4.0_317</jda.version>
+        <jda.version>3.5.1_342</jda.version>
     </properties>
 
     <dependencies>

@@ -1,4 +1,4 @@
-package me.aberrantfox.hotbot.extensions.jda
+package me.aberrantfox.kjdautils.extensions.jda
 
 import me.aberrantfox.kjdautils.extensions.stdlib.formatJdaDate
 import net.dv8tion.jda.core.entities.Guild

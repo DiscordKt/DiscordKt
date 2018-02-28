@@ -1,12 +1,14 @@
 package me.aberrantfox.kjdautils.internal.listeners
 
-import me.aberrantfox.hotbot.extensions.jda.*
 import me.aberrantfox.kjdautils.api.permissions.PermissionManager
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
 import me.aberrantfox.kjdautils.internal.command.convertAndQueue
 import me.aberrantfox.kjdautils.internal.command.getCommandStruct
 import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.extensions.jda.deleteIfExists
+import me.aberrantfox.kjdautils.extensions.jda.descriptor
+import me.aberrantfox.kjdautils.extensions.jda.isCommandInvocation
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.Guild

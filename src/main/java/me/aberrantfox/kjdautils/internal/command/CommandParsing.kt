@@ -2,7 +2,7 @@ package me.aberrantfox.kjdautils.internal.command
 
 import kotlinx.coroutines.experimental.runBlocking
 import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
-import me.aberrantfox.kjdautils.api.configuration.Configuration
+import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
 import me.aberrantfox.kjdautils.api.dsl.Command
 import me.aberrantfox.kjdautils.api.dsl.CommandArgument
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
@@ -38,7 +38,7 @@ internal fun produceContainer(pack: String): CommandsContainer {
 internal fun convertAndQueue(actual: List<String>, expected: List<CommandArgument>,
                     instance: CommandListener, event: CommandEvent,
                     invokedInGuild: Boolean, command: Command,
-                    config: Configuration) {
+                    config: KJDAConfiguration) {
 
     val expectedTypes = expected.map { it.type }
 
@@ -50,7 +50,7 @@ internal fun convertAndQueue(actual: List<String>, expected: List<CommandArgumen
     val convertedArgs = convertMainArgs(actual, expected)
 
     if (convertedArgs == null) {
-        event.respond("Incorrect arguments passed to command, try viewing the help documentation via: ${config.serverInformation.prefix}help <commandName>")
+        event.respond("Incorrect arguments passed to command, try viewing the help documentation via: ${config.prefix}help <commandName>")
         return
     }
 
@@ -95,10 +95,10 @@ private fun dispatchRequestRequiredEvent(expected: List<ArgumentType>, standard:
     }
 }
 
-fun getCommandStruct(message: String, config: Configuration): CommandStruct {
-    var trimmedMessage = message.substring(config.serverInformation.prefix.length)
+fun getCommandStruct(message: String, config: KJDAConfiguration): CommandStruct {
+    var trimmedMessage = message.substring(config.prefix.length)
 
-    if (trimmedMessage.startsWith(config.serverInformation.prefix)) trimmedMessage = trimmedMessage.substring(config.serverInformation.prefix.length)
+    if (trimmedMessage.startsWith(config.prefix)) trimmedMessage = trimmedMessage.substring(config.prefix.length)
 
     if (!(message.contains(" "))) {
         return CommandStruct(trimmedMessage.toLowerCase())
