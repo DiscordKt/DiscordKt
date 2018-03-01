@@ -1,6 +1,6 @@
 package me.aberrantfox.kjdautils.internal.listeners
 
-import me.aberrantfox.kjdautils.api.permissions.PermissionManager
+
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
 import me.aberrantfox.kjdautils.internal.command.convertAndQueue
@@ -25,7 +25,6 @@ internal class CommandListener(val config: KJDAConfiguration,
                                val jda: JDA,
                                var log: BotLogger,
                                val guild: Guild,
-                               val manager: PermissionManager,
                                val preconditions: ArrayList<(CommandEvent) -> Boolean> = ArrayList()) : ListenerAdapter() {
     init {
         CommandRecommender.addAll(container.commands.keys.toList())
@@ -61,14 +60,9 @@ internal class CommandListener(val config: KJDAConfiguration,
     private fun invokeCommand(command: Command, name: String, actual: List<String>, message: Message, author: User, invokedInGuild: Boolean) {
         val channel = message.channel
 
-        if( !(manager.canUseCommand(author.id, name)) ) {
-            channel.sendMessage("Did you really think I would let you do that? :thinking:").queue()
-            return
-        }
-
         if (!(argsMatch(actual, command, channel))) return
 
-        val event = CommandEvent(config, jda, channel, author, message, guild, manager, container, actual)
+        val event = CommandEvent(config, jda, channel, author, message, guild, container, actual)
         val passesPreconditions = preconditions.all { it(event) }
 
         if(passesPreconditions) {

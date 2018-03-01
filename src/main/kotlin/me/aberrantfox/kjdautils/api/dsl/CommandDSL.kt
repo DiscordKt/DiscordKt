@@ -1,7 +1,6 @@
 package me.aberrantfox.kjdautils.api.dsl
 
 import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
-import me.aberrantfox.kjdautils.api.permissions.PermissionManager
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
@@ -9,8 +8,7 @@ import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.*
 
 data class CommandEvent(val config: KJDAConfiguration, val jda: JDA, val channel: MessageChannel,
-                        val author: User, val message: Message, val guild: Guild, val manager: PermissionManager,
-                        val container: CommandsContainer,
+                        val author: User, val message: Message, val guild: Guild, val container: CommandsContainer,
                         var args: List<Any> = listOf()) {
 
     fun respond(msg: String) =
