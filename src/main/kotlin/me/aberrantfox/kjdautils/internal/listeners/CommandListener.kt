@@ -11,7 +11,6 @@ import me.aberrantfox.kjdautils.extensions.jda.descriptor
 import me.aberrantfox.kjdautils.extensions.jda.isCommandInvocation
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.entities.MessageChannel
 import net.dv8tion.jda.core.entities.User
@@ -24,7 +23,6 @@ internal class CommandListener(val config: KJDAConfiguration,
                                val container: CommandsContainer,
                                val jda: JDA,
                                var log: BotLogger,
-                               val guild: Guild,
                                val preconditions: ArrayList<(CommandEvent) -> Boolean> = ArrayList()) : ListenerAdapter() {
     init {
         CommandRecommender.addAll(container.commands.keys.toList())
@@ -62,7 +60,7 @@ internal class CommandListener(val config: KJDAConfiguration,
 
         if (!(argsMatch(actual, command, channel))) return
 
-        val event = CommandEvent(config, jda, channel, author, message, guild, container, actual)
+        val event = CommandEvent(config, jda, channel, author, message, jda.getGuildById(config.guildID), container, actual)
         val passesPreconditions = preconditions.all { it(event) }
 
         if(passesPreconditions) {
