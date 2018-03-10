@@ -57,3 +57,24 @@ fun helpCommand() = commands {
     }
 }
 ```
+
+
+#### Add to your project with Maven
+Under the dependencies tag, add
+
+```xml
+<dependency>
+    <groupId>com.github.aberrantfox</groupId>
+    <artifactId>Kutils</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+Under the repositories tag, add
+
+```xml
+<repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+</repository>
+```
