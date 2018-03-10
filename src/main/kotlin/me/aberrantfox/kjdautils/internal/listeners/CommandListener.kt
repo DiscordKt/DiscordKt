@@ -60,7 +60,7 @@ internal class CommandListener(val config: KJDAConfiguration,
 
         if (!(argsMatch(actual, command, channel))) return
 
-        val event = CommandEvent(config, jda, channel, author, message, jda.getGuildById(config.guildID), container, actual)
+        val event = CommandEvent(config, jda, channel, author, message, container, actual)
         val passesPreconditions = preconditions.all { it(event) }
 
         if(passesPreconditions) {

@@ -9,9 +9,11 @@ for public use.
 sample bot:
 ```kotlin
 fun main(args: Array<String>) {
-    startBot(args[0], args[1], "!", args[2], "me.aberrantfox.kjdautils.examples") {
-        registerCommandPrecondition { it.author.id == it.config.ownerID }
-    }
+    val token = args.component1()
+    val prefix = "!"
+    val commandPath =  "me.aberrantfox.kjdautils.examples"
+
+    startBot(token, prefix, commandPath)
 }
 
 @CommandSet

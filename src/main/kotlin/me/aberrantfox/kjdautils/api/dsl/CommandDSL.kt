@@ -8,7 +8,7 @@ import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.*
 
 data class CommandEvent(val config: KJDAConfiguration, val jda: JDA, val channel: MessageChannel,
-                        val author: User, val message: Message, val guild: Guild, val container: CommandsContainer,
+                        val author: User, val message: Message,val container: CommandsContainer,
                         var args: List<Any> = listOf()) {
 
     fun respond(msg: String) =
