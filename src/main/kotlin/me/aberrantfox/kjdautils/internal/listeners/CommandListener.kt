@@ -1,6 +1,8 @@
 package me.aberrantfox.kjdautils.internal.listeners
 
 
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.launch
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
 import me.aberrantfox.kjdautils.internal.command.convertAndQueue
@@ -64,7 +66,10 @@ internal class CommandListener(val config: KJDAConfiguration,
         val passesPreconditions = preconditions.all { it(event) }
 
         if(passesPreconditions) {
-            convertAndQueue(actual, command.expectedArgs.toList(), this, event, invokedInGuild, command, config)
+            val listener = this
+            launch(CommonPool) {
+                convertAndQueue(actual, command.expectedArgs.toList(), listener, event, invokedInGuild, command, config)
+            }
         }
     }
 
