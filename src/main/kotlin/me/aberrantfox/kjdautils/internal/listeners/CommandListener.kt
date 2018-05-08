@@ -74,7 +74,9 @@ internal class CommandListener(val config: KJDAConfiguration,
             }
         }
 
-        executeCommand(command, event, invokedInGuild)
+        if(preconditions.all { it.invoke(event) }) {
+            executeCommand(command, event, invokedInGuild)
+        }
     }
 
     private fun executeCommand(command: Command, event: CommandEvent, invokedInGuild: Boolean) {
