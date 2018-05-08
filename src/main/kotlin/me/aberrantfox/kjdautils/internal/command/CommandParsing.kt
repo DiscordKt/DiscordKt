@@ -1,106 +1,18 @@
 package me.aberrantfox.kjdautils.internal.command
 
-import kotlinx.coroutines.experimental.runBlocking
-import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
+
 import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
 import me.aberrantfox.kjdautils.api.dsl.Command
-import me.aberrantfox.kjdautils.api.dsl.CommandArgument
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
-import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
-import me.aberrantfox.kjdautils.internal.listeners.CommandListener
-import org.reflections.Reflections
-import org.reflections.scanners.MethodAnnotationsScanner
-
-const val seperatorCharacter = "|"
-
-annotation class CommandSet
+import me.aberrantfox.kjdautils.api.dsl.arg
 
 data class CommandStruct(val commandName: String, val commandArgs: List<String> = listOf())
 
-internal fun produceContainer(pack: String): CommandsContainer {
-    val cmds = Reflections(pack, MethodAnnotationsScanner()).getMethodsAnnotatedWith(CommandSet::class.java)
-
-    val container = cmds.map { it.invoke(null) }
-        .map { it as CommandsContainer }
-        .reduce { a, b -> a.join(b) }
-
-    val lowMap = HashMap<String, Command>()
-
-    container.commands.keys.forEach {
-        lowMap.put(it.toLowerCase(), container.commands[it]!!)
-    }
-
-    container.commands = lowMap
-
-    return container
-}
-
-internal fun convertAndQueue(actual: List<String>, expected: List<CommandArgument>,
-                    instance: CommandListener, event: CommandEvent,
-                    invokedInGuild: Boolean, command: Command,
-                    config: KJDAConfiguration) {
-
-    val expectedTypes = expected.map { it.type }
-
-    if (expectedTypes.contains(ArgumentType.Manual)) {
-        instance.executeEvent(command, event, invokedInGuild)
-        return
-    }
-
-    val convertedArgs = convertMainArgs(actual, expected)
-
-    if (convertedArgs == null) {
-        event.respond("Incorrect arguments passed to command, try viewing the help documentation via: ${config.prefix}help <commandName>")
-        return
-    }
-
-    val filledArgs = convertOptionalArgs(convertedArgs, expected, event)
-
-    event.args = filledArgs
-
-    if (expectedTypes.contains(ArgumentType.User)) {
-        dispatchRequestRequiredEvent(expectedTypes, filledArgs, event, command, instance, invokedInGuild)
-    } else {
-        instance.executeEvent(command, event, invokedInGuild)
-    }
-}
-
-private fun dispatchRequestRequiredEvent(expected: List<ArgumentType>, standard: List<Any>, event: CommandEvent, command: Command,
-                                         instance: CommandListener, invokedInGuild: Boolean) {
-    val zip = standard.zip(expected)
-
-    runBlocking {
-        val fullyParsed = ArrayList<Any>()
-
-        zip.forEach {
-            if (it.second == ArgumentType.User) {
-                try{
-                    val parsedUser = event.jda.retrieveUserById((it.first as String).trimToID()).complete()
-                    if(parsedUser == null) {
-                        event.safeRespond("Error, cannot find user by ID: ${it.first}")
-                        return@runBlocking
-                    }
-
-                    fullyParsed.add(parsedUser)
-                } catch (e: Exception) {
-                    event.safeRespond("Error, cannot find user: ${it.first}")
-                    return@runBlocking
-                }
-            } else {
-                fullyParsed.add(it.first)
-            }
-        }
-        event.args = fullyParsed
-        instance.executeEvent(command, event, invokedInGuild)
-    }
-}
-
-fun getCommandStruct(message: String, config: KJDAConfiguration): CommandStruct {
+fun cleanCommandMessage(message: String, config: KJDAConfiguration): CommandStruct {
     var trimmedMessage = message.substring(config.prefix.length)
 
     if (trimmedMessage.startsWith(config.prefix)) trimmedMessage = trimmedMessage.substring(config.prefix.length)
 
-    if (!(message.contains(" "))) {
+    if (!message.contains(" ")) {
         return CommandStruct(trimmedMessage.toLowerCase())
     }
 
@@ -108,4 +20,21 @@ fun getCommandStruct(message: String, config: KJDAConfiguration): CommandStruct 
     val commandArgs = trimmedMessage.substring(trimmedMessage.indexOf(" ") + 1).split(" ")
 
     return CommandStruct(commandName, commandArgs)
+}
+
+fun getArgCountError(actual: List<String>, cmd: Command): String? {
+    val optionalCount = cmd.expectedArgs.count { it.optional }
+    val argCountRange = cmd.parameterCount - optionalCount..cmd.parameterCount
+
+    if (cmd.expectedArgs.any { it.type in multiplePartArgTypes }) {
+        if (actual.size < argCountRange.start) {
+            return "You didn't enter the minimum number of required arguments: ${cmd.expectedArgs.size - optionalCount}."
+        }
+    } else {
+        if (actual.size !in argCountRange && !cmd.expectedArgs.contains(arg(ArgumentType.Manual))) {
+            return "This command requires at least ${argCountRange.start} and a maximum of ${argCountRange.endInclusive} arguments."
+        }
+    }
+
+    return null
 }

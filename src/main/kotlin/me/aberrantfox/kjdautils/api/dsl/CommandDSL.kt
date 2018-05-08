@@ -6,6 +6,11 @@ import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.*
+import org.reflections.Reflections
+import org.reflections.scanners.MethodAnnotationsScanner
+
+
+annotation class CommandSet
 
 data class CommandEvent(val config: KJDAConfiguration, val jda: JDA, val channel: MessageChannel,
                         val author: User, val message: Message, val container: CommandsContainer,
@@ -25,11 +30,30 @@ data class CommandEvent(val config: KJDAConfiguration, val jda: JDA, val channel
 }
 
 @CommandTagMarker
-class Command(var log: BotLogger, var expectedArgs: Array<out CommandArgument> = arrayOf(),
-              var execute: (CommandEvent) -> Unit = {}, var requiresGuild: Boolean = false)  {
-    val parameterCount = expectedArgs.size
+open class Command(var log: BotLogger, open val name: String,  var expectedArgs: Array<out CommandArgument> = arrayOf(),
+                   var execute: (CommandEvent) -> Unit = {}, var requiresGuild: Boolean = false) : BotLogger {
+    override fun info(message: String) = log.info(message)
+    override fun info(message: MessageEmbed) = log.info(message)
+
+    override fun cmd(message: String) = log.cmd(message)
+    override fun cmd(message: MessageEmbed) = log.cmd(message)
+
+    override fun error(message: String) = log.error(message)
+    override fun error(message: MessageEmbed) = log.error(message)
+
+    override fun alert(message: String) = log.alert(message)
+    override fun alert(message: MessageEmbed) = log.alert(message)
+
+    override fun voice(message: String) = log.voice(message)
+    override fun voice(message: MessageEmbed) = log.voice(message)
+
+    override fun history(message: String) = log.history(message)
+    override fun history(message: MessageEmbed) = log.history(message)
 
     operator fun invoke(args: Command.() -> Unit) {}
+
+    val parameterCount: Int
+        get() = this.expectedArgs.size
 
     fun requiresGuild(requiresGuild: Boolean) {
         this.requiresGuild = requiresGuild
@@ -74,8 +98,8 @@ data class CommandsContainer(var log: BotLogger, var commands: HashMap<String, C
 
     fun listCommands() = this.commands.keys.toList()
 
-    fun command(name: String, construct: Command.() -> Unit): Command? {
-        val command = Command(log)
+    fun command(name: String, construct: Command.() -> Unit = {}): Command? {
+        val command = Command(log, name)
         command.construct()
         this.commands.put(name, command)
         return command
@@ -91,7 +115,7 @@ data class CommandsContainer(var log: BotLogger, var commands: HashMap<String, C
 
     fun has(name: String) = this.commands.containsKey(name)
 
-    fun get(name: String) = this.commands.get(name)
+    operator fun get(name: String) = this.commands.get(name)
 
     fun newLogger(log: BotLogger) {
         this.log = log
@@ -100,6 +124,25 @@ data class CommandsContainer(var log: BotLogger, var commands: HashMap<String, C
         }
     }
 }
+
+fun produceContainer(path: String): CommandsContainer {
+    val cmds = Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(CommandSet::class.java)
+
+    val container = cmds.map { it.invoke(null) }
+            .map { it as CommandsContainer }
+            .reduce { a, b -> a.join(b) }
+
+    val lowMap = HashMap<String, Command>()
+
+    container.commands.keys.forEach {
+        lowMap.put(it.toLowerCase(), container.commands[it]!!)
+    }
+
+    container.commands = lowMap
+
+    return container
+}
+
 
 @DslMarker
 annotation class CommandTagMarker

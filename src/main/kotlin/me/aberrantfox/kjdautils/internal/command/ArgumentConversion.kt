@@ -3,98 +3,202 @@ package me.aberrantfox.kjdautils.internal.command
 
 import me.aberrantfox.kjdautils.api.dsl.CommandArgument
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
+import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
+import me.aberrantfox.kjdautils.extensions.jda.obtainRole
 import me.aberrantfox.kjdautils.extensions.stdlib.*
+import net.dv8tion.jda.core.JDA
+import net.dv8tion.jda.core.entities.ISnowflake
+import me.aberrantfox.kjdautils.internal.command.ConversionResult.*
+import net.dv8tion.jda.core.entities.TextChannel
 
+const val separatorCharacter = "|"
+
+val snowflakeConversions = mapOf<ArgumentType, JDA.(String) -> ISnowflake?>(
+        ArgumentType.User to { x -> retrieveUserById(x).complete() },
+        ArgumentType.TextChannel to JDA::getTextChannelById,
+        ArgumentType.VoiceChannel to JDA::getVoiceChannelById,
+        ArgumentType.Role to JDA::obtainRole
+)
+
+val snowflakeArgTypes = snowflakeConversions.keys
+val consumingArgTypes = listOf(ArgumentType.Sentence, ArgumentType.Splitter)
+val multiplePartArgTypes = listOf(ArgumentType.Sentence, ArgumentType.Splitter, ArgumentType.TimeString)
 
 enum class ArgumentType {
-    Integer, Double, Word, Choice, Manual, Sentence, User, Splitter, URL
+    Integer, Double, Word, Choice, Manual, Sentence, User,
+    Splitter, URL, TimeString, TextChannel, VoiceChannel,
+    Message, Role, Command
 }
 
-val argsRequiredAtMessageEnd = listOf(ArgumentType.Sentence, ArgumentType.Splitter)
+sealed class ConversionResult {
+    fun then(function: (List<Any?>) -> ConversionResult): ConversionResult =
+            when (this) {
+                is Results -> function(results)
+                is Error -> this
+            }
 
-/**
- * Converts a list of strings to the matching expected argument types
- *
- * If the argument isn't converted, it is left as null;
- * e.g. if it's optional and the actual args have already been fully converted
- *
- * Returns null if the actual args cannot fit into the expected ones;
- * e.g. if there is still an arg to convert but no matching place to put it.
- *
- * @return A list of arguments converted to their expected type.
- *
- * null if the actual args do not fit into the expected ones.
- *
- */
-internal fun convertMainArgs(actual: List<String>,
-                    expected: List<CommandArgument>): List<Any?>? {
+    fun thenIf(condition: Boolean, function: (List<Any?>) -> ConversionResult) =
+            if (condition) {
+                then(function)
+            } else {
+                this
+            }
 
+    data class Results(val results: List<Any?>, val consumed: List<String>? = null) : ConversionResult()
+    data class Error(val error: String) : ConversionResult()
+}
+
+fun convertArguments(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): ConversionResult {
+
+    val expectedTypes = expected.map { it.type }
+
+    if (expectedTypes.contains(ArgumentType.Manual)) {
+        return ConversionResult.Results(actual)
+    }
+
+    return convertMainArgs(actual, expected, event.container)
+            .thenIf(expectedTypes.any(snowflakeArgTypes::contains)) {
+                retrieveSnowflakes(it, expected, event.jda)
+            }.then {
+                convertOptionalArgs(it, expected, event)
+            }.thenIf(expectedTypes.contains(ArgumentType.Message)) {
+                retrieveMessageArgs(it, expected)
+            } // final and separate message conversion because dependent on text channel arg being converted already
+}
+
+fun convertMainArgs(actual: List<String>, expected: List<CommandArgument>, container: CommandsContainer): ConversionResult {
     val converted = arrayOfNulls<Any?>(expected.size)
 
-    for (index in 0 until actual.size) {
-        val actualArg = actual[index]
+    val remaining = actual.toMutableList()
+
+    while (remaining.isNotEmpty()) {
+        val actualArg = remaining.first()
 
         val nextMatchingIndex = expected.withIndex().indexOfFirst {
-            matchesArgType(actualArg, it.value.type) && converted[it.index] == null
+            matchesArgType(actualArg, it.value.type, container) && converted[it.index] == null
         }
-        if (nextMatchingIndex == -1) return null
+        if (nextMatchingIndex == -1) return Error("Couldn't match '$actualArg' with the expected arguments. Try using the `help` command.")
 
-        converted[nextMatchingIndex] = convertArg(actualArg, expected[nextMatchingIndex].type, index, actual)
+        val expectedType = expected[nextMatchingIndex].type
 
-        if (expected[nextMatchingIndex].type in argsRequiredAtMessageEnd) break
+        val result = convertArg(actualArg, expectedType, remaining, container)
+
+        if (result is Error) return result
+
+        val convertedValue =
+                when (result) {
+                    is Results -> result.results.first()
+                    else -> result
+                }
+
+        consumeArgs(actualArg, expectedType, result, remaining)
+
+        converted[nextMatchingIndex] = convertedValue
     }
 
-    if (converted.filterIndexed { i, arg -> arg == null && !expected[i].optional }.isNotEmpty())
-        return null
+    val unfilledNonOptionals = converted.filterIndexed { i, arg -> arg == null && !expected[i].optional }
 
-    return converted.toList()
+    if (unfilledNonOptionals.isNotEmpty())
+        return Error("You did not fill all of the non-optional arguments.")
+
+    return Results(converted.toList())
 }
 
-/**
- * Converts any null arguments in a list of converted arguments to their default value
- *
- * If the default is a function, it is invoked, passing in the CommandEvent.
- * If the value isn't null, it is left unmodified.
- *
- * @return A list of arguments with the optionals filled
- *
- */
-internal fun convertOptionalArgs(args: List<Any?>, expected: List<CommandArgument>, event: CommandEvent) =
-    args.mapIndexed { i, arg ->
-        arg ?: if (expected[i].defaultValue is Function<*>)
-            (expected[i].defaultValue as (CommandEvent) -> Any).invoke(event)
-        else
-            expected[i].defaultValue
+fun retrieveSnowflakes(args: List<Any?>, expected: List<CommandArgument>, jda: JDA): ConversionResult {
+    val converted =
+            args.zip(expected).map { (arg, expectedArg) ->
+
+                val conversionFun = snowflakeConversions[expectedArg.type]
+
+                if (conversionFun == null || arg == null) return@map arg
+
+                val retrieved =
+                        try {
+                            conversionFun(jda, (arg as String).trimToID())
+                        } catch (e: RuntimeException) {
+                            null
+                        } ?: return Error("Couldn't retrieve ${expectedArg.type}: $arg.")
+
+                return@map retrieved
+            }
+    return Results(converted)
+}
+
+fun retrieveMessageArgs(args: List<Any?>, expected: List<CommandArgument>): ConversionResult {
+    val channel = args.firstOrNull { it is TextChannel } as TextChannel?
+            ?: throw IllegalArgumentException("Message arguments must be used with a TextChannel argument to be converted automatically")
+
+    val converted = args.zip(expected).map { (arg, expectedArg) ->
+
+        if (expectedArg.type != ArgumentType.Message) return@map arg
+
+        val message =
+                try {
+                    channel.getMessageById(arg as String).complete()
+                } catch (e: RuntimeException) {
+                    null
+                } ?: return Error("Couldn't retrieve message from given channel.")
+
+        return@map message
     }
 
-private fun matchesArgType(arg: String, type: ArgumentType): Boolean {
+    return Results(converted)
+}
+
+fun convertOptionalArgs(args: List<Any?>, expected: List<CommandArgument>, event: CommandEvent) =
+        args.zip(expected)
+                .map { (arg, expectedArg) ->
+                    arg ?: if (expectedArg.defaultValue is Function<*>)
+                        (expectedArg.defaultValue as (CommandEvent) -> Any).invoke(event)
+                    else
+                        expectedArg.defaultValue
+                }.let { Results(it) }
+
+
+private fun matchesArgType(arg: String, type: ArgumentType, container: CommandsContainer): Boolean {
     return when (type) {
         ArgumentType.Integer -> arg.isInteger()
         ArgumentType.Double -> arg.isDouble()
         ArgumentType.Choice -> arg.isBooleanValue()
         ArgumentType.URL -> arg.containsURl()
+        ArgumentType.Command -> container.has(arg.toLowerCase())
         else -> true
     }
 }
 
-private fun convertArg(arg: String, type: ArgumentType, index: Int, actual: List<String>): Any {
-    return when (type) {
-        ArgumentType.Integer -> arg.toInt()
-        ArgumentType.Double -> arg.toDouble()
-        ArgumentType.Choice -> arg.toBooleanValue()
-        ArgumentType.User -> arg
-        ArgumentType.Sentence -> joinArgs(index, actual)
-        ArgumentType.Splitter -> splitArg(index, actual)
-        else -> arg
+
+private fun convertArg(arg: String, type: ArgumentType, actual: MutableList<String>, container: CommandsContainer) =
+        when (type) {
+            ArgumentType.Integer -> arg.toInt()
+            ArgumentType.Double -> arg.toDouble()
+            ArgumentType.Choice -> arg.toBooleanValue()
+            ArgumentType.Command -> container[arg.toLowerCase()] ?: throw IllegalStateException("Command argument should have been already verified as valid.")
+            ArgumentType.Sentence -> joinArgs(actual)
+            ArgumentType.Splitter -> splitArg(actual)
+            ArgumentType.TimeString -> convertTimeString(actual)
+            else -> arg
+        }
+
+private fun consumeArgs(actualArg: String, type: ArgumentType, result: Any, remaining: MutableList<String>) {
+    if (type !in multiplePartArgTypes) {
+        remaining.remove(actualArg)
+    } else if (type in consumingArgTypes) {
+        remaining.clear()
+    }
+
+    if (result is Results) {
+        result.consumed?.map {
+            remaining.remove(it)
+        }
     }
 }
 
-private fun joinArgs(start: Int, actual: List<String>) = actual.subList(start, actual.size).reduce { a, b -> "$a $b" }
+private fun joinArgs(actual: List<String>) = actual.joinToString(" ")
 
-private fun splitArg(start: Int, actual: List<String>): List<String> {
-    val joined = joinArgs(start, actual)
+private fun splitArg(actual: List<String>): List<String> {
+    val joined = joinArgs(actual)
 
-    if (!(joined.contains(seperatorCharacter))) return listOf(joined)
+    if (!(joined.contains(separatorCharacter))) return listOf(joined)
 
-    return joined.split(seperatorCharacter).toList()
+    return joined.split(separatorCharacter).toList()
 }

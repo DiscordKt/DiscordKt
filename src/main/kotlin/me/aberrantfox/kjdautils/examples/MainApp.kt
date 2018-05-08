@@ -1,12 +1,11 @@
 package me.aberrantfox.kjdautils.examples
 
 
+import me.aberrantfox.kjdautils.api.dsl.CommandSet
 import me.aberrantfox.kjdautils.api.dsl.commands
 import me.aberrantfox.kjdautils.api.dsl.embed
 import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
-import me.aberrantfox.kjdautils.internal.command.CommandSet
-
 
 fun main(args: Array<String>) {
     val token = args.component1()
