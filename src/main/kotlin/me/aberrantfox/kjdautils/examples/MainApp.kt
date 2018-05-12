@@ -1,18 +1,29 @@
 package me.aberrantfox.kjdautils.examples
 
 
+import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.dsl.CommandSet
 import me.aberrantfox.kjdautils.api.dsl.commands
 import me.aberrantfox.kjdautils.api.dsl.embed
 import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 
 fun main(args: Array<String>) {
     val token = args.component1()
     val prefix = "!"
     val commandPath =  "me.aberrantfox.kjdautils.examples"
 
-    startBot(token, prefix, commandPath)
+    startBot(token, prefix, commandPath) {
+        registerListener(MessageLogger())
+    }
+}
+
+/**
+ * You can create an event handler that
+ */
+class MessageLogger {
+    @Subscribe fun onMessage(event: GuildMessageReceivedEvent) = println(event.message.contentRaw)
 }
 
 @CommandSet

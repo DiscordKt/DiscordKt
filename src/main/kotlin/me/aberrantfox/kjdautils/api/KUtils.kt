@@ -1,6 +1,7 @@
 package me.aberrantfox.kjdautils.api
 
 import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.api.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.CommandListener
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
 import net.dv8tion.jda.core.AccountType
@@ -15,10 +16,12 @@ class KUtils(val config: KJDAConfiguration) {
     private val listener = CommandListener(config, container, jda, logger)
 
     init {
-        jda.addEventListener(listener)
+        jda.addEventListener(listener, EventRegister)
     }
 
     fun registerCommandPrecondition(condition: (CommandEvent) -> Boolean) = listener.addPrecondition(condition)
+
+    fun registerListener(listener: Any) = EventRegister.eventBus.register(listener)
 }
 
 fun startBot(token: String, prefix: String, commandPath: String, operate: KUtils.() -> Unit = {}): KUtils {
