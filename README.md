@@ -58,6 +58,9 @@ fun helpCommand() = commands {
 }
 ```
 
+**For a more comprehensive guide, see the Wiki** 
+ https://github.com/AberrantFox/KUtils/wiki
+
 
 #### Add to your project with Maven
 Under the dependencies tag, add
