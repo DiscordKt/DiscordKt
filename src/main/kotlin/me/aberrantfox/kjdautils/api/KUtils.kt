@@ -16,7 +16,8 @@ class KUtils(val config: KJDAConfiguration) {
     private val listener = CommandListener(config, container, jda, logger)
 
     init {
-        jda.addEventListener(listener, EventRegister)
+        jda.addEventListener(EventRegister)
+        registerListener(listener)
     }
 
     fun registerCommandPrecondition(condition: (CommandEvent) -> Boolean) = listener.addPrecondition(condition)

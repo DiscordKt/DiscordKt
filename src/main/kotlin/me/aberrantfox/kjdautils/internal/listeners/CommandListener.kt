@@ -1,6 +1,7 @@
 package me.aberrantfox.kjdautils.internal.listeners
 
 
+import com.google.common.eventbus.Subscribe
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.launch
 import me.aberrantfox.kjdautils.api.dsl.*
@@ -22,15 +23,15 @@ internal class CommandListener(val config: KJDAConfiguration,
                                val container: CommandsContainer,
                                val jda: JDA,
                                var log: BotLogger,
-                               val preconditions: ArrayList<(CommandEvent) -> Boolean> = ArrayList()) : ListenerAdapter() {
+                               val preconditions: ArrayList<(CommandEvent) -> Boolean> = ArrayList()) {
 
     fun addPrecondition(condition: (CommandEvent) -> Boolean) = preconditions.add(condition)
 
-    override fun onGuildMessageReceived(e: GuildMessageReceivedEvent) {
+    @Subscribe fun guildMessageHandler(e: GuildMessageReceivedEvent) {
         handleInvocation(e.channel, e.message, e.author, true)
     }
 
-    override fun onPrivateMessageReceived(e: PrivateMessageReceivedEvent) {
+    @Subscribe fun privateMessageHandler(e: PrivateMessageReceivedEvent) {
         handleInvocation(e.channel, e.message, e.author, false)
     }
 
