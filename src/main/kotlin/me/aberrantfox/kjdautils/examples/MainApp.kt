@@ -19,9 +19,6 @@ fun main(args: Array<String>) {
     }
 }
 
-/**
- * You can create an event handler that
- */
 class MessageLogger {
     @Subscribe fun onMessage(event: GuildMessageReceivedEvent) = println(event.message.contentRaw)
 }
