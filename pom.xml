@@ -6,7 +6,7 @@
 
     <groupId>me.aberrantfox</groupId>
     <artifactId>KJDAUtils</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
 
     <properties>
         <kotlin.version>1.2.41</kotlin.version>
@@ -34,11 +34,6 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.43</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.exposed</groupId>
-            <artifactId>exposed</artifactId>
-            <version>0.9.1</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -78,27 +73,8 @@
             <name>jcenter-bintray</name>
             <url>http://jcenter.bintray.com</url>
         </repository>
-        <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-kotlin-exposed</id>
-            <name>bintray</name>
-            <url>http://dl.bintray.com/kotlin/exposed</url>
-        </repository>
     </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-kotlin-exposed</id>
-            <name>bintray-plugins</name>
-            <url>http://dl.bintray.com/kotlin/exposed</url>
-        </pluginRepository>
-    </pluginRepositories>
-
+         
     <build>
         <plugins>
             <plugin>
