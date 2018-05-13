@@ -14,7 +14,8 @@ fun main(args: Array<String>) {
     val prefix = "!"
     val commandPath =  "me.aberrantfox.kjdautils.examples"
 
-    startBot(token, prefix, commandPath) {
+    startBot(token) {
+        registerCommands(commandPath, prefix)
         registerListener(MessageLogger())
     }
 }

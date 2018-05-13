@@ -1,4 +1,4 @@
-package me.aberrantfox.kjdautils.api.event
+package me.aberrantfox.kjdautils.internal.event
 
 import com.google.common.eventbus.EventBus
 import net.dv8tion.jda.core.events.*
