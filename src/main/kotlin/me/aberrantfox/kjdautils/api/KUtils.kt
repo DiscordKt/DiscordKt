@@ -22,7 +22,7 @@ class KUtils(val config: KJDAConfiguration) {
         config.commandPath = commandPath
         config.prefix = prefix
         container = produceContainer(commandPath)
-        listener = CommandListener(config, container!!, jda, DefaultLogger())
+        listener = CommandListener(config, container!!, jda, logger)
         registerListener(listener!!)
     }
 
