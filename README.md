@@ -13,7 +13,14 @@ fun main(args: Array<String>) {
     val prefix = "!"
     val commandPath =  "me.aberrantfox.kjdautils.examples"
 
-    startBot(token, prefix, commandPath)
+    startBot(token) {
+        registerCommands(commandPath, prefix)
+        registerListener(MessageLogger())
+    }
+}
+
+class MessageLogger {
+    @Subscribe fun onMessage(event: GuildMessageReceivedEvent) = println(event.message.contentRaw)
 }
 
 @CommandSet
