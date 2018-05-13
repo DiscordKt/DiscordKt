@@ -58,6 +58,9 @@ fun helpCommand() = commands {
 }
 ```
 
+**For a more comprehensive guide, see the Wiki** 
+ https://github.com/AberrantFox/KUtils/wiki
+
 
 #### Add to your project with Maven
 Under the dependencies tag, add
@@ -66,7 +69,7 @@ Under the dependencies tag, add
 <dependency>
     <groupId>com.github.aberrantfox</groupId>
     <artifactId>Kutils</artifactId>
-    <version>0.2.1</version>
+    <version>0.3.0</version>
 </dependency>
 ```
 
