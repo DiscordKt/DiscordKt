@@ -2,6 +2,7 @@ package me.aberrantfox.kjdautils.api.dsl
 
 import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
+import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
 import net.dv8tion.jda.core.JDA
@@ -125,17 +126,17 @@ data class CommandsContainer(var log: BotLogger, var commands: HashMap<String, C
     }
 }
 
-fun produceContainer(path: String): CommandsContainer {
+fun produceContainer(path: String, diService: DIService): CommandsContainer {
     val cmds = Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(CommandSet::class.java)
 
-    val container = cmds.map { it.invoke(null) }
+    val container = cmds.map { diService.invokeReturningMethod(it) }
             .map { it as CommandsContainer }
             .reduce { a, b -> a.join(b) }
 
     val lowMap = HashMap<String, Command>()
 
     container.commands.keys.forEach {
-        lowMap.put(it.toLowerCase(), container.commands[it]!!)
+        lowMap[it.toLowerCase()] = container.commands[it]!!
     }
 
     container.commands = lowMap

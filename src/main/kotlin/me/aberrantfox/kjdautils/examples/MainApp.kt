@@ -8,6 +8,13 @@ import me.aberrantfox.kjdautils.api.dsl.embed
 import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
+import java.math.BigInteger
+
+data class MyCustomBotConfiguration(val version: String , val token: String)
+
+data class MyCustomLogger(val prefix: String) {
+    fun log(data: String) = println(data)
+}
 
 fun main(args: Array<String>) {
     val token = args.component1()
@@ -15,6 +22,9 @@ fun main(args: Array<String>) {
     val commandPath =  "me.aberrantfox.kjdautils.examples"
 
     startBot(token) {
+        val myConfig = MyCustomBotConfiguration("0.1.0", token)
+        val myLog = MyCustomLogger(":: BOT ::")
+        registerInjectionObject(myConfig, myLog)
         registerCommands(commandPath, prefix)
         registerListener(MessageLogger())
     }
@@ -25,7 +35,20 @@ class MessageLogger {
 }
 
 @CommandSet
-fun helpCommand() = commands {
+fun defineOther(log: MyCustomLogger) = commands {
+    command("someCommand") {
+        execute { log.log("Hello, World!") }
+    }
+}
+
+@CommandSet
+fun helpCommand(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = commands {
+    command("version") {
+        execute {
+            it.respond(myConfig.version)
+            log.log("Version logged!")
+        }
+    }
     command("help") {
         execute {
             it.respond(embed {
