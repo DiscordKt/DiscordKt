@@ -8,7 +8,6 @@ import me.aberrantfox.kjdautils.api.dsl.embed
 import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
-import java.math.BigInteger
 
 data class MyCustomBotConfiguration(val version: String , val token: String)
 

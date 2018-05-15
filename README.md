@@ -8,12 +8,21 @@ for public use.
 
 sample bot:
 ```kotlin
+data class MyCustomBotConfiguration(val version: String , val token: String)
+
+data class MyCustomLogger(val prefix: String) {
+    fun log(data: String) = println(data)
+}
+
 fun main(args: Array<String>) {
     val token = args.component1()
     val prefix = "!"
     val commandPath =  "me.aberrantfox.kjdautils.examples"
 
     startBot(token) {
+        val myConfig = MyCustomBotConfiguration("0.1.0", token)
+        val myLog = MyCustomLogger(":: BOT ::")
+        registerInjectionObject(myConfig, myLog)
         registerCommands(commandPath, prefix)
         registerListener(MessageLogger())
     }
@@ -24,7 +33,20 @@ class MessageLogger {
 }
 
 @CommandSet
-fun helpCommand() = commands {
+fun defineOther(log: MyCustomLogger) = commands {
+    command("someCommand") {
+        execute { log.log("Hello, World!") }
+    }
+}
+
+@CommandSet
+fun helpCommand(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = commands {
+    command("version") {
+        execute {
+            it.respond(myConfig.version)
+            log.log("Version logged!")
+        }
+    }
     command("help") {
         execute {
             it.respond(embed {
@@ -76,7 +98,7 @@ Under the dependencies tag, add
 <dependency>
     <groupId>com.github.aberrantfox</groupId>
     <artifactId>Kutils</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
 </dependency>
 ```
 
