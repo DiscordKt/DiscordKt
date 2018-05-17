@@ -1,6 +1,7 @@
 package me.aberrantfox.kjdautils.api
 
 import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.internal.command.CommandExecutor
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.CommandListener
@@ -11,6 +12,7 @@ import net.dv8tion.jda.core.JDABuilder
 
 class KUtils(val config: KJDAConfiguration) {
     private var listener: CommandListener? = null
+    private var executor: CommandExecutor? = null
     private var container: CommandsContainer? = null
     private val diService = DIService()
 
@@ -27,7 +29,8 @@ class KUtils(val config: KJDAConfiguration) {
         config.commandPath = commandPath
         config.prefix = prefix
         container = produceContainer(commandPath, diService)
-        listener = CommandListener(config, container!!, jda, logger)
+        executor = CommandExecutor(config, container!!, jda)
+        listener = CommandListener(config, container!!, jda, logger, executor!!)
         registerListener(listener!!)
     }
 

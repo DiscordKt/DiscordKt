@@ -6,21 +6,13 @@ import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
 import me.aberrantfox.kjdautils.extensions.jda.obtainRole
 import me.aberrantfox.kjdautils.extensions.stdlib.*
+import me.aberrantfox.kjdautils.internal.command.ConversionResult.Error
+import me.aberrantfox.kjdautils.internal.command.ConversionResult.Results
 import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.entities.ISnowflake
-import me.aberrantfox.kjdautils.internal.command.ConversionResult.*
 import net.dv8tion.jda.core.entities.TextChannel
 
 const val separatorCharacter = "|"
 
-val snowflakeConversions = mapOf<ArgumentType, JDA.(String) -> ISnowflake?>(
-        ArgumentType.User to { x -> retrieveUserById(x).complete() },
-        ArgumentType.TextChannel to JDA::getTextChannelById,
-        ArgumentType.VoiceChannel to JDA::getVoiceChannelById,
-        ArgumentType.Role to JDA::obtainRole
-)
-
-val snowflakeArgTypes = snowflakeConversions.keys
 val consumingArgTypes = listOf(ArgumentType.Sentence, ArgumentType.Splitter)
 val multiplePartArgTypes = listOf(ArgumentType.Sentence, ArgumentType.Splitter, ArgumentType.TimeString)
 
@@ -53,20 +45,19 @@ fun convertArguments(actual: List<String>, expected: List<CommandArgument>, even
     val expectedTypes = expected.map { it.type }
 
     if (expectedTypes.contains(ArgumentType.Manual)) {
-        return ConversionResult.Results(actual)
+        return Results(actual)
     }
 
-    return convertMainArgs(actual, expected, event.container)
-            .thenIf(expectedTypes.any(snowflakeArgTypes::contains)) {
-                retrieveSnowflakes(it, expected, event.jda)
-            }.then {
+    return convertMainArgs(actual, expected, event)
+            .then {
                 convertOptionalArgs(it, expected, event)
             }.thenIf(expectedTypes.contains(ArgumentType.Message)) {
                 retrieveMessageArgs(it, expected)
             } // final and separate message conversion because dependent on text channel arg being converted already
 }
 
-fun convertMainArgs(actual: List<String>, expected: List<CommandArgument>, container: CommandsContainer): ConversionResult {
+fun convertMainArgs(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): ConversionResult {
+
     val converted = arrayOfNulls<Any?>(expected.size)
 
     val remaining = actual.toMutableList()
@@ -75,23 +66,24 @@ fun convertMainArgs(actual: List<String>, expected: List<CommandArgument>, conta
         val actualArg = remaining.first()
 
         val nextMatchingIndex = expected.withIndex().indexOfFirst {
-            matchesArgType(actualArg, it.value.type, container) && converted[it.index] == null
+            matchesArgType(actualArg, it.value.type, event.container) && converted[it.index] == null
         }
         if (nextMatchingIndex == -1) return Error("Couldn't match '$actualArg' with the expected arguments. Try using the `help` command.")
 
         val expectedType = expected[nextMatchingIndex].type
 
-        val result = convertArg(actualArg, expectedType, remaining, container)
+        val result = convertArg(actualArg, expectedType, remaining, event)
 
-        if (result is Error) return result
+        when (result) {
+            is Results -> {} // carry on with `Results`
+            is Error -> return result
+        }
 
-        val convertedValue =
-                when (result) {
-                    is Results -> result.results.first()
-                    else -> result
-                }
+        val convertedValue = result.results.first()
 
-        consumeArgs(actualArg, expectedType, result, remaining)
+        result.consumed?.map {
+            remaining.remove(it)
+        }
 
         converted[nextMatchingIndex] = convertedValue
     }
@@ -104,23 +96,22 @@ fun convertMainArgs(actual: List<String>, expected: List<CommandArgument>, conta
     return Results(converted.toList())
 }
 
-fun retrieveSnowflakes(args: List<Any?>, expected: List<CommandArgument>, jda: JDA): ConversionResult {
+fun convertOptionalArgs(args: List<Any?>, expected: List<CommandArgument>, event: CommandEvent): ConversionResult {
+    val zip = args.zip(expected)
+
     val converted =
-            args.zip(expected).map { (arg, expectedArg) ->
+            zip.map { (arg, expectedArg) ->
+                if (arg != null) return@map arg
 
-                val conversionFun = snowflakeConversions[expectedArg.type]
+                val default = expectedArg.defaultValue
 
-                if (conversionFun == null || arg == null) return@map arg
-
-                val retrieved =
-                        try {
-                            conversionFun(jda, (arg as String).trimToID())
-                        } catch (e: RuntimeException) {
-                            null
-                        } ?: return Error("Couldn't retrieve ${expectedArg.type}: $arg.")
-
-                return@map retrieved
+                if (default is Function<*>) {
+                    return@map (default as (CommandEvent) -> Any).invoke(event)
+                } else {
+                    return@map default
+                }
             }
+
     return Results(converted)
 }
 
@@ -145,16 +136,6 @@ fun retrieveMessageArgs(args: List<Any?>, expected: List<CommandArgument>): Conv
     return Results(converted)
 }
 
-fun convertOptionalArgs(args: List<Any?>, expected: List<CommandArgument>, event: CommandEvent) =
-        args.zip(expected)
-                .map { (arg, expectedArg) ->
-                    arg ?: if (expectedArg.defaultValue is Function<*>)
-                        (expectedArg.defaultValue as (CommandEvent) -> Any).invoke(event)
-                    else
-                        expectedArg.defaultValue
-                }.let { Results(it) }
-
-
 private fun matchesArgType(arg: String, type: ArgumentType, container: CommandsContainer): Boolean {
     return when (type) {
         ArgumentType.Integer -> arg.isInteger()
@@ -166,32 +147,46 @@ private fun matchesArgType(arg: String, type: ArgumentType, container: CommandsC
     }
 }
 
+private fun convertArg(arg: String, type: ArgumentType, remaining: MutableList<String>, event: CommandEvent): ConversionResult {
 
-private fun convertArg(arg: String, type: ArgumentType, actual: MutableList<String>, container: CommandsContainer) =
-        when (type) {
-            ArgumentType.Integer -> arg.toInt()
-            ArgumentType.Double -> arg.toDouble()
-            ArgumentType.Choice -> arg.toBooleanValue()
-            ArgumentType.Command -> container[arg.toLowerCase()] ?: throw IllegalStateException("Command argument should have been already verified as valid.")
-            ArgumentType.Sentence -> joinArgs(actual)
-            ArgumentType.Splitter -> splitArg(actual)
-            ArgumentType.TimeString -> convertTimeString(actual)
-            else -> arg
+    val jda = event.jda
+    val trimmed = arg.trimToID()
+
+    val tryRetrieve = { action: (JDA) -> Any? -> tryRetrieveSnowflake(jda, action) }
+
+    val result: Any = when (type) {
+        ArgumentType.Integer -> arg.toInt()
+        ArgumentType.Double -> arg.toDouble()
+        ArgumentType.Choice -> arg.toBooleanValue()
+        ArgumentType.Sentence -> joinArgs(remaining)
+        ArgumentType.Splitter -> splitArg(remaining)
+        ArgumentType.TimeString -> convertTimeString(remaining)
+        ArgumentType.Command -> event.container[arg.toLowerCase()]
+        ArgumentType.User -> tryRetrieve { jda.retrieveUserById(trimmed).complete() }
+        ArgumentType.TextChannel -> tryRetrieve { jda.getTextChannelById(trimmed) }
+        ArgumentType.VoiceChannel -> tryRetrieve { jda.getVoiceChannelById(trimmed) }
+        ArgumentType.Role -> tryRetrieve { jda.obtainRole(trimmed) }
+
+        else -> arg
+    } ?: return Error("Couldn't retrieve $type: $arg")
+
+    if (result !is Results) {
+        return if (type in consumingArgTypes) {
+            Results(listOf(result), consumed = remaining.toList())
+        } else {
+            Results(listOf(result), consumed = listOf(arg))
         }
-
-private fun consumeArgs(actualArg: String, type: ArgumentType, result: Any, remaining: MutableList<String>) {
-    if (type !in multiplePartArgTypes) {
-        remaining.remove(actualArg)
-    } else if (type in consumingArgTypes) {
-        remaining.clear()
     }
 
-    if (result is Results) {
-        result.consumed?.map {
-            remaining.remove(it)
-        }
-    }
+    return result
 }
+
+private fun tryRetrieveSnowflake(jda: JDA, action: (JDA) -> Any?): Any? =
+        try {
+            action(jda)
+        } catch (e: RuntimeException) {
+            null
+        }
 
 private fun joinArgs(actual: List<String>) = actual.joinToString(" ")
 
