@@ -24,15 +24,27 @@ fun cleanCommandMessage(message: String, config: KJDAConfiguration): CommandStru
 
 fun getArgCountError(actual: List<String>, cmd: Command): String? {
     val optionalCount = cmd.expectedArgs.count { it.optional }
-    val argCountRange = cmd.parameterCount - optionalCount..cmd.parameterCount
+    val validRange = (cmd.parameterCount - optionalCount) .. cmd.parameterCount
 
-    if (cmd.expectedArgs.any { it.type in multiplePartArgTypes }) {
-        if (actual.size < argCountRange.start) {
-            return "You didn't enter the minimum number of required arguments: ${cmd.expectedArgs.size - optionalCount}."
+    val manual = cmd.expectedArgs
+            .map { it.type }
+            .any { it == Manual }
+
+    if (manual) return null
+
+    val hasMultipleArg = cmd.expectedArgs
+            .map { it.type.consumptionType }
+            .any { it in listOf(ConsumptionType.Multiple, ConsumptionType.All) }
+
+    if (hasMultipleArg) {
+        if (actual.size < validRange.start) {
+            return "This command requires at least ${validRange.start} argument(s)"
         }
-    } else {
-        if (actual.size !in argCountRange && !cmd.expectedArgs.contains(arg(Manual))) {
-            return "This command requires at least ${argCountRange.start} and a maximum of ${argCountRange.endInclusive} arguments."
+    } else if (actual.size !in validRange) {
+        return if (validRange.start == validRange.endInclusive) {
+            "This command requires ${validRange.start} argument(s)."
+        } else {
+            "This command requires between ${validRange.start} and ${validRange.endInclusive} arguments."
         }
     }
 

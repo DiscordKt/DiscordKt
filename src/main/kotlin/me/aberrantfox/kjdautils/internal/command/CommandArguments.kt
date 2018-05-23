@@ -16,48 +16,61 @@ sealed class ArgumentResult {
     data class Error(val error: String) : ArgumentResult()
 }
 
+enum class ConsumptionType {
+    Single, Multiple, All
+}
+
 interface ArgumentType {
+    val consumptionType: ConsumptionType
+
     fun isValid(arg: String, event: CommandEvent): Boolean
     fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult
 }
 
 object IntegerArg : ArgumentType {
+    override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = arg.isInteger()
     override fun convert(arg: String, args: List<String>, event: CommandEvent) = Single(arg.toInt())
 }
 
-
 object DoubleArg : ArgumentType {
+    override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = arg.isDouble()
     override fun convert(arg: String, args: List<String>, event: CommandEvent) = Single(arg.toDouble())
 }
 
 object Choice : ArgumentType {
+    override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = arg.isBooleanValue()
     override fun convert(arg: String, args: List<String>, event: CommandEvent) = Single(arg.toBooleanValue())
 }
 
 object URL : ArgumentType {
+    override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = arg.containsURl()
     override fun convert(arg: String, args: List<String>, event: CommandEvent) = Single(arg)
 }
 
 object Word : ArgumentType {
+    override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent) = Single(arg)
 }
 
 object TimeString : ArgumentType {
+    override val consumptionType = ConsumptionType.Multiple
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent) = convertTimeString(args)
 }
 
 object Sentence : ArgumentType {
+    override val consumptionType = ConsumptionType.All
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent) = Multiple(args.joinToString(" "), args)
 }
 
 object UserArg : ArgumentType {
+    override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
         val retrieved = tryRetrieveSnowflake(event.jda) { it.retrieveUserById(arg.trimToID()).complete() }
@@ -71,6 +84,7 @@ object UserArg : ArgumentType {
 }
 
 object Splitter : ArgumentType {
+    override val consumptionType = ConsumptionType.All
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
         val joined = args.joinToString(" ")
@@ -82,6 +96,7 @@ object Splitter : ArgumentType {
 }
 
 object TextChannelArg : ArgumentType {
+    override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
         val retrieved = tryRetrieveSnowflake(event.jda) { it.getTextChannelById(arg.trimToID()) }
@@ -95,6 +110,7 @@ object TextChannelArg : ArgumentType {
 }
 
 object VoiceChannelArg : ArgumentType {
+    override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
         val retrieved = tryRetrieveSnowflake(event.jda) { it.getVoiceChannelById(arg.trimToID()) }
@@ -108,6 +124,7 @@ object VoiceChannelArg : ArgumentType {
 }
 
 object RoleArg : ArgumentType {
+    override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
         val retrieved = tryRetrieveSnowflake(event.jda) { it.obtainRole(arg.trimToID()) }
@@ -121,6 +138,7 @@ object RoleArg : ArgumentType {
 }
 
 object CommandArg : ArgumentType {
+    override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = event.container.has(arg.toLowerCase())
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
         val command = event.container[arg.toLowerCase()]
@@ -134,6 +152,7 @@ object CommandArg : ArgumentType {
 }
 
 object MessageArg : ArgumentType {
+    override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
         val retrieved = tryRetrieveSnowflake(event.jda) {
@@ -149,6 +168,7 @@ object MessageArg : ArgumentType {
 }
 
 object Manual : ArgumentType {
+    override val consumptionType = ConsumptionType.All
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent) = Multiple(args, args)
 }
