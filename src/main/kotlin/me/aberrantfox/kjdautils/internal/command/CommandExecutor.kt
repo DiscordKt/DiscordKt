@@ -6,8 +6,8 @@ import me.aberrantfox.kjdautils.api.dsl.Command
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
 import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
-import me.aberrantfox.kjdautils.internal.command.ConversionResult.Error
-import me.aberrantfox.kjdautils.internal.command.ConversionResult.Results
+import me.aberrantfox.kjdautils.internal.command.Result.Error
+import me.aberrantfox.kjdautils.internal.command.Result.Results
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.Message
 

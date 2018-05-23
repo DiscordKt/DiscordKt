@@ -2,12 +2,13 @@ package me.aberrantfox.kjdautils.internal.command
 
 import me.aberrantfox.kjdautils.extensions.stdlib.isDigitOrPeriod
 import me.aberrantfox.kjdautils.extensions.stdlib.isDouble
-import me.aberrantfox.kjdautils.internal.command.ConversionResult.*
+import me.aberrantfox.kjdautils.internal.command.ArgumentResult.*
+import kotlin.Double
 
 private typealias Quantity = Double
 private typealias Quantifier = String
 
-fun convertTimeString(actual: List<String>): ConversionResult {
+fun convertTimeString(actual: List<String>): ArgumentResult {
 
     val possibleEnd = actual.indexOfFirst { toTimeElement(it) == null }
 
@@ -65,7 +66,7 @@ fun convertTimeString(actual: List<String>): ConversionResult {
             .reduce { a, b -> a + b }
 
 
-    return Results(results=listOf(timeInSeconds), consumed=consumed)
+    return Multiple(timeInSeconds, consumed)
 }
 
 private fun toTimeElement(element: String): Any? {

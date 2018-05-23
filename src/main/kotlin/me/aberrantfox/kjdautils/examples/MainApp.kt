@@ -6,8 +6,11 @@ import me.aberrantfox.kjdautils.api.dsl.CommandSet
 import me.aberrantfox.kjdautils.api.dsl.commands
 import me.aberrantfox.kjdautils.api.dsl.embed
 import me.aberrantfox.kjdautils.api.startBot
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
+import me.aberrantfox.kjdautils.extensions.jda.fullName
+import me.aberrantfox.kjdautils.internal.command.Sentence
+import me.aberrantfox.kjdautils.internal.command.User
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
+import java.text.SimpleDateFormat
 
 data class MyCustomBotConfiguration(val version: String , val token: String)
 
@@ -79,10 +82,24 @@ fun helpCommand(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = comma
     }
 
     command("echo") {
-        expect(ArgumentType.Sentence)
+        expect(Sentence)
         execute {
             val response = it.args.component1() as String
             it.respond(response)
+        }
+    }
+
+    command("joindate") {
+        expect(User)
+        execute {
+            val target = it.args.component1() as net.dv8tion.jda.core.entities.User
+            val member = it.author.mutualGuilds.first().getMember(target)
+
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+            val joinDateParsed = dateFormat.parse(member.joinDate.toString())
+            val joinDate = dateFormat.format(joinDateParsed)
+
+            it.respond("${member.fullName()}'s join date: $joinDate")
         }
     }
 }

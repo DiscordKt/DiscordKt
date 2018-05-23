@@ -31,7 +31,7 @@ fun getArgCountError(actual: List<String>, cmd: Command): String? {
             return "You didn't enter the minimum number of required arguments: ${cmd.expectedArgs.size - optionalCount}."
         }
     } else {
-        if (actual.size !in argCountRange && !cmd.expectedArgs.contains(arg(ArgumentType.Manual))) {
+        if (actual.size !in argCountRange && !cmd.expectedArgs.contains(arg(Manual))) {
             return "This command requires at least ${argCountRange.start} and a maximum of ${argCountRange.endInclusive} arguments."
         }
     }

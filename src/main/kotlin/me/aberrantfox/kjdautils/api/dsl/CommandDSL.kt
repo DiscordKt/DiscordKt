@@ -1,7 +1,9 @@
 package me.aberrantfox.kjdautils.api.dsl
 
+import com.sun.jdi.connect.Connector
 import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
+import me.aberrantfox.kjdautils.internal.command.Word
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
@@ -69,7 +71,7 @@ open class Command(var log: BotLogger, open val name: String,  var expectedArgs:
     }
 
     fun expect(vararg args: ArgumentType) {
-        val clone = Array(args.size) { arg(ArgumentType.Word) }
+        val clone = Array(args.size) { arg(Word) }
 
         for (x in args.indices) {
             clone[x] = arg(args[x])
