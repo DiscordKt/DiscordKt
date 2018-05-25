@@ -7,6 +7,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentResult.Multiple
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult.Single
 import me.aberrantfox.kjdautils.internal.command.Result.Error
 import me.aberrantfox.kjdautils.internal.command.Result.Results
+import me.aberrantfox.kjdautils.internal.command.arguments.Manual
 
 const val separatorCharacter = "|"
 

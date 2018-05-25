@@ -3,7 +3,7 @@ package me.aberrantfox.kjdautils.internal.command
 
 import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
 import me.aberrantfox.kjdautils.api.dsl.Command
-import me.aberrantfox.kjdautils.api.dsl.arg
+import me.aberrantfox.kjdautils.internal.command.arguments.Manual
 
 data class CommandStruct(val commandName: String, val commandArgs: List<String> = listOf())
 
