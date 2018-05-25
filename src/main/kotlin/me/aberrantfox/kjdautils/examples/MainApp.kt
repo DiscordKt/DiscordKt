@@ -25,7 +25,7 @@ fun main(args: Array<String>) {
         val myLog = MyCustomLogger(":: BOT ::")
         registerInjectionObject(myConfig, myLog)
         registerCommands(commandPath, prefix)
-        registerListener(MessageLogger())
+        registerListeners(MessageLogger())
     }
 }
 

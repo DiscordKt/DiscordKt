@@ -31,12 +31,15 @@ class KUtils(val config: KJDAConfiguration) {
         container = produceContainer(commandPath, diService)
         executor = CommandExecutor(config, container!!, jda)
         listener = CommandListener(config, container!!, jda, logger, executor!!)
-        registerListener(listener!!)
+        registerListeners(listener!!)
     }
 
     fun registerCommandPrecondition(condition: (CommandEvent) -> Boolean) = listener?.addPrecondition(condition)
 
-    fun registerListener(listener: Any) = EventRegister.eventBus.register(listener)
+    fun registerListeners(vararg listeners: Any) =
+            listeners.forEach {
+                EventRegister.eventBus.register(it)
+            }
 }
 
 fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
