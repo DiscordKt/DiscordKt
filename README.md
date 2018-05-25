@@ -103,7 +103,7 @@ Under the dependencies tag, add
 <dependency>
     <groupId>com.github.aberrantfox</groupId>
     <artifactId>Kutils</artifactId>
-    <version>0.4.0</version>
+    <version>0.5.0</version>
 </dependency>
 ```
 
