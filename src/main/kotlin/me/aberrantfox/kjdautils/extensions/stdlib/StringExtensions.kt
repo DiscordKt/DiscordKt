@@ -69,12 +69,13 @@ fun String.toRole(guild: Guild): Role? = guild.getRoleById(this)
 fun String.sanitiseMentions() = this.replace("@", "")
 
 fun String.trimToID(): String =
-        if (this.startsWith("<@") && this.endsWith(">")) {
+        if (this.startsWith("<") && this.endsWith(">")) {
             replace("<", "")
                     .replace(">", "")
                     .replace("@", "")
-                    .replace("!", "") // Mentions with nicknames
+                    .replace("!", "") // User mentions with nicknames
                     .replace("&", "") // Role mentions
+                    .replace("#", "") // Channel mentions
         } else {
             this
         }

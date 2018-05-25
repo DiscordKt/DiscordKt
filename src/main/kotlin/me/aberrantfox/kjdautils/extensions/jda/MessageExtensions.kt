@@ -13,6 +13,8 @@ fun Message.isCommandInvocation(config: KJDAConfiguration) = contentRaw.startsWi
 
 fun Message.deleteIfExists(runnable: () -> Unit = {}) = channel.getMessageById(id).queue { it?.delete()?.queue { runnable() } }
 
+fun Message.isDoubleInvocation(prefix: String) = contentRaw.startsWith(prefix + prefix)
+
 fun Message.mentionsSomeone() = (mentionsEveryone() || mentionedUsers.size > 0 || mentionedRoles.size > 0)
 
 fun Message.isImagePost() =

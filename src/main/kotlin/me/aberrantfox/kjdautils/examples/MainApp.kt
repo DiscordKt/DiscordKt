@@ -6,7 +6,7 @@ import me.aberrantfox.kjdautils.api.dsl.CommandSet
 import me.aberrantfox.kjdautils.api.dsl.commands
 import me.aberrantfox.kjdautils.api.dsl.embed
 import me.aberrantfox.kjdautils.api.startBot
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
+import me.aberrantfox.kjdautils.internal.command.Sentence
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 
 data class MyCustomBotConfiguration(val version: String , val token: String)
@@ -25,7 +25,7 @@ fun main(args: Array<String>) {
         val myLog = MyCustomLogger(":: BOT ::")
         registerInjectionObject(myConfig, myLog)
         registerCommands(commandPath, prefix)
-        registerListener(MessageLogger())
+        registerListeners(MessageLogger())
     }
 }
 
@@ -79,7 +79,7 @@ fun helpCommand(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = comma
     }
 
     command("echo") {
-        expect(ArgumentType.Sentence)
+        expect(Sentence)
         execute {
             val response = it.args.component1() as String
             it.respond(response)
