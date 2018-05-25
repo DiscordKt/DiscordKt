@@ -2,11 +2,16 @@
 The purpose of this is to provide a nice kotlin wrapper over JDA and to add a bunch of extension functions for utility 
 purposes/cleaner code.
 
-##### Note
-This is still in a very alpha stage, this section of the README will be updated with a maven import when it is ready 
-for public use.
+##### Key Features
 
-sample bot:
+- A very powerful, flexible command DSL for making testable commands.
+- A means for event handling that doesn't require inheritance, using Guava event bus
+- A means to mock out your dependencies for each component, allowing you to test as you please.
+- An embed DSL
+- No need to worry about blocking commands, they are all automatically wrapped into a coroutine context. 
+
+##### Sample Bot
+
 ```kotlin
 data class MyCustomBotConfiguration(val version: String , val token: String)
 
