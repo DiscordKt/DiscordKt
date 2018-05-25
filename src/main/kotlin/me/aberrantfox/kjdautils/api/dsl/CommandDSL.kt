@@ -1,6 +1,5 @@
 package me.aberrantfox.kjdautils.api.dsl
 
-import com.sun.jdi.connect.Connector
 import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.Word
