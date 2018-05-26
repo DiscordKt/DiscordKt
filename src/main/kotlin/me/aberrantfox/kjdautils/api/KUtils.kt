@@ -26,7 +26,7 @@ class KUtils(val config: KJDAConfiguration) {
 
     fun registerInjectionObject(vararg obj: Any) = obj.forEach { diService.addElement(it) }
 
-    fun registerCommands(commandPath: String, prefix: String) {
+    fun registerCommands(commandPath: String, prefix: String): CommandsContainer {
         config.commandPath = commandPath
         config.prefix = prefix
 
@@ -41,6 +41,8 @@ class KUtils(val config: KJDAConfiguration) {
         this.listener = listener
 
         registerListeners(listener)
+
+        return container
     }
 
     fun registerCommandPrecondition(condition: (CommandEvent) -> Boolean) = listener?.addPrecondition(condition)
