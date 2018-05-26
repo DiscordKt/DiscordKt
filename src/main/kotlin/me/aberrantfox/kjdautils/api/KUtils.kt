@@ -29,13 +29,18 @@ class KUtils(val config: KJDAConfiguration) {
     fun registerCommands(commandPath: String, prefix: String) {
         config.commandPath = commandPath
         config.prefix = prefix
-        container = produceContainer(commandPath, diService)
-        executor = CommandExecutor(config, container!!, jda)
-        listener = CommandListener(config, container!!, jda, logger, executor!!)
 
-        CommandRecommender.addAll(container!!.listCommands())
+        val container = produceContainer(commandPath, diService)
+        CommandRecommender.addAll(container.listCommands())
 
-        registerListeners(listener!!)
+        val executor = CommandExecutor(config, container, jda)
+        val listener = CommandListener(config, container, jda, logger, executor)
+
+        this.container = container
+        this.executor = executor
+        this.listener = listener
+
+        registerListeners(listener)
     }
 
     fun registerCommandPrecondition(condition: (CommandEvent) -> Boolean) = listener?.addPrecondition(condition)
