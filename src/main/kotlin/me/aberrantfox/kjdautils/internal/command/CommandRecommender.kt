@@ -2,7 +2,7 @@ package me.aberrantfox.kjdautils.internal.command
 
 import org.apache.commons.text.similarity.LevenshteinDistance
 
-internal object CommandRecommender {
+object CommandRecommender {
     private val calc = LevenshteinDistance()
     private val possibilities: MutableList<String> = ArrayList()
     private val smartAssComment = "to spam me like some kind of dummy"
