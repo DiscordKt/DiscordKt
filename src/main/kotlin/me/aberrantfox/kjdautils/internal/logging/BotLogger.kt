@@ -28,7 +28,7 @@ data class ChannelIdHolder(val info: String = "insert-id-here",
                            val voice: String = "insert-id-here",
                            val history: String = "insert-id-here")
 
-internal fun convertChannels(holder: ChannelIdHolder, jda: JDA): BotLogger =
+fun convertChannels(holder: ChannelIdHolder, jda: JDA): BotLogger =
     ChannelLogger(Channels(
         jda.getTextChannelById(holder.info),
         jda.getTextChannelById(holder.cmd),
