@@ -68,6 +68,46 @@ startBot(token) {
 }
 ```
 
+
+**Create a command with some arguments**
+```kotlin
+@CommandSet
+fun createConfigCommands(config: Configuration) = commands {
+    command("mention") {
+        //Here we say that we expect a User as an argument
+        expect(UserArg)
+        execute {
+            //Since we said we expect to have a user as an argument, 
+            //this code will only happen if one is supplied. Meaning it is
+            //safe to just pull it out of the argument array and cast.
+            val user = it.args.component1() as User
+            it.respond(user.asMention)
+        }
+    }
+}
+```
+
+**Create a custom command Argument**
+
+Parsing the same thing over and over again is very annoying, that's why the expect function 
+exists. But there is a problem, what if you wanted a custom command argument? Well the parser
+supports that.
+
+```kotlin
+object ChoiceArg : ArgumentType {
+    //Is the argument just a word, a few words, or the entire string? (Single, Multiple or All)
+    override val consumptionType = ConsumptionType.Single
+    //Okay, define a means to determine if a string contains a valid instance of this argumentType
+    override fun isValid(arg: String, event: CommandEvent) = arg.isBooleanValue()
+    //Now, define a conversion function.
+    override fun convert(arg: String, args: List<String>, event: CommandEvent) = ArgumentResult.Single(arg.toBooleanValue())
+}
+```
+
+This is how the ChoiceArgument is defined. You don't need to redefine this, it comes with the library. 
+But this ability to just define your own arguments will save you a lot of repeated parsing. 
+
+
 **For a more comprehensive guide, see the Wiki** 
  https://github.com/AberrantFox/KUtils/wiki
 
