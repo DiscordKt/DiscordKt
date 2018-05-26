@@ -6,6 +6,7 @@ import me.aberrantfox.kjdautils.internal.command.CommandRecommender
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.CommandListener
+import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDABuilder
@@ -18,7 +19,7 @@ class KUtils(val config: KJDAConfiguration) {
     private val diService = DIService()
 
     val jda = JDABuilder(AccountType.BOT).setToken(config.token).buildBlocking()
-    var logger = DefaultLogger()
+    var logger: BotLogger = DefaultLogger()
 
     init {
         jda.addEventListener(EventRegister)
