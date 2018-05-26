@@ -10,85 +10,61 @@ purposes/cleaner code.
 - An embed DSL
 - No need to worry about blocking commands, they are all automatically wrapped into a coroutine context. 
 
-##### Sample Bot
+##### Examples
+*Note: For these examples, the token being obtained is ommited*
 
+**Ping bot**
 ```kotlin
-data class MyCustomBotConfiguration(val version: String , val token: String)
-
-data class MyCustomLogger(val prefix: String) {
-    fun log(data: String) = println(data)
-}
-
 fun main(args: Array<String>) {
-    val token = args.component1()
-    val prefix = "!"
-    val commandPath =  "me.aberrantfox.kjdautils.examples"
-
     startBot(token) {
-        val myConfig = MyCustomBotConfiguration("0.1.0", token)
-        val myLog = MyCustomLogger(":: BOT ::")
-        registerInjectionObject(myConfig, myLog)
+        val commandPath = "me.awesomebot.commandspackage"
+        val prefix = "!"
         registerCommands(commandPath, prefix)
-        registerListener(MessageLogger())
     }
 }
 
-class MessageLogger {
-    @Subscribe fun onMessage(event: GuildMessageReceivedEvent) = println(event.message.contentRaw)
-}
-
+//in any kotlin file in the package me.awesomebot.commandspackage:
 @CommandSet
-fun defineOther(log: MyCustomLogger) = commands {
-    command("someCommand") {
-        execute { log.log("Hello, World!") }
-    }
-}
-
-@CommandSet
-fun helpCommand(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = commands {
-    command("version") {
-        execute {
-            it.respond(myConfig.version)
-            log.log("Version logged!")
-        }
-    }
-    command("help") {
-        execute {
-            it.respond(embed {
-                title("Help menu")
-                description("Below you can see how to use all of the commands in this startBot")
-
-                field {
-                    name = "Help"
-                    value = "Display a help menu"
-                }
-
-                field {
-                    name = "Ping"
-                    value = "Pong"
-                }
-
-                field {
-                    name = "Echo"
-                    value = "Echo the command arguments in the current channel."
-                }
-            })
-        }
-    }
-
+fun createSomeCoolCommands() = commands {
     command("ping") {
         execute {
             it.respond("Pong!")
         }
     }
+}
+```
 
-    command("echo") {
-        expect(ArgumentType.Sentence)
+**Listen to an event**
+```kotlin
+startBot(token) {
+    registerEventListeners(MessageLogger())
+}
+
+class MessageLogger {
+    @Subscribe fun onMessage(event: GuildMessageReceivedEvent) = println(event.message.contentRaw)
+}
+```
+
+
+**A CommandSet with a dependency**
+```kotlin
+@CommandSet
+fun createConfigCommands(config: Configuration) = commands {
+    command("config") {
         execute {
-            val response = it.args.component1() as String
-            it.respond(response)
+            it.respond(config)
         }
     }
+}
+
+//notice how that command set took a configuration object? 
+
+data class Configuration(val botName: String = "Jeff")
+
+//well, in your startbot function, you can pass around an instance of a class to all of your commandsets:
+startBot(token) {
+    //that config will now be passed to our commandSet defined above.
+    registerInjectionObject(Configuration())
 }
 ```
 
