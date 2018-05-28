@@ -6,6 +6,7 @@ import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
 import me.aberrantfox.kjdautils.api.dsl.produceContainer
 import me.aberrantfox.kjdautils.internal.command.CommandExecutor
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
+import me.aberrantfox.kjdautils.internal.command.PreconditionResult
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.CommandListener
@@ -37,8 +38,8 @@ class KUtils(val config: KJDAConfiguration) {
         val container = produceContainer(commandPath, diService)
         CommandRecommender.addAll(container.listCommands())
 
-        val executor = CommandExecutor(container, jda)
-        val listener = CommandListener(config, container, jda, logger, executor)
+        val executor = CommandExecutor()
+        val listener = CommandListener(config, container, logger, executor)
 
         this.container = container
         this.executor = executor

@@ -2,7 +2,8 @@ package me.aberrantfox.kjdautils.internal.listeners
 
 
 import com.google.common.eventbus.Subscribe
-import me.aberrantfox.kjdautils.api.PreconditionResult
+import me.aberrantfox.kjdautils.internal.command.Fail
+import me.aberrantfox.kjdautils.internal.command.PreconditionResult
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
 import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
@@ -15,7 +16,6 @@ import me.aberrantfox.kjdautils.internal.command.CommandExecutor
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
 import me.aberrantfox.kjdautils.internal.command.cleanCommandMessage
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
-import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.entities.MessageChannel
 import net.dv8tion.jda.core.entities.User
@@ -25,18 +25,20 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 
 internal class CommandListener(val config: KJDAConfiguration,
                                val container: CommandsContainer,
-                               val jda: JDA,
                                var log: BotLogger,
-                               private val executor: CommandExecutor) {
+                               private val executor: CommandExecutor,
+                               private val preconditions: ArrayList<(CommandEvent) -> PreconditionResult> = ArrayList()) {
 
-    @Subscribe fun guildMessageHandler(e: GuildMessageReceivedEvent) =
-        handleMessage(e.channel, e.message, e.author, true)
+    @Subscribe
+    fun guildMessageHandler(e: GuildMessageReceivedEvent) =
+            handleMessage(e.channel, e.message, e.author, true)
 
-    @Subscribe fun privateMessageHandler(e: PrivateMessageReceivedEvent) =
-        handleMessage(e.channel, e.message, e.author, false)
+    @Subscribe
+    fun privateMessageHandler(e: PrivateMessageReceivedEvent) =
+            handleMessage(e.channel, e.message, e.author, false)
 
 
-    fun addPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) = executor.preconditions.addAll(conditions)
+    fun addPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) = preconditions.addAll(conditions)
 
     private fun handleMessage(channel: MessageChannel, message: Message, author: User, invokedInGuild: Boolean) {
 
@@ -53,7 +55,16 @@ internal class CommandListener(val config: KJDAConfiguration,
                 return
             }
 
-            executor.executeCommand(command, actualArgs, message)
+            val event = CommandEvent(command, message, actualArgs, container)
+
+            getPreconditionError(event)?.let {
+                if (it != "") {
+                    event.safeRespond(it)
+                }
+                return
+            }
+
+            executor.executeCommand(event)
 
             if (isDoubleInvocation) {
                 message.addReaction("\uD83D\uDC40").queue()
@@ -78,5 +89,17 @@ internal class CommandListener(val config: KJDAConfiguration,
         if (author.isBot) return false
 
         return true
+    }
+
+    private fun getPreconditionError(event: CommandEvent): String? {
+        val failedPrecondition = preconditions
+                .map { it.invoke(event) }
+                .firstOrNull { it is Fail }
+
+        if (failedPrecondition != null && failedPrecondition is Fail) {
+            return failedPrecondition.reason ?: ""
+        }
+
+        return null
     }
 }

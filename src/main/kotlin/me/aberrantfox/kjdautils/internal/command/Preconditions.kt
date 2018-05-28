@@ -1,4 +1,4 @@
-package me.aberrantfox.kjdautils.api
+package me.aberrantfox.kjdautils.internal.command
 
 sealed class PreconditionResult
 
