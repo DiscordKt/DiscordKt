@@ -46,7 +46,8 @@ class KUtils(val config: KJDAConfiguration) {
         return container
     }
 
-    fun registerCommandPrecondition(condition: (CommandEvent) -> Boolean) = listener?.addPrecondition(condition)
+    fun registerCommandPreconditions(vararg conditions: (CommandEvent) -> Boolean)
+            = listener?.addPreconditions(conditions.toList())
 
     fun registerListeners(vararg listeners: Any) =
             listeners.forEach {
