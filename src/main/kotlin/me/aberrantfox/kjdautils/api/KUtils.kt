@@ -1,6 +1,9 @@
 package me.aberrantfox.kjdautils.api
 
-import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.api.dsl.CommandEvent
+import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
+import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
+import me.aberrantfox.kjdautils.api.dsl.produceContainer
 import me.aberrantfox.kjdautils.internal.command.CommandExecutor
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
 import me.aberrantfox.kjdautils.internal.di.DIService
@@ -34,7 +37,7 @@ class KUtils(val config: KJDAConfiguration) {
         val container = produceContainer(commandPath, diService)
         CommandRecommender.addAll(container.listCommands())
 
-        val executor = CommandExecutor(config, container, jda)
+        val executor = CommandExecutor(container, jda)
         val listener = CommandListener(config, container, jda, logger, executor)
 
         this.container = container
@@ -46,8 +49,8 @@ class KUtils(val config: KJDAConfiguration) {
         return container
     }
 
-    fun registerCommandPreconditions(vararg conditions: (CommandEvent) -> Boolean)
-            = listener?.addPreconditions(conditions.toList())
+    fun registerCommandPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult)
+            = listener?.addPreconditions(*conditions)
 
     fun registerListeners(vararg listeners: Any) =
             listeners.forEach {

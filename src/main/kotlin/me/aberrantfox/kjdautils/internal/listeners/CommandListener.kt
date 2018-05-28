@@ -2,6 +2,7 @@ package me.aberrantfox.kjdautils.internal.listeners
 
 
 import com.google.common.eventbus.Subscribe
+import me.aberrantfox.kjdautils.api.PreconditionResult
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
 import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
@@ -35,8 +36,7 @@ internal class CommandListener(val config: KJDAConfiguration,
         handleMessage(e.channel, e.message, e.author, false)
 
 
-    fun addPreconditions(conditions: List<(CommandEvent) -> Boolean>) = executor.preconditions.addAll(conditions)
-    fun addPrecondition(condition: (CommandEvent) -> Boolean) = executor.preconditions.add(condition)
+    fun addPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) = executor.preconditions.addAll(conditions)
 
     private fun handleMessage(channel: MessageChannel, message: Message, author: User, invokedInGuild: Boolean) {
 
