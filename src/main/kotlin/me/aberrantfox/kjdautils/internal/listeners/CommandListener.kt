@@ -40,7 +40,7 @@ internal class CommandListener(val config: KJDAConfiguration,
 
     private fun handleMessage(channel: MessageChannel, message: Message, author: User, invokedInGuild: Boolean) {
 
-        if (!isUsableCommand(message, channel.id, author)) return
+        if (!isUsableCommand(message, author)) return
 
         val (commandName, actualArgs) = cleanCommandMessage(message.contentRaw, config)
 
@@ -70,7 +70,7 @@ internal class CommandListener(val config: KJDAConfiguration,
     }
 
 
-    private fun isUsableCommand(message: Message, channel: String, author: User): Boolean {
+    private fun isUsableCommand(message: Message, author: User): Boolean {
         if (message.contentRaw.length > 1500) return false
 
         if (!(message.isCommandInvocation(config))) return false
