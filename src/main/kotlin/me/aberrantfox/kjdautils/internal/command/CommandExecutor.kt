@@ -23,14 +23,13 @@ internal class CommandExecutor(val config: KJDAConfiguration,
 
     private fun invokeCommand(command: Command, actual: List<String>, message: Message) {
         val channel = message.channel
-        val author = message.author
 
         getArgCountError(actual, command)?.let {
             channel.sendMessage(it).queue()
             return
         }
 
-        val event = CommandEvent(config, jda, channel, author, message, container, actual)
+        val event = CommandEvent(command, message, actual, container)
         if (!preconditions.all { it.invoke(event) }) return
 
         val conversionResult = convertArguments(actual, command.expectedArgs.toList(), event)

@@ -4,19 +4,24 @@ import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.arguments.WordArg
 import me.aberrantfox.kjdautils.internal.di.DIService
-import me.aberrantfox.kjdautils.internal.logging.BotLogger
-import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
 import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.entities.*
+import net.dv8tion.jda.core.entities.Message
+import net.dv8tion.jda.core.entities.MessageChannel
+import net.dv8tion.jda.core.entities.MessageEmbed
+import net.dv8tion.jda.core.entities.User
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 
 
 annotation class CommandSet
 
-data class CommandEvent(val config: KJDAConfiguration, val jda: JDA, val channel: MessageChannel,
-                        val author: User, val message: Message, val container: CommandsContainer,
-                        var args: List<Any> = listOf()) {
+data class CommandEvent(val command: Command,
+                        val message: Message,
+                        var args: List<Any>,
+                        val container: CommandsContainer,
+                        val jda: JDA = message.jda,
+                        val author: User = message.author,
+                        val channel: MessageChannel = message.channel) {
 
     fun respond(msg: String) =
         if(msg.length > 2000) {
@@ -32,8 +37,10 @@ data class CommandEvent(val config: KJDAConfiguration, val jda: JDA, val channel
 }
 
 @CommandTagMarker
-open class Command(open val name: String,  var expectedArgs: Array<out CommandArgument> = arrayOf(),
-                   var execute: (CommandEvent) -> Unit = {}, var requiresGuild: Boolean = false) {
+class Command(val name: String,
+              var expectedArgs: Array<out CommandArgument> = arrayOf(),
+              var execute: (CommandEvent) -> Unit = {},
+              var requiresGuild: Boolean = false) {
 
     operator fun invoke(args: Command.() -> Unit) {}
 
