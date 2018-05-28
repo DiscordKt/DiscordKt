@@ -32,25 +32,8 @@ data class CommandEvent(val config: KJDAConfiguration, val jda: JDA, val channel
 }
 
 @CommandTagMarker
-open class Command(var log: BotLogger, open val name: String,  var expectedArgs: Array<out CommandArgument> = arrayOf(),
-                   var execute: (CommandEvent) -> Unit = {}, var requiresGuild: Boolean = false) : BotLogger {
-    override fun info(message: String) = log.info(message)
-    override fun info(message: MessageEmbed) = log.info(message)
-
-    override fun cmd(message: String) = log.cmd(message)
-    override fun cmd(message: MessageEmbed) = log.cmd(message)
-
-    override fun error(message: String) = log.error(message)
-    override fun error(message: MessageEmbed) = log.error(message)
-
-    override fun alert(message: String) = log.alert(message)
-    override fun alert(message: MessageEmbed) = log.alert(message)
-
-    override fun voice(message: String) = log.voice(message)
-    override fun voice(message: MessageEmbed) = log.voice(message)
-
-    override fun history(message: String) = log.history(message)
-    override fun history(message: MessageEmbed) = log.history(message)
+open class Command(open val name: String,  var expectedArgs: Array<out CommandArgument> = arrayOf(),
+                   var execute: (CommandEvent) -> Unit = {}, var requiresGuild: Boolean = false) {
 
     operator fun invoke(args: Command.() -> Unit) {}
 
@@ -95,13 +78,13 @@ data class CommandArgument(val type: ArgumentType, val optional: Boolean = false
 }
 
 @CommandTagMarker
-data class CommandsContainer(var log: BotLogger, var commands: HashMap<String, Command> = HashMap()) {
+data class CommandsContainer(var commands: HashMap<String, Command> = HashMap()) {
     operator fun invoke(args: CommandsContainer.() -> Unit) {}
 
     fun listCommands() = this.commands.keys.toList()
 
     fun command(name: String, construct: Command.() -> Unit = {}): Command? {
-        val command = Command(log, name)
+        val command = Command(name)
         command.construct()
         this.commands.put(name, command)
         return command
@@ -118,13 +101,6 @@ data class CommandsContainer(var log: BotLogger, var commands: HashMap<String, C
     fun has(name: String) = this.commands.containsKey(name)
 
     operator fun get(name: String) = this.commands.get(name)
-
-    fun newLogger(log: BotLogger) {
-        this.log = log
-        this.commands.values.forEach {
-            it.log = log
-        }
-    }
 }
 
 fun produceContainer(path: String, diService: DIService): CommandsContainer {
@@ -150,7 +126,7 @@ fun produceContainer(path: String, diService: DIService): CommandsContainer {
 annotation class CommandTagMarker
 
 fun commands(construct: CommandsContainer.() -> Unit): CommandsContainer {
-    val commands = CommandsContainer(DefaultLogger())
+    val commands = CommandsContainer()
     commands.construct()
     return commands
 }
