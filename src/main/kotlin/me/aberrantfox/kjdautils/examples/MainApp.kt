@@ -6,6 +6,8 @@ import me.aberrantfox.kjdautils.api.dsl.CommandSet
 import me.aberrantfox.kjdautils.api.dsl.commands
 import me.aberrantfox.kjdautils.api.dsl.embed
 import me.aberrantfox.kjdautils.api.startBot
+import me.aberrantfox.kjdautils.internal.command.Fail
+import me.aberrantfox.kjdautils.internal.command.Pass
 import me.aberrantfox.kjdautils.internal.command.arguments.SentenceArg
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 
@@ -23,9 +25,24 @@ fun main(args: Array<String>) {
     startBot(token) {
         val myConfig = MyCustomBotConfiguration("0.1.0", token)
         val myLog = MyCustomLogger(":: BOT ::")
+
         registerInjectionObject(myConfig, myLog)
         registerCommands(commandPath, prefix)
         registerListeners(MessageLogger())
+
+        registerCommandPreconditions({
+            if (it.channel.name != "ignored") {
+                Pass
+            } else {
+                Fail()
+            }
+        }, {
+            if (it.author.discriminator == "3698") {
+                Fail("Ignoring users with your discriminator.")
+            } else {
+                Pass
+            }
+        })
     }
 }
 
