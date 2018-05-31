@@ -108,6 +108,22 @@ This is how the ChoiceArgument is defined. You don't need to redefine this, it c
 But this ability to just define your own arguments will save you a lot of repeated parsing. 
 
 
+**Utilize command pre-conditions**
+Command preconditions are predicate or boolean expressions that must all evaluate to true before commands are allowed to execute. So if you want to ignore the commands of a particular user, or if you want to create a commands permission system, you might use this. 
+
+```kotlin
+registerCommandPreconditions({
+    if (it.author.discriminator == "3698") {
+        Fail("Ignoring users with your discriminator.")
+    } else {
+        Pass
+    }
+})
+```
+
+The above example will make it so that anyone with the defined discriminator will not be able to use commands, and they get the message passed to Fail() as the reason why. 
+
+
 **For a more comprehensive guide, see the Wiki** 
  https://github.com/AberrantFox/KUtils/wiki
 
@@ -119,7 +135,7 @@ Under the dependencies tag, add
 <dependency>
     <groupId>com.github.aberrantfox</groupId>
     <artifactId>Kutils</artifactId>
-    <version>0.5.0</version>
+    <version>0.6.0</version>
 </dependency>
 ```
 
