@@ -109,6 +109,7 @@ But this ability to just define your own arguments will save you a lot of repeat
 
 
 **Utilize command pre-conditions**
+
 Command preconditions are predicate or boolean expressions that must all evaluate to true before commands are allowed to execute. So if you want to ignore the commands of a particular user, or if you want to create a commands permission system, you might use this. 
 
 ```kotlin
