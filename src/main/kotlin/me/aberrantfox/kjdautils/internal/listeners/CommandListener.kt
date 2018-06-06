@@ -11,6 +11,7 @@ import me.aberrantfox.kjdautils.extensions.jda.deleteIfExists
 import me.aberrantfox.kjdautils.extensions.jda.descriptor
 import me.aberrantfox.kjdautils.extensions.jda.isCommandInvocation
 import me.aberrantfox.kjdautils.extensions.jda.isDoubleInvocation
+import me.aberrantfox.kjdautils.extensions.stdlib.containsInvite
 import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
 import me.aberrantfox.kjdautils.internal.command.CommandExecutor
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
@@ -73,8 +74,16 @@ internal class CommandListener(val config: KJDAConfiguration,
             log.cmd("${author.descriptor()} -- invoked $commandName in ${channel.name}")
 
         } else {
+            val cleanName = commandName.sanitiseMentions()
             val recommended = CommandRecommender.recommendCommand(commandName)
-            channel.sendMessage("I don't know what ${commandName.sanitiseMentions()} is, perhaps you meant $recommended?").queue()
+
+            val message = if(cleanName.containsInvite()) {
+                "That command you tried to invoke contained an invite. No recommendation for you."
+            } else {
+                "I don't know what $cleanName is, perhaps you meant $recommended?"
+            }
+
+            channel.sendMessage(message).queue()
         }
 
         if (invokedInGuild && !isDoubleInvocation) message.deleteIfExists()

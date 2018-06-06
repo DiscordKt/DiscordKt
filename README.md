@@ -134,9 +134,9 @@ Under the dependencies tag, add
 
 ```xml
 <dependency>
-    <groupId>com.github.aberrantfox</groupId>
+    <groupId>com.gitlab.aberrantfox</groupId>
     <artifactId>Kutils</artifactId>
-    <version>0.6.0</version>
+    <version>0.6.1</version>
 </dependency>
 ```
 
