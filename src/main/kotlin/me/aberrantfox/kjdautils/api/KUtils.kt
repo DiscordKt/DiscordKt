@@ -10,10 +10,13 @@ import me.aberrantfox.kjdautils.internal.command.PreconditionResult
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.CommandListener
+import me.aberrantfox.kjdautils.internal.listeners.KUtilsListener
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDABuilder
+import org.reflections.Reflections
+import org.reflections.scanners.MethodAnnotationsScanner
 
 
 class KUtils(val config: KJDAConfiguration) {
@@ -50,13 +53,18 @@ class KUtils(val config: KJDAConfiguration) {
         return container
     }
 
-    fun registerCommandPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult)
-            = listener?.addPreconditions(*conditions)
+    fun registerCommandPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) = listener?.addPreconditions(*conditions)
 
     fun registerListeners(vararg listeners: Any) =
             listeners.forEach {
                 EventRegister.eventBus.register(it)
             }
+
+    fun registerListenersByPath(path: String) =
+            Reflections(path).getTypesAnnotatedWith(KUtilsListener::class.java)
+                    .map { diService.invokeConstructor(it) }
+                    .forEach { registerListeners(it) }
+
 }
 
 fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {

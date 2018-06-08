@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 
+annotation class KUtilsListener
 
 internal class CommandListener(val config: KJDAConfiguration,
                                val container: CommandsContainer,

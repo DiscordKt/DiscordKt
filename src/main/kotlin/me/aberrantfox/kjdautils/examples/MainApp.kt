@@ -9,6 +9,7 @@ import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.internal.command.Fail
 import me.aberrantfox.kjdautils.internal.command.Pass
 import me.aberrantfox.kjdautils.internal.command.arguments.SentenceArg
+import me.aberrantfox.kjdautils.internal.listeners.KUtilsListener
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 
 data class MyCustomBotConfiguration(val version: String , val token: String)
@@ -28,7 +29,7 @@ fun main(args: Array<String>) {
 
         registerInjectionObject(myConfig, myLog)
         registerCommands(commandPath, prefix)
-        registerListeners(MessageLogger())
+        registerListenersByPath("me.aberrantfox.kjdautils.examples")
 
         registerCommandPreconditions({
             if (it.channel.name != "ignored") {
@@ -46,8 +47,11 @@ fun main(args: Array<String>) {
     }
 }
 
-class MessageLogger {
-    @Subscribe fun onMessage(event: GuildMessageReceivedEvent) = println(event.message.contentRaw)
+@KUtilsListener
+class MessageLogger(val myConfig: MyCustomBotConfiguration) {
+    @Subscribe fun onMessage(event: GuildMessageReceivedEvent) {
+        println("ExampleBot :: V${myConfig.version} :: ${event.message.contentRaw}")
+    }
 }
 
 @CommandSet
