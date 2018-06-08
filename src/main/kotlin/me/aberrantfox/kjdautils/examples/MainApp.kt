@@ -3,12 +3,17 @@ package me.aberrantfox.kjdautils.examples
 
 import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.dsl.CommandSet
+import me.aberrantfox.kjdautils.api.dsl.arg
 import me.aberrantfox.kjdautils.api.dsl.commands
 import me.aberrantfox.kjdautils.api.dsl.embed
 import me.aberrantfox.kjdautils.api.startBot
+import me.aberrantfox.kjdautils.extensions.jda.fullName
 import me.aberrantfox.kjdautils.internal.command.Fail
 import me.aberrantfox.kjdautils.internal.command.Pass
+import me.aberrantfox.kjdautils.internal.command.arguments.IntegerArg
 import me.aberrantfox.kjdautils.internal.command.arguments.SentenceArg
+import me.aberrantfox.kjdautils.internal.command.arguments.UserArg
+import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 
 data class MyCustomBotConfiguration(val version: String , val token: String)
@@ -37,7 +42,7 @@ fun main(args: Array<String>) {
                 Fail()
             }
         }, {
-            if (it.author.discriminator == "3698") {
+            if (it.author.discriminator == "3693") {
                 Fail("Ignoring users with your discriminator.")
             } else {
                 Pass
@@ -67,6 +72,7 @@ fun helpCommand(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = comma
             log.log("Version logged!")
         }
     }
+
     command("help") {
         execute {
             it.respond(embed {
