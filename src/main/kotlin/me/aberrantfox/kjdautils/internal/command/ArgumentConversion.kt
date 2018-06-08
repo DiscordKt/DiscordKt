@@ -67,32 +67,27 @@ private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, e
 
         val result = expectedType.convert(actualArg, remaining.toList(), event)
 
-        val convertedValue =
-                when (result) {
-                    is Single -> {
-                        remaining.remove(actualArg)
+        val convertedValue = when (result) {
+            is Single -> {
+                remaining.remove(actualArg)
+                result.result
+            }
+            is Multiple -> {
+                result.consumed.map { remaining.remove(it) }
+                result.result
+            }
+            is ArgumentResult.Error -> {
+                if (expectedArg.optional) {
+                    val default = expectedArg.defaultValue
 
-                        result.result
+                    if (default is Function<*>) {
+                        (default as (CommandEvent) -> Any).invoke(event)
+                    } else {
+                        default
                     }
-                    is Multiple -> {
-                        result.consumed.map {
-                            remaining.remove(it)
-                        }
-
-                        result.result
-                    }
-                    is ArgumentResult.Error -> {
-                        if (expectedArg.optional) {
-                            val default = expectedArg.defaultValue
-
-                            if (default is Function<*>) {
-                                (default as (CommandEvent) -> Any).invoke(event)
-                            } else {
-                                default
-                            }
-                        } else return Error(result.error)
-                    }
-                }
+                } else return Error(result.error)
+            }
+        }
 
         converted[nextMatchingIndex] = convertedValue
     }
