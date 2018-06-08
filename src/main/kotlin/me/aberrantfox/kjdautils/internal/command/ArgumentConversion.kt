@@ -55,7 +55,8 @@ fun convertMainArgs(actual: List<String>, expected: List<CommandArgument>, event
         }
         if (nextMatchingIndex == -1) return Error("Couldn't match '$actualArg' with the expected arguments. Try using the `help` command.")
 
-        val expectedType = expected[nextMatchingIndex].type
+        val expectedArg = expected[nextMatchingIndex]
+        val expectedType = expectedArg.type
 
         val result = expectedType.convert(actualArg, remaining.toList(), event)
 
@@ -73,7 +74,17 @@ fun convertMainArgs(actual: List<String>, expected: List<CommandArgument>, event
 
                         result.result
                     }
-                    is ArgumentResult.Error -> return Error(result.error)
+                    is ArgumentResult.Error -> {
+                        if (expectedArg.optional) {
+                            val default = expectedArg.defaultValue
+
+                            if (default is Function<*>) {
+                                (default as (CommandEvent) -> Any).invoke(event)
+                            } else {
+                                default
+                            }
+                        } else return Error(result.error)
+                    }
                 }
 
         converted[nextMatchingIndex] = convertedValue
@@ -85,23 +96,4 @@ fun convertMainArgs(actual: List<String>, expected: List<CommandArgument>, event
         return Error("You did not fill all of the non-optional arguments.")
 
     return Results(converted.toList())
-}
-
-fun convertOptionalArgs(args: List<Any?>, expected: List<CommandArgument>, event: CommandEvent): Result {
-    val zip = args.zip(expected)
-
-    val converted =
-            zip.map { (arg, expectedArg) ->
-                if (arg != null) return@map arg
-
-                val default = expectedArg.defaultValue
-
-                if (default is Function<*>) {
-                    return@map (default as (CommandEvent) -> Any).invoke(event)
-                } else {
-                    return@map default
-                }
-            }
-
-    return Results(converted)
 }
