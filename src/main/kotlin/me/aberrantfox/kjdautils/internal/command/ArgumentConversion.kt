@@ -12,6 +12,12 @@ import me.aberrantfox.kjdautils.internal.command.arguments.Manual
 const val separatorCharacter = "|"
 
 sealed class Result {
+    fun then(function: (List<Any?>) -> Result): Result =
+            when (this) {
+                is Results -> function(results)
+                is Error -> this
+            }
+
     data class Results(val results: List<Any?>) : Result()
     data class Error(val error: String) : Result()
 }
@@ -25,6 +31,7 @@ internal fun convertArguments(actual: List<String>, expected: List<CommandArgume
     }
 
     val result = convertArgs(actual, expected, event)
+            .then { convertOptionalArgs(it, expected, event) }
 
     val converted = when (result) {
         is Results -> result.results
@@ -91,4 +98,22 @@ private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, e
     }
 
     return Results(converted.toList())
+}
+
+private fun convertOptionalArgs(args: List<Any?>, expected: List<CommandArgument>, event: CommandEvent): Result {
+    val zip = args.zip(expected)
+
+    val converted =
+            zip.map { (arg, expectedArg) ->
+                if (arg != null) return@map arg
+
+                val default = expectedArg.defaultValue
+
+                return@map when (default) {
+                    is Function<*> -> (default as (CommandEvent) -> Any).invoke(event)
+                    else -> default
+                }
+            }
+
+    return Results(converted)
 }
