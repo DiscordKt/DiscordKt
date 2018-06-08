@@ -5,21 +5,26 @@ import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
 import me.aberrantfox.kjdautils.api.dsl.Command
 import me.aberrantfox.kjdautils.internal.command.arguments.Manual
 
-data class CommandStruct(val commandName: String, val commandArgs: List<String> = listOf())
+data class CommandStruct(val commandName: String,
+                         val commandArgs: List<String> = listOf(),
+                         val doubleInvocation: Boolean)
 
 fun cleanCommandMessage(message: String, config: KJDAConfiguration): CommandStruct {
     var trimmedMessage = message.substring(config.prefix.length)
+    val doubleInvocation = trimmedMessage.startsWith(config.prefix)
 
-    if (trimmedMessage.startsWith(config.prefix)) trimmedMessage = trimmedMessage.substring(config.prefix.length)
+    if (doubleInvocation) {
+        trimmedMessage = trimmedMessage.substring(config.prefix.length)
+    }
 
     if (!message.contains(" ")) {
-        return CommandStruct(trimmedMessage.toLowerCase())
+        return CommandStruct(trimmedMessage.toLowerCase(), listOf(), doubleInvocation)
     }
 
     val commandName = trimmedMessage.substring(0, trimmedMessage.indexOf(" ")).toLowerCase()
     val commandArgs = trimmedMessage.substring(trimmedMessage.indexOf(" ") + 1).split(" ")
 
-    return CommandStruct(commandName, commandArgs)
+    return CommandStruct(commandName, commandArgs, doubleInvocation)
 }
 
 fun getArgCountError(actual: List<String>, cmd: Command): String? {
