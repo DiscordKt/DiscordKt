@@ -2,6 +2,7 @@ package me.aberrantfox.kjdautils.api.dsl
 
 import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
+import me.aberrantfox.kjdautils.internal.command.CommandStruct
 import me.aberrantfox.kjdautils.internal.command.arguments.WordArg
 import me.aberrantfox.kjdautils.internal.di.DIService
 import net.dv8tion.jda.core.JDA
@@ -15,7 +16,7 @@ import org.reflections.scanners.MethodAnnotationsScanner
 
 annotation class CommandSet
 
-data class CommandEvent(val command: Command,
+data class CommandEvent(val commandStruct: CommandStruct,
                         val message: Message,
                         var args: List<Any>,
                         val container: CommandsContainer,
