@@ -12,24 +12,11 @@ import me.aberrantfox.kjdautils.internal.command.arguments.Manual
 const val separatorCharacter = "|"
 
 sealed class Result {
-    fun then(function: (List<Any?>) -> Result): Result =
-            when (this) {
-                is Results -> function(results)
-                is Error -> this
-            }
-
-    fun thenIf(condition: Boolean, function: (List<Any?>) -> Result) =
-            if (condition) {
-                then(function)
-            } else {
-                this
-            }
-
     data class Results(val results: List<Any?>) : Result()
     data class Error(val error: String) : Result()
 }
 
-fun convertArguments(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): Result {
+internal fun convertArguments(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): Result {
 
     val expectedTypes = expected.map { it.type }
 
@@ -37,11 +24,24 @@ fun convertArguments(actual: List<String>, expected: List<CommandArgument>, even
         return Results(actual)
     }
 
-    return convertMainArgs(actual, expected, event)
-            .then { convertOptionalArgs(it, expected, event) }
+    val result = convertArgs(actual, expected, event)
+
+    val converted = when (result) {
+        is Results -> result.results
+        is Error -> return result
+    }
+
+    val noUnfilledNonOptionals = converted
+            .filterIndexed { i, arg -> arg == null && !expected[i].optional }
+            .isEmpty()
+
+    return when {
+        noUnfilledNonOptionals -> result
+        else -> Error("You did not fill all of the non-optional arguments.")
+    }
 }
 
-fun convertMainArgs(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): Result {
+private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): Result {
 
     val converted = arrayOfNulls<Any?>(expected.size)
 
@@ -89,11 +89,6 @@ fun convertMainArgs(actual: List<String>, expected: List<CommandArgument>, event
 
         converted[nextMatchingIndex] = convertedValue
     }
-
-    val unfilledNonOptionals = converted.filterIndexed { i, arg -> arg == null && !expected[i].optional }
-
-    if (unfilledNonOptionals.isNotEmpty())
-        return Error("You did not fill all of the non-optional arguments.")
 
     return Results(converted.toList())
 }
