@@ -105,7 +105,7 @@ private fun convertOptionalArgs(args: List<Any?>, expected: List<CommandArgument
 
     val converted =
             zip.map { (arg, expectedArg) ->
-                if (arg != null) return@map arg
+                if (arg != null || !expectedArg.optional) return@map arg
 
                 val default = expectedArg.defaultValue
 
