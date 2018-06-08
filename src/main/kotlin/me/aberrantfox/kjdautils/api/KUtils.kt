@@ -1,5 +1,6 @@
 package me.aberrantfox.kjdautils.api
 
+import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
 import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
@@ -10,7 +11,6 @@ import me.aberrantfox.kjdautils.internal.command.PreconditionResult
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.CommandListener
-import me.aberrantfox.kjdautils.internal.listeners.KUtilsListener
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
 import net.dv8tion.jda.core.AccountType
@@ -61,10 +61,10 @@ class KUtils(val config: KJDAConfiguration) {
             }
 
     fun registerListenersByPath(path: String) =
-            Reflections(path).getTypesAnnotatedWith(KUtilsListener::class.java)
+            Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
+                    .map { it.declaringClass }
                     .map { diService.invokeConstructor(it) }
                     .forEach { registerListeners(it) }
-
 }
 
 fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
