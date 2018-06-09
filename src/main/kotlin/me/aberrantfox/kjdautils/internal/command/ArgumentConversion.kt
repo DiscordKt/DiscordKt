@@ -38,12 +38,8 @@ internal fun convertArguments(actual: List<String>, expected: List<CommandArgume
         is Error -> return result
     }
 
-    val noUnfilledNonOptionals = converted
-            .filterIndexed { i, arg -> arg == null && !expected[i].optional }
-            .isEmpty()
-
     return when {
-        noUnfilledNonOptionals -> result
+        converted.none { it == null } -> result
         else -> Error("You did not fill all of the non-optional arguments.")
     }
 }
@@ -63,9 +59,8 @@ private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, e
         if (nextMatchingIndex == -1) return Error("Couldn't match '$actualArg' with the expected arguments. Try using the `help` command.")
 
         val expectedArg = expected[nextMatchingIndex]
-        val expectedType = expectedArg.type
 
-        val result = expectedType.convert(actualArg, remaining.toList(), event)
+        val result = expectedArg.type.convert(actualArg, remaining.toList(), event)
 
         val convertedValue = when (result) {
             is Single -> {
@@ -77,15 +72,14 @@ private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, e
                 result.result
             }
             is ArgumentResult.Error -> {
-                if (expectedArg.optional) {
-                    val default = expectedArg.defaultValue
+                val default = expectedArg.defaultValue
 
-                    if (default is Function<*>) {
-                        (default as (CommandEvent) -> Any).invoke(event)
-                    } else {
-                        default
-                    }
-                } else return Error(result.error)
+                if (expectedArg.optional) when (default) {
+                    is Function<*> -> (default as (CommandEvent) -> Any).invoke(event)
+                    else -> default
+                } else {
+                    return Error(result.error)
+                }
             }
         }
 
