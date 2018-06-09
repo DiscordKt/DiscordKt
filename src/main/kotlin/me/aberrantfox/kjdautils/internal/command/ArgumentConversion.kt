@@ -50,6 +50,11 @@ fun convertMainArgs(actual: List<String>, expected: List<CommandArgument>, event
     while (remaining.isNotEmpty()) {
         val actualArg = remaining.first()
 
+        if (actualArg.isBlank()) {
+            remaining.remove(actualArg)
+            continue
+        }
+
         val nextMatchingIndex = expected.withIndex().indexOfFirst {
             it.value.type.isValid(actualArg, event) && converted[it.index] == null
         }

@@ -25,6 +25,7 @@ fun cleanCommandMessage(message: String, config: KJDAConfiguration): CommandStru
 fun getArgCountError(actual: List<String>, cmd: Command): String? {
     val optionalCount = cmd.expectedArgs.count { it.optional }
     val validRange = (cmd.parameterCount - optionalCount) .. cmd.parameterCount
+    val actualNonBlank = actual.count { it.isNotBlank() }
 
     val manual = cmd.expectedArgs
             .map { it.type }
@@ -37,10 +38,10 @@ fun getArgCountError(actual: List<String>, cmd: Command): String? {
             .any { it in listOf(ConsumptionType.Multiple, ConsumptionType.All) }
 
     if (hasMultipleArg) {
-        if (actual.size < validRange.start) {
+        if (actualNonBlank < validRange.start) {
             return "This command requires at least ${validRange.start} argument(s)"
         }
-    } else if (actual.size !in validRange) {
+    } else if (actualNonBlank !in validRange) {
         return if (validRange.start == validRange.endInclusive) {
             "This command requires ${validRange.start} argument(s)."
         } else {
