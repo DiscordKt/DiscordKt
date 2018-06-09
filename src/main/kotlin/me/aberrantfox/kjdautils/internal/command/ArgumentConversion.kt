@@ -18,18 +18,11 @@ sealed class Result {
                 is Error -> this
             }
 
-    fun thenIf(condition: Boolean, function: (List<Any?>) -> Result) =
-            if (condition) {
-                then(function)
-            } else {
-                this
-            }
-
     data class Results(val results: List<Any?>) : Result()
     data class Error(val error: String) : Result()
 }
 
-fun convertArguments(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): Result {
+internal fun convertArguments(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): Result {
 
     val expectedTypes = expected.map { it.type }
 
@@ -37,11 +30,21 @@ fun convertArguments(actual: List<String>, expected: List<CommandArgument>, even
         return Results(actual)
     }
 
-    return convertMainArgs(actual, expected, event)
+    val result = convertArgs(actual, expected, event)
             .then { convertOptionalArgs(it, expected, event) }
+
+    val converted = when (result) {
+        is Results -> result.results
+        is Error -> return result
+    }
+
+    return when {
+        converted.none { it == null } -> result
+        else -> Error("You did not fill all of the non-optional arguments.")
+    }
 }
 
-fun convertMainArgs(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): Result {
+private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): Result {
 
     val converted = arrayOfNulls<Any?>(expected.size)
 
@@ -55,51 +58,49 @@ fun convertMainArgs(actual: List<String>, expected: List<CommandArgument>, event
         }
         if (nextMatchingIndex == -1) return Error("Couldn't match '$actualArg' with the expected arguments. Try using the `help` command.")
 
-        val expectedType = expected[nextMatchingIndex].type
+        val expectedArg = expected[nextMatchingIndex]
 
-        val result = expectedType.convert(actualArg, remaining.toList(), event)
+        val result = expectedArg.type.convert(actualArg, remaining.toList(), event)
 
-        val convertedValue =
-                when (result) {
-                    is Single -> {
-                        remaining.remove(actualArg)
+        val convertedValue = when (result) {
+            is Single -> {
+                remaining.remove(actualArg)
+                result.result
+            }
+            is Multiple -> {
+                result.consumed.map { remaining.remove(it) }
+                result.result
+            }
+            is ArgumentResult.Error -> {
+                val default = expectedArg.defaultValue
 
-                        result.result
-                    }
-                    is Multiple -> {
-                        result.consumed.map {
-                            remaining.remove(it)
-                        }
-
-                        result.result
-                    }
-                    is ArgumentResult.Error -> return Error(result.error)
+                if (expectedArg.optional) when (default) {
+                    is Function<*> -> (default as (CommandEvent) -> Any).invoke(event)
+                    else -> default
+                } else {
+                    return Error(result.error)
                 }
+            }
+        }
 
         converted[nextMatchingIndex] = convertedValue
     }
 
-    val unfilledNonOptionals = converted.filterIndexed { i, arg -> arg == null && !expected[i].optional }
-
-    if (unfilledNonOptionals.isNotEmpty())
-        return Error("You did not fill all of the non-optional arguments.")
-
     return Results(converted.toList())
 }
 
-fun convertOptionalArgs(args: List<Any?>, expected: List<CommandArgument>, event: CommandEvent): Result {
+private fun convertOptionalArgs(args: List<Any?>, expected: List<CommandArgument>, event: CommandEvent): Result {
     val zip = args.zip(expected)
 
     val converted =
             zip.map { (arg, expectedArg) ->
-                if (arg != null) return@map arg
+                if (arg != null || !expectedArg.optional) return@map arg
 
                 val default = expectedArg.defaultValue
 
-                if (default is Function<*>) {
-                    return@map (default as (CommandEvent) -> Any).invoke(event)
-                } else {
-                    return@map default
+                return@map when (default) {
+                    is Function<*> -> (default as (CommandEvent) -> Any).invoke(event)
+                    else -> default
                 }
             }
 

@@ -12,6 +12,7 @@ import me.aberrantfox.kjdautils.extensions.jda.descriptor
 import me.aberrantfox.kjdautils.extensions.jda.isCommandInvocation
 import me.aberrantfox.kjdautils.extensions.jda.isDoubleInvocation
 import me.aberrantfox.kjdautils.extensions.stdlib.containsInvite
+import me.aberrantfox.kjdautils.extensions.stdlib.containsURl
 import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
 import me.aberrantfox.kjdautils.internal.command.CommandExecutor
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
@@ -44,50 +45,47 @@ internal class CommandListener(val config: KJDAConfiguration,
 
         if (!isUsableCommand(message, author)) return
 
-        val (commandName, actualArgs) = cleanCommandMessage(message.contentRaw, config)
+        val commandStruct = cleanCommandMessage(message.contentRaw, config)
+        val (commandName, actualArgs, isDoubleInvocation) = commandStruct
+
+        val event = CommandEvent(commandStruct, message, actualArgs, container)
+
+        getPreconditionError(event)?.let {
+            if (it != "") {
+                event.safeRespond(it)
+            }
+            return
+        }
 
         val command = container[commandName]
-        val isDoubleInvocation = message.isDoubleInvocation(config.prefix)
 
-        if (command != null) {
-            if (command.requiresGuild && !invokedInGuild) {
-                channel.sendMessage("This command must be invoked in a guild channel and not through PM")
-                return
-            }
-
-            val event = CommandEvent(command, message, actualArgs, container)
-
-            getPreconditionError(event)?.let {
-                if (it != "") {
-                    event.safeRespond(it)
-                }
-                return
-            }
-
-            executor.executeCommand(event)
-
-            if (isDoubleInvocation) {
-                message.addReaction("\uD83D\uDC40").queue()
-            }
-
-            log.cmd("${author.descriptor()} -- invoked $commandName in ${channel.name}")
-
-        } else {
-            val cleanName = commandName.sanitiseMentions()
+        if (command == null) {
             val recommended = CommandRecommender.recommendCommand(commandName)
-
-            val message = if(cleanName.containsInvite()) {
-                "That command you tried to invoke contained an invite. No recommendation for you."
+            val cleanName = if (commandName.containsInvite() || commandName.containsURl()) {
+                "that"
             } else {
-                "I don't know what $cleanName is, perhaps you meant $recommended?"
+                commandName.sanitiseMentions()
             }
 
-            channel.sendMessage(message).queue()
+            channel.sendMessage("I don't know what $cleanName is, perhaps you meant $recommended?").queue()
+            return
         }
+
+        if (command.requiresGuild && !invokedInGuild) {
+            channel.sendMessage("This command must be invoked in a guild channel and not through PM").queue()
+            return
+        }
+
+        executor.executeCommand(command, actualArgs, event)
+
+        if (isDoubleInvocation) {
+            message.addReaction("\uD83D\uDC40").queue()
+        }
+
+        log.cmd("${author.descriptor()} -- invoked $commandName in ${channel.name}")
 
         if (invokedInGuild && !isDoubleInvocation) message.deleteIfExists()
     }
-
 
     private fun isUsableCommand(message: Message, author: User): Boolean {
         if (message.contentRaw.length > 1500) return false
