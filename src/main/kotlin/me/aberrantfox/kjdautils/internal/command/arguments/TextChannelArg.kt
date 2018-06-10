@@ -8,6 +8,8 @@ import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import me.aberrantfox.kjdautils.internal.command.tryRetrieveSnowflake
 
 object TextChannelArg : ArgumentType {
+    override val examples = arrayListOf("#chat", "4421069003953932345", "#test-channel", "292106900395393024")
+    override val name = "TextChannel"
     override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {

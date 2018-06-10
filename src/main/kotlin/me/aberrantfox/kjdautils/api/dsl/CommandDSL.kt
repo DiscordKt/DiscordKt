@@ -40,7 +40,8 @@ data class CommandEvent(val command: Command,
 class Command(val name: String,
               var expectedArgs: Array<out CommandArgument> = arrayOf(),
               var execute: (CommandEvent) -> Unit = {},
-              var requiresGuild: Boolean = false) {
+              var requiresGuild: Boolean = false,
+              var description: String = "No Description Provider") {
 
     operator fun invoke(args: Command.() -> Unit) {}
 

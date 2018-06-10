@@ -7,6 +7,7 @@ import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
 import me.aberrantfox.kjdautils.api.dsl.produceContainer
 import me.aberrantfox.kjdautils.internal.command.CommandExecutor
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
+import me.aberrantfox.kjdautils.internal.command.HelpService
 import me.aberrantfox.kjdautils.internal.command.PreconditionResult
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
@@ -23,6 +24,7 @@ class KUtils(val config: KJDAConfiguration) {
     private var listener: CommandListener? = null
     private var executor: CommandExecutor? = null
     private var container: CommandsContainer? = null
+    private var helpService: HelpService? = null
     private val diService = DIService()
 
     val jda = JDABuilder(AccountType.BOT).setToken(config.token).buildBlocking()
@@ -49,7 +51,7 @@ class KUtils(val config: KJDAConfiguration) {
         this.listener = listener
 
         registerListeners(listener)
-
+        helpService = HelpService(container, config.prefix)
         return container
     }
 

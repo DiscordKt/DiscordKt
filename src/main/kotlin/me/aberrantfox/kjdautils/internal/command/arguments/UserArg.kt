@@ -8,6 +8,8 @@ import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import me.aberrantfox.kjdautils.internal.command.tryRetrieveSnowflake
 
 object UserArg : ArgumentType {
+    override val examples = arrayListOf("@Bob", "268856125007331328", "275544730887127040")
+    override val name = "DiscordUser"
     override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {

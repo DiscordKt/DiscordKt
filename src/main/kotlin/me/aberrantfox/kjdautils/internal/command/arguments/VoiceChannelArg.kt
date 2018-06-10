@@ -8,6 +8,8 @@ import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import me.aberrantfox.kjdautils.internal.command.tryRetrieveSnowflake
 
 object VoiceChannelArg : ArgumentType {
+    override val examples = arrayListOf("360583945982836746", "360729317631721482")
+    override val name = "The ID of any valid voice channel."
     override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {

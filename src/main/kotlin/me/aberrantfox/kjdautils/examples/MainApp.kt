@@ -3,11 +3,12 @@ package me.aberrantfox.kjdautils.examples
 
 import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.dsl.CommandSet
+import me.aberrantfox.kjdautils.api.dsl.arg
 import me.aberrantfox.kjdautils.api.dsl.commands
-import me.aberrantfox.kjdautils.api.dsl.embed
 import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.internal.command.Fail
 import me.aberrantfox.kjdautils.internal.command.Pass
+import me.aberrantfox.kjdautils.internal.command.arguments.IntegerArg
 import me.aberrantfox.kjdautils.internal.command.arguments.SentenceArg
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 
@@ -60,34 +61,12 @@ fun defineOther(log: MyCustomLogger) = commands {
 }
 
 @CommandSet
-fun helpCommand(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = commands {
+fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = commands {
     command("version") {
+        description = "A command which will show the verison."
         execute {
             it.respond(myConfig.version)
             log.log("Version logged!")
-        }
-    }
-    command("help") {
-        execute {
-            it.respond(embed {
-                title("Help menu")
-                description("Below you can see how to use all of the commands in this startBot")
-
-                field {
-                    name = "Help"
-                    value = "Display a help menu"
-                }
-
-                field {
-                    name = "Ping"
-                    value = "Pong"
-                }
-
-                field {
-                    name = "Echo"
-                    value = "Echo the command arguments in the current channel."
-                }
-            })
         }
     }
 
@@ -102,6 +81,28 @@ fun helpCommand(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = comma
         execute {
             val response = it.args.component1() as String
             it.respond(response)
+        }
+    }
+
+    command("add") {
+        description = "Add two numbers together"
+        expect(IntegerArg, IntegerArg)
+        execute {
+            val first = it.args.component1() as Int
+            val second = it.args.component2() as Int
+
+            it.respond("${first + second}")
+        }
+    }
+
+    command("optionalAdd") {
+        description = "Add two numbers together"
+        expect(arg(IntegerArg, false), arg(IntegerArg, true, 1))
+        execute {
+            val first = it.args.component1() as Int
+            val second = it.args.component2() as Int
+
+            it.respond("${first + second}")
         }
     }
 }

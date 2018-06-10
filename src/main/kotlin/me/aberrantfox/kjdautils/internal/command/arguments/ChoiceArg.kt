@@ -8,7 +8,10 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
 object ChoiceArg : ArgumentType {
+    override val examples = arrayListOf("true", "false")
+    override val name = "Choice"
     override val consumptionType = ConsumptionType.Single
     override fun isValid(arg: String, event: CommandEvent) = arg.isBooleanValue()
-    override fun convert(arg: String, args: List<String>, event: CommandEvent) = ArgumentResult.Single(arg.toBooleanValue())
+    override fun convert(arg: String, args: List<String>, event: CommandEvent) =
+            ArgumentResult.Single(arg.toBooleanValue())
 }

@@ -7,6 +7,8 @@ import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import me.aberrantfox.kjdautils.internal.command.separatorCharacter
 
 object SplitterArg : ArgumentType {
+    override val examples = arrayListOf("sentence one | Sentence two | Sentence three", "one | two")
+    override val name = "(Separated|Text)"
     override val consumptionType = ConsumptionType.All
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {

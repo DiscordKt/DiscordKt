@@ -6,6 +6,8 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
 object Manual : ArgumentType {
+    override val examples = arrayListOf("None-specified")
+    override val name = "Unknown"
     override val consumptionType = ConsumptionType.All
     override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent) = ArgumentResult.Multiple(args, args)
