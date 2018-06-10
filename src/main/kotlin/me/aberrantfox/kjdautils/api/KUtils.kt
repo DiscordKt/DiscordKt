@@ -65,6 +65,7 @@ class KUtils(val config: KJDAConfiguration) {
     fun registerListenersByPath(path: String) =
             Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
                     .map { it.declaringClass }
+                    .distinct()
                     .map { diService.invokeConstructor(it) }
                     .forEach { registerListeners(it) }
 }
