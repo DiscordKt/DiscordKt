@@ -2,29 +2,27 @@ package me.aberrantfox.kjdautils.internal.command
 
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.launch
+import me.aberrantfox.kjdautils.api.dsl.Command
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.Result.Error
 import me.aberrantfox.kjdautils.internal.command.Result.Results
 
 internal class CommandExecutor {
 
-    fun executeCommand(event: CommandEvent) =
+    fun executeCommand(command: Command, args: List<String>, event: CommandEvent) =
             launch(CommonPool) {
-                invokeCommand(event)
+                invokeCommand(command, args, event)
             }
 
-    private fun invokeCommand(event: CommandEvent) {
+    private fun invokeCommand(command: Command, actualArgs: List<String>, event: CommandEvent) {
         val channel = event.channel
 
-        val actual = event.args as List<String>
-        val command = event.command
-
-        getArgCountError(actual, event.command)?.let {
+        getArgCountError(actualArgs, command)?.let {
             channel.sendMessage(it).queue()
             return
         }
 
-        val conversionResult = convertArguments(actual, command.expectedArgs.toList(), event)
+        val conversionResult = convertArguments(actualArgs, command.expectedArgs.toList(), event)
 
         when (conversionResult) {
             is Results -> event.args = conversionResult.results.requireNoNulls()
