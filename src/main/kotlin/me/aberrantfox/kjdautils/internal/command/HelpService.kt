@@ -13,6 +13,7 @@ class HelpService(val container: CommandsContainer, val prefix: String) {
     init {
         val helpMenu = container.command("menu") {
             description = "If you forget how something works, just use this command."
+            category = "utility"
             execute {
                 it.respond(embed{
                     title("Help menu")
@@ -25,6 +26,7 @@ class HelpService(val container: CommandsContainer, val prefix: String) {
         }
 
         container.command("help") {
+            category = "utility"
             expect(arg(CommandArg, true, helpMenu!!))
             execute {
                 val command = it.args.component1() as Command
