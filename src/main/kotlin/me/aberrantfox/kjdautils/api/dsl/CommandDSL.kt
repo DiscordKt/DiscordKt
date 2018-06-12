@@ -14,7 +14,7 @@ import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 
 
-annotation class CommandSet
+annotation class CommandSet(val category: String = "uncategorized")
 
 data class CommandEvent(val commandStruct: CommandStruct,
                         val message: Message,
@@ -39,6 +39,7 @@ data class CommandEvent(val commandStruct: CommandStruct,
 
 @CommandTagMarker
 class Command(val name: String,
+              var category: String = "",
               var expectedArgs: Array<out CommandArgument> = arrayOf(),
               var execute: (CommandEvent) -> Unit = {},
               var requiresGuild: Boolean = false,
@@ -113,18 +114,24 @@ data class CommandsContainer(var commands: HashMap<String, Command> = HashMap())
 }
 
 fun produceContainer(path: String, diService: DIService): CommandsContainer {
-    val cmds = Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(CommandSet::class.java)
+    val cmdMethods = Reflections(path, MethodAnnotationsScanner())
+            .getMethodsAnnotatedWith(CommandSet::class.java)
+            .map { it to (it.annotations.first { it is CommandSet } as CommandSet).category }
 
-    val container = cmds.map { diService.invokeReturningMethod(it) }
-            .map { it as CommandsContainer }
+    val container = cmdMethods
+            .map { (method, cmdSetCategory) ->
+                (diService.invokeReturningMethod(method) as CommandsContainer) to cmdSetCategory
+            }
+            .map { (container, cmdSetCategory) ->
+                container.also {
+                    it.commands.values
+                            .filter { it.category == "" }
+                            .forEach { it.category = cmdSetCategory }
+                }
+            }
             .reduce { a, b -> a.join(b) }
 
-    val lowMap = HashMap<String, Command>()
-
-    container.commands.keys.forEach {
-        lowMap[it.toLowerCase()] = container.commands[it]!!
-    }
-
+    val lowMap = container.commands.mapKeys { it.key.toLowerCase() } as HashMap<String, Command>
     container.commands = lowMap
 
     return container
