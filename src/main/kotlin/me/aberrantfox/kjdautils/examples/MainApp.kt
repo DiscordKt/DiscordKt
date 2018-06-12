@@ -38,7 +38,7 @@ fun main(args: Array<String>) {
                 Fail()
             }
         }, {
-            if (it.author.discriminator == "3698") {
+            if (it.author.discriminator == "3693") {
                 Fail("Ignoring users with your discriminator.")
             } else {
                 Pass
@@ -60,10 +60,11 @@ fun defineOther(log: MyCustomLogger) = commands {
     }
 }
 
-@CommandSet
+@CommandSet("utility")
 fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = commands {
     command("version") {
         description = "A command which will show the verison."
+        category = "info"
         execute {
             it.respond(myConfig.version)
             log.log("Version logged!")
