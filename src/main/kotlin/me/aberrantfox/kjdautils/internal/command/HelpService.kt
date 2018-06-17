@@ -20,7 +20,6 @@ class HelpService(val container: CommandsContainer, val prefix: String) {
             expect(arg(WordArg, true))
 
             execute {
-                it.args.component1()
                 val query = it.args.component1() as String
 
                 if(query.isEmpty()){ it.respond(defaultEmbed()); return@execute }
@@ -38,7 +37,9 @@ class HelpService(val container: CommandsContainer, val prefix: String) {
 
                     null -> it.respond(embed{
                         title("The category or command $query does not exist")
-                        setDescription("Maybe you should try ${prefix}help")
+                        val recommendation = CommandRecommender.recommendCommand(query)
+                        setDescription("Did you mean $recommendation ?\n" +
+                                       "Maybe you should try ${prefix}help")
                         setColor(Color.RED)
                     })
                 }
