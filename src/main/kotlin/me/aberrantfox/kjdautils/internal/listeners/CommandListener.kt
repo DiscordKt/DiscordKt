@@ -86,7 +86,7 @@ internal class CommandListener(val config: KJDAConfiguration,
 
         log.cmd("${author.descriptor()} -- invoked $commandName in ${channel.name}")
 
-        if (invokedInGuild && !isDoubleInvocation && !deleteOnInvocation) message.deleteIfExists()
+        if (invokedInGuild && !isDoubleInvocation && deleteOnInvocation) message.deleteIfExists()
     }
 
     private fun isUsableCommand(message: Message, author: User): Boolean {
