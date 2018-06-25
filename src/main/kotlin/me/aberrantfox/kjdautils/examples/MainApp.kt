@@ -30,6 +30,7 @@ fun main(args: Array<String>) {
         registerInjectionObject(myConfig, myLog)
         registerCommands(commandPath, prefix)
         registerListenersByPath("me.aberrantfox.kjdautils.examples")
+        deleteOnInvocation(true)
 
         registerCommandPreconditions({
             if (it.channel.name != "ignored") {

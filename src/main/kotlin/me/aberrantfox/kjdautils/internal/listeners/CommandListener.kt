@@ -50,6 +50,8 @@ internal class CommandListener(val config: KJDAConfiguration,
 
         val event = CommandEvent(commandStruct, message, actualArgs, container)
 
+        val deleteOnInvocation = config.deleteOnInvocation
+        
         getPreconditionError(event)?.let {
             if (it != "") {
                 event.safeRespond(it)
@@ -78,13 +80,13 @@ internal class CommandListener(val config: KJDAConfiguration,
 
         executor.executeCommand(command, actualArgs, event)
 
-        if (isDoubleInvocation) {
+        if (isDoubleInvocation || !deleteOnInvocation) {
             message.addReaction("\uD83D\uDC40").queue()
         }
 
         log.cmd("${author.descriptor()} -- invoked $commandName in ${channel.name}")
 
-        if (invokedInGuild && !isDoubleInvocation) message.deleteIfExists()
+        if (invokedInGuild && !isDoubleInvocation && !deleteOnInvocation) message.deleteIfExists()
     }
 
     private fun isUsableCommand(message: Message, author: User): Boolean {

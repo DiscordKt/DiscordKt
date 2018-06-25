@@ -68,6 +68,10 @@ class KUtils(val config: KJDAConfiguration) {
                     .distinct()
                     .map { diService.invokeConstructor(it) }
                     .forEach { registerListeners(it) }
+    
+    fun deleteOnInvocation(delete: Boolean) {
+            config.deleteOnInvocation = delete
+    }
 }
 
 fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
