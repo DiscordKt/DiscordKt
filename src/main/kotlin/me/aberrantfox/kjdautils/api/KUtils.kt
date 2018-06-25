@@ -28,7 +28,7 @@ class KUtils(val config: KJDAConfiguration) {
     private var helpService: HelpService? = null
     private val container = CommandsContainer()
     private val diService = DIService()
-    private val pluginService = PluginService(container)
+    private val pluginService = PluginService(container, this)
 
     val jda = JDABuilder(AccountType.BOT).setToken(config.token).buildBlocking()
     var logger: BotLogger = DefaultLogger()
