@@ -14,24 +14,28 @@ import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.CommandListener
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
+import me.aberrantfox.kjdautils.internal.plugins.PluginService
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDABuilder
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
+import java.io.File
 
 
 class KUtils(val config: KJDAConfiguration) {
     private var listener: CommandListener? = null
     private var executor: CommandExecutor? = null
-    private var container: CommandsContainer? = null
     private var helpService: HelpService? = null
+    private val container = CommandsContainer()
     private val diService = DIService()
+    private val pluginService = PluginService(container)
 
     val jda = JDABuilder(AccountType.BOT).setToken(config.token).buildBlocking()
     var logger: BotLogger = DefaultLogger()
 
     init {
         jda.addEventListener(EventRegister)
+        registerInjectionObject(pluginService)
     }
 
     fun registerInjectionObject(vararg obj: Any) = obj.forEach { diService.addElement(it) }
@@ -40,13 +44,13 @@ class KUtils(val config: KJDAConfiguration) {
         config.commandPath = commandPath
         config.prefix = prefix
 
-        val container = produceContainer(commandPath, diService)
-        CommandRecommender.addAll(container.listCommands())
+        val localContainer = produceContainer(commandPath, diService)
+        CommandRecommender.addAll(localContainer.listCommands())
 
         val executor = CommandExecutor()
         val listener = CommandListener(config, container, logger, executor)
 
-        this.container = container
+        this.container.join(localContainer)
         this.executor = executor
         this.listener = listener
 
@@ -72,6 +76,12 @@ class KUtils(val config: KJDAConfiguration) {
     fun deleteOnInvocation(delete: Boolean) {
             config.deleteOnInvocation = delete
     }
+
+    fun loadPlugins(directoryPath: String) = pluginService.loadScripts(directoryPath)
+
+    fun loadPlugin(file: File) = pluginService.loadPlugin(file)
+
+    fun loadPlugin(code: String) = pluginService.loadPlugin(code)
 }
 
 fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {

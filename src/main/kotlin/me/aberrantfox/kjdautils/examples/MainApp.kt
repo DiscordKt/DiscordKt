@@ -10,9 +10,10 @@ import me.aberrantfox.kjdautils.internal.command.Fail
 import me.aberrantfox.kjdautils.internal.command.Pass
 import me.aberrantfox.kjdautils.internal.command.arguments.IntegerArg
 import me.aberrantfox.kjdautils.internal.command.arguments.SentenceArg
+import me.aberrantfox.kjdautils.internal.plugins.PluginService
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 
-data class MyCustomBotConfiguration(val version: String , val token: String)
+data class MyCustomBotConfiguration(val version: String, val token: String)
 
 data class MyCustomLogger(val prefix: String) {
     fun log(data: String) = println(data)
@@ -21,7 +22,7 @@ data class MyCustomLogger(val prefix: String) {
 fun main(args: Array<String>) {
     val token = args.component1()
     val prefix = "!"
-    val commandPath =  "me.aberrantfox.kjdautils.examples"
+    val commandPath = "me.aberrantfox.kjdautils.examples"
 
     startBot(token) {
         val myConfig = MyCustomBotConfiguration("0.1.0", token)
@@ -30,7 +31,6 @@ fun main(args: Array<String>) {
         registerInjectionObject(myConfig, myLog)
         registerCommands(commandPath, prefix)
         registerListenersByPath("me.aberrantfox.kjdautils.examples")
-        deleteOnInvocation(true)
 
         registerCommandPreconditions({
             if (it.channel.name != "ignored") {
@@ -45,11 +45,15 @@ fun main(args: Array<String>) {
                 Pass
             }
         })
+
+        //You may also pass a directory or a file here instead of the raw code.
+        loadPlugins("plugins/")
     }
 }
 
 class MessageLogger(val myConfig: MyCustomBotConfiguration) {
-    @Subscribe fun onMessage(event: GuildMessageReceivedEvent) {
+    @Subscribe
+    fun onMessage(event: GuildMessageReceivedEvent) {
         println("ExampleBot :: V${myConfig.version} :: ${event.message.contentRaw}")
     }
 }
@@ -105,6 +109,22 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = comman
             val second = it.args.component2() as Int
 
             it.respond("${first + second}")
+        }
+    }
+}
+
+
+@CommandSet("test")
+fun cmd(pluginService: PluginService) = commands {
+    command("all") {
+        execute { it.respond(it.container.commands.keys.joinToString(", ")) }
+    }
+
+    command("eval") {
+        expect(SentenceArg)
+        execute {
+            val code = it.args[0] as String
+            pluginService.loadPlugin(code)
         }
     }
 }
