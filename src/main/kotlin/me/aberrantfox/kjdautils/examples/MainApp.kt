@@ -48,6 +48,7 @@ fun main(args: Array<String>) {
 
         //You may also pass a directory or a file here instead of the raw code.
         loadPlugins("plugins/")
+        fetchPlugin("PingPlugin.kts")
     }
 }
 
@@ -76,11 +77,6 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = comman
         }
     }
 
-    command("ping") {
-        execute {
-            it.respond("Pong!")
-        }
-    }
 
     command("echo") {
         expect(SentenceArg)

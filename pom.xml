@@ -17,6 +17,7 @@
         <guava.version>25.0-jre</guava.version>
         <commons.version>1.1</commons.version>
         <spek.version>1.1.5</spek.version>
+        <kutils-plugins.version>0.1.0</kutils-plugins.version>
     </properties>
 
     <dependencies>
@@ -26,10 +27,9 @@
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-test</artifactId>
-            <version>${kotlin.version}</version>
-            <scope>test</scope>
+            <groupId>com.gitlab.aberrantfox</groupId>
+            <artifactId>Kutils-plugins</artifactId>
+            <version>${kutils-plugins.version}</version>
         </dependency>
         <dependency>
             <groupId>net.dv8tion</groupId>
@@ -95,7 +95,12 @@
             <version>${spek.version}</version>
             <type>pom</type>
         </dependency>
-
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <repositories>
@@ -103,6 +108,10 @@
             <id>jcenter</id>
             <name>jcenter-bintray</name>
             <url>http://jcenter.bintray.com</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
@@ -115,7 +124,9 @@
                 <executions>
                     <execution>
                         <id>compile</id>
-                        <goals> <goal>compile</goal> </goals>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
                         <configuration>
                             <sourceDirs>
                                 <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
@@ -125,7 +136,9 @@
                     </execution>
                     <execution>
                         <id>test-compile</id>
-                        <goals> <goal>test-compile</goal> </goals>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
                         <configuration>
                             <sourceDirs>
                                 <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
