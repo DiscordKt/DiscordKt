@@ -13,17 +13,13 @@ fun JDA.getRoleIdentifier(role: String): RoleIdentifier {
 
     if (roles.any { it.id == role }) return RoleIdentifier.Id
 
-    if (roles.any { it.name.toLowerCase() == role }) return RoleIdentifier.Name
+    if (roles.any { it.name.toLowerCase() == role.toLowerCase() }) return RoleIdentifier.Name
 
     return RoleIdentifier.Invalid
 }
 
-fun JDA.isRole(role: String) = guilds.map { it.roles }.flatten().any { it.id == role || it.name.toLowerCase() == role }
+fun JDA.isRole(role: String) = guilds.map { it.roles }.flatten().any { it.id == role || it.name.toLowerCase() == role.toLowerCase() }
 
 
-fun JDA.obtainRole(role: String): Role? = when (getRoleIdentifier(role)) {
-    RoleIdentifier.Name -> guilds.map { it.roles }.flatten().first { it.name.toLowerCase() == role }
-    RoleIdentifier.Id -> guilds.map { it.roles }.flatten().first { it.id == role }
-    RoleIdentifier.Invalid -> null
-}
+fun JDA.obtainRole(role: String): Role? = guilds.map { it.roles }.flatten().firstOrNull { it.name.toLowerCase() == role.toLowerCase() || it.id == role }
 
