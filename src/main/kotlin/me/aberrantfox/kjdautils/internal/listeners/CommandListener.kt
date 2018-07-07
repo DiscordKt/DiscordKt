@@ -50,8 +50,8 @@ internal class CommandListener(val config: KJDAConfiguration,
 
         val event = CommandEvent(commandStruct, message, actualArgs, container)
 
-        val deleteOnInvocation = config.deleteOnInvocation
-        
+        val shouldDelete = config.deleteOnInvocation && invokedInGuild && !isDoubleInvocation
+
         getPreconditionError(event)?.let {
             if (it != "") {
                 event.safeRespond(it)
@@ -63,11 +63,9 @@ internal class CommandListener(val config: KJDAConfiguration,
 
         if (command == null) {
             val recommended = CommandRecommender.recommendCommand(commandName)
-            val cleanName = if (commandName.containsInvite() || commandName.containsURl()) {
-                "that"
-            } else {
-                commandName.sanitiseMentions()
-            }
+            val cleanName = commandName.sanitiseMentions()
+
+            if (shouldDelete) message.deleteIfExists()
 
             channel.sendMessage("I don't know what $cleanName is, perhaps you meant $recommended?").queue()
             return
@@ -80,13 +78,11 @@ internal class CommandListener(val config: KJDAConfiguration,
 
         executor.executeCommand(command, actualArgs, event)
 
-        if (isDoubleInvocation || !deleteOnInvocation) {
-            message.addReaction("\uD83D\uDC40").queue()
-        }
+        if (isDoubleInvocation || !config.deleteOnInvocation) message.addReaction("\uD83D\uDC40").queue()
 
         log.cmd("${author.descriptor()} -- invoked $commandName in ${channel.name}")
 
-        if (invokedInGuild && !isDoubleInvocation && deleteOnInvocation) message.deleteIfExists()
+        if (shouldDelete) message.deleteIfExists()
     }
 
     private fun isUsableCommand(message: Message, author: User): Boolean {
