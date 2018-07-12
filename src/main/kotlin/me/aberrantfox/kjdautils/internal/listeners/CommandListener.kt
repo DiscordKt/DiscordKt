@@ -47,6 +47,8 @@ internal class CommandListener(val config: KJDAConfiguration,
 
         val commandStruct = cleanCommandMessage(message.contentRaw, config)
         val (commandName, actualArgs, isDoubleInvocation) = commandStruct
+        if (commandName.isEmpty())
+            return
 
         val event = CommandEvent(commandStruct, message, actualArgs, container)
 
