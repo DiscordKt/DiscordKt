@@ -83,6 +83,7 @@ class HelpService(val container: CommandsContainer, val prefix: String) {
         val categories = container.commands
                 .map { it.component2().category }
                 .distinct()
+                .filter { it.isNotBlank() }
                 .reduceRight {a, b -> "$a, $b" }
 
         return embed {
