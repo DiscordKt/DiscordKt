@@ -14,7 +14,6 @@ import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.CommandListener
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
-import me.aberrantfox.kjdautils.internal.plugins.PluginService
 import me.aberrantfox.kutilsplugins.PluginLoader
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDABuilder
@@ -29,7 +28,6 @@ class KUtils(val config: KJDAConfiguration) {
     private var helpService: HelpService? = null
     private val container = CommandsContainer()
     private val diService = DIService()
-    private val pluginService = PluginService(container, this)
     private val pluginLoader = PluginLoader()
 
     val jda = JDABuilder(AccountType.BOT).setToken(config.token).buildBlocking()
@@ -37,7 +35,6 @@ class KUtils(val config: KJDAConfiguration) {
 
     init {
         jda.addEventListener(EventRegister)
-        registerInjectionObject(pluginService)
     }
 
     fun registerInjectionObject(vararg obj: Any) = obj.forEach { diService.addElement(it) }
@@ -78,14 +75,6 @@ class KUtils(val config: KJDAConfiguration) {
     fun deleteOnInvocation(delete: Boolean) {
             config.deleteOnInvocation = delete
     }
-
-    fun loadPlugins(directoryPath: String) = pluginService.loadScripts(directoryPath)
-
-    fun loadPlugin(file: File) = pluginService.loadPlugin(file)
-
-    fun loadPlugin(code: String) = pluginService.loadPlugin(code)
-
-    fun fetchPlugin(name: String) = pluginService.loadPlugin(pluginLoader[name]!!)
 }
 
 fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
