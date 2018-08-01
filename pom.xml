@@ -6,7 +6,7 @@
 
     <groupId>me.aberrantfox</groupId>
     <artifactId>KJDAUtils</artifactId>
-    <version>0.8.2</version>
+    <version>0.8.3</version>
 
     <properties>
         <kotlin.version>1.2.50</kotlin.version>
