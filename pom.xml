@@ -25,11 +25,6 @@
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.gitlab.aberrantfox</groupId>
-            <artifactId>Kutils-plugins</artifactId>
-            <version>${kutils-plugins.version}</version>
-        </dependency>
-        <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
             <version>${jda.version}</version>
