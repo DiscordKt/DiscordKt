@@ -6,18 +6,16 @@
 
     <groupId>me.aberrantfox</groupId>
     <artifactId>KJDAUtils</artifactId>
-    <version>0.8.3</version>
+    <version>0.8.4</version>
 
     <properties>
-        <kotlin.version>1.2.50</kotlin.version>
-        <jda.version>3.6.0_376</jda.version>
-        <jdbc.version>5.1.43</jdbc.version>
+        <kotlin.version>1.2.60</kotlin.version>
+        <jda.version>3.7.1_386</jda.version>
         <gson.version>2.3.1</gson.version>
         <reflections.version>0.9.11</reflections.version>
         <guava.version>25.0-jre</guava.version>
         <commons.version>1.1</commons.version>
         <spek.version>1.1.5</spek.version>
-        <kutils-plugins.version>0.1.0</kutils-plugins.version>
     </properties>
 
     <dependencies>
@@ -35,11 +33,6 @@
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
             <version>${jda.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${jdbc.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -67,26 +60,6 @@
             <version>${guava.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-script-runtime</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-script-util</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-compiler-embeddable</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-reflect</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>

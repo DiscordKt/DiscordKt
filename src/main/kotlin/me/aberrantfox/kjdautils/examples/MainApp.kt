@@ -10,7 +10,6 @@ import me.aberrantfox.kjdautils.internal.command.Fail
 import me.aberrantfox.kjdautils.internal.command.Pass
 import me.aberrantfox.kjdautils.internal.command.arguments.IntegerArg
 import me.aberrantfox.kjdautils.internal.command.arguments.SentenceArg
-import me.aberrantfox.kjdautils.internal.plugins.PluginService
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 
 data class MyCustomBotConfiguration(val version: String, val token: String)
@@ -45,10 +44,6 @@ fun main(args: Array<String>) {
                 Pass
             }
         })
-
-        //You may also pass a directory or a file here instead of the raw code.
-        loadPlugins("plugins/")
-        fetchPlugin("PingPlugin.kts")
     }
 }
 
@@ -105,22 +100,6 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = comman
             val second = it.args.component2() as Int
 
             it.respond("${first + second}")
-        }
-    }
-}
-
-
-@CommandSet("test")
-fun cmd(pluginService: PluginService) = commands {
-    command("all") {
-        execute { it.respond(it.container.commands.keys.joinToString(", ")) }
-    }
-
-    command("eval") {
-        expect(SentenceArg)
-        execute {
-            val code = it.args[0] as String
-            pluginService.loadPlugin(code)
         }
     }
 }
