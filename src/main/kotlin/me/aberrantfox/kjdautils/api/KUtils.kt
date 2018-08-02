@@ -14,7 +14,6 @@ import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.CommandListener
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
-import me.aberrantfox.kutilsplugins.PluginLoader
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDABuilder
 import org.reflections.Reflections
@@ -28,7 +27,6 @@ class KUtils(val config: KJDAConfiguration) {
     private var helpService: HelpService? = null
     private val container = CommandsContainer()
     private val diService = DIService()
-    private val pluginLoader = PluginLoader()
 
     val jda = JDABuilder(AccountType.BOT).setToken(config.token).buildBlocking()
     var logger: BotLogger = DefaultLogger()
