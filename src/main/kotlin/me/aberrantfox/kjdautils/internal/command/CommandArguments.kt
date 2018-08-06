@@ -22,7 +22,6 @@ interface ArgumentType {
     val examples: ArrayList<String>
     val name: String
 
-    fun isValid(arg: String, event: CommandEvent): Boolean
     fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult
 }
 

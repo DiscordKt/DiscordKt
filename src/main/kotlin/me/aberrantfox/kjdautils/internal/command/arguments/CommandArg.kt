@@ -9,7 +9,6 @@ object CommandArg : ArgumentType {
     override val examples = arrayListOf("Help", "Ping")
     override val name = "Command"
     override val consumptionType = ConsumptionType.Single
-    override fun isValid(arg: String, event: CommandEvent) = event.container.has(arg.toLowerCase())
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
         val command = event.container[arg.toLowerCase()]
 

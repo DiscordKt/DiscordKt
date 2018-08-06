@@ -9,6 +9,5 @@ object WordArg : ArgumentType {
     override val examples = arrayListOf("exampleWord", "123", "bob")
     override val name = "Word"
     override val consumptionType = ConsumptionType.Single
-    override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent) = ArgumentResult.Single(arg)
 }
