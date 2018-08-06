@@ -3,8 +3,6 @@ package me.aberrantfox.kjdautils.internal.command
 
 import me.aberrantfox.kjdautils.api.dsl.CommandArgument
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
-import me.aberrantfox.kjdautils.internal.command.ArgumentResult.Multiple
-import me.aberrantfox.kjdautils.internal.command.ArgumentResult.Single
 import me.aberrantfox.kjdautils.internal.command.Result.Error
 import me.aberrantfox.kjdautils.internal.command.Result.Results
 import me.aberrantfox.kjdautils.internal.command.arguments.Manual
@@ -30,84 +28,55 @@ internal fun convertArguments(actual: List<String>, expected: List<CommandArgume
         return Results(actual)
     }
 
-    val result = convertArgs(actual, expected, event)
-            .then { convertOptionalArgs(it, expected, event) }
+    return convertArgs(actual, expected, event)
+}
 
-    val converted = when (result) {
-        is Results -> result.results
-        is Error -> return result
-    }
+private fun convertOptional(arg: CommandArgument, event: CommandEvent): Any? {
+    if (!arg.optional) return null
 
-    return when {
-        converted.none { it == null } -> result
-        else -> Error("You did not fill all of the non-optional arguments.")
+    val default = arg.defaultValue
+    return when (default) {
+        is Function<*> -> (default as (CommandEvent) -> Any).invoke(event)
+        else -> default
     }
 }
 
 private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): Result {
 
-    val converted = arrayOfNulls<Any?>(expected.size)
-
     val remaining = actual.toMutableList()
 
-    while (remaining.isNotEmpty()) {
-        val actualArg = remaining.first()
-
-        if (actualArg.isBlank()) {
-            remaining.remove(actualArg)
-            continue
-        }
-
-        val nextMatchingIndex = expected.withIndex().indexOfFirst {
-            it.value.type.isValid(actualArg, event) && converted[it.index] == null
-        }
-        if (nextMatchingIndex == -1) return Error("Couldn't match '$actualArg' with the expected arguments. Try using the `help` command.")
-
-        val expectedArg = expected[nextMatchingIndex]
-
-        val result = expectedArg.type.convert(actualArg, remaining.toList(), event)
-
-        val convertedValue = when (result) {
-            is Single -> {
+    var lastError: ArgumentResult.Error? = null
+    val converted = expected.map { expectedArg ->
+        if (remaining.isEmpty()) {
+            convertOptional(expectedArg, event) ?: return Error("Missing non-optional argument(s). Try using `help`")
+        } else {
+            var actualArg = remaining.first()
+            while (actualArg.isBlank()) {
                 remaining.remove(actualArg)
-                result.result
+                actualArg = remaining.first()
             }
-            is Multiple -> {
-                result.consumed.map { remaining.remove(it) }
-                result.result
-            }
-            is ArgumentResult.Error -> {
-                val default = expectedArg.defaultValue
 
-                if (expectedArg.optional) when (default) {
-                    is Function<*> -> (default as (CommandEvent) -> Any).invoke(event)
-                    else -> default
-                } else {
-                    return Error(result.error)
+            val result = expectedArg.type.convert(actualArg, remaining.toList(), event)
+
+            when (result) {
+                is ArgumentResult.Single -> {
+                    remaining.remove(actualArg)
+                    result.result
+                }
+                is ArgumentResult.Multiple -> {
+                    result.consumed.map { remaining.remove(it) }
+                    result.result
+                }
+                is ArgumentResult.Error -> {
+                    lastError = result
+                    convertOptional(expectedArg, event) ?: return Error(result.error)
                 }
             }
         }
-
-        converted[nextMatchingIndex] = convertedValue
     }
 
-    return Results(converted.toList())
-}
-
-private fun convertOptionalArgs(args: List<Any?>, expected: List<CommandArgument>, event: CommandEvent): Result {
-    val zip = args.zip(expected)
-
-    val converted =
-            zip.map { (arg, expectedArg) ->
-                if (arg != null || !expectedArg.optional) return@map arg
-
-                val default = expectedArg.defaultValue
-
-                return@map when (default) {
-                    is Function<*> -> (default as (CommandEvent) -> Any).invoke(event)
-                    else -> default
-                }
-            }
+    if (remaining.isNotEmpty())
+        return Error(lastError?.error ?: "Unmatched arguments. Try using `help`")
 
     return Results(converted)
 }

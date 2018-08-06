@@ -19,7 +19,6 @@ open class ChoiceArg(vararg choices: Any) : ArgumentType {
     override val examples = ArrayList(enumerations.keys)
     override val name = "Choice"
     override val consumptionType = ConsumptionType.Single
-    override fun isValid(arg: String, event: CommandEvent) = true
     override fun convert(arg: String, args: List<String>, event: CommandEvent) =
             enumerations[arg.toLowerCase()]?.let (ArgumentResult::Single) ?: ArgumentResult.Error(
                     "Invalid choice. Available choices: ${enumerations.keys.joinToString (", ")}")

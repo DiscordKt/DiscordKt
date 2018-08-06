@@ -10,6 +10,7 @@ object IntegerArg : ArgumentType {
     override val examples = arrayListOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
     override val name = "Integer"
     override val consumptionType = ConsumptionType.Single
-    override fun isValid(arg: String, event: CommandEvent) = arg.isInteger()
-    override fun convert(arg: String, args: List<String>, event: CommandEvent) = ArgumentResult.Single(arg.toInt())
+    override fun convert(arg: String, args: List<String>, event: CommandEvent) =
+            arg.toIntOrNull()?.let { ArgumentResult.Single(it) } ?: ArgumentResult.Error(
+                    "Expected an integer number, got $arg")
 }
