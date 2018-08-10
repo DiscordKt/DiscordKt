@@ -10,7 +10,7 @@
 
     <properties>
         <kotlin.version>1.2.60</kotlin.version>
-        <jda.version>3.7.1_386</jda.version>
+        <jda.version>3.7.1_392</jda.version>
         <gson.version>2.3.1</gson.version>
         <reflections.version>0.9.11</reflections.version>
         <guava.version>25.0-jre</guava.version>
