@@ -5,9 +5,10 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
-object Manual : ArgumentType {
+open class Manual(override val name: String = "Unknown") : ArgumentType {
+    companion object : Manual()
+
     override val examples = arrayListOf("None-specified")
-    override val name = "Unknown"
     override val consumptionType = ConsumptionType.All
     override fun convert(arg: String, args: List<String>, event: CommandEvent) = ArgumentResult.Multiple(args, args)
 }

@@ -6,9 +6,10 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import me.aberrantfox.kjdautils.internal.command.separatorCharacter
 
-object SplitterArg : ArgumentType {
+open class SplitterArg(override val name : String = "(Separated|Text)") : ArgumentType {
+    companion object : SplitterArg()
+
     override val examples = arrayListOf("sentence one | Sentence two | Sentence three", "one | two")
-    override val name = "(Separated|Text)"
     override val consumptionType = ConsumptionType.All
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
         val joined = args.joinToString(" ")

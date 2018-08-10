@@ -6,9 +6,10 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
-object IntegerArg : ArgumentType {
+open class IntegerArg(override val name: String = "Integer") : ArgumentType {
+    companion object : IntegerArg()
+
     override val examples = arrayListOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
-    override val name = "Integer"
     override val consumptionType = ConsumptionType.Single
     override fun convert(arg: String, args: List<String>, event: CommandEvent) =
             arg.toIntOrNull()?.let { ArgumentResult.Single(it) } ?: ArgumentResult.Error(
