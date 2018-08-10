@@ -7,9 +7,10 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import me.aberrantfox.kjdautils.internal.command.tryRetrieveSnowflake
 
-object UserArg : ArgumentType {
+open class UserArg(override val name : String = "DiscordUser") : ArgumentType {
+    companion object : UserArg()
+
     override val examples = arrayListOf("@Bob", "268856125007331328", "275544730887127040")
-    override val name = "DiscordUser"
     override val consumptionType = ConsumptionType.Single
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
         val retrieved = tryRetrieveSnowflake(event.jda) { it.retrieveUserById(arg.trimToID()).complete() }

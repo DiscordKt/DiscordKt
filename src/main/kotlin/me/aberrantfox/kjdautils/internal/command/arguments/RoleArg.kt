@@ -8,9 +8,10 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import me.aberrantfox.kjdautils.internal.command.tryRetrieveSnowflake
 
-object RoleArg : ArgumentType {
+open class RoleArg(override val name : String = "Role") : ArgumentType {
+    companion object : RoleArg()
+
     override val examples = arrayListOf("Moderator", "413710761895133185", "406612842968776706")
-    override val name = "Role"
     override val consumptionType = ConsumptionType.Single
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
         val retrieved = tryRetrieveSnowflake(event.jda) { it.obtainRole(arg.trimToID()) }
