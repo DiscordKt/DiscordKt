@@ -16,7 +16,7 @@ class EmbedDSLHandle : EmbedBuilder() {
     fun field(construct: FieldStore.() -> Unit) {
         val field = FieldStore()
         field.construct()
-        addField(field.name, field.value, false)
+        addField(field.name, field.value, field.inline)
     }
 
     fun ifield(construct: FieldStore.() -> Unit) {
@@ -26,7 +26,7 @@ class EmbedDSLHandle : EmbedBuilder() {
     }
 }
 
-data class FieldStore(var name: String? = "", var value: String? = "", var inline: Boolean = true)
+data class FieldStore(var name: String? = "", var value: String? = "", var inline: Boolean = false)
 
 fun embed(construct: EmbedDSLHandle.() -> Unit): MessageEmbed {
     val handle = EmbedDSLHandle()
