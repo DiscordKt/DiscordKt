@@ -2,6 +2,7 @@ package me.aberrantfox.kjdautils.api.dsl
 
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.MessageEmbed
+import java.awt.Color
 
 class EmbedDSLHandle : EmbedBuilder() {
     operator fun invoke(args: EmbedDSLHandle.() -> Unit) {}
@@ -10,10 +11,12 @@ class EmbedDSLHandle : EmbedBuilder() {
 
     fun description(descr: String?) = this.setDescription(descr)
 
+    fun color(color: Color) = this.setColor(color)
+
     fun field(construct: FieldStore.() -> Unit) {
         val field = FieldStore()
         field.construct()
-        addField(field.name, field.value, field.inline)
+        addField(field.name, field.value, false)
     }
 
     fun ifield(construct: FieldStore.() -> Unit) {
