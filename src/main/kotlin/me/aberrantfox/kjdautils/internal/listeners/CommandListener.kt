@@ -18,6 +18,7 @@ import me.aberrantfox.kjdautils.internal.command.CommandExecutor
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
 import me.aberrantfox.kjdautils.internal.command.cleanCommandMessage
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
+import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.entities.MessageChannel
 import net.dv8tion.jda.core.entities.User
@@ -32,16 +33,16 @@ internal class CommandListener(val config: KJDAConfiguration,
 
     @Subscribe
     fun guildMessageHandler(e: GuildMessageReceivedEvent) =
-            handleMessage(e.channel, e.message, e.author, true)
+            handleMessage(e.channel, e.message, e.author, e.guild)
 
     @Subscribe
     fun privateMessageHandler(e: PrivateMessageReceivedEvent) =
-            handleMessage(e.channel, e.message, e.author, false)
+            handleMessage(e.channel, e.message, e.author)
 
 
     fun addPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) = preconditions.addAll(conditions)
 
-    private fun handleMessage(channel: MessageChannel, message: Message, author: User, invokedInGuild: Boolean) {
+    private fun handleMessage(channel: MessageChannel, message: Message, author: User, guild: Guild? = null) {
 
         if (!isUsableCommand(message, author)) return
 
@@ -50,7 +51,8 @@ internal class CommandListener(val config: KJDAConfiguration,
         if (commandName.isEmpty())
             return
 
-        val event = CommandEvent(commandStruct, message, actualArgs, container)
+        val invokedInGuild = guild != null
+        val event = CommandEvent(commandStruct, message, actualArgs, container, guild = guild)
 
         val shouldDelete = config.deleteOnInvocation && invokedInGuild && !isDoubleInvocation
 

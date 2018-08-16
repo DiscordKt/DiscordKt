@@ -6,10 +6,7 @@ import me.aberrantfox.kjdautils.internal.command.CommandStruct
 import me.aberrantfox.kjdautils.internal.command.arguments.WordArg
 import me.aberrantfox.kjdautils.internal.di.DIService
 import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.entities.Message
-import net.dv8tion.jda.core.entities.MessageChannel
-import net.dv8tion.jda.core.entities.MessageEmbed
-import net.dv8tion.jda.core.entities.User
+import net.dv8tion.jda.core.entities.*
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 
@@ -22,7 +19,8 @@ data class CommandEvent(val commandStruct: CommandStruct,
                         val container: CommandsContainer,
                         val jda: JDA = message.jda,
                         val author: User = message.author,
-                        val channel: MessageChannel = message.channel) {
+                        val channel: MessageChannel = message.channel,
+                        val guild: Guild? = null) {
 
     fun respond(msg: String) =
         if(msg.length > 2000) {

@@ -102,4 +102,13 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = comman
             it.respond("${first + second}")
         }
     }
+
+    command("guildowner") {
+        description = "Provide info about the guild you executed the command in"
+        execute {
+            //This command just won't do anything if it's executed in DM. You may want to send a response.
+            val guild = it.guild ?: return@execute
+            it.respond("${guild.name} is owned by ${guild.owner}")
+        }
+    }
 }
