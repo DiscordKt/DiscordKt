@@ -27,7 +27,7 @@ internal class CommandExecutor {
         when (conversionResult) {
             is Results -> event.args = conversionResult.results.requireNoNulls()
             is Error -> {
-                event.safeRespond(conversionResult.error)
+                event.respond(conversionResult.error)
                 return
             }
         }

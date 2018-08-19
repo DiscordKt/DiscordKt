@@ -58,7 +58,7 @@ internal class CommandListener(val config: KJDAConfiguration,
 
         getPreconditionError(event)?.let {
             if (it != "") {
-                event.safeRespond(it)
+                event.respond(it)
             }
             return
         }
