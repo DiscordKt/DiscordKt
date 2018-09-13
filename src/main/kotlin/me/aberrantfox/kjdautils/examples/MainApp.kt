@@ -20,16 +20,18 @@ data class MyCustomLogger(val prefix: String) {
 
 fun main(args: Array<String>) {
     val token = args.component1()
-    val prefix = "!"
-    val commandPath = "me.aberrantfox.kjdautils.examples"
 
     startBot(token) {
         val myConfig = MyCustomBotConfiguration("0.1.0", token)
         val myLog = MyCustomLogger(":: BOT ::")
 
         registerInjectionObject(myConfig, myLog)
-        registerCommands(commandPath, prefix)
-        registerListenersByPath("me.aberrantfox.kjdautils.examples")
+
+        configure {
+            prefix = "!"
+            commandPath = "me.aberrantfox.kjdautils.examples"
+            listenerPath = "me.aberrantfox.kjdautils.examples"
+        }
 
         registerCommandPreconditions({
             if (it.channel.name != "ignored") {
@@ -71,7 +73,6 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = comman
             log.log("Version logged!")
         }
     }
-
 
     command("echo") {
         expect(SentenceArg)

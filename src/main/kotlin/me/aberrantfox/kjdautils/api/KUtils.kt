@@ -25,8 +25,9 @@ class KUtils(val config: KJDAConfiguration) {
     private var listener: CommandListener? = null
     private var executor: CommandExecutor? = null
     private var helpService: HelpService? = null
-    private val container = CommandsContainer()
     private val diService = DIService()
+
+    val container = CommandsContainer()
 
     val jda = JDABuilder(AccountType.BOT).setToken(config.token).buildBlocking()
     var logger: BotLogger = DefaultLogger()
@@ -37,9 +38,8 @@ class KUtils(val config: KJDAConfiguration) {
 
     fun registerInjectionObject(vararg obj: Any) = obj.forEach { diService.addElement(it) }
 
-    fun registerCommands(commandPath: String, prefix: String): CommandsContainer {
+    fun registerCommands(commandPath: String): CommandsContainer {
         config.commandPath = commandPath
-        config.prefix = prefix
 
         val localContainer = produceContainer(commandPath, diService)
         CommandRecommender.addAll(localContainer.listCommands())
@@ -63,19 +63,25 @@ class KUtils(val config: KJDAConfiguration) {
                 EventRegister.eventBus.register(it)
             }
 
-    fun registerListenersByPath(path: String) =
-            Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
-                    .map { it.declaringClass }
-                    .distinct()
-                    .map { diService.invokeConstructor(it) }
-                    .forEach { registerListeners(it) }
-    
-    fun deleteOnInvocation(delete: Boolean) {
-            config.deleteOnInvocation = delete
+    fun registerListenersByPath(path: String) {
+        config.listenerPath = path
+        Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
+                .map { it.declaringClass }
+                .distinct()
+                .map { diService.invokeConstructor(it) }
+                .forEach { registerListeners(it) }
     }
-
+    
     fun configure(setup: KJDAConfiguration.() -> Unit) {
+        val lastCommandPath = config.commandPath
+        val lastListenerPath = config.listenerPath
+
         config.setup()
+
+        if (lastCommandPath != config.commandPath)
+            registerCommands(config.commandPath)
+        if (lastListenerPath != config.listenerPath)
+            registerListenersByPath(config.listenerPath)
     }
 }
 

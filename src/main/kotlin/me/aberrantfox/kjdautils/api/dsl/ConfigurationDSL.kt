@@ -8,5 +8,6 @@ data class KJDAConfiguration(val token: String = "",
 
                              var prefix: String = "+",
                              var commandPath: String = "",
+                             var listenerPath: String = "",
                              var deleteOnInvocation: Boolean = true,
                              var visibilityPredicate: (command: String, User, MessageChannel, Guild?) -> Boolean= { _, _, _, _ -> true })
