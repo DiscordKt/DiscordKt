@@ -66,7 +66,7 @@ internal class CommandListener(val config: KJDAConfiguration,
         val command = container[commandName]
 
         if (command == null) {
-            val recommended = CommandRecommender.recommendCommand(commandName)
+            val recommended = CommandRecommender.recommendCommand(commandName) { config.visibilityPredicate(it, author, channel, guild) }
             val cleanName = commandName.sanitiseMentions()
 
             if (shouldDelete) message.deleteIfExists()

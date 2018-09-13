@@ -52,7 +52,7 @@ class KUtils(val config: KJDAConfiguration) {
         this.listener = listener
 
         registerListeners(listener)
-        helpService = HelpService(container, config.prefix)
+        helpService = HelpService(container, config)
         return container
     }
 
@@ -72,6 +72,10 @@ class KUtils(val config: KJDAConfiguration) {
     
     fun deleteOnInvocation(delete: Boolean) {
             config.deleteOnInvocation = delete
+    }
+
+    fun configure(setup: KJDAConfiguration.() -> Unit) {
+        config.setup()
     }
 }
 
