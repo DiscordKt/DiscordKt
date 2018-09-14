@@ -24,7 +24,7 @@ import java.io.File
 class KUtils(val config: KJDAConfiguration) {
     private var listener: CommandListener? = null
     private var executor: CommandExecutor? = null
-    private var helpService: HelpService? = null
+    private val helpService: HelpService
     private val diService = DIService()
 
     val container = CommandsContainer()
@@ -34,6 +34,7 @@ class KUtils(val config: KJDAConfiguration) {
 
     init {
         jda.addEventListener(EventRegister)
+        helpService = HelpService(container, config)
     }
 
     fun registerInjectionObject(vararg obj: Any) = obj.forEach { diService.addElement(it) }
@@ -52,7 +53,6 @@ class KUtils(val config: KJDAConfiguration) {
         this.listener = listener
 
         registerListeners(listener)
-        helpService = HelpService(container, config)
         return container
     }
 
