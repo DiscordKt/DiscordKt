@@ -7,6 +7,7 @@ import me.aberrantfox.kjdautils.internal.command.PreconditionResult
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
 import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
+import me.aberrantfox.kjdautils.api.dsl.PrefixDeleteMode
 import me.aberrantfox.kjdautils.extensions.jda.deleteIfExists
 import me.aberrantfox.kjdautils.extensions.jda.descriptor
 import me.aberrantfox.kjdautils.extensions.jda.isCommandInvocation
@@ -52,9 +53,14 @@ internal class CommandListener(val config: KJDAConfiguration,
             return
 
         val invokedInGuild = guild != null
-        val event = CommandEvent(commandStruct, message, actualArgs, container, guild = guild)
+        val shouldDelete = invokedInGuild && when (config.deleteMode){
+            PrefixDeleteMode.Single -> !isDoubleInvocation
+            PrefixDeleteMode.Double ->  isDoubleInvocation
+            PrefixDeleteMode.None   ->  false
+        }
 
-        val shouldDelete = config.deleteOnInvocation && invokedInGuild && !isDoubleInvocation
+        val event = CommandEvent(commandStruct, message, actualArgs, container,
+                stealthInvocation = shouldDelete, guild = guild)
 
         getPreconditionError(event)?.let {
             if (it != "") {
@@ -82,7 +88,7 @@ internal class CommandListener(val config: KJDAConfiguration,
 
         executor.executeCommand(command, actualArgs, event)
 
-        if (isDoubleInvocation || !config.deleteOnInvocation) message.addReaction("\uD83D\uDC40").queue()
+        if (!shouldDelete) message.addReaction("\uD83D\uDC40").queue()
 
         log.cmd("${author.descriptor()} -- invoked $commandName in ${channel.name}")
 
