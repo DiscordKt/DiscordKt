@@ -103,6 +103,14 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = comman
         }
     }
 
+    command("guildsize") {
+        description = "Display how many members are in a guild"
+        requiresGuild = true
+        execute {
+            it.respond("There are ${it.guild!!.members.size} members ")
+        }
+    }
+
     command("guildowner") {
         description = "Provide info about the guild you executed the command in"
         execute {
