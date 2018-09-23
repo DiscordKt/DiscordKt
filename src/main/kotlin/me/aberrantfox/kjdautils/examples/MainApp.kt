@@ -3,7 +3,6 @@ package me.aberrantfox.kjdautils.examples
 
 import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.dsl.CommandSet
-import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
 import me.aberrantfox.kjdautils.api.dsl.arg
 import me.aberrantfox.kjdautils.api.dsl.commands
 import me.aberrantfox.kjdautils.api.startBot
@@ -24,8 +23,6 @@ data class MyCustomLogger(val prefix: String) {
 
 fun main(args: Array<String>) {
     val token = args.component1()
-    val prefix = "!"
-    val commandPath = "me.aberrantfox.kjdautils.examples"
 
     startBot(token) {
         val myConfig = MyCustomBotConfiguration("0.1.0", token)
@@ -35,9 +32,13 @@ fun main(args: Array<String>) {
 
         registerInjectionObject(myConfig, myLog)
         registerInjectionObject(conversationService, config)
-        registerCommands(commandPath, prefix)
-        registerListenersByPath("me.aberrantfox.kjdautils.examples")
         registerListeners(ConversationListener(conversationService))
+
+        configure {
+            prefix = "!"
+            commandPath = "me.aberrantfox.kjdautils.examples"
+            listenerPath = "me.aberrantfox.kjdautils.examples"
+        }
 
         registerCommandPreconditions({
             if (it.channel.name != "ignored") {
@@ -79,7 +80,6 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
             log.log("Version logged!")
         }
     }
-
 
     command("echo") {
         expect(SentenceArg)
