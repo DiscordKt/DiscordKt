@@ -6,10 +6,13 @@ import me.aberrantfox.kjdautils.api.dsl.CommandSet
 import me.aberrantfox.kjdautils.api.dsl.arg
 import me.aberrantfox.kjdautils.api.dsl.commands
 import me.aberrantfox.kjdautils.api.startBot
+import me.aberrantfox.kjdautils.internal.command.ConversationService
 import me.aberrantfox.kjdautils.internal.command.Fail
 import me.aberrantfox.kjdautils.internal.command.Pass
 import me.aberrantfox.kjdautils.internal.command.arguments.IntegerArg
 import me.aberrantfox.kjdautils.internal.command.arguments.SentenceArg
+import me.aberrantfox.kjdautils.internal.listeners.ConversationListener
+import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 
 data class MyCustomBotConfiguration(val version: String, val token: String)
@@ -20,16 +23,22 @@ data class MyCustomLogger(val prefix: String) {
 
 fun main(args: Array<String>) {
     val token = args.component1()
-    val prefix = "!"
-    val commandPath = "me.aberrantfox.kjdautils.examples"
 
     startBot(token) {
         val myConfig = MyCustomBotConfiguration("0.1.0", token)
         val myLog = MyCustomLogger(":: BOT ::")
+        val conversationService = ConversationService(jda, config)
+        conversationService.registerConversations("me.aberrantfox.kjdautils")
 
         registerInjectionObject(myConfig, myLog)
-        registerCommands(commandPath, prefix)
-        registerListenersByPath("me.aberrantfox.kjdautils.examples")
+        registerInjectionObject(conversationService, config)
+        registerListeners(ConversationListener(conversationService))
+
+        configure {
+            prefix = "!"
+            commandPath = "me.aberrantfox.kjdautils.examples"
+            listenerPath = "me.aberrantfox.kjdautils.examples"
+        }
 
         registerCommandPreconditions({
             if (it.channel.name != "ignored") {
@@ -62,7 +71,7 @@ fun defineOther(log: MyCustomLogger) = commands {
 }
 
 @CommandSet("utility")
-fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = commands {
+fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService) = commands {
     command("version") {
         description = "A command which will show the verison."
         category = "info"
@@ -71,7 +80,6 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = comman
             log.log("Version logged!")
         }
     }
-
 
     command("echo") {
         expect(SentenceArg)
@@ -117,6 +125,14 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger) = comman
             //This command just won't do anything if it's executed in DM. You may want to send a response.
             val guild = it.guild ?: return@execute
             it.respond("${guild.name} is owned by ${guild.owner}")
+        }
+    }
+
+    command("conversationtest") {
+        description = "Test the implementation of the ConversationDSL"
+        execute {
+            val eventChannel = it.channel as TextChannel
+            conversationService.createConversation(it.author.id, eventChannel.guild.id, "test-conversation")
         }
     }
 }

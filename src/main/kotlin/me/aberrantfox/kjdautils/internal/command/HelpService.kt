@@ -1,9 +1,6 @@
 package me.aberrantfox.kjdautils.internal.command
 
-import me.aberrantfox.kjdautils.api.dsl.Command
-import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
-import me.aberrantfox.kjdautils.api.dsl.arg
-import me.aberrantfox.kjdautils.api.dsl.embed
+import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.extensions.stdlib.randomListItem
 import me.aberrantfox.kjdautils.internal.command.arguments.WordArg
 import net.dv8tion.jda.core.entities.MessageEmbed
@@ -11,7 +8,8 @@ import java.awt.Color
 
 enum class SelectionArgument { CommandName, CategoryName }
 
-class HelpService(val container: CommandsContainer, val prefix: String) {
+class HelpService(private val container: CommandsContainer, private val config: KJDAConfiguration) {
+    private val prefix: String = config.prefix
 
     init {
         container.command("help") {
@@ -22,9 +20,9 @@ class HelpService(val container: CommandsContainer, val prefix: String) {
             execute {
                 val query = it.args.component1() as String
 
-                if(query.isEmpty()){ it.respond(defaultEmbed()); return@execute }
+                if(query.isEmpty()){ it.respond(defaultEmbed(it)); return@execute }
 
-                when(fetchArgumentType(query)) {
+                when(fetchArgumentType(query, it)) {
                     SelectionArgument.CommandName -> {
                         val command = container[query.toLowerCase()]!!
 
@@ -32,12 +30,13 @@ class HelpService(val container: CommandsContainer, val prefix: String) {
                     }
 
                     SelectionArgument.CategoryName -> {
-                        it.respond(generateCategoriesEmbed(query))
+                        it.respond(generateCategoriesEmbed(query, it))
                     }
 
                     null -> it.respond(embed{
                         title("The category or command $query does not exist")
-                        val recommendation = CommandRecommender.recommendCommand(query)
+                        val recommendation = CommandRecommender.recommendCommand(query,
+                                { cmd -> config.visibilityPredicate(cmd, it.author, it.channel, it.guild) })
                         setDescription("Did you mean $recommendation ?\n" +
                                        "Maybe you should try ${prefix}help")
                         setColor(Color.RED)
@@ -45,6 +44,7 @@ class HelpService(val container: CommandsContainer, val prefix: String) {
                 }
             }
         }
+        CommandRecommender.addPossibility("help")
     }
 
     private fun generateCommandEmbed(command: Command) = embed {
@@ -66,10 +66,11 @@ class HelpService(val container: CommandsContainer, val prefix: String) {
         }
     }
 
-    private fun generateCategoriesEmbed(category: String) :MessageEmbed {
+    private fun generateCategoriesEmbed(category: String, event: CommandEvent) :MessageEmbed {
         val commands = container.commands
                 .filter { it.component2().category.toLowerCase() == category.toLowerCase() }
                 .map { it.component2().name }
+                .filter { config.visibilityPredicate(it.toLowerCase(), event.author, event.channel, event.guild) }
                 .reduceRight{a, b -> "$a, $b"}
 
         return embed {
@@ -79,12 +80,13 @@ class HelpService(val container: CommandsContainer, val prefix: String) {
         }
     }
 
-    private fun defaultEmbed() :MessageEmbed {
+    private fun defaultEmbed(event: CommandEvent) :MessageEmbed {
         val categories = container.commands
+                .filter { config.visibilityPredicate(it.key.toLowerCase(), event.author, event.channel, event.guild) }
                 .map { it.component2().category }
                 .distinct()
                 .filter { it.isNotBlank() }
-                .reduceRight {a, b -> "$a, $b" }
+                .reduceRight { a, b -> "$a, $b" }
 
         return embed {
             setTitle("Help menu")
@@ -112,11 +114,18 @@ class HelpService(val container: CommandsContainer, val prefix: String) {
                 it.type.examples.randomListItem()
             }
 
-    private fun fetchArgumentType(value: String): SelectionArgument?{
-        val isCategory = container.commands.any { it.component2().category.toLowerCase() == value.toLowerCase() }
+    private fun fetchArgumentType(value: String, event: CommandEvent): SelectionArgument?{
+        val isCategory = container.commands.any {
+            it.component2().category.toLowerCase() == value.toLowerCase()
+                    && config.visibilityPredicate(it.key.toLowerCase(), event.author, event.channel, event.guild)
+        }
+
         if(isCategory) return SelectionArgument.CategoryName
 
-        val isCommand = container.commands.any { it.component2().name.toLowerCase() == value.toLowerCase() }
+        val isCommand = container.commands.any {
+            it.component2().name.toLowerCase() == value.toLowerCase()
+                    && config.visibilityPredicate(value.toLowerCase(), event.author, event.channel, event.guild)
+        }
         if(isCommand) return SelectionArgument.CommandName
 
         return null
