@@ -15,7 +15,6 @@
         <reflections.version>0.9.11</reflections.version>
         <guava.version>25.0-jre</guava.version>
         <commons.version>1.1</commons.version>
-        <spek.version>1.1.5</spek.version>
     </properties>
 
     <dependencies>
@@ -54,20 +53,6 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
-
-        <!-- Test Dependencies -->
-        <dependency>
-            <groupId>org.jetbrains.spek</groupId>
-            <artifactId>spek-api</artifactId>
-            <version>${spek.version}</version>
-            <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-test</artifactId>
-            <version>${kotlin.version}</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <repositories>
@@ -97,7 +82,6 @@
                         <configuration>
                             <sourceDirs>
                                 <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
-                                <sourceDir>${project.basedir}/src/main/java</sourceDir>
                             </sourceDirs>
                         </configuration>
                     </execution>
@@ -109,7 +93,6 @@
                         <configuration>
                             <sourceDirs>
                                 <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
-                                <sourceDir>${project.basedir}/src/test/java</sourceDir>
                             </sourceDirs>
                         </configuration>
                     </execution>
