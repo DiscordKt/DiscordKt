@@ -9,7 +9,7 @@ import java.awt.Color
 
 
 @Convo
-fun testConverstion() = conversation {
+fun testConversation() = conversation {
     name = "test-conversation"
     description = "Test conversation to test the implementation within KUtils."
 

@@ -14,7 +14,6 @@ import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.entities.MessageEmbed
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import org.reflections.Reflections
-import org.reflections.scanners.FieldAnnotationsScanner
 import org.reflections.scanners.MethodAnnotationsScanner
 
 class ConversationService(val jda: JDA, private val config: KJDAConfiguration) {

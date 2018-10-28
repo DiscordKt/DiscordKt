@@ -11,7 +11,7 @@ import me.aberrantfox.kjdautils.internal.command.Fail
 import me.aberrantfox.kjdautils.internal.command.Pass
 import me.aberrantfox.kjdautils.internal.command.arguments.IntegerArg
 import me.aberrantfox.kjdautils.internal.command.arguments.SentenceArg
-import me.aberrantfox.kjdautils.internal.listeners.ConversationListener
+import net.dv8tion.jda.core.entities.PrivateChannel
 import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 
@@ -25,21 +25,19 @@ fun main(args: Array<String>) {
     val token = args.component1()
 
     startBot(token) {
-        val myConfig = MyCustomBotConfiguration("0.1.0", token)
-        val myLog = MyCustomLogger(":: BOT ::")
-        val conversationService = ConversationService(jda, config)
-        conversationService.registerConversations("me.aberrantfox.kjdautils")
-
-        registerInjectionObject(myConfig, myLog)
-        registerInjectionObject(conversationService, config)
-        registerListeners(ConversationListener(conversationService))
+        val examplesPath = "me.aberrantfox.kjdautils.examples"
 
         configure {
             prefix = "!"
-            commandPath = "me.aberrantfox.kjdautils.examples"
-            listenerPath = "me.aberrantfox.kjdautils.examples"
+            commandPath = examplesPath
+            listenerPath = examplesPath
+            conversationPath = examplesPath
         }
 
+        val myConfig = MyCustomBotConfiguration("0.1.0", token)
+        val myLog = MyCustomLogger(":: BOT ::")
+
+        registerInjectionObject(myConfig, myLog, this.config, this.conversationService)
         registerCommandPreconditions({
             if (it.channel.name != "ignored") {
                 Pass
@@ -130,9 +128,9 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
 
     command("conversationtest") {
         description = "Test the implementation of the ConversationDSL"
+        requiresGuild = true
         execute {
-            val eventChannel = it.channel as TextChannel
-            conversationService.createConversation(it.author.id, eventChannel.guild.id, "test-conversation")
+            conversationService.createConversation(it.author.id, it.guild!!.id, "test-conversation")
         }
     }
 }
