@@ -26,6 +26,10 @@ fun main(args: Array<String>) {
 
     startBot(token) {
         val examplesPath = "me.aberrantfox.kjdautils.examples"
+        val myConfig = MyCustomBotConfiguration("0.1.0", token)
+        val myLog = MyCustomLogger(":: BOT ::")
+
+        registerInjectionObject(myConfig, myLog, this.config, this.conversationService)
 
         configure {
             prefix = "!"
@@ -34,10 +38,6 @@ fun main(args: Array<String>) {
             conversationPath = examplesPath
         }
 
-        val myConfig = MyCustomBotConfiguration("0.1.0", token)
-        val myLog = MyCustomLogger(":: BOT ::")
-
-        registerInjectionObject(myConfig, myLog, this.config, this.conversationService)
         registerCommandPreconditions({
             if (it.channel.name != "ignored") {
                 Pass
@@ -60,7 +60,6 @@ class MessageLogger(val myConfig: MyCustomBotConfiguration) {
         println("ExampleBot :: V${myConfig.version} :: ${event.message.contentRaw}")
     }
 }
-
 
 @CommandSet("utility")
 fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService) = commands {
