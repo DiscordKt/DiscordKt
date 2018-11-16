@@ -5,12 +5,18 @@ import net.dv8tion.jda.core.JDA
 
 sealed class ArgumentResult {
     /** A result that has only consumed the single argument passed. **/
-    data class Single(val result: Any) : ArgumentResult()
+    data class Single(val result: Any) : ArgumentResult() {
+        companion object
+    }
 
     /** A result that has consumed more than just the argument given. **/
-    data class Multiple(val result: Any, val consumed: List<String>) : ArgumentResult()
+    data class Multiple(val result: Any, val consumed: List<String>) : ArgumentResult() {
+        companion object
+    }
 
-    data class Error(val error: String) : ArgumentResult()
+    data class Error(val error: String) : ArgumentResult() {
+        companion object
+    }
 }
 
 enum class ConsumptionType {
