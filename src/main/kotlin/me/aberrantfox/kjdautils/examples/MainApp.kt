@@ -63,12 +63,6 @@ class MessageLogger(val myConfig: MyCustomBotConfiguration) {
     }
 }
 
-@CommandSet
-fun defineOther(log: MyCustomLogger) = commands {
-    command("someCommand") {
-        execute { log.log("Hello, World!") }
-    }
-}
 
 @CommandSet("utility")
 fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService) = commands {
@@ -134,5 +128,12 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
             val eventChannel = it.channel as TextChannel
             conversationService.createConversation(it.author.id, eventChannel.guild.id, "test-conversation")
         }
+    }
+}
+
+@CommandSet
+fun defineOther(log: MyCustomLogger) = commands {
+    command("someCommand") {
+        execute { log.log("Hello, World!") }
     }
 }
