@@ -1,7 +1,6 @@
 package me.aberrantfox.kjdautils.internal.command
 
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.*
 import me.aberrantfox.kjdautils.api.dsl.Command
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.Result.Error
@@ -10,7 +9,7 @@ import me.aberrantfox.kjdautils.internal.command.Result.Results
 internal class CommandExecutor {
 
     fun executeCommand(command: Command, args: List<String>, event: CommandEvent) =
-            launch(CommonPool) {
+            GlobalScope.launch {
                 invokeCommand(command, args, event)
             }
 
