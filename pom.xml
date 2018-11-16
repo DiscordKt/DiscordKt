@@ -15,8 +15,10 @@
         <reflections.version>0.9.11</reflections.version>
         <guava.version>25.0-jre</guava.version>
         <commons.version>1.1</commons.version>
-        <spek.version>2.22.0</spek.version>
+        <surefire.version>2.22.0</surefire.version>
         <courotines.version>1.0.1</courotines.version>
+        <spek.version>2.0.0-alpha.2</spek.version>
+        <mockk.version>1.8.13.kotlin13</mockk.version>
     </properties>
 
     <dependencies>
@@ -58,9 +60,20 @@
 
         <!-- Test Dependencies -->
         <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.spekframework.spek2</groupId>
             <artifactId>spek-dsl-jvm</artifactId>
-            <version>2.0.0-alpha.2</version>
+            <version>${spek.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -72,22 +85,18 @@
         <dependency>
             <groupId>org.spekframework.spek2</groupId>
             <artifactId>spek-runner-junit5</artifactId>
-            <version>2.0.0-alpha.2</version>
+            <version>${spek.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.jetbrains.kotlin</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.junit.platform</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-reflect</artifactId>
-            <version>${kotlin.version}</version>
+            <groupId>io.mockk</groupId>
+            <artifactId>mockk</artifactId>
+            <version>${mockk.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -109,6 +118,7 @@
     </repositories>
 
     <build>
+        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <plugins>
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
@@ -117,6 +127,7 @@
                 <executions>
                     <execution>
                         <id>compile</id>
+                        <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>
@@ -128,6 +139,7 @@
                     </execution>
                     <execution>
                         <id>test-compile</id>
+                        <phase>test-compile</phase>
                         <goals>
                             <goal>test-compile</goal>
                         </goals>
@@ -165,7 +177,12 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${spek.version}</version>
+                <version>${surefire.version}</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Spec.*</include>
+                    </includes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
