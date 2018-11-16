@@ -15,7 +15,7 @@
         <reflections.version>0.9.11</reflections.version>
         <guava.version>25.0-jre</guava.version>
         <commons.version>1.1</commons.version>
-        <spek.version>1.1.5</spek.version>
+        <spek.version>2.22.0</spek.version>
         <courotines.version>1.0.1</courotines.version>
     </properties>
 
@@ -55,6 +55,41 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.spekframework.spek2</groupId>
+            <artifactId>spek-dsl-jvm</artifactId>
+            <version>2.0.0-alpha.2</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.spekframework.spek2</groupId>
+            <artifactId>spek-runner-junit5</artifactId>
+            <version>2.0.0-alpha.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.junit.platform</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <repositories>
@@ -66,6 +101,10 @@
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>spek-dev</id>
+            <url>https://dl.bintray.com/spekframework/spek-dev</url>
         </repository>
     </repositories>
 
@@ -123,6 +162,10 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${spek.version}</version>
             </plugin>
         </plugins>
     </build>
