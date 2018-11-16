@@ -14,7 +14,7 @@ import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.entities.MessageEmbed
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import org.reflections.Reflections
-import org.reflections.scanners.FieldAnnotationsScanner
+import org.reflections.scanners.MethodAnnotationsScanner
 
 class ConversationService(val jda: JDA, private val config: KJDAConfiguration) {
     private var availableConversations = mutableListOf<Conversation>()
@@ -53,6 +53,12 @@ class ConversationService(val jda: JDA, private val config: KJDAConfiguration) {
         }
     }
 
+    fun registerConversations(path: String) {
+        Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Convo::class.java).forEach {
+            availableConversations.add(it.invoke(null) as Conversation)
+        }
+    }
+
     private fun parseResponse(message: Message, step: Step): Any {
         val commandStruct = cleanCommandMessage(message.contentRaw, config)
         val commandEvent = CommandEvent(commandStruct, message, commandStruct.commandArgs, CommandsContainer(), false)
@@ -68,12 +74,5 @@ class ConversationService(val jda: JDA, private val config: KJDAConfiguration) {
     private fun sendToUser(userId: String, message: Any) {
         val user = jda.getUserById(userId)
         if (message is MessageEmbed) user.sendPrivateMessage(message, DefaultLogger()) else user.sendPrivateMessage(message as String, DefaultLogger())
-    }
-
-    fun registerConversations(path: String) {
-        Reflections(path, FieldAnnotationsScanner()).getFieldsAnnotatedWith(Convo::class.java).forEach {
-            it.trySetAccessible()
-            availableConversations.add(it.get(it) as Conversation)
-        }
     }
 }

@@ -7,8 +7,9 @@ import me.aberrantfox.kjdautils.internal.command.arguments.*
 import net.dv8tion.jda.core.entities.User
 import java.awt.Color
 
+
 @Convo
-var testConversation = conversation {
+fun testConversation() = conversation {
     name = "test-conversation"
     description = "Test conversation to test the implementation within KUtils."
 
