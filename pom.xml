@@ -16,7 +16,7 @@
         <guava.version>25.0-jre</guava.version>
         <commons.version>1.1</commons.version>
         <surefire.version>2.22.0</surefire.version>
-        <courotines.version>1.0.1</courotines.version>
+        <coroutines.version>1.0.1</coroutines.version>
         <spek.version>2.0.0-alpha.2</spek.version>
         <mockk.version>1.8.13.kotlin13</mockk.version>
     </properties>
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-core</artifactId>
-            <version>${courotines.version}</version>
+            <version>${coroutines.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
