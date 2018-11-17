@@ -11,7 +11,7 @@ fun ArgumentType.convertToSingle(
         event: CommandEvent = mockk()
 ) = (convert(arg, args, event) as ArgumentResult.Single).result
 
-fun ArgumentType.converToError(
+fun ArgumentType.convertToError(
         arg: String,
         args: List<String> = listOf(arg),
         event: CommandEvent = mockk()

@@ -4,7 +4,7 @@ import io.mockk.mockk
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.arguments.IntegerArg
-import mock.converToError
+import mock.convertToError
 import mock.convertToSingle
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.gherkin.Feature
@@ -26,13 +26,13 @@ object IntegerArgSpec: Spek({
 
         Scenario("A double value is passed to be converted") {
             Then("The Conversion fails") {
-                assertEquals(ArgumentResult.Error::class.java, IntegerArg.converToError("2.3")::class.java)
+                assertEquals(ArgumentResult.Error::class.java, IntegerArg.convertToError("2.3")::class.java)
             }
         }
 
         Scenario("A blank value is passed to be converted") {
             Then("The Conversion fails") {
-                assertEquals(ArgumentResult.Error::class.java, IntegerArg.converToError("")::class.java)
+                assertEquals(ArgumentResult.Error::class.java, IntegerArg.convertToError("")::class.java)
             }
         }
     }

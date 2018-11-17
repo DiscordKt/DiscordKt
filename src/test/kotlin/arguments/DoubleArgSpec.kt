@@ -2,7 +2,7 @@ package arguments
 
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.arguments.DoubleArg
-import mock.converToError
+import mock.convertToError
 import mock.convertToSingle
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.gherkin.Feature
@@ -24,7 +24,7 @@ object DoubleArgSpec : Spek({
 
         Scenario("A blank value is passed") {
             Then("The Conversion fails") {
-                assertEquals(ArgumentResult.Error::class.java, DoubleArg.converToError("")::class.java)
+                assertEquals(ArgumentResult.Error::class.java, DoubleArg.convertToError("")::class.java)
             }
         }
 
