@@ -1,14 +1,14 @@
 package arguments
 
-import io.mockk.mockk
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
+
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.arguments.IntegerArg
-import mock.convertToError
+import mock.attemptConvert
 import mock.convertToSingle
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.gherkin.Feature
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 object IntegerArgSpec: Spek({
     Feature("Integer Command Argument") {
@@ -26,22 +26,14 @@ object IntegerArgSpec: Spek({
 
         Scenario("A double value is passed to be converted") {
             Then("The Conversion fails") {
-                assertEquals(ArgumentResult.Error::class.java, IntegerArg.convertToError("2.3")::class.java)
+                assertTrue(IntegerArg.attemptConvert("2.3") is ArgumentResult.Error)
             }
         }
 
         Scenario("A blank value is passed to be converted") {
             Then("The Conversion fails") {
-                assertEquals(ArgumentResult.Error::class.java, IntegerArg.convertToError("")::class.java)
+                assertTrue(IntegerArg.attemptConvert("") is ArgumentResult.Error)
             }
         }
     }
 })
-
-private fun convertArgToSingle(arg: String): Int {
-    val event = mockk<CommandEvent>()
-    val argResult = IntegerArg.convert(arg, listOf(arg), event) as ArgumentResult.Single
-    return argResult.result as Int
-}
-
-private fun convertArgToError(arg: String) = IntegerArg.convert(arg, listOf(arg), mockk())

@@ -2,11 +2,12 @@ package arguments
 
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.arguments.DoubleArg
-import mock.convertToError
+import mock.attemptConvert
 import mock.convertToSingle
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.gherkin.Feature
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 object DoubleArgSpec : Spek({
     Feature("Double Command Argument") {
@@ -24,7 +25,7 @@ object DoubleArgSpec : Spek({
 
         Scenario("A blank value is passed") {
             Then("The Conversion fails") {
-                assertEquals(ArgumentResult.Error::class.java, DoubleArg.convertToError("")::class.java)
+                assertTrue(DoubleArg.attemptConvert("") is ArgumentResult.Error)
             }
         }
 

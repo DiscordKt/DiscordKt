@@ -18,7 +18,7 @@
         <surefire.version>2.22.0</surefire.version>
         <coroutines.version>1.0.1</coroutines.version>
         <spek.version>2.0.0-alpha.2</spek.version>
-        <mockk.version>1.8.13.kotlin13</mockk.version>
+        <mockito.version>2.0.0</mockito.version>
     </properties>
 
     <dependencies>
@@ -94,9 +94,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>io.mockk</groupId>
-            <artifactId>mockk</artifactId>
-            <version>${mockk.version}</version>
+            <groupId>com.nhaarman.mockitokotlin2</groupId>
+            <artifactId>mockito-kotlin</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
