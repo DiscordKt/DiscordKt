@@ -2,7 +2,7 @@ package arguments
 
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.arguments.ChoiceArg
-import mock.Constants
+import mock.GherkinMessages
 import mock.attemptConvert
 import mock.convertToSingle
 import org.spekframework.spek2.Spek
@@ -12,14 +12,14 @@ import kotlin.test.assertTrue
 
 object ChoiceArgSpec : Spek({
     Feature("Choice Command Argument") {
-        Scenario("Binary Choice Arg is passed a valid choice") {
+        Scenario(GherkinMessages.ValidArgumentIsPassed) {
             Then("The valid choice is returned as the correct type and value") {
                 assertEquals(true, ChoiceArg.convertToSingle("true"))
             }
         }
 
         Scenario("Binary Choice is passed a valid choice with incorrect letter case") {
-            Then(Constants.ConversionSucceeds) {
+            Then(GherkinMessages.ConversionSucceeds) {
                 assertEquals(false, ChoiceArg.convertToSingle("FalSe"))
             }
         }
