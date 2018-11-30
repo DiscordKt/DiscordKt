@@ -58,7 +58,7 @@ class KUtils(val config: KJDAConfiguration) {
         }
     }
 
-    private fun registerListeners(vararg listeners: Any) =
+    fun registerListeners(vararg listeners: Any) =
             listeners.forEach {
                 EventRegister.eventBus.register(it)
             }
