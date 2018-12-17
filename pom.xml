@@ -10,7 +10,7 @@
 
     <properties>
         <kotlin.version>1.3.10</kotlin.version>
-        <jda.version>3.8.1_439</jda.version>
+        <jda.version>3.8.1_448</jda.version>
         <gson.version>2.8.5</gson.version>
         <reflections.version>0.9.11</reflections.version>
         <guava.version>25.0-jre</guava.version>
@@ -120,6 +120,35 @@
     <build>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <plugins>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <executions>
+                    <execution>
+                        <id>only-bootstrap</id>
+                        <goals><goal>jar</goal></goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <classifier>bootstrap</classifier>
+                            <includes>
+                                <include>sun/**/*</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/examples/**</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
