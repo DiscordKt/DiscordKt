@@ -9,8 +9,6 @@ import java.awt.Color
 enum class SelectionArgument { CommandName, CategoryName }
 
 class HelpService(private val container: CommandsContainer, private val config: KJDAConfiguration) {
-    private val prefix: String = config.prefix
-
     init {
         container.command("help") {
             description = "Display a help menu"
@@ -38,7 +36,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
                         val recommendation = CommandRecommender.recommendCommand(query,
                                 { cmd -> config.visibilityPredicate(cmd, it.author, it.channel, it.guild) })
                         setDescription("Did you mean $recommendation ?\n" +
-                                       "Maybe you should try ${prefix}help")
+                                       "Maybe you should try ${config.prefix}help")
                         setColor(Color.RED)
                     })
                 }
@@ -51,7 +49,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
         title("Displaying help for ${command.name}")
         description(command.description)
         setColor(Color.CYAN)
-        val commandInvocation = "$prefix${command.name} "
+        val commandInvocation = "${config.prefix}${command.name} "
 
         field {
             name = "What is the structure of the command?"
@@ -90,7 +88,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
 
         return embed {
             setTitle("Help menu")
-            setDescription("Use ${prefix}help <command|category> for more information")
+            setDescription("Use ${config.prefix}help <command|category> for more information")
             setColor(Color.decode("#00E58D"))
 
             field {

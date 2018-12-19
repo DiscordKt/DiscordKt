@@ -1,47 +1,40 @@
 package arguments
 
-import io.mockk.mockk
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
+
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.arguments.IntegerArg
-import mock.convertToError
+import mock.GherkinMessages
+import mock.attemptConvert
 import mock.convertToSingle
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.gherkin.Feature
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 object IntegerArgSpec: Spek({
     Feature("Integer Command Argument") {
-        Scenario("Passing 3 to be converted") {
-            Then("3 is correctly parsed into the correct type and value ") {
+        Scenario(GherkinMessages.ValidArgumentIsPassed) {
+            Then(GherkinMessages.ConversionSucceeds) {
                 assertEquals(3, IntegerArg.convertToSingle("3"))
             }
         }
 
         Scenario("Passing Integer.MAX_VALUE to be converted") {
-            Then("Integer.MAX_VALUE is correctly returned as an integer, as the correct value") {
+            Then(GherkinMessages.ConversionSucceeds) {
                 assertEquals(Integer.MAX_VALUE, IntegerArg.convertToSingle("${Integer.MAX_VALUE}"))
             }
         }
 
         Scenario("A double value is passed to be converted") {
-            Then("The Conversion fails") {
-                assertEquals(ArgumentResult.Error::class.java, IntegerArg.convertToError("2.3")::class.java)
+            Then(GherkinMessages.ConversationFails) {
+                assertTrue(IntegerArg.attemptConvert("2.3") is ArgumentResult.Error)
             }
         }
 
         Scenario("A blank value is passed to be converted") {
-            Then("The Conversion fails") {
-                assertEquals(ArgumentResult.Error::class.java, IntegerArg.convertToError("")::class.java)
+            Then(GherkinMessages.ConversationFails) {
+                assertTrue(IntegerArg.attemptConvert("") is ArgumentResult.Error)
             }
         }
     }
 })
-
-private fun convertArgToSingle(arg: String): Int {
-    val event = mockk<CommandEvent>()
-    val argResult = IntegerArg.convert(arg, listOf(arg), event) as ArgumentResult.Single
-    return argResult.result as Int
-}
-
-private fun convertArgToError(arg: String) = IntegerArg.convert(arg, listOf(arg), mockk())
