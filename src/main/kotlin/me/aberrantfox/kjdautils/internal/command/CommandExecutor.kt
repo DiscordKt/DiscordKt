@@ -8,10 +8,11 @@ import me.aberrantfox.kjdautils.internal.command.Result.Results
 
 internal class CommandExecutor {
 
-    fun executeCommand(command: Command, args: List<String>, event: CommandEvent) =
-            GlobalScope.launch {
-                invokeCommand(command, args, event)
-            }
+    fun executeCommand(command: Command, args: List<String>, event: CommandEvent) = runBlocking {
+        GlobalScope.launch {
+            invokeCommand(command, args, event)
+        }
+    }
 
     private fun invokeCommand(command: Command, actualArgs: List<String>, event: CommandEvent) {
         val channel = event.channel
