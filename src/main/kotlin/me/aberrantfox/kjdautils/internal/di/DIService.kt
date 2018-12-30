@@ -60,8 +60,11 @@ class DIService {
         dataObjs.forEach {
             val path =  it.getAnnotation(Data::class.java).path
             val file = File(path)
+            val parent = file.parentFile
 
-            file.parentFile.mkdirs()
+            if(parent != null && !parent.exists()) {
+                parent.mkdirs()
+            }
 
             if(file.exists()) {
                 val contents = file.readText()

@@ -7,7 +7,6 @@ import me.aberrantfox.kjdautils.internal.command.arguments.*
 import net.dv8tion.jda.core.entities.User
 import java.awt.Color
 
-
 //Dependency injection works here too
 @Convo
 fun testConversation(config: MyCustomBotConfiguration) = conversation {
