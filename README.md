@@ -83,6 +83,20 @@ fun dependsOnAllServices(none: NoDependencies, single: SingleDependency, double:
         }
     }
 }
+
+@Data("config.json")
+data class ConfigurationObject(val prefix: String = "!")
+
+@CommandSet
+fun dependsOnAboveDataObject(config: ConfigurationObject) = commands {
+    command("data-test") {
+        description = "This command depends on the data object above, which is automatically loaded from the designated path." +
+                "if it does not exist at the designated path, it is created using the default arguments."
+        execute {
+            it.respond(config.prefix)
+        }
+    }
+}
 ```
 
 
@@ -93,7 +107,7 @@ Under the dependencies tag, add
 <dependency>
     <groupId>com.gitlab.aberrantfox</groupId>
     <artifactId>Kutils</artifactId>
-    <version>0.9.9</version>
+    <version>0.9.10</version>
 </dependency>
 ```
 

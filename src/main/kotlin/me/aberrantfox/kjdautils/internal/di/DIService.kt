@@ -61,6 +61,8 @@ class DIService {
             val path =  it.getAnnotation(Data::class.java).path
             val file = File(path)
 
+            file.parentFile.mkdirs()
+
             if(file.exists()) {
                 val contents = file.readText()
                 elementMap[it] = gson.fromJson(contents, it)
