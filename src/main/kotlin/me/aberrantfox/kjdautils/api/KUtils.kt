@@ -1,10 +1,7 @@
 package me.aberrantfox.kjdautils.api
 
 import com.google.common.eventbus.Subscribe
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
-import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
-import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
-import me.aberrantfox.kjdautils.api.dsl.produceContainer
+import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
@@ -45,6 +42,7 @@ class KUtils(val config: KJDAConfiguration) {
 
         registerCommands(config.globalPath)
         registerListenersByPath(config.globalPath)
+        registerPreconditionsByPath(config.globalPath)
         conversationService.registerConversations(config.globalPath)
     }
 
@@ -71,6 +69,12 @@ class KUtils(val config: KJDAConfiguration) {
                 .distinct()
                 .map { diService.invokeConstructor(it) }
                 .forEach { registerListeners(it) }
+    }
+
+    private fun registerPreconditionsByPath(path: String) {
+        Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Precondition::class.java)
+                .map { diService.invokeReturningMethod(it) as ((CommandEvent) -> PreconditionResult) }
+                .forEach { registerCommandPreconditions(it) }
     }
 }
 

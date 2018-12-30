@@ -2,9 +2,7 @@ package me.aberrantfox.kjdautils.examples
 
 
 import com.google.common.eventbus.Subscribe
-import me.aberrantfox.kjdautils.api.dsl.CommandSet
-import me.aberrantfox.kjdautils.api.dsl.arg
-import me.aberrantfox.kjdautils.api.dsl.commands
+import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.internal.command.ConversationService
 import me.aberrantfox.kjdautils.internal.command.Fail
@@ -129,5 +127,15 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
 fun defineOther(log: MyCustomLogger) = commands {
     command("someCommand") {
         execute { log.log("Hello, World!") }
+    }
+}
+
+
+@Precondition
+fun nameBeginsWithF() = precondition {
+    if(it.author.name.toLowerCase().startsWith("f")) {
+        return@precondition Pass
+    } else {
+        return@precondition Fail("Your name must start with F!")
     }
 }

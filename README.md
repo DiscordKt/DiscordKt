@@ -57,6 +57,14 @@ fun createUtilityCommands() = commands {
     }
 }
 
+@Precondition
+fun nameBeginsWithF() = precondition {
+    if(it.author.name.toLowerCase().startsWith("f")) {
+        return@precondition Pass
+    } else {
+        return@precondition Fail("Your name must start with F!")
+    }
+}
 ```
 
 
