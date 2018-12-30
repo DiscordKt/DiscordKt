@@ -244,6 +244,7 @@ can see the fully exhaustive list below.
  - **RoleArg** - Accepts any given RoleID, useful for administrators. 
  - **SentenceArg** - Accepts multiple words worth of strings, e.g `!something a b c`, `a b c` would be a valid sentence arg.
    So would just `a`, though.
+ - **SplitterArg** - Takes all of the arguments and returns a list split by a delimiter, `|`. E.g. `first sentence | second sentece ...`
  - **TextChannelArg** - Accepts any text channel ID as an argument.
  - **TimeStringArg**- Accepts timestrings, e.g:
     - 1d 10h 5m 
@@ -254,6 +255,62 @@ can see the fully exhaustive list below.
  - **UserArg** - Accepts any user ID or mention. 
  - **VoiceChannelArg** - Accepts any voice channel ID
  - **WordArg** - Accepts just a single word.
+
+##### Creating your own argument
+
+You might be wondering at this point how do you create your own argument. The point of CommandArguments is to get around
+having all of these ugly checks inside of commands repeatedly. Consider the following example: You are working on a 
+blackjack bot, say you want to make it simple and you just want to make it so that users can `hit` or `stand`. 
+
+Well, you could do the very annoying thing and have these checks inside your `execute` block (*which is bothersome 
+because if you need to do these checks basically anywhere else you are duplicating code*) and then accept a WordArg. Or, 
+you could make your own, like so:
+
+```kotlin
+open class BlackJackMoveArg(override val name : String = "BlackJackMove") : ArgumentType {
+    companion object : BlackJackMoveArg()
+
+    override val examples = arrayListOf("hit", "stand")
+    override val consumptionType = ConsumptionType.Single
+    override fun convert(arg: String, args: List<String>, event: CommandEvent) {
+        val lowerArg = arg.toLowerCase()
+        
+        return if(examples.contains(lowerArg)) {
+            Pass
+        } else {
+            Fail("Valid options are `hit` or `stand`")
+        }
+    }
+}
+```
+
+That's a big chunk of code to consider, so let's break it down piece by piece. 
+Firstly, you must extend ArgumentType in order for the `expect` function to accept the ArgumentType. 
+
+Second, the companion object extends and instantiates an instance of `BlackJackMove`. This allows you to add 
+`BlackJackMoveArg`s to the expect function in two ways: 
+ - `expect(BlackJackMoveArg)`
+ - `expect(BlackJackMoveArg("customName"))`
+
+the `customname`, which will show up in the !help command is not super useful for `BlackJackMoveArg`, but it is very 
+useful for things like `WordArg`, as you can help provide direction for what you want the user to put in there.
+
+Third, once you have extended properly, and you've decided on a human readable name (provide a default value for it),
+you must provide some examples. These are what the framework uses to generate help documentation. The more examples you
+provide, the better, as a random one is selected each time help for a command which uses this is called. 
+
+Fourth, you now must provide a ConsumptionType and a Convert function override. The **output** of the convert function
+depends on the **ConsumptionType** so pay attention to how this works! If you are just taking one word from the command,
+you should use `ConsumptionType.Single`. If you are using the rest of the string, you should use `ConsumptionType.All`.
+If you are using every element until a condition fails, you should use `ConsumptionType.Multiple`.
+
+Examples:
+ - `Single` - `WordArg`, just takes one single word
+ - `All` - `SentenceArg`, takes the remainder of the arguments
+ - `Multiple`, - `TimeStringArg`, takes each argument until it's not a valid timeString anymore.
+
+In order to really understand, you'll have to play around with it. Just note that you can't use multiple `All` functions
+together. 
 
 < Rest of the documentation is a work in progress and is on the way > 
 
