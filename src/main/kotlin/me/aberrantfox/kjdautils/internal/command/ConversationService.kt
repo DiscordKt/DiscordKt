@@ -8,6 +8,7 @@ import me.aberrantfox.kjdautils.api.dsl.Convo
 import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
 import me.aberrantfox.kjdautils.api.dsl.Step
 import me.aberrantfox.kjdautils.extensions.jda.sendPrivateMessage
+import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.Message
@@ -16,7 +17,7 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 
-class ConversationService(val jda: JDA, private val config: KJDAConfiguration) {
+class ConversationService(val jda: JDA, private val config: KJDAConfiguration, val diService: DIService) {
     private var availableConversations = mutableListOf<Conversation>()
     private val activeConversations = mutableListOf<ConversationStateContainer>()
 
@@ -55,7 +56,7 @@ class ConversationService(val jda: JDA, private val config: KJDAConfiguration) {
 
     fun registerConversations(path: String) {
         Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Convo::class.java).forEach {
-            availableConversations.add(it.invoke(null) as Conversation)
+            availableConversations.add(diService.invokeReturningMethod(it) as Conversation)
         }
     }
 

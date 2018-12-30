@@ -8,8 +8,9 @@ import net.dv8tion.jda.core.entities.User
 import java.awt.Color
 
 
+//Dependency injection works here too
 @Convo
-fun testConversation() = conversation {
+fun testConversation(config: MyCustomBotConfiguration) = conversation {
     name = "test-conversation"
     description = "Test conversation to test the implementation within KUtils."
 

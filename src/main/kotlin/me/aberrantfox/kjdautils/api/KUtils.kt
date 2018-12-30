@@ -26,7 +26,7 @@ class KUtils(val config: KJDAConfiguration) {
     private val helpService: HelpService
     private val diService = DIService()
 
-    val conversationService: ConversationService = ConversationService(jda, config)
+    val conversationService: ConversationService = ConversationService(jda, config, diService)
     val container = CommandsContainer()
     var logger: BotLogger = DefaultLogger()
 
