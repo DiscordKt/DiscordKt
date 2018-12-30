@@ -2,6 +2,7 @@ package me.aberrantfox.kjdautils.examples
 
 
 import com.google.common.eventbus.Subscribe
+import me.aberrantfox.kjdautils.api.annotation.Data
 import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.api.startBot
@@ -156,6 +157,21 @@ fun dependsOnAllServices(none: NoDependencies, single: SingleDependency, double:
         description = "I depend on all services"
         execute {
             it.respond("This command is only available if all dependencies were correctly piped to the wrapping function")
+        }
+    }
+}
+
+
+@Data("config.json")
+data class ConfigurationObject(val prefix: String = "!")
+
+@CommandSet
+fun dependsOnAboveDataObject(config: ConfigurationObject) = commands {
+    command("data-test") {
+        description = "This command depends on the data object above, which is automatically loaded from the designated path." +
+                "if it does not exist at the designated path, it is created using the default arguments."
+        execute {
+            it.respond(config.prefix)
         }
     }
 }

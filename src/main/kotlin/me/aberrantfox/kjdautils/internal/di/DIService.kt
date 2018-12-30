@@ -1,10 +1,13 @@
 package me.aberrantfox.kjdautils.internal.di
 
-import java.lang.Exception
+import com.google.gson.GsonBuilder
+import me.aberrantfox.kjdautils.api.annotation.Data
+import java.io.File
 import java.lang.reflect.Method
 
 class DIService {
     private val elementMap = HashMap<Class<*>, Any>()
+    private val gson = GsonBuilder().setPrettyPrinting().create()
 
     fun addElement(element: Any) = elementMap.put(element::class.java, element)
 
@@ -51,6 +54,22 @@ class DIService {
         }
 
         invokeDestructiveList(failed, failed.size)
+    }
+
+    fun collectDataObjects(dataObjs: Set<Class<*>>) {
+        dataObjs.forEach {
+            val path =  it.getAnnotation(Data::class.java).path
+            val file = File(path)
+
+            if(file.exists()) {
+                val contents = file.readText()
+                elementMap[it] = gson.fromJson(contents, it)
+            } else {
+                val obj = it.getConstructor().newInstance()
+                file.writeText(gson.toJson(obj, it))
+                elementMap[it] = obj
+            }
+        }
     }
 
     private fun determineArguments(arguments: Array<out Class<*>>) =

@@ -1,6 +1,7 @@
 package me.aberrantfox.kjdautils.api
 
 import com.google.common.eventbus.Subscribe
+import me.aberrantfox.kjdautils.api.annotation.Data
 import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.internal.command.*
@@ -25,6 +26,7 @@ class KUtils(val config: KJDAConfiguration) {
     private val diService = DIService()
 
     init {
+        detectData()
         detectServices()
     }
 
@@ -85,6 +87,11 @@ class KUtils(val config: KJDAConfiguration) {
     private fun detectServices() {
         val services = Reflections(config.globalPath).getTypesAnnotatedWith(Service::class.java)
         diService.invokeDestructiveList(services)
+    }
+
+    private fun detectData() {
+        val data = Reflections(config.globalPath).getTypesAnnotatedWith(Data::class.java)
+        diService.collectDataObjects(data)
     }
 }
 
