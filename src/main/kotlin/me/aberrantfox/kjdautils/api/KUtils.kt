@@ -1,6 +1,7 @@
 package me.aberrantfox.kjdautils.api
 
 import com.google.common.eventbus.Subscribe
+import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.di.DIService
@@ -23,6 +24,10 @@ class KUtils(val config: KJDAConfiguration) {
     private val helpService: HelpService
     private val diService = DIService()
 
+    init {
+        detectServices()
+    }
+
     val conversationService: ConversationService = ConversationService(jda, config, diService)
     val container = CommandsContainer()
     var logger: BotLogger = DefaultLogger()
@@ -40,15 +45,15 @@ class KUtils(val config: KJDAConfiguration) {
     fun configure(setup: KJDAConfiguration.() -> Unit) {
         config.setup()
 
-        registerCommands(config.globalPath)
-        registerListenersByPath(config.globalPath)
-        registerPreconditionsByPath(config.globalPath)
+        registerCommands()
+        registerListenersByPath()
+        registerPreconditionsByPath()
         conversationService.registerConversations(config.globalPath)
     }
 
     fun registerListeners(vararg listeners: Any) = listeners.forEach { EventRegister.eventBus.register(it) }
 
-    private fun registerCommands(commandPath: String): CommandsContainer {
+    private fun registerCommands(): CommandsContainer {
         val localContainer = produceContainer(config.globalPath, diService)
         CommandRecommender.addAll(localContainer.listCommands())
 
@@ -63,18 +68,23 @@ class KUtils(val config: KJDAConfiguration) {
         return container
     }
 
-    private fun registerListenersByPath(path: String) {
-        Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
+    private fun registerListenersByPath() {
+        Reflections(config.globalPath, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
                 .map { it.declaringClass }
                 .distinct()
                 .map { diService.invokeConstructor(it) }
                 .forEach { registerListeners(it) }
     }
 
-    private fun registerPreconditionsByPath(path: String) {
-        Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Precondition::class.java)
+    private fun registerPreconditionsByPath() {
+        Reflections(config.globalPath, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Precondition::class.java)
                 .map { diService.invokeReturningMethod(it) as ((CommandEvent) -> PreconditionResult) }
                 .forEach { registerCommandPreconditions(it) }
+    }
+
+    private fun detectServices() {
+        val services = Reflections(config.globalPath).getTypesAnnotatedWith(Service::class.java)
+        diService.invokeDestructiveList(services)
     }
 }
 

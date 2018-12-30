@@ -2,6 +2,7 @@ package me.aberrantfox.kjdautils.examples
 
 
 import com.google.common.eventbus.Subscribe
+import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.internal.command.ConversationService
@@ -137,5 +138,24 @@ fun nameBeginsWithF() = precondition {
         return@precondition Pass
     } else {
         return@precondition Fail("Your name must start with F!")
+    }
+}
+
+@Service
+class NoDependencies
+
+@Service
+class SingleDependency(noDependencies: NoDependencies)
+
+@Service
+class DoubleDependency(noDependencies: NoDependencies, singleDependency: SingleDependency)
+
+@CommandSet("services-demo")
+fun dependsOnAllServices(none: NoDependencies, single: SingleDependency, double: DoubleDependency) = commands {
+    command("dependsOnAll") {
+        description = "I depend on all services"
+        execute {
+            it.respond("This command is only available if all dependencies were correctly piped to the wrapping function")
+        }
     }
 }

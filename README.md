@@ -65,6 +65,24 @@ fun nameBeginsWithF() = precondition {
         return@precondition Fail("Your name must start with F!")
     }
 }
+@Service
+class NoDependencies
+
+@Service
+class SingleDependency(noDependencies: NoDependencies)
+
+@Service
+class DoubleDependency(noDependencies: NoDependencies, singleDependency: SingleDependency)
+
+@CommandSet("services-demo")
+fun dependsOnAllServices(none: NoDependencies, single: SingleDependency, double: DoubleDependency) = commands {
+    command("dependsOnAll") {
+        description = "I depend on all services"
+        execute {
+            it.respond("This command is only available if all dependencies were correctly piped to the wrapping function")
+        }
+    }
+}
 ```
 
 
@@ -75,7 +93,7 @@ Under the dependencies tag, add
 <dependency>
     <groupId>com.gitlab.aberrantfox</groupId>
     <artifactId>Kutils</artifactId>
-    <version>0.9.7</version>
+    <version>0.9.8</version>
 </dependency>
 ```
 
