@@ -312,6 +312,15 @@ Examples:
 In order to really understand, you'll have to play around with it. Just note that you can't use multiple `All` functions
 together. 
 
+Finally, once you have decided on your consumption type and all of the cursory information which indicates what kind of 
+argument this is, you must now provide the checks that see if a given string (or strings) is a valid argument or not.
+
+In the case of the `BlackJackMoveArg`, I just see if the given `arg` is in the `examples` I provided. If it is, I 
+return `Pass`, else I return `Fail` equipped with a message that indicates what went wrong. 
+
+The command using this will then break out of that invocation before it even hits the execute block and it will provide
+this error message to the user invoking it.
+
 < Rest of the documentation is a work in progress and is on the way > 
 
 #### Add to your project with Maven
