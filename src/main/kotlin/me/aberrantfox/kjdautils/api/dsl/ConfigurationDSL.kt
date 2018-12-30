@@ -12,8 +12,6 @@ enum class PrefixDeleteMode {
 
 data class KJDAConfiguration(val token: String = "",
                              var prefix: String = "+",
-                             var commandPath: String = "",
-                             var listenerPath: String = "",
-                             var conversationPath: String = "",
+                             var globalPath: String = "",
                              var deleteMode: PrefixDeleteMode = PrefixDeleteMode.Single,
                              var visibilityPredicate: (command: String, User, MessageChannel, Guild?) -> Boolean= { _, _, _, _ -> true })

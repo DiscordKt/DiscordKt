@@ -41,32 +41,17 @@ class KUtils(val config: KJDAConfiguration) {
     fun registerCommandPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) = listener?.addPreconditions(*conditions)
     
     fun configure(setup: KJDAConfiguration.() -> Unit) {
-        val lastCommandPath = config.commandPath
-        val lastListenerPath = config.listenerPath
-        val lastConversationService = config.conversationPath
-
         config.setup()
 
-        if (lastCommandPath != config.commandPath) {
-            registerCommands(config.commandPath)
-        }
-        if (lastListenerPath != config.listenerPath) {
-            registerListenersByPath(config.listenerPath)
-        }
-        if(lastConversationService != config.conversationPath) {
-            conversationService.registerConversations(config.conversationPath)
-        }
+        registerCommands(config.globalPath)
+        registerListenersByPath(config.globalPath)
+        conversationService.registerConversations(config.globalPath)
     }
 
-    fun registerListeners(vararg listeners: Any) =
-            listeners.forEach {
-                EventRegister.eventBus.register(it)
-            }
+    fun registerListeners(vararg listeners: Any) = listeners.forEach { EventRegister.eventBus.register(it) }
 
     private fun registerCommands(commandPath: String): CommandsContainer {
-        config.commandPath = commandPath
-
-        val localContainer = produceContainer(commandPath, diService)
+        val localContainer = produceContainer(config.globalPath, diService)
         CommandRecommender.addAll(localContainer.listCommands())
 
         val executor = CommandExecutor()
@@ -81,7 +66,6 @@ class KUtils(val config: KJDAConfiguration) {
     }
 
     private fun registerListenersByPath(path: String) {
-        config.listenerPath = path
         Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
                 .map { it.declaringClass }
                 .distinct()

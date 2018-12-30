@@ -25,7 +25,6 @@ fun main(args: Array<String>) {
     val token = args.component1()
 
     startBot(token) {
-        val examplesPath = "me.aberrantfox.kjdautils.examples"
         val myConfig = MyCustomBotConfiguration("0.1.0", token)
         val myLog = MyCustomLogger(":: BOT ::")
 
@@ -33,9 +32,7 @@ fun main(args: Array<String>) {
 
         configure {
             prefix = "!"
-            commandPath = examplesPath
-            listenerPath = examplesPath
-            conversationPath = examplesPath
+            globalPath = "me.aberrantfox.kjdautils.examples"
         }
 
         registerCommandPreconditions({

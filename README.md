@@ -11,11 +11,10 @@ fun main(args: Array<String>) {
     //call the start procedure to boot up the bot
     startBot(token) {
         //configure where commands and the like can be found within the project.
-        configuration {
-            //the bot prefix, all commands start with this
+        configure {
             prefix = "!"
-            //the package containing the command definitions
-            commandsPath = "me.sample.commands"
+            //this should just be the path to all of your code.
+            globalPath = "me.sample.commands"
         }
     }
 }
