@@ -26,8 +26,8 @@ class KUtils(val config: KJDAConfiguration) {
     private val diService = DIService()
 
     init {
+        registerInjectionObject(jda)
         detectData()
-        detectServices()
     }
 
     val conversationService: ConversationService = ConversationService(jda, config, diService)
@@ -35,6 +35,8 @@ class KUtils(val config: KJDAConfiguration) {
     var logger: BotLogger = DefaultLogger()
 
     init {
+        registerInjectionObject(conversationService)
+        detectServices()
         jda.addEventListener(EventRegister)
         helpService = HelpService(container, config)
         registerListeners(ConversationListener(conversationService))

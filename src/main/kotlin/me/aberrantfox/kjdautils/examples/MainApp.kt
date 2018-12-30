@@ -11,6 +11,7 @@ import me.aberrantfox.kjdautils.internal.command.Fail
 import me.aberrantfox.kjdautils.internal.command.Pass
 import me.aberrantfox.kjdautils.internal.command.arguments.IntegerArg
 import me.aberrantfox.kjdautils.internal.command.arguments.SentenceArg
+import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.PrivateChannel
 import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
@@ -28,7 +29,7 @@ fun main(args: Array<String>) {
         val myConfig = MyCustomBotConfiguration("0.1.0", token)
         val myLog = MyCustomLogger(":: BOT ::")
 
-        registerInjectionObject(myConfig, myLog, this.config, this.conversationService)
+        registerInjectionObject(myConfig, myLog)
 
         configure {
             prefix = "!"
@@ -59,7 +60,8 @@ class MessageLogger(val myConfig: MyCustomBotConfiguration) {
 }
 
 @CommandSet("utility")
-fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService) = commands {
+fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService,
+               jda: JDA) = commands {
     command("version") {
         description = "A command which will show the verison."
         category = "info"
