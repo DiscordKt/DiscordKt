@@ -75,7 +75,7 @@ Under the dependencies tag, add
 <dependency>
     <groupId>com.gitlab.aberrantfox</groupId>
     <artifactId>Kutils</artifactId>
-    <version>0.9.6</version>
+    <version>0.9.7</version>
 </dependency>
 ```
 
