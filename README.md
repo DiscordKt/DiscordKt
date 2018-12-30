@@ -104,7 +104,7 @@ fun dependsOnAboveDataObject(config: ConfigurationObject) = commands {
 
 1. Starting up the bot and basic configuration
 2. Creating commands
-3. Creating a custom command argument
+3. Command arguments
 4. Listening to events
 5. Creating and using conversations
 6. Creating and using a Service
@@ -222,8 +222,38 @@ Some things to note:
    You can safely do this because the library will not allow any values in that don't pass the checks provided by 
    `DoubleArg`
  - The result is then responded to the user as normal.
- - The help function will be able to generate example usage of this command despite 
+ - The help function will be able to generate example usage of this command despite requiring more arguments. Try 
+   if for yourself. :) 
+   
 
+#### Creating arguments
+
+So you seen before that there was a DoubleArg, you might be wondering, what other arguments are there? Well, you 
+can see the fully exhaustive list below. 
+
+##### Available Arguments
+
+ - **ChannelCategoryArg** - Accepts Command categories
+ - **ChoiceArg** - Accepts true, or false. You can also provide it with a list of arguments to accept via the constructor,
+   e.g. `ChoiceArg("YesNoArg", "Y", "y", "N", "n")` note: the first arg in every constructor is always the `name` that 
+   is shown in the `help` command.
+ - **CommandArg** - Accepts any command as an argument.
+ - **DoubleArg** - Accepts any valid double
+ - **IntegerArg** - Accepts any valid integer
+ - **ManualArg** - be VERY mindful using this argument type, it turns off all parsing and leaves it to you!
+ - **RoleArg** - Accepts any given RoleID, useful for administrators. 
+ - **SentenceArg** - Accepts multiple words worth of strings, e.g `!something a b c`, `a b c` would be a valid sentence arg.
+   So would just `a`, though.
+ - **TextChannelArg** - Accepts any text channel ID as an argument.
+ - **TimeStringArg**- Accepts timestrings, e.g:
+    - 1d 10h 5m 
+    - 1 day 10 hours 5 minutes
+    - 12 hours 10minutes 3s
+ - **UrlArg** - Accepts any URL matching a provided regex, you may want to craft your own UrlArg or use a SentenceArg if you
+   use some really funky looking URLs
+ - **UserArg** - Accepts any user ID or mention. 
+ - **VoiceChannelArg** - Accepts any voice channel ID
+ - **WordArg** - Accepts just a single word.
 
 < Rest of the documentation is a work in progress and is on the way > 
 
