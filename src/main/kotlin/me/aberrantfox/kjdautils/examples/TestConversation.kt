@@ -30,11 +30,11 @@ fun testConversation(config: MyCustomBotConfiguration) = conversation {
                 setTitle("Test Conversation")
                 field {
                     name = "Step 2"
-                    value = "Alright, now tell me a random word."
+                    value = "Alright, now tell me a random sentence."
                 }
                 setColor(Color.CYAN)
             }
-            expect = WordArg
+            expect = SentenceArg
         }
     }
 

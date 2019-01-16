@@ -61,7 +61,7 @@ class ConversationService(val jda: JDA, private val config: KJDAConfiguration, v
     }
 
     private fun parseResponse(message: Message, step: Step): Any {
-        val commandStruct = cleanCommandMessage(message.contentRaw, config)
+        val commandStruct = CommandStruct("", message.contentStripped.split(" "), false)
         val commandEvent = CommandEvent(commandStruct, message, commandStruct.commandArgs, CommandsContainer(), false)
         val result = step.expect.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
 
