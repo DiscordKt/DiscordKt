@@ -9,6 +9,10 @@ class DIService {
     private val elementMap = HashMap<Class<*>, Any>()
     private val gson = GsonBuilder().setPrettyPrinting().create()
 
+    init {
+        addElement(PersistenceService(this))
+    }
+
     fun addElement(element: Any) = elementMap.put(element::class.java, element)
 
     fun invokeReturningMethod(method: Method): Any {
@@ -77,6 +81,20 @@ class DIService {
         }
     }
 
+    fun saveObject(obj: Any) {
+        val clazz = obj::class.java
+
+        if( !(elementMap.containsKey(clazz)) ) return
+
+        if(clazz.annotations.none { it::class.java == Data::class.java }) return
+
+        val annotation = clazz.getAnnotation(Data::class.java)
+        val file = File(annotation.path)
+
+        file.writeText(gson.toJson(obj))
+        elementMap[clazz] = obj
+    }
+
     private fun determineArguments(arguments: Array<out Class<*>>) =
             arguments.map { arg ->
                 elementMap.entries
@@ -84,4 +102,8 @@ class DIService {
                         ?.value
                         ?: throw IllegalStateException("Couldn't inject $arg from registered objects")
             }.toTypedArray()
+}
+
+class PersistenceService(val diService: DIService) {
+    fun save(obj: Any) = diService.saveObject(obj)
 }

@@ -11,9 +11,8 @@ import me.aberrantfox.kjdautils.internal.command.Fail
 import me.aberrantfox.kjdautils.internal.command.Pass
 import me.aberrantfox.kjdautils.internal.command.arguments.IntegerArg
 import me.aberrantfox.kjdautils.internal.command.arguments.SentenceArg
+import me.aberrantfox.kjdautils.internal.di.PersistenceService
 import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.entities.PrivateChannel
-import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 
 data class MyCustomBotConfiguration(val version: String, val token: String)
@@ -165,15 +164,22 @@ fun dependsOnAllServices(none: NoDependencies, single: SingleDependency, double:
 
 
 @Data("config.json")
-data class ConfigurationObject(val prefix: String = "!")
+data class ConfigurationObject(var prefix: String = "!")
 
 @CommandSet
-fun dependsOnAboveDataObject(config: ConfigurationObject) = commands {
-    command("data-test") {
+fun dependsOnAboveDataObject(config: ConfigurationObject, persistenceService: PersistenceService) = commands {
+    command("data-see") {
         description = "This command depends on the data object above, which is automatically loaded from the designated path." +
                 "if it does not exist at the designated path, it is created using the default arguments."
         execute {
             it.respond(config.prefix)
+        }
+    }
+    command("data-save") {
+        description = "This command tests the save command"
+        execute {
+            config.prefix = "different"
+            persistenceService.save(config)
         }
     }
 }
