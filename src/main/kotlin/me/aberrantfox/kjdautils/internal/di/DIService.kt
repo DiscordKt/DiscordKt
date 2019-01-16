@@ -86,9 +86,8 @@ class DIService {
 
         if( !(elementMap.containsKey(clazz)) ) return
 
-        if(clazz.annotations.none { it::class.java == Data::class.java }) return
+        val annotation = clazz.getAnnotation(Data::class.java) ?: return
 
-        val annotation = clazz.getAnnotation(Data::class.java)
         val file = File(annotation.path)
 
         file.writeText(gson.toJson(obj))
@@ -104,6 +103,6 @@ class DIService {
             }.toTypedArray()
 }
 
-class PersistenceService(val diService: DIService) {
+class PersistenceService(private val diService: DIService) {
     fun save(obj: Any) = diService.saveObject(obj)
 }
