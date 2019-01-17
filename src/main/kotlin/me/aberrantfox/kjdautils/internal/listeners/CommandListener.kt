@@ -88,7 +88,8 @@ internal class CommandListener(val config: KJDAConfiguration,
 
         executor.executeCommand(command, actualArgs, event)
 
-        if (!shouldDelete) message.addReaction("\uD83D\uDC40").queue()
+        if (!shouldDelete && config.reactToCommands) message.addReaction("\uD83D\uDC40").queue()
+
 
         log.cmd("${author.descriptor()} -- invoked $commandName in ${channel.name}")
 
