@@ -3,6 +3,7 @@ package me.aberrantfox.kjdautils.internal.di
 import com.google.gson.GsonBuilder
 import me.aberrantfox.kjdautils.api.annotation.Data
 import java.io.File
+import java.lang.IllegalArgumentException
 import java.lang.reflect.Method
 
 class DIService {
@@ -84,7 +85,8 @@ class DIService {
     fun saveObject(obj: Any) {
         val clazz = obj::class.java
 
-        if( !(elementMap.containsKey(clazz)) ) return
+        if( !(elementMap.containsKey(clazz)) )
+            throw IllegalArgumentException("You may only pass @Data annotated objects to PersistenceService#save")
 
         val annotation = clazz.getAnnotation(Data::class.java) ?: return
 
