@@ -16,14 +16,22 @@ class DIService {
 
     fun addElement(element: Any) = elementMap.put(element::class.java, element)
 
+    private val nullReturnException = IllegalArgumentException(
+            "A commands container, conversation, or precondition function hasn't returned properly.\n" +
+                    "Check that your '@CommandSet', '@Precondition', or '@Convo' functions properly return the 'commands { ... }', 'precondition { ... }', or 'conversation { ... }' calls.\n" +
+                    "e.g. Make sure that the '=' is used in '@CommandSet fun commandSet(...) = commands { ... }'\n" +
+                    " or '@Precondition fun preconditionFunc() = precondition { ... }'\n" +
+                    " or '@Convo fun testConversation(...) = conversation { ... }'"
+    )
+
     fun invokeReturningMethod(method: Method): Any {
         val arguments: Array<out Class<*>> = method.parameterTypes
 
         if (arguments.isEmpty())
-            return method.invoke(null)
+            return method.invoke(null) ?: throw nullReturnException
 
         val objects = determineArguments(arguments)
-        return method.invoke(null, *objects)
+        return method.invoke(null, *objects) ?: throw nullReturnException
     }
 
     fun invokeConstructor(clazz: Class<*>): Any {
