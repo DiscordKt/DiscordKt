@@ -27,7 +27,6 @@ class KUtils(val config: KJDAConfiguration) {
 
     init {
         registerInjectionObject(jda)
-        detectData()
     }
 
     val conversationService: ConversationService = ConversationService(jda, config, diService)
@@ -36,7 +35,6 @@ class KUtils(val config: KJDAConfiguration) {
 
     init {
         registerInjectionObject(conversationService)
-        detectServices()
         jda.addEventListener(EventRegister)
         helpService = HelpService(container, config)
         registerListeners(ConversationListener(conversationService))
@@ -48,6 +46,9 @@ class KUtils(val config: KJDAConfiguration) {
     
     fun configure(setup: KJDAConfiguration.() -> Unit) {
         config.setup()
+
+        detectData()
+        detectServices()
 
         registerCommands()
         registerListenersByPath()
