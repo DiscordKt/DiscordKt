@@ -15,6 +15,7 @@ import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDABuilder
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
+import kotlin.system.exitProcess
 
 
 class KUtils(val config: KJDAConfiguration) {
@@ -94,7 +95,19 @@ class KUtils(val config: KJDAConfiguration) {
 
     private fun detectData() {
         val data = Reflections(config.globalPath).getTypesAnnotatedWith(Data::class.java)
-        diService.collectDataObjects(data)
+        val fillInData = diService.collectDataObjects(data)
+
+        exitIfDataNeedsToBeFilledIn(fillInData)
+    }
+
+    private fun exitIfDataNeedsToBeFilledIn(data: ArrayList<String>) {
+        if(data.isEmpty()) return
+
+        val dataString = data.joinToString(", ", postfix = ".")
+
+        println("The below data files were generated and must be filled in before re-running.")
+        println(dataString)
+        exitProcess(0)
     }
 }
 

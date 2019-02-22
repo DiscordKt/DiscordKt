@@ -69,15 +69,20 @@ class DIService {
         invokeDestructiveList(failed, failed.size)
     }
 
-    fun collectDataObjects(dataObjs: Set<Class<*>>) {
+    fun collectDataObjects(dataObjs: Set<Class<*>>): ArrayList<String> {
+        val dataRequiringFillRestart = ArrayList<String>()
+
         dataObjs.forEach {
-            val path =  it.getAnnotation(Data::class.java).path
+            val annotation = it.getAnnotation(Data::class.java)
+            val path =  annotation.path
             val file = File(path)
             val parent = file.parentFile
 
             if(parent != null && !parent.exists()) {
                 parent.mkdirs()
             }
+
+            val alreadyGenerated = file.exists()
 
             if(file.exists()) {
                 val contents = file.readText()
@@ -87,7 +92,13 @@ class DIService {
                 file.writeText(gson.toJson(obj, it))
                 elementMap[it] = obj
             }
+
+            if(annotation.killIfGenerated && !alreadyGenerated) {
+                dataRequiringFillRestart.add(path)
+            }
         }
+
+        return dataRequiringFillRestart
     }
 
     fun saveObject(obj: Any) {
