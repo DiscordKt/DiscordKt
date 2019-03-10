@@ -490,3 +490,19 @@ Under the repositories tag, add
     <url>https://jitpack.io</url>
 </repository>
 ```
+
+#### Add to your project with Gradle
+```groovy
+repositories {
+    //...
+    maven { url 'https://jitpack.io' }
+    jcenter()
+    //...
+}
+
+dependencies {
+    //...
+    implementation "com.gitlab.aberrantfox:Kutils:0.9.16"
+    //...
+}
+```

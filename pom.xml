@@ -86,6 +86,7 @@
             <groupId>org.spekframework.spek2</groupId>
             <artifactId>spek-runner-junit5</artifactId>
             <version>${spek.version}</version>
+            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.jetbrains.kotlin</groupId>
