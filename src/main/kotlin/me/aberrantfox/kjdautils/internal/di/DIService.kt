@@ -94,7 +94,7 @@ class DIService {
             }
 
             if(annotation.killIfGenerated && !alreadyGenerated) {
-                dataRequiringFillRestart.add(path)
+                dataRequiringFillRestart.add(file.absolutePath)
             }
         }
 
