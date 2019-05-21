@@ -12,8 +12,6 @@ import me.aberrantfox.kjdautils.internal.listeners.CommandListener
 import me.aberrantfox.kjdautils.internal.listeners.ConversationListener
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
-import net.dv8tion.jda.core.AccountType
-import net.dv8tion.jda.core.JDABuilder
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 import kotlin.system.exitProcess
