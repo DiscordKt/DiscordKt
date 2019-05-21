@@ -6,7 +6,7 @@ import me.aberrantfox.kjdautils.internal.command.Fail
 import me.aberrantfox.kjdautils.internal.command.PreconditionResult
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
-import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
+import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.PrefixDeleteMode
 import me.aberrantfox.kjdautils.extensions.jda.deleteIfExists
 import me.aberrantfox.kjdautils.extensions.jda.descriptor
@@ -26,7 +26,7 @@ import net.dv8tion.jda.core.entities.User
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 
-internal class CommandListener(val config: KJDAConfiguration,
+internal class CommandListener(val config: KConfiguration,
                                val container: CommandsContainer,
                                var log: BotLogger,
                                private val executor: CommandExecutor,

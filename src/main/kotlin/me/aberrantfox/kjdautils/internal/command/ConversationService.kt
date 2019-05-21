@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
 import me.aberrantfox.kjdautils.api.dsl.Conversation
 import me.aberrantfox.kjdautils.api.dsl.ConversationStateContainer
 import me.aberrantfox.kjdautils.api.dsl.Convo
-import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
+import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.Step
 import me.aberrantfox.kjdautils.extensions.jda.sendPrivateMessage
 import me.aberrantfox.kjdautils.internal.di.DIService
@@ -17,7 +17,7 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 
-class ConversationService(val jda: JDA, private val config: KJDAConfiguration, val diService: DIService) {
+class ConversationService(val jda: JDA, private val config: KConfiguration, val diService: DIService) {
     private var availableConversations = mutableListOf<Conversation>()
     private val activeConversations = mutableListOf<ConversationStateContainer>()
 

@@ -10,9 +10,9 @@ enum class PrefixDeleteMode {
     None
 }
 
-data class KJDAConfiguration(val token: String = "",
-                             var prefix: String = "+",
-                             var globalPath: String = "",
-                             var reactToCommands: Boolean = true,
-                             var deleteMode: PrefixDeleteMode = PrefixDeleteMode.Single,
-                             var visibilityPredicate: (command: String, User, MessageChannel, Guild?) -> Boolean= { _, _, _, _ -> true })
+data class KConfiguration(val token: String = "",
+                          var prefix: String = "+",
+                          var globalPath: String = "",
+                          var reactToCommands: Boolean = true,
+                          var deleteMode: PrefixDeleteMode = PrefixDeleteMode.Single,
+                          var visibilityPredicate: (command: String, User, MessageChannel, Guild?) -> Boolean= { _, _, _, _ -> true })

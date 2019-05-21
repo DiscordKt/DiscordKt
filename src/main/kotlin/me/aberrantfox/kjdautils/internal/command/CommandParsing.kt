@@ -1,7 +1,7 @@
 package me.aberrantfox.kjdautils.internal.command
 
 
-import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
+import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.Command
 import me.aberrantfox.kjdautils.internal.command.arguments.Manual
 
@@ -9,7 +9,7 @@ data class CommandStruct(val commandName: String,
                          val commandArgs: List<String> = listOf(),
                          val doubleInvocation: Boolean)
 
-fun cleanCommandMessage(message: String, config: KJDAConfiguration): CommandStruct {
+fun cleanCommandMessage(message: String, config: KConfiguration): CommandStruct {
     var trimmedMessage = message.substring(config.prefix.length)
     val doubleInvocation = trimmedMessage.startsWith(config.prefix)
 

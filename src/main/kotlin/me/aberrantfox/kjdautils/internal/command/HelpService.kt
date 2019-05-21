@@ -8,7 +8,7 @@ import java.awt.Color
 
 enum class SelectionArgument { CommandName, CategoryName }
 
-class HelpService(private val container: CommandsContainer, private val config: KJDAConfiguration) {
+class HelpService(private val container: CommandsContainer, private val config: KConfiguration) {
     init {
         container.command("help") {
             description = "Display a help menu"
