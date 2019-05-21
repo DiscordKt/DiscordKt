@@ -4,6 +4,7 @@ import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.annotation.Data
 import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
@@ -19,7 +20,7 @@ import kotlin.system.exitProcess
 
 
 class KUtils(val config: KConfiguration) {
-    val jda = JDABuilder(AccountType.BOT).setToken(config.token).buildBlocking()
+    val discord = Discord.build(config)
 
     private var listener: CommandListener? = null
     private var executor: CommandExecutor? = null
@@ -27,16 +28,16 @@ class KUtils(val config: KConfiguration) {
     private val diService = DIService()
 
     init {
-        registerInjectionObject(jda)
+        registerInjectionObject(discord.jda)
     }
 
-    val conversationService: ConversationService = ConversationService(jda, config, diService)
+    val conversationService: ConversationService = ConversationService(discord.jda, config, diService)
     val container = CommandsContainer()
     var logger: BotLogger = DefaultLogger()
 
     init {
         registerInjectionObject(conversationService)
-        jda.addEventListener(EventRegister)
+        discord.jda.addEventListener(EventRegister)
         helpService = HelpService(container, config)
         registerListeners(ConversationListener(conversationService))
     }
