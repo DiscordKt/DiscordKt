@@ -18,7 +18,7 @@ import org.reflections.scanners.MethodAnnotationsScanner
 import kotlin.system.exitProcess
 
 
-class KUtils(val config: KJDAConfiguration) {
+class KUtils(val config: KConfiguration) {
     val jda = JDABuilder(AccountType.BOT).setToken(config.token).buildBlocking()
 
     private var listener: CommandListener? = null
@@ -45,7 +45,7 @@ class KUtils(val config: KJDAConfiguration) {
 
     fun registerCommandPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) = listener?.addPreconditions(*conditions)
     
-    fun configure(setup: KJDAConfiguration.() -> Unit) {
+    fun configure(setup: KConfiguration.() -> Unit) {
         config.setup()
 
         detectData()
@@ -112,7 +112,7 @@ class KUtils(val config: KJDAConfiguration) {
 }
 
 fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
-    val util = KUtils(KJDAConfiguration(token))
+    val util = KUtils(KConfiguration(token))
     util.operate()
     return util
 }
