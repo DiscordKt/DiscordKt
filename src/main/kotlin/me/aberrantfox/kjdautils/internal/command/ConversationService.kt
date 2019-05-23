@@ -11,7 +11,6 @@ import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.jda.sendPrivateMessage
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
-import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.entities.MessageEmbed
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
@@ -27,7 +26,7 @@ class ConversationService(val dc: Discord, private val config: KConfiguration, v
     private fun getCurrentStep(conversationState: ConversationStateContainer) = conversationState.conversation.steps[conversationState.currentStep]
 
     fun createConversation(userId: String, guildId: String, conversationName: String) {
-        if (hasConversation(userId) || dc.jda.getUserById(userId).isBot) return
+        if (hasConversation(userId) || dc.getUserById(userId).isBot) return
 
         val conversation = availableConversations.first { it.name == conversationName }
         activeConversations.add(ConversationStateContainer(userId, guildId, mutableListOf(), conversation, 0, dc.jda))
@@ -74,7 +73,7 @@ class ConversationService(val dc: Discord, private val config: KConfiguration, v
     }
 
     private fun sendToUser(userId: String, message: Any) {
-        val user = dc.jda.getUserById(userId)
+        val user = dc.getUserById(userId)
         if (message is MessageEmbed) user.sendPrivateMessage(message, DefaultLogger()) else user.sendPrivateMessage(message as String, DefaultLogger())
     }
 }
