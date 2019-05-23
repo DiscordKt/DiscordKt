@@ -29,7 +29,7 @@ class KUtils(val config: KConfiguration) {
         registerInjectionObject(discord.jda)
     }
 
-    val conversationService: ConversationService = ConversationService(discord.jda, config, diService)
+    val conversationService: ConversationService = ConversationService(discord, config, diService)
     val container = CommandsContainer()
     var logger: BotLogger = DefaultLogger()
 
