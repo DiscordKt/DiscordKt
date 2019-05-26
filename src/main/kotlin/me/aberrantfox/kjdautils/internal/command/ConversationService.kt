@@ -7,17 +7,17 @@ import me.aberrantfox.kjdautils.api.dsl.ConversationStateContainer
 import me.aberrantfox.kjdautils.api.dsl.Convo
 import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.Step
+import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.jda.sendPrivateMessage
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
-import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.entities.MessageEmbed
 import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 
-class ConversationService(val jda: JDA, private val config: KConfiguration, val diService: DIService) {
+class ConversationService(val dc: Discord, private val config: KConfiguration, val diService: DIService) {
     private var availableConversations = mutableListOf<Conversation>()
     private val activeConversations = mutableListOf<ConversationStateContainer>()
 
@@ -26,10 +26,10 @@ class ConversationService(val jda: JDA, private val config: KConfiguration, val 
     private fun getCurrentStep(conversationState: ConversationStateContainer) = conversationState.conversation.steps[conversationState.currentStep]
 
     fun createConversation(userId: String, guildId: String, conversationName: String) {
-        if (hasConversation(userId) || jda.getUserById(userId).isBot) return
+        if (hasConversation(userId) || dc.getUserById(userId).isBot) return
 
         val conversation = availableConversations.first { it.name == conversationName }
-        activeConversations.add(ConversationStateContainer(userId, guildId, mutableListOf(), conversation, 0, jda))
+        activeConversations.add(ConversationStateContainer(userId, guildId, mutableListOf(), conversation, 0, dc.jda))
         sendToUser(userId, getCurrentStep(getConversationState(userId)).prompt)
     }
 
@@ -73,7 +73,7 @@ class ConversationService(val jda: JDA, private val config: KConfiguration, val 
     }
 
     private fun sendToUser(userId: String, message: Any) {
-        val user = jda.getUserById(userId)
+        val user = dc.getUserById(userId)
         if (message is MessageEmbed) user.sendPrivateMessage(message, DefaultLogger()) else user.sendPrivateMessage(message as String, DefaultLogger())
     }
 }
