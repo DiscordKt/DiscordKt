@@ -26,7 +26,7 @@ class KUtils(val config: KConfiguration) {
     private val diService = DIService()
 
     init {
-        registerInjectionObject(discord.jda)
+        registerInjectionObject(discord)
     }
 
     val conversationService: ConversationService = ConversationService(discord, config, diService)
@@ -63,7 +63,7 @@ class KUtils(val config: KConfiguration) {
         CommandRecommender.addAll(localContainer.listCommands())
 
         val executor = CommandExecutor()
-        val listener = CommandListener(config, container, logger, executor)
+        val listener = CommandListener(config, container, logger, discord, executor)
 
         this.container.join(localContainer)
         this.executor = executor

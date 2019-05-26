@@ -1,5 +1,6 @@
 package me.aberrantfox.kjdautils.api.dsl
 
+import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.jda.sendPrivateMessage
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.arguments.WordArg
@@ -15,14 +16,15 @@ class Conversation(val name: String,
 
 data class Step(val prompt: Any, val expect: ArgumentType)
 
-data class ConversationStateContainer(val userId: String,
-                                      val guildId: String,
-                                      var responses: MutableList<Any>,
-                                      val conversation: Conversation,
-                                      var currentStep: Int,
-                                      val jda: JDA) {
-    fun respond(message: String) = jda.getUserById(userId).sendPrivateMessage(message, DefaultLogger())
-    fun respond(message: MessageEmbed) = jda.getUserById(userId).sendPrivateMessage(message, DefaultLogger())
+data class ConversationStateContainer(
+    val userId: String,
+    val guildId: String,
+    var responses: MutableList<Any>,
+    val conversation: Conversation,
+    var currentStep: Int,
+    val discord: Discord) {
+    fun respond(message: String) = discord.jda.getUserById(userId).sendPrivateMessage(message, DefaultLogger())
+    fun respond(message: MessageEmbed) = discord.jda.getUserById(userId).sendPrivateMessage(message, DefaultLogger())
 }
 
 fun conversation(block: ConversationBuilder.() -> Unit): Conversation = ConversationBuilder().apply(block).build()

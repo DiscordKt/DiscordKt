@@ -13,7 +13,7 @@ open class UserArg(override val name : String = "DiscordUser") : ArgumentType {
     override val examples = arrayListOf("@Bob", "268856125007331328", "275544730887127040")
     override val consumptionType = ConsumptionType.Single
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
-        val retrieved = tryRetrieveSnowflake(event.jda) { it.retrieveUserById(arg.trimToID()).complete() }
+        val retrieved = tryRetrieveSnowflake(event.discord.jda) { it.retrieveUserById(arg.trimToID()).complete() }
 
         return if (retrieved != null) {
             ArgumentResult.Single(retrieved)

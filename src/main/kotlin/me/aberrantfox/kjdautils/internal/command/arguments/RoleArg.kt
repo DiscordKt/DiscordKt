@@ -14,7 +14,7 @@ open class RoleArg(override val name : String = "Role") : ArgumentType {
     override val examples = arrayListOf("Moderator", "413710761895133185", "406612842968776706")
     override val consumptionType = ConsumptionType.Single
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
-        val retrieved = tryRetrieveSnowflake(event.jda) { it.obtainRole(arg.trimToID()) }
+        val retrieved = tryRetrieveSnowflake(event.discord.jda) { it.obtainRole(arg.trimToID()) }
 
         return if (retrieved != null) {
             ArgumentResult.Single(retrieved)

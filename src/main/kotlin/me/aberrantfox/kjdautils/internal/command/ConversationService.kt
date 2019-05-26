@@ -29,7 +29,7 @@ class ConversationService(val dc: Discord, private val config: KConfiguration, v
         if (hasConversation(userId) || dc.getUserById(userId).isBot) return
 
         val conversation = availableConversations.first { it.name == conversationName }
-        activeConversations.add(ConversationStateContainer(userId, guildId, mutableListOf(), conversation, 0, dc.jda))
+        activeConversations.add(ConversationStateContainer(userId, guildId, mutableListOf(), conversation, 0, dc))
         sendToUser(userId, getCurrentStep(getConversationState(userId)).prompt)
     }
 
@@ -62,7 +62,7 @@ class ConversationService(val dc: Discord, private val config: KConfiguration, v
 
     private fun parseResponse(message: Message, step: Step): Any {
         val commandStruct = CommandStruct("", message.contentStripped.split(" "), false)
-        val commandEvent = CommandEvent(commandStruct, message, commandStruct.commandArgs, CommandsContainer(), false)
+        val commandEvent = CommandEvent(commandStruct, message, commandStruct.commandArgs, CommandsContainer(), false, dc)
         val result = step.expect.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
 
         return when (result) {

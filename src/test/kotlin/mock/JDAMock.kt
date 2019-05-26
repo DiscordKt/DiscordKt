@@ -6,6 +6,7 @@ import com.nhaarman.mockitokotlin2.mock
 import me.aberrantfox.kjdautils.api.dsl.Command
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
+import me.aberrantfox.kjdautils.discord.Discord
 import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.entities.Category
 import net.dv8tion.jda.core.entities.Message
@@ -34,6 +35,11 @@ val jdaMock = mock<JDA> {
     on { getTextChannelById(FakeIds.Channel) } doReturn channelMock
 }
 
+val discordMock = mock<Discord> {
+   on { jda } doReturn  jdaMock
+}
+
+
 val pingCommandMock = mock<Command> {
     on { name } doReturn "ping"
     on { execute } doReturn {}
@@ -44,7 +50,7 @@ val commandContainerMock = mock<CommandsContainer> {
 }
 
 val commandEventMock = mock<CommandEvent> {
-    on { jda } doReturn jdaMock
+    on { discord } doReturn discordMock
     on { container } doReturn commandContainerMock
     on { channel } doReturn channelMock
 }

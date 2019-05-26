@@ -8,12 +8,10 @@ import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
 import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.PrefixDeleteMode
+import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.jda.deleteIfExists
 import me.aberrantfox.kjdautils.extensions.jda.descriptor
 import me.aberrantfox.kjdautils.extensions.jda.isCommandInvocation
-import me.aberrantfox.kjdautils.extensions.jda.isDoubleInvocation
-import me.aberrantfox.kjdautils.extensions.stdlib.containsInvite
-import me.aberrantfox.kjdautils.extensions.stdlib.containsURl
 import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
 import me.aberrantfox.kjdautils.internal.command.CommandExecutor
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
@@ -29,6 +27,7 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
 internal class CommandListener(val config: KConfiguration,
                                val container: CommandsContainer,
                                var log: BotLogger,
+                               val discord: Discord,
                                private val executor: CommandExecutor,
                                private val preconditions: ArrayList<(CommandEvent) -> PreconditionResult> = ArrayList()) {
 
@@ -60,7 +59,10 @@ internal class CommandListener(val config: KConfiguration,
         }
 
         val event = CommandEvent(commandStruct, message, actualArgs, container,
-                stealthInvocation = shouldDelete, guild = guild)
+                discord = discord,
+                stealthInvocation = shouldDelete,
+                guild = guild
+        )
 
         getPreconditionError(event)?.let {
             if (it != "") {

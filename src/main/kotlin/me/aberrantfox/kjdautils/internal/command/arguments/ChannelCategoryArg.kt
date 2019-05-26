@@ -13,7 +13,7 @@ open class ChannelCategoryArg(override val name: String = "ChannelCategory") : A
     override val examples = arrayListOf("302134543639511050")
     override val consumptionType = ConsumptionType.Single
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
-        val retrieved = tryRetrieveSnowflake(event.jda) { it.getCategoryById(arg.trimToID()) }
+        val retrieved = tryRetrieveSnowflake(event.discord.jda) { it.getCategoryById(arg.trimToID()) }
         return when (retrieved) {
             null -> ArgumentResult.Error("Couldn't retrieve channel category: $arg")
             else -> ArgumentResult.Single(retrieved)

@@ -14,7 +14,7 @@ open class VoiceChannelArg(override val name : String = "The ID of any valid voi
     override val consumptionType = ConsumptionType.Single
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
-        val retrieved = tryRetrieveSnowflake(event.jda) { it.getVoiceChannelById(arg.trimToID()) }
+        val retrieved = tryRetrieveSnowflake(event.discord.jda) { it.getVoiceChannelById(arg.trimToID()) }
 
         return if (retrieved != null) {
             ArgumentResult.Single(retrieved)

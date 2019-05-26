@@ -12,7 +12,6 @@ import me.aberrantfox.kjdautils.internal.command.Pass
 import me.aberrantfox.kjdautils.internal.command.arguments.IntegerArg
 import me.aberrantfox.kjdautils.internal.command.arguments.SentenceArg
 import me.aberrantfox.kjdautils.internal.di.PersistenceService
-import net.dv8tion.jda.core.JDA
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 
 data class MyCustomBotConfiguration(val version: String, val token: String)
@@ -59,8 +58,7 @@ class MessageLogger(val myConfig: MyCustomBotConfiguration) {
 }
 
 @CommandSet("utility")
-fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService,
-               jda: JDA) = commands {
+fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService) = commands {
     command("version") {
         description = "A command which will show the verison."
         category = "info"
