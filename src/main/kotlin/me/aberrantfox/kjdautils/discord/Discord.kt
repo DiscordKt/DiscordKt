@@ -13,7 +13,7 @@ interface Discord {
   @Deprecated("To be removed")
   val jda: JDA
 
-  fun getUserById(userId: String): User
+  fun getUserById(userId: String): User?
 
   companion object {
     fun build(configuration: KConfiguration): Discord = KJDA.build(configuration)
