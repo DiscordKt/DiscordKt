@@ -16,7 +16,7 @@ interface Discord {
 
   fun addEventListener(er: EventRegister): Unit
 
-  fun getUserById(userId: String): User
+  fun getUserById(userId: String): User?
 
   companion object {
     fun build(configuration: KConfiguration): Discord = KJDA.build(configuration)
@@ -29,6 +29,4 @@ interface User {
   fun sendPrivateMessage(msg: String, log: BotLogger = DefaultLogger())
   fun sendPrivateMessage(msg: MessageEmbed, log: BotLogger = DefaultLogger())
 }
-
-
 
