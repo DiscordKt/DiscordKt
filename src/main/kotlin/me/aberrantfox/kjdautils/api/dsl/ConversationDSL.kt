@@ -21,8 +21,8 @@ data class ConversationStateContainer(
     val conversation: Conversation,
     var currentStep: Int,
     val discord: Discord) {
-    fun respond(message: String) = discord.getUserById(userId).sendPrivateMessage(message)
-    fun respond(message: MessageEmbed) = discord.getUserById(userId).sendPrivateMessage(message)
+    fun respond(message: String) = discord.getUserById(userId)?.sendPrivateMessage(message)
+    fun respond(message: MessageEmbed) = discord.getUserById(userId)?.sendPrivateMessage(message)
 }
 
 fun conversation(block: ConversationBuilder.() -> Unit): Conversation = ConversationBuilder().apply(block).build()
