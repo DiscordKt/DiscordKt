@@ -135,14 +135,22 @@ can see the fully exhaustive list below.
 
 ##### Available Arguments
 
+ - **BooleanArg** - Accepts a boolean `true` or `false` (case insensitive)
  - **ChannelCategoryArg** - Accepts Command categories
+ - **CharArg** - Accepts a single character
  - **ChoiceArg** - Accepts true, or false. You can also provide it with a list of arguments to accept via the constructor,
    e.g. `ChoiceArg("YesNoArg", "Y", "y", "N", "n")` note: the first arg in every constructor is always the `name` that 
    is shown in the `help` command.
  - **CommandArg** - Accepts any command as an argument.
  - **DoubleArg** - Accepts any valid double
+ - **GuildArg** - Accepts a guild ID
+ - **HexColorArg** - Accepts any valid hex color
  - **IntegerArg** - Accepts any valid integer
+ - **IntegerRangeArg** - Accepts a valid integer within a range
  - **ManualArg** - be VERY mindful using this argument type, it turns off all parsing and leaves it to you!
+ - **MemberArg** - Accepts a member ID or mention
+ - **MessageArg** - Accepts a message ID
+ - **OnOffArg** - Accepts `on` or `off` (case insensitive)
  - **RoleArg** - Accepts any given RoleID, useful for administrators. 
  - **SentenceArg** - Accepts multiple words worth of strings, e.g `!something a b c`, `a b c` would be a valid sentence arg.
    So would just `a`, though.
@@ -157,6 +165,7 @@ can see the fully exhaustive list below.
  - **UserArg** - Accepts any user ID or mention. 
  - **VoiceChannelArg** - Accepts any voice channel ID
  - **WordArg** - Accepts just a single word.
+ - **YesNoArg** - Accepts `yes` or `no` (case insensitive)
 
 ##### Creating your own argument
 
