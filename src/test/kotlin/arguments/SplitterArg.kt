@@ -7,26 +7,23 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.*
 
-class SentenceArgTest {
+class SplitterArgTest {
     companion object {
         @JvmStatic
         fun arguments() = listOf(
             //Pass args
-            Arguments.of("Hello", "Hello"),
-            Arguments.of("world", "world"),
-            Arguments.of("Hello World", "Hello World"),
-            Arguments.of("12345", "12345"),
-            Arguments.of("12.45", "12.45"),
-            Arguments.of("a", "a")
-
-            //Fail args
+            Arguments.of("Hello|World", listOf("Hello", "World")),
+            Arguments.of("Hello there|General Kenobi", listOf("Hello there", "General Kenobi")),
+            Arguments.of("a|1|sauce", listOf("a", "1", "sauce")),
+            Arguments.of("Hello", listOf("Hello")),
+            Arguments.of("", listOf(""))
         )
     }
 
     @ParameterizedTest
     @MethodSource("arguments")
-    fun `Test SentenceArg conversion function`(arg: String, expected: Any) {
-        val argType = SentenceArg.attemptConvert(arg)
+    fun `Test SplitterArg conversion function`(arg: String, expected: Any) {
+        val argType = SplitterArg.attemptConvert(arg)
 
         if (argType is ArgumentResult.Error) {
             Assertions.assertEquals(ArgumentResult.Error, expected)
