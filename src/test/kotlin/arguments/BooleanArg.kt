@@ -11,12 +11,15 @@ class BooleanArgTest {
     companion object {
         @JvmStatic
         fun arguments() = listOf(
+            //Pass args
             Arguments.of("T", true),
             Arguments.of("true", true),
             Arguments.of("True", true),
             Arguments.of("F", false),
             Arguments.of("false", false),
             Arguments.of("False", false),
+
+            //Fail args
             Arguments.of("abcde", ArgumentResult.Error),
             Arguments.of("12345", ArgumentResult.Error),
             Arguments.of("", ArgumentResult.Error)
@@ -25,7 +28,7 @@ class BooleanArgTest {
 
     @ParameterizedTest
     @MethodSource("arguments")
-    fun `test setter configuration commands`(arg: String, expected: Any) {
+    fun `Test BooleanArg conversion function`(arg: String, expected: Any) {
         val argType = BooleanArg.attemptConvert(arg)
 
         if (argType is ArgumentResult.Error) {

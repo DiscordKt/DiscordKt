@@ -11,10 +11,13 @@ class YesNoArgTest {
     companion object {
         @JvmStatic
         fun arguments() = listOf(
+            //Pass args
             Arguments.of("yes", true),
             Arguments.of("Yes", true),
             Arguments.of("no", false),
             Arguments.of("No", false),
+
+            //Fail args
             Arguments.of("abcde", ArgumentResult.Error),
             Arguments.of("12345", ArgumentResult.Error),
             Arguments.of("", ArgumentResult.Error)
@@ -23,7 +26,7 @@ class YesNoArgTest {
 
     @ParameterizedTest
     @MethodSource("arguments")
-    fun `test setter configuration commands`(arg: String, expected: Any) {
+    fun `Test YesNoArg conversion function`(arg: String, expected: Any) {
         val argType = YesNoArg.attemptConvert(arg)
 
         if (argType is ArgumentResult.Error) {

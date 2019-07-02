@@ -11,10 +11,13 @@ class OnOffArgTest {
     companion object {
         @JvmStatic
         fun arguments() = listOf(
+            //Pass args
             Arguments.of("on", true),
             Arguments.of("On", true),
             Arguments.of("off", false),
             Arguments.of("Off", false),
+
+            //Fail args
             Arguments.of("abcde", ArgumentResult.Error),
             Arguments.of("12345", ArgumentResult.Error),
             Arguments.of("", ArgumentResult.Error)
@@ -23,7 +26,7 @@ class OnOffArgTest {
 
     @ParameterizedTest
     @MethodSource("arguments")
-    fun `test setter configuration commands`(arg: String, expected: Any) {
+    fun `Test OnOffArg conversion function`(arg: String, expected: Any) {
         val argType = OnOffArg.attemptConvert(arg)
 
         if (argType is ArgumentResult.Error) {
