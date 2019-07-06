@@ -136,7 +136,7 @@ can see the fully exhaustive list below.
 ##### Available Arguments
 
  - **BooleanArg** - Accepts a boolean `true` or `false` (case insensitive)
- - **ChannelCategoryArg** - Accepts Command categories
+ - **CategoryArg** - Accepts Command categories
  - **CharArg** - Accepts a single character
  - **ChoiceArg** - Accepts true, or false. You can also provide it with a list of arguments to accept via the constructor,
    e.g. `ChoiceArg("YesNoArg", "Y", "y", "N", "n")` note: the first arg in every constructor is always the `name` that 
