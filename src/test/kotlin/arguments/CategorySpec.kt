@@ -7,7 +7,7 @@ import mock.FakeIds
 import mock.GherkinMessages
 import mock.attemptConvert
 import mock.convertToSingle
-import net.dv8tion.jda.core.entities.Category
+import net.dv8tion.jda.api.entities.Category
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.gherkin.Feature
 import kotlin.test.assertEquals

@@ -1,7 +1,7 @@
 package me.aberrantfox.kjdautils.internal.command
 
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
-import net.dv8tion.jda.core.JDA
+import net.dv8tion.jda.api.JDA
 
 sealed class ArgumentResult {
     /** A result that has only consumed the single argument passed. **/

@@ -1,13 +1,13 @@
 package me.aberrantfox.kjdautils.extensions.stdlib
 
-import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.entities.Guild
-import net.dv8tion.jda.core.entities.Role
-import net.dv8tion.jda.core.entities.User
+import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.Role
+import net.dv8tion.jda.api.entities.User
 
 private val urlRegexes = listOf(
-    "[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)",
-    "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)"
+        "[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)",
+        "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)"
 ).map { it.toRegex() }
 
 private val inviteRegex = "(\n|.)*((discord|discordapp).(gg|me|io|com/invite)/)(\n|.)*".toRegex()
@@ -45,7 +45,7 @@ fun String.isDouble(): Boolean =
         }
 
 fun String.isBooleanValue(): Boolean =
-        when(this.toLowerCase()) {
+        when (this.toLowerCase()) {
             "true" -> true
             "false" -> true
             "t" -> true
@@ -54,15 +54,15 @@ fun String.isBooleanValue(): Boolean =
         }
 
 fun String.toBooleanValue(): Boolean =
-        when(this.toLowerCase()) {
+        when (this.toLowerCase()) {
             "true" -> true
             "t" -> true
             else -> false
         }
 
-fun String.idToName(jda: JDA): String = jda.getUserById(this).name
+fun String.idToName(jda: JDA): String = jda.getUserById(this)!!.name
 
-fun String.idToUser(jda: JDA): User = jda.getUserById(this.trimToID())
+fun String.idToUser(jda: JDA): User = jda.getUserById(this.trimToID())!!
 
 fun String.toRole(guild: Guild): Role? = guild.getRoleById(this)
 

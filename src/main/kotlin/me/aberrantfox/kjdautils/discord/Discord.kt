@@ -4,11 +4,8 @@ import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
-
-import net.dv8tion.jda.core.JDA
-
-// TODO: Don't expose these JDA types via the API
-import net.dv8tion.jda.core.entities.MessageEmbed
+import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.entities.MessageEmbed
 
 interface Discord {
   @Deprecated("To be removed")
