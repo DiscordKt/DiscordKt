@@ -52,16 +52,19 @@ class DIService {
             try {
                 val result = invokeConstructor(it)
                 addElement(result)
+                println("Success :: $result")
             } catch (e: IllegalStateException) {
                 failed.add(it)
+                println("Failed :: $it")
+                println(e.localizedMessage)
             }
         }
 
-        if(failed.size == 0) {
+        if (failed.size == 0) {
             return
         }
 
-        if(failed.size == last) {
+        if (failed.size == last) {
             throw IllegalStateException("Attempted to reflectively build up dependencies, however an infinite loop was detected." +
                     " Are all dependencies properly marked and available?")
         }
@@ -74,17 +77,17 @@ class DIService {
 
         dataObjs.forEach {
             val annotation = it.getAnnotation(Data::class.java)
-            val path =  annotation.path
+            val path = annotation.path
             val file = File(path)
             val parent = file.parentFile
 
-            if(parent != null && !parent.exists()) {
+            if (parent != null && !parent.exists()) {
                 parent.mkdirs()
             }
 
             val alreadyGenerated = file.exists()
 
-            if(file.exists()) {
+            if (file.exists()) {
                 val contents = file.readText()
                 elementMap[it] = gson.fromJson(contents, it)
             } else {
@@ -93,7 +96,7 @@ class DIService {
                 elementMap[it] = obj
             }
 
-            if(annotation.killIfGenerated && !alreadyGenerated) {
+            if (annotation.killIfGenerated && !alreadyGenerated) {
                 dataRequiringFillRestart.add(file.absolutePath)
             }
         }
@@ -104,7 +107,7 @@ class DIService {
     fun saveObject(obj: Any) {
         val clazz = obj::class.java
 
-        if( !(elementMap.containsKey(clazz)) )
+        if (!(elementMap.containsKey(clazz)))
             throw IllegalArgumentException("You may only pass @Data annotated objects to PersistenceService#save")
 
         val annotation = clazz.getAnnotation(Data::class.java) ?: return
