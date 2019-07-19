@@ -17,7 +17,7 @@ object CategorySpec : Spek({
     Feature("Category Command Argument") {
         Scenario(GherkinMessages.ValidArgumentIsPassed) {
             Then(GherkinMessages.ConversionSucceeds) {
-                assertEquals(FakeIds.Category, (CategoryArg.convertToSingle("1") as Category).id)
+                assertEquals(FakeIds.Category, (CategoryArg("test-category", "4").convertToSingle("1") as Category).id)
             }
         }
 

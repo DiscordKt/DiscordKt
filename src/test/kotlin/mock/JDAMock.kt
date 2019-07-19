@@ -9,6 +9,7 @@ import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
 import me.aberrantfox.kjdautils.discord.Discord
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Category
+import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.requests.RestAction
@@ -22,6 +23,10 @@ val messageMock = mock<Message> {
     on { id } doReturn FakeIds.Message
 }
 
+val guildMock = mock<Guild> {
+    on { id } doReturn FakeIds.Guild
+}
+
 val restActionMessageMock = mock<RestAction<Message>> {
      on { complete() } doReturn messageMock
 }
@@ -33,6 +38,7 @@ val channelMock = mock<TextChannel> {
 val jdaMock = mock<JDA> {
     on { getCategoryById(FakeIds.Category) } doReturn categoryMock
     on { getTextChannelById(FakeIds.Channel) } doReturn channelMock
+    on { getGuildById(FakeIds.Guild) } doReturn guildMock
 }
 
 val discordMock = mock<Discord> {

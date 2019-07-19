@@ -52,11 +52,8 @@ class DIService {
             try {
                 val result = invokeConstructor(it)
                 addElement(result)
-                println("Success :: $result")
             } catch (e: IllegalStateException) {
                 failed.add(it)
-                println("Failed :: $it")
-                println(e.localizedMessage)
             }
         }
 
