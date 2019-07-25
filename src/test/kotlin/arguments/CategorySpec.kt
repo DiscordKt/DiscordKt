@@ -7,7 +7,7 @@ import mock.FakeIds
 import mock.GherkinMessages
 import mock.attemptConvert
 import mock.convertToSingle
-import net.dv8tion.jda.core.entities.Category
+import net.dv8tion.jda.api.entities.Category
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.gherkin.Feature
 import kotlin.test.assertEquals
@@ -17,7 +17,7 @@ object CategorySpec : Spek({
     Feature("Category Command Argument") {
         Scenario(GherkinMessages.ValidArgumentIsPassed) {
             Then(GherkinMessages.ConversionSucceeds) {
-                assertEquals(FakeIds.Category, (CategoryArg.convertToSingle("1") as Category).id)
+                assertEquals(FakeIds.Category, (CategoryArg("test-category", "4").convertToSingle("1") as Category).id)
             }
         }
 

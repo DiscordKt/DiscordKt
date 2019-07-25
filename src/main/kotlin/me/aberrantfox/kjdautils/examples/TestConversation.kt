@@ -4,7 +4,7 @@ import me.aberrantfox.kjdautils.api.dsl.embed
 import me.aberrantfox.kjdautils.api.dsl.Convo
 import me.aberrantfox.kjdautils.api.dsl.conversation
 import me.aberrantfox.kjdautils.internal.command.arguments.*
-import net.dv8tion.jda.core.entities.User
+import net.dv8tion.jda.api.entities.User
 import java.awt.Color
 
 //Dependency injection works here too
@@ -46,7 +46,7 @@ fun testConversation(config: MyCustomBotConfiguration) = conversation {
             setThumbnail(user.avatarUrl)
             field {
                 name = "Some user account"
-                value = "The account of **${user.name}** was created on **${user.creationTime}**."
+                value = "The account of **${user.name}** was created on **${user.timeCreated}**."
             }
             field {
                 name = "Random word"
