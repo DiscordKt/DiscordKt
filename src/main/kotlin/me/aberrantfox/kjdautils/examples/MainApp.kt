@@ -6,12 +6,15 @@ import me.aberrantfox.kjdautils.api.annotation.Data
 import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.api.startBot
+import me.aberrantfox.kjdautils.extensions.jda.fullName
 import me.aberrantfox.kjdautils.internal.command.ConversationService
 import me.aberrantfox.kjdautils.internal.command.Fail
 import me.aberrantfox.kjdautils.internal.command.Pass
 import me.aberrantfox.kjdautils.internal.command.arguments.IntegerArg
 import me.aberrantfox.kjdautils.internal.command.arguments.SentenceArg
+import me.aberrantfox.kjdautils.internal.command.arguments.UserArg
 import me.aberrantfox.kjdautils.internal.di.PersistenceService
+import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
 data class MyCustomBotConfiguration(val version: String, val token: String)
@@ -131,7 +134,6 @@ fun defineOther(log: MyCustomLogger) = commands {
     }
 }
 
-
 @Precondition
 fun nameBeginsWithF() = precondition {
     if(it.author.name.toLowerCase().startsWith("f")) {
@@ -140,6 +142,31 @@ fun nameBeginsWithF() = precondition {
         return@precondition Fail("Your name must start with F!")
     }
 }
+
+@Precondition(priority = 3)
+fun userWithDiscriminator() = precondition {
+    return@precondition if(it.author.discriminator == "5822") {
+        Fail("Ignoring users with your discriminator.")
+    } else {
+        Pass
+    }
+}
+
+@Precondition(priority = 1)
+fun userWithID() = precondition {
+    return@precondition if (it.author.id == "140816962581299200") {
+        Fail()
+    } else {
+        Pass
+    }
+}
+
+@Precondition(priority = 2)
+fun guildPrecondition() = precondition {
+    if (it.guild != null) return@precondition Pass
+    else return@precondition Fail("Must be in a guild")
+}
+
 
 @Service
 class NoDependencies
