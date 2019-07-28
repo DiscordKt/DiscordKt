@@ -2,8 +2,6 @@ package me.aberrantfox.kjdautils.internal.listeners
 
 
 import com.google.common.eventbus.Subscribe
-import me.aberrantfox.kjdautils.internal.command.Fail
-import me.aberrantfox.kjdautils.internal.command.PreconditionResult
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
 import me.aberrantfox.kjdautils.api.dsl.KConfiguration
@@ -13,9 +11,8 @@ import me.aberrantfox.kjdautils.extensions.jda.deleteIfExists
 import me.aberrantfox.kjdautils.extensions.jda.descriptor
 import me.aberrantfox.kjdautils.extensions.jda.isCommandInvocation
 import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
+import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.command.CommandExecutor
-import me.aberrantfox.kjdautils.internal.command.CommandRecommender
-import me.aberrantfox.kjdautils.internal.command.cleanCommandMessage
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Message
@@ -29,7 +26,7 @@ internal class CommandListener(val config: KConfiguration,
                                var log: BotLogger,
                                val discord: Discord,
                                private val executor: CommandExecutor,
-                               private val preconditions: ArrayList<(CommandEvent) -> PreconditionResult> = ArrayList()) {
+                               private val preconditions: MutableList<PreconditionData> = mutableListOf()) {
 
     @Subscribe
     fun guildMessageHandler(e: GuildMessageReceivedEvent) =
@@ -40,7 +37,7 @@ internal class CommandListener(val config: KConfiguration,
             handleMessage(e.channel, e.message, e.author)
 
 
-    fun addPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) = preconditions.addAll(conditions)
+    fun addPreconditions(vararg conditions: PreconditionData) = preconditions.addAll(conditions)
 
     private fun handleMessage(channel: MessageChannel, message: Message, author: User, guild: Guild? = null) {
 
@@ -109,14 +106,23 @@ internal class CommandListener(val config: KConfiguration,
     }
 
     private fun getPreconditionError(event: CommandEvent): String? {
-        val failedPrecondition = preconditions
-                .map { it.invoke(event) }
-                .firstOrNull { it is Fail }
+        val sortedConditions = preconditions
+                .groupBy({ it.priority }, { it.condition })
+                .toList()
+                .sortedBy { (priority, conditions) -> priority }
+                .map { (priority, conditions) -> conditions }
 
-        if (failedPrecondition != null && failedPrecondition is Fail) {
-            return failedPrecondition.reason ?: ""
+
+        // Lazy sequence allows lower priorities to assume higher priorities are already verified
+        val failedResults = sortedConditions.asSequence()
+                .map { conditions -> conditions.map { it.invoke(event) } }
+                .firstOrNull { results -> results.any { it is Fail } }
+                ?.filterIsInstance<Fail>()
+
+        return if (failedResults?.any { it.reason == null } == true) {
+            ""
+        } else {
+            failedResults?.firstOrNull { it.reason != null }?.reason
         }
-
-        return null
     }
 }
