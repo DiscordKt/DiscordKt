@@ -143,6 +143,7 @@ can see the fully exhaustive list below.
    is shown in the `help` command.
  - **CommandArg** - Accepts any command as an argument.
  - **DoubleArg** - Accepts any valid double
+ - **EitherArg** - Accepts either the left OR the right arg. e.g `expect(UserArg or TextChannelArg)`
  - **GuildArg** - Accepts a guild ID
  - **HexColorArg** - Accepts any valid hex color
  - **IntegerArg** - Accepts any valid integer
