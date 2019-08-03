@@ -42,6 +42,8 @@ class KUtils(val config: KConfiguration) {
 
     fun registerInjectionObject(vararg obj: Any) = obj.forEach { diService.addElement(it) }
 
+    fun getInjectionObject(serviceClass: Class<*>) = diService.getElement(serviceClass)
+
     fun registerCommandPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) = listener?.addPreconditions(*conditions)
     
     fun configure(setup: KConfiguration.() -> Unit) {

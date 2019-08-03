@@ -23,6 +23,7 @@ class DIService {
                     " or '@Precondition fun preconditionFunc() = precondition { ... }'\n" +
                     " or '@Convo fun testConversation(...) = conversation { ... }'"
     )
+    fun getElement(serviceClass: Class<*>) = elementMap.get(serviceClass)
 
     fun invokeReturningMethod(method: Method): Any {
         val arguments: Array<out Class<*>> = method.parameterTypes
