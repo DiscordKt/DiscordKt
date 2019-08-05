@@ -151,6 +151,7 @@ can see the fully exhaustive list below.
  - **ManualArg** - be VERY mindful using this argument type, it turns off all parsing and leaves it to you!
  - **MemberArg** - Accepts a member ID or mention
  - **MessageArg** - Accepts a message ID
+ - **MultipleArg** - Accepts multiple arguments of the same type
  - **OnOffArg** - Accepts `on` or `off` (case insensitive)
  - **RoleArg** - Accepts any given RoleID, useful for administrators. 
  - **SentenceArg** - Accepts multiple words worth of strings, e.g `!something a b c`, `a b c` would be a valid sentence arg.
