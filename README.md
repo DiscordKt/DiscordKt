@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://discord.gg/kh253yg">
+    <img src="https://img.shields.io/discord/453208597082406912?logo=discord" alt="chat on Discord">
+  </a>
+</p>
+
 ##### Purpose
 The purpose of this is to provide a nice kotlin wrapper over JDA and to add a bunch of extension functions for utility 
 purposes/cleaner code.
