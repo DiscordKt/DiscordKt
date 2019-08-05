@@ -489,7 +489,7 @@ Under the dependencies tag, add
 <dependency>
     <groupId>com.gitlab.aberrantfox</groupId>
     <artifactId>Kutils</artifactId>
-    <version>0.9.14</version>
+    <version>0.9.18</version>
 </dependency>
 ```
 
@@ -513,7 +513,7 @@ repositories {
 
 dependencies {
     //...
-    implementation "com.gitlab.aberrantfox:Kutils:0.9.16"
+    implementation "com.gitlab.aberrantfox:Kutils:0.9.18"
     //...
 }
 ```
