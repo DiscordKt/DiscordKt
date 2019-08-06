@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://discord.gg/kh253yg">
+    <img src="https://img.shields.io/discord/453208597082406912?logo=discord" alt="chat on Discord">
+  </a>
+</p>
+
 ##### Purpose
 The purpose of this is to provide a nice kotlin wrapper over JDA and to add a bunch of extension functions for utility 
 purposes/cleaner code.
@@ -143,6 +149,7 @@ can see the fully exhaustive list below.
    is shown in the `help` command.
  - **CommandArg** - Accepts any command as an argument.
  - **DoubleArg** - Accepts any valid double
+ - **EitherArg** - Accepts either the left OR the right arg. e.g `expect(UserArg or TextChannelArg)` returns `Either<Left, Right>`
  - **GuildArg** - Accepts a guild ID
  - **HexColorArg** - Accepts any valid hex color
  - **IntegerArg** - Accepts any valid integer
@@ -150,6 +157,7 @@ can see the fully exhaustive list below.
  - **ManualArg** - be VERY mindful using this argument type, it turns off all parsing and leaves it to you!
  - **MemberArg** - Accepts a member ID or mention
  - **MessageArg** - Accepts a message ID
+ - **MultipleArg** - Accepts multiple arguments of the same type
  - **OnOffArg** - Accepts `on` or `off` (case insensitive)
  - **RoleArg** - Accepts any given RoleID, useful for administrators. 
  - **SentenceArg** - Accepts multiple words worth of strings, e.g `!something a b c`, `a b c` would be a valid sentence arg.
@@ -487,7 +495,7 @@ Under the dependencies tag, add
 <dependency>
     <groupId>com.gitlab.aberrantfox</groupId>
     <artifactId>Kutils</artifactId>
-    <version>0.9.14</version>
+    <version>0.9.18</version>
 </dependency>
 ```
 
@@ -511,7 +519,7 @@ repositories {
 
 dependencies {
     //...
-    implementation "com.gitlab.aberrantfox:Kutils:0.9.16"
+    implementation "com.gitlab.aberrantfox:Kutils:0.9.18"
     //...
 }
 ```
