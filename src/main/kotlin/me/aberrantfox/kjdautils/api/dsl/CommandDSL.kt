@@ -1,12 +1,12 @@
 package me.aberrantfox.kjdautils.api.dsl
 
+import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.CommandStruct
 import me.aberrantfox.kjdautils.internal.command.arguments.WordArg
 import me.aberrantfox.kjdautils.internal.di.DIService
-import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.entities.*
+import net.dv8tion.jda.api.entities.*
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 
@@ -18,7 +18,7 @@ data class CommandEvent(val commandStruct: CommandStruct,
                         var args: List<Any>,
                         val container: CommandsContainer,
                         val stealthInvocation: Boolean,
-                        val jda: JDA = message.jda,
+                        val discord: Discord,
                         val author: User = message.author,
                         val channel: MessageChannel = message.channel,
                         val guild: Guild? = null) {

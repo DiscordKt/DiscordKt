@@ -12,13 +12,14 @@ open class VoiceChannelArg(override val name : String = "The ID of any valid voi
 
     override val examples = arrayListOf("360583945982836746", "360729317631721482")
     override val consumptionType = ConsumptionType.Single
+
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
-        val retrieved = tryRetrieveSnowflake(event.jda) { it.getVoiceChannelById(arg.trimToID()) }
+        val retrieved = tryRetrieveSnowflake(event.discord.jda) { it.getVoiceChannelById(arg.trimToID()) }
 
         return if (retrieved != null) {
             ArgumentResult.Single(retrieved)
         } else {
-            ArgumentResult.Error("Couldn't retrieve user: $arg")
+            ArgumentResult.Error("Couldn't retrieve voice channel: $arg")
         }
     }
 }

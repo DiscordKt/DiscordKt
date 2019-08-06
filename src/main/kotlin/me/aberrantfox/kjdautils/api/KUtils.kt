@@ -4,6 +4,7 @@ import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.annotation.Data
 import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
@@ -11,15 +12,13 @@ import me.aberrantfox.kjdautils.internal.listeners.CommandListener
 import me.aberrantfox.kjdautils.internal.listeners.ConversationListener
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
-import net.dv8tion.jda.core.AccountType
-import net.dv8tion.jda.core.JDABuilder
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 import kotlin.system.exitProcess
 
 
-class KUtils(val config: KJDAConfiguration) {
-    val jda = JDABuilder(AccountType.BOT).setToken(config.token).buildBlocking()
+class KUtils(val config: KConfiguration) {
+    val discord = Discord.build(config)
 
     private var listener: CommandListener? = null
     private var executor: CommandExecutor? = null
@@ -27,25 +26,27 @@ class KUtils(val config: KJDAConfiguration) {
     private val diService = DIService()
 
     init {
-        registerInjectionObject(jda)
+        registerInjectionObject(discord)
     }
 
-    val conversationService: ConversationService = ConversationService(jda, config, diService)
+    val conversationService: ConversationService = ConversationService(discord, config, diService)
     val container = CommandsContainer()
     var logger: BotLogger = DefaultLogger()
 
     init {
         registerInjectionObject(conversationService)
-        jda.addEventListener(EventRegister)
+        discord.addEventListener(EventRegister)
         helpService = HelpService(container, config)
         registerListeners(ConversationListener(conversationService))
     }
 
     fun registerInjectionObject(vararg obj: Any) = obj.forEach { diService.addElement(it) }
 
+    fun getInjectionObject(serviceClass: Class<*>) = diService.getElement(serviceClass)
+
     fun registerCommandPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) = listener?.addPreconditions(*conditions)
     
-    fun configure(setup: KJDAConfiguration.() -> Unit) {
+    fun configure(setup: KConfiguration.() -> Unit) {
         config.setup()
 
         detectData()
@@ -64,7 +65,7 @@ class KUtils(val config: KJDAConfiguration) {
         CommandRecommender.addAll(localContainer.listCommands())
 
         val executor = CommandExecutor()
-        val listener = CommandListener(config, container, logger, executor)
+        val listener = CommandListener(config, container, logger, discord, executor)
 
         this.container.join(localContainer)
         this.executor = executor
@@ -112,7 +113,7 @@ class KUtils(val config: KJDAConfiguration) {
 }
 
 fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
-    val util = KUtils(KJDAConfiguration(token))
+    val util = KUtils(KConfiguration(token))
     util.operate()
     return util
 }

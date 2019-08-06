@@ -2,16 +2,16 @@ package me.aberrantfox.kjdautils.extensions.jda
 
 import me.aberrantfox.kjdautils.extensions.stdlib.containsInvite
 import me.aberrantfox.kjdautils.extensions.stdlib.containsURl
-import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
-import net.dv8tion.jda.core.entities.Message
+import me.aberrantfox.kjdautils.api.dsl.KConfiguration
+import net.dv8tion.jda.api.entities.Message
 
 fun Message.containsInvite() = contentRaw.containsInvite()
 
 fun Message.containsURL() = contentRaw.containsURl()
 
-fun Message.isCommandInvocation(config: KJDAConfiguration) = contentRaw.startsWith(config.prefix)
+fun Message.isCommandInvocation(config: KConfiguration) = contentRaw.startsWith(config.prefix)
 
-fun Message.deleteIfExists(runnable: () -> Unit = {}) = channel.getMessageById(id).queue { it?.delete()?.queue { runnable() } }
+fun Message.deleteIfExists(runnable: () -> Unit = {}) = channel.retrieveMessageById(id).queue { it?.delete()?.queue { runnable() } }
 
 fun Message.isDoubleInvocation(prefix: String) = contentRaw.startsWith(prefix + prefix)
 

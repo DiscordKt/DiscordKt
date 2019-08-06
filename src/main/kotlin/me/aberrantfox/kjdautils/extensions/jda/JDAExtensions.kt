@@ -1,8 +1,7 @@
 package me.aberrantfox.kjdautils.extensions.jda
 
-import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.entities.Role
-import net.dv8tion.jda.core.entities.User
+import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.entities.Role
 
 enum class RoleIdentifier {
     Name, Id, Invalid

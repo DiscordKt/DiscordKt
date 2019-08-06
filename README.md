@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="https://discord.gg/kh253yg">
+    <img src="https://img.shields.io/discord/453208597082406912?logo=discord" alt="chat on Discord">
+  </a>
+</p>
+
 ##### Purpose
 The purpose of this is to provide a nice kotlin wrapper over JDA and to add a bunch of extension functions for utility 
 purposes/cleaner code.
@@ -135,14 +141,24 @@ can see the fully exhaustive list below.
 
 ##### Available Arguments
 
- - **ChannelCategoryArg** - Accepts Command categories
+ - **BooleanArg** - Accepts a boolean `true` or `false` (case insensitive)
+ - **CategoryArg** - Accepts Command categories
+ - **CharArg** - Accepts a single character
  - **ChoiceArg** - Accepts true, or false. You can also provide it with a list of arguments to accept via the constructor,
    e.g. `ChoiceArg("YesNoArg", "Y", "y", "N", "n")` note: the first arg in every constructor is always the `name` that 
    is shown in the `help` command.
  - **CommandArg** - Accepts any command as an argument.
  - **DoubleArg** - Accepts any valid double
+ - **EitherArg** - Accepts either the left OR the right arg. e.g `expect(UserArg or TextChannelArg)` returns `Either<Left, Right>`
+ - **GuildArg** - Accepts a guild ID
+ - **HexColorArg** - Accepts any valid hex color
  - **IntegerArg** - Accepts any valid integer
+ - **IntegerRangeArg** - Accepts a valid integer within a range
  - **ManualArg** - be VERY mindful using this argument type, it turns off all parsing and leaves it to you!
+ - **MemberArg** - Accepts a member ID or mention
+ - **MessageArg** - Accepts a message ID
+ - **MultipleArg** - Accepts multiple arguments of the same type
+ - **OnOffArg** - Accepts `on` or `off` (case insensitive)
  - **RoleArg** - Accepts any given RoleID, useful for administrators. 
  - **SentenceArg** - Accepts multiple words worth of strings, e.g `!something a b c`, `a b c` would be a valid sentence arg.
    So would just `a`, though.
@@ -157,6 +173,7 @@ can see the fully exhaustive list below.
  - **UserArg** - Accepts any user ID or mention. 
  - **VoiceChannelArg** - Accepts any voice channel ID
  - **WordArg** - Accepts just a single word.
+ - **YesNoArg** - Accepts `yes` or `no` (case insensitive)
 
 ##### Creating your own argument
 
@@ -478,7 +495,7 @@ Under the dependencies tag, add
 <dependency>
     <groupId>com.gitlab.aberrantfox</groupId>
     <artifactId>Kutils</artifactId>
-    <version>0.9.14</version>
+    <version>0.10.0</version>
 </dependency>
 ```
 
@@ -502,7 +519,7 @@ repositories {
 
 dependencies {
     //...
-    implementation "com.gitlab.aberrantfox:Kutils:0.9.16"
+    implementation "com.gitlab.aberrantfox:Kutils:0.10.0"
     //...
 }
 ```

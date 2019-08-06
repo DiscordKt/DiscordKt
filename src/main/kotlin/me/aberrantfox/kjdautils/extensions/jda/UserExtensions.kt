@@ -2,9 +2,9 @@ package me.aberrantfox.kjdautils.extensions.jda
 
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
-import net.dv8tion.jda.core.entities.Guild
-import net.dv8tion.jda.core.entities.MessageEmbed
-import net.dv8tion.jda.core.entities.User
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.User
 
 
 fun User.toMember(guild: Guild) = guild.getMemberById(this.id)

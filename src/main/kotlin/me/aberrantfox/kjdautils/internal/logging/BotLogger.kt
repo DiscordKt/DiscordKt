@@ -1,9 +1,9 @@
 package me.aberrantfox.kjdautils.internal.logging
 
 
-import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.entities.MessageEmbed
-import net.dv8tion.jda.core.entities.TextChannel
+import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.TextChannel
 
 
 interface BotLogger {
@@ -30,12 +30,12 @@ data class ChannelIdHolder(val info: String = "insert-id-here",
 
 fun convertChannels(holder: ChannelIdHolder, jda: JDA): BotLogger =
     ChannelLogger(Channels(
-        jda.getTextChannelById(holder.info),
-        jda.getTextChannelById(holder.cmd),
-        jda.getTextChannelById(holder.error),
-        jda.getTextChannelById(holder.alert),
-        jda.getTextChannelById(holder.voice),
-        jda.getTextChannelById(holder.history)))
+        jda.getTextChannelById(holder.info)!!,
+        jda.getTextChannelById(holder.cmd)!!,
+        jda.getTextChannelById(holder.error)!!,
+        jda.getTextChannelById(holder.alert)!!,
+        jda.getTextChannelById(holder.voice)!!,
+        jda.getTextChannelById(holder.history)!!))
 
 data class Channels(val info: TextChannel,
                     val cmd: TextChannel,

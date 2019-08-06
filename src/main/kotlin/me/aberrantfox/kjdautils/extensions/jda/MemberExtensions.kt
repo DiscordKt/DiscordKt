@@ -1,11 +1,11 @@
 package me.aberrantfox.kjdautils.extensions.jda
 
-import net.dv8tion.jda.core.entities.Member
+import net.dv8tion.jda.api.entities.Member
 
 
 fun Member.fullName() = "${this.user.name}#${this.user.discriminator}"
 
-fun Member.descriptor() = "${fullName()} :: ID :: ${this.user.id}"
+fun Member.descriptor() = "${this.user.name}#${this.user.discriminator} :: ID :: ${this.user.id}"
 
 fun Member.getHighestRole() =
     if(roles.isNotEmpty()) {

@@ -1,11 +1,9 @@
 package me.aberrantfox.kjdautils.api.dsl
 
-import me.aberrantfox.kjdautils.extensions.jda.sendPrivateMessage
+import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.arguments.WordArg
-import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
-import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.MessageEmbed
 
 class Conversation(val name: String,
                    val description: String,
@@ -15,14 +13,15 @@ class Conversation(val name: String,
 
 data class Step(val prompt: Any, val expect: ArgumentType)
 
-data class ConversationStateContainer(val userId: String,
-                                      val guildId: String,
-                                      var responses: MutableList<Any>,
-                                      val conversation: Conversation,
-                                      var currentStep: Int,
-                                      val jda: JDA) {
-    fun respond(message: String) = jda.getUserById(userId).sendPrivateMessage(message, DefaultLogger())
-    fun respond(message: MessageEmbed) = jda.getUserById(userId).sendPrivateMessage(message, DefaultLogger())
+data class ConversationStateContainer(
+    val userId: String,
+    val guildId: String,
+    var responses: MutableList<Any>,
+    val conversation: Conversation,
+    var currentStep: Int,
+    val discord: Discord) {
+    fun respond(message: String) = discord.getUserById(userId)?.sendPrivateMessage(message)
+    fun respond(message: MessageEmbed) = discord.getUserById(userId)?.sendPrivateMessage(message)
 }
 
 fun conversation(block: ConversationBuilder.() -> Unit): Conversation = ConversationBuilder().apply(block).build()

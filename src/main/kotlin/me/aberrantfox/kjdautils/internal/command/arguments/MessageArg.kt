@@ -13,8 +13,8 @@ open class MessageArg(override val name: String = "MessageID") : ArgumentType {
     override val examples = arrayListOf("455099008013303819", "455099111327137807", "244099459327137807")
     override val consumptionType = ConsumptionType.Single
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
-        val retrieved = tryRetrieveSnowflake(event.jda) {
-            event.channel.getMessageById(arg.trimToID()).complete()
+        val retrieved = tryRetrieveSnowflake(event.discord.jda) {
+            event.channel.retrieveMessageById(arg.trimToID()).complete()
         }
 
         return if (retrieved != null) {

@@ -13,7 +13,7 @@ open class TextChannelArg(override val name : String = "TextChannel") : Argument
     override val examples = arrayListOf("#chat", "4421069003953932345", "#test-channel", "292106900395393024")
     override val consumptionType = ConsumptionType.Single
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
-        val retrieved = tryRetrieveSnowflake(event.jda) { it.getTextChannelById(arg.trimToID()) }
+        val retrieved = tryRetrieveSnowflake(event.discord.jda) { it.getTextChannelById(arg.trimToID()) }
 
         return if (retrieved != null) {
             ArgumentResult.Single(retrieved)

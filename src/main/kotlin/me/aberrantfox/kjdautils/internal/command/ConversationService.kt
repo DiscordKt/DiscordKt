@@ -5,19 +5,19 @@ import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
 import me.aberrantfox.kjdautils.api.dsl.Conversation
 import me.aberrantfox.kjdautils.api.dsl.ConversationStateContainer
 import me.aberrantfox.kjdautils.api.dsl.Convo
-import me.aberrantfox.kjdautils.api.dsl.KJDAConfiguration
+import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.Step
+import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.jda.sendPrivateMessage
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
-import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.entities.Message
-import net.dv8tion.jda.core.entities.MessageEmbed
-import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent
+import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 
-class ConversationService(val jda: JDA, private val config: KJDAConfiguration, val diService: DIService) {
+class ConversationService(val dc: Discord, private val config: KConfiguration, val diService: DIService) {
     private var availableConversations = mutableListOf<Conversation>()
     private val activeConversations = mutableListOf<ConversationStateContainer>()
 
@@ -26,11 +26,15 @@ class ConversationService(val jda: JDA, private val config: KJDAConfiguration, v
     private fun getCurrentStep(conversationState: ConversationStateContainer) = conversationState.conversation.steps[conversationState.currentStep]
 
     fun createConversation(userId: String, guildId: String, conversationName: String) {
-        if (hasConversation(userId) || jda.getUserById(userId).isBot) return
+        if (hasConversation(userId)) return
 
-        val conversation = availableConversations.first { it.name == conversationName }
-        activeConversations.add(ConversationStateContainer(userId, guildId, mutableListOf(), conversation, 0, jda))
-        sendToUser(userId, getCurrentStep(getConversationState(userId)).prompt)
+        val user = dc.getUserById(userId)
+
+        if (user != null && !user.isBot) {
+            val conversation = availableConversations.first { it.name == conversationName }
+            activeConversations.add(ConversationStateContainer(userId, guildId, mutableListOf(), conversation, 0, dc))
+            sendToUser(userId, getCurrentStep(getConversationState(userId)).prompt)
+        }
     }
 
     fun handleResponse(userId: String, event: PrivateMessageReceivedEvent) {
@@ -62,7 +66,7 @@ class ConversationService(val jda: JDA, private val config: KJDAConfiguration, v
 
     private fun parseResponse(message: Message, step: Step): Any {
         val commandStruct = CommandStruct("", message.contentStripped.split(" "), false)
-        val commandEvent = CommandEvent(commandStruct, message, commandStruct.commandArgs, CommandsContainer(), false)
+        val commandEvent = CommandEvent(commandStruct, message, commandStruct.commandArgs, CommandsContainer(), false, dc)
         val result = step.expect.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
 
         return when (result) {
@@ -73,7 +77,8 @@ class ConversationService(val jda: JDA, private val config: KJDAConfiguration, v
     }
 
     private fun sendToUser(userId: String, message: Any) {
-        val user = jda.getUserById(userId)
-        if (message is MessageEmbed) user.sendPrivateMessage(message, DefaultLogger()) else user.sendPrivateMessage(message as String, DefaultLogger())
+        dc.getUserById(userId)?.let {
+            if (message is MessageEmbed) it.sendPrivateMessage(message) else it.sendPrivateMessage(message as String)
+        }
     }
 }

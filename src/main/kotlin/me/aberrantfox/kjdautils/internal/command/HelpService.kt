@@ -3,12 +3,12 @@ package me.aberrantfox.kjdautils.internal.command
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.extensions.stdlib.randomListItem
 import me.aberrantfox.kjdautils.internal.command.arguments.WordArg
-import net.dv8tion.jda.core.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color
 
 enum class SelectionArgument { CommandName, CategoryName }
 
-class HelpService(private val container: CommandsContainer, private val config: KJDAConfiguration) {
+class HelpService(private val container: CommandsContainer, private val config: KConfiguration) {
     init {
         container.command("help") {
             description = "Display a help menu"
@@ -64,7 +64,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
         }
     }
 
-    private fun generateCategoriesEmbed(category: String, event: CommandEvent) :MessageEmbed {
+    private fun generateCategoriesEmbed(category: String, event: CommandEvent) : MessageEmbed {
         val commands = container.commands
                 .filter { it.component2().category.toLowerCase() == category.toLowerCase() }
                 .map { it.component2().name }

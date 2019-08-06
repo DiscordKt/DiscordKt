@@ -1,14 +1,13 @@
 package me.aberrantfox.kjdautils.extensions.jda
 
 import me.aberrantfox.kjdautils.extensions.stdlib.formatJdaDate
-import net.dv8tion.jda.core.entities.Guild
-import net.dv8tion.jda.core.entities.Role
-import net.dv8tion.jda.core.entities.User
-
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.Role
+import net.dv8tion.jda.api.entities.User
 
 fun Guild.getMemberJoinString(target: User) =
         if(this.isMember(target)) {
-            target.toMember(this).joinDate.toString().formatJdaDate()
+            target.toMember(this)!!.timeJoined.toString().formatJdaDate()
         } else {
             "This user is not currently in this guild"
         }
