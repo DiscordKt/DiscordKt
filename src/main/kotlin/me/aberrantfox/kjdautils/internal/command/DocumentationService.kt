@@ -2,15 +2,14 @@ package me.aberrantfox.kjdautils.internal.command
 
 import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.*
-import java.io.File
+import java.io.*
 
 @Service
 class DocumentationService(private val container: CommandsContainer) {
     private data class CategoryDocs(val name: String, val docString: String)
 
-    fun generateDocumentation(outputType: DocumentationOutput, sortOrder: List<String>) {
-        if (outputType == DocumentationOutput.NONE)
-            return
+    fun generateDocumentation(outputStream: OutputStream?, sortOrder: List<String>) {
+        outputStream ?: return
 
         val categories = container.commands.values.groupBy { it.category }
         val categoryDocs = generateDocsByCategory(categories)
@@ -21,7 +20,7 @@ class DocumentationService(private val container: CommandsContainer) {
             else
                 categoryDocs.sortedBy { it.name }
 
-        outputDocs(sortedDocs, outputType)
+        outputDocs(outputStream, sortedDocs)
     }
 
     private fun generateDocsByCategory(categories: Map<String, List<Command>>) =
@@ -107,27 +106,20 @@ class DocumentationService(private val container: CommandsContainer) {
         return sortedMap.values.filterNotNull()
     }
 
-    private fun outputDocs(rawDocs: List<CategoryDocs>, outputType: DocumentationOutput) {
+    private fun outputDocs(outputStream: OutputStream, rawDocs: List<CategoryDocs>) {
         val indentLevel = "##"
-        val header =
+        val docsAsString =
             "# Commands\n\n" +
             "$indentLevel Key\n" +
             "| Symbol     | Meaning                    |\n" +
             "| ---------- | -------------------------- |\n" +
-            "| (Argument) | This argument is optional. |\n"
-
-        val docsAsString = buildString {
-            rawDocs.forEach {
-                appendln("$indentLevel ${it.name}\n${it.docString}")
+            "| (Argument) | This argument is optional. |\n\n" +
+            buildString {
+                rawDocs.forEach {
+                    appendln("$indentLevel ${it.name}\n${it.docString}")
+                }
             }
-        }
 
-        val completeDocs = "$header\n$docsAsString"
-
-        when (outputType) {
-            DocumentationOutput.CONSOLE -> println(completeDocs)
-            DocumentationOutput.FILE -> File("commands.md").writeText(completeDocs)
-            DocumentationOutput.NONE -> Unit
-        }
+        outputStream.write(docsAsString.toByteArray())
     }
 }
