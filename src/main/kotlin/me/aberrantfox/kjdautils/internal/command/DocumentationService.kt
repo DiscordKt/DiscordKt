@@ -9,6 +9,9 @@ private data class CategoryDocs(val name: String, val docString: String)
 @Service
 class DocumentationService(private val container: CommandsContainer) {
     fun generateDocumentation(outputType: DocumentationOutput, sortOrder: List<String>) {
+        if (outputType == DocumentationOutput.NONE)
+            return
+
         val categories = container.commands.values.groupBy { it.category }
         val categoryDocs = generateDocsByCategory(categories)
         val sortedDocs = sortCategoryDocs(categoryDocs, sortOrder)
@@ -17,22 +20,22 @@ class DocumentationService(private val container: CommandsContainer) {
     }
 
     private fun generateDocsByCategory(categories: Map<String, List<Command>>) =
-        categories.map {
+        categories.map { entry ->
             data class CommandData(val name: String, val args: String, val description: String) {
                 fun format(format: String) = String.format(format, name, args, description)
             }
 
             //Map the commands to a data class for easier manipulation
-            val commandData = it.value.map {
+            val commandData = entry.value.map { command ->
                 CommandData(
-                    it.name,
-                    it.expectedArgs.joinToString {
+                    command.name,
+                    command.expectedArgs.joinToString {
                         if (it.optional)
                             "(${it.type.name})"
                         else
                             it.type.name
                     }.takeIf { it.isNotEmpty() } ?: "<none>",
-                    it.description.replace("|", "\\|")
+                    command.description.replace("|", "\\|")
                 )
             } as ArrayList
 
@@ -57,7 +60,7 @@ class DocumentationService(private val container: CommandsContainer) {
                     docs.appendln(it.format(columnFormat))
                 }
 
-                CategoryDocs(it.key, docs.toString())
+                CategoryDocs(entry.key, docs.toString())
             }
         } as ArrayList<CategoryDocs>
 
@@ -100,7 +103,7 @@ class DocumentationService(private val container: CommandsContainer) {
     }
 
     private fun outputDocs(rawDocs: List<CategoryDocs>, outputType: DocumentationOutput) {
-        val indentLevel: String = "##"
+        val indentLevel = "##"
         val header =
             "# Commands\n\n" +
                 "$indentLevel Key\n" +

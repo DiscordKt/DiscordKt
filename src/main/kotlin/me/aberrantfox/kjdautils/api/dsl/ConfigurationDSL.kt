@@ -12,7 +12,9 @@ enum class PrefixDeleteMode {
 }
 
 enum class DocumentationOutput {
-    CONSOLE, FILE, NONE
+    CONSOLE,
+    FILE,
+    NONE
 }
 
 data class KConfiguration(
