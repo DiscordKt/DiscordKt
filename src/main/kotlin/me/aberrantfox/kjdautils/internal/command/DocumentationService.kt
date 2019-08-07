@@ -4,17 +4,22 @@ import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.*
 import java.io.File
 
-private data class CategoryDocs(val name: String, val docString: String)
-
 @Service
 class DocumentationService(private val container: CommandsContainer) {
+    private data class CategoryDocs(val name: String, val docString: String)
+
     fun generateDocumentation(outputType: DocumentationOutput, sortOrder: List<String>) {
         if (outputType == DocumentationOutput.NONE)
             return
 
         val categories = container.commands.values.groupBy { it.category }
         val categoryDocs = generateDocsByCategory(categories)
-        val sortedDocs = sortCategoryDocs(categoryDocs, sortOrder)
+
+        val sortedDocs =
+            if (sortOrder.isNotEmpty())
+                sortCategoryDocs(categoryDocs, sortOrder)
+            else
+                categoryDocs.sortedBy { it.name }
 
         outputDocs(sortedDocs, outputType)
     }
@@ -106,10 +111,10 @@ class DocumentationService(private val container: CommandsContainer) {
         val indentLevel = "##"
         val header =
             "# Commands\n\n" +
-                "$indentLevel Key\n" +
-                "| Symbol     | Meaning                    |\n" +
-                "| ---------- | -------------------------- |\n" +
-                "| (Argument) | This argument is optional. |\n"
+            "$indentLevel Key\n" +
+            "| Symbol     | Meaning                    |\n" +
+            "| ---------- | -------------------------- |\n" +
+            "| (Argument) | This argument is optional. |\n"
 
         val docsAsString = buildString {
             rawDocs.forEach {
