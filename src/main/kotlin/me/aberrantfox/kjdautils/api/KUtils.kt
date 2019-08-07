@@ -23,6 +23,7 @@ class KUtils(val config: KConfiguration) {
     private var listener: CommandListener? = null
     private var executor: CommandExecutor? = null
     private val helpService: HelpService
+    private val documentationService: DocumentationService
     private val diService = DIService()
 
     init {
@@ -37,6 +38,7 @@ class KUtils(val config: KConfiguration) {
         registerInjectionObject(conversationService)
         discord.addEventListener(EventRegister)
         helpService = HelpService(container, config)
+        documentationService = DocumentationService(container)
         registerListeners(ConversationListener(conversationService))
     }
 
@@ -56,6 +58,7 @@ class KUtils(val config: KConfiguration) {
         registerListenersByPath()
         registerPreconditionsByPath()
         conversationService.registerConversations(config.globalPath)
+        documentationService.generateDocumentation(config.documentationOutputType, config.documentationSortOrder)
     }
 
     fun registerListeners(vararg listeners: Any) = listeners.forEach { EventRegister.eventBus.register(it) }
