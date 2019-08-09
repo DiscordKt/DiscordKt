@@ -106,10 +106,11 @@ class DocumentationService(private val container: CommandsContainer) {
                 .joinToString("\n"){ it.format(commandDataFormat.generateFormatString()) }
 
         val docs =
-            """ ${HEADER_DATA.format(commandDataFormat.generateFormatString())}
-                $separator
-                $commandString
-            """.trimIndent()
+            """;;-${HEADER_DATA.format(commandDataFormat.generateFormatString())}
+               ;;-$separator
+               ;;-$commandString
+               ;;-
+            """.trimMargin(";;-")
 
         return CategoryDocs(entry.key, docs)
     }
