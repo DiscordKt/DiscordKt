@@ -14,11 +14,11 @@ data class CommandData(val name: String, val args: String, val description: Stri
 data class CategoryDocs(val name: String, val docString: String)
 
 data class CommandsOutputFormatter(
-        val columnFormat: String,
         var longestName: Int = HEADER_DATA.name.length,
         var longestArgs: Int = HEADER_DATA.args.length,
-        var longestDescription: Int = HEADER_DATA.description.length
-)
+        var longestDescription: Int = HEADER_DATA.description.length) {
+    fun generateFormatString() = "| %-${longestName}s | %-${longestArgs}s | %-${longestDescription}s |"
+}
 
 @Service
 class DocumentationService(private val container: CommandsContainer) {
@@ -103,10 +103,10 @@ class DocumentationService(private val container: CommandsContainer) {
 
         val commandString = commandData
                 .sortedBy { it.name }
-                .joinToString("\n"){ it.format(commandDataFormat.columnFormat) }
+                .joinToString("\n"){ it.format(commandDataFormat.generateFormatString()) }
 
         val docs =
-            """ ${HEADER_DATA.format(commandDataFormat.columnFormat)}
+            """ ${HEADER_DATA.format(commandDataFormat.generateFormatString())}
                 $separator
                 $commandString
             """.trimIndent()
@@ -115,16 +115,15 @@ class DocumentationService(private val container: CommandsContainer) {
     }
 
     private fun generateSeparator(cformat: CommandsOutputFormatter) = with(cformat) {
-        String.format(columnFormat, "-".repeat(longestName), "-".repeat(longestArgs), "-".repeat(longestDescription))
+        String.format(cformat.generateFormatString(), "-".repeat(longestName), "-".repeat(longestArgs), "-".repeat(longestDescription))
     }
 
     private fun generateFormat(commandData: List<CommandData>): CommandsOutputFormatter {
         val longestName = commandData.maxBy { it.name.length }!!.name.length
         val longestArgs = commandData.maxBy { it.args.length }!!.args.length
         val longestDescription = commandData.maxBy { it.description.length }!!.description.length
-        val columnFormat = "| %-${longestName}s | %-${longestArgs}s | %-${longestDescription}s |"
 
-        return CommandsOutputFormatter(columnFormat).apply {
+        return CommandsOutputFormatter().apply {
             //check to see if any of the real data was longer than our pre-defined default values
             this.longestArgs = maxOf(this.longestArgs, longestArgs)
             this.longestName = maxOf(this.longestName, longestName)
