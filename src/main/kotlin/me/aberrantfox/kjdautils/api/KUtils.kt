@@ -44,8 +44,13 @@ class KUtils(val config: KConfiguration) {
 
     fun getInjectionObject(serviceClass: Class<*>) = diService.getElement(serviceClass)
 
-    fun registerCommandPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) = listener?.addPreconditions(*conditions)
-    
+    fun registerCommandPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) =
+            conditions.map { PreconditionData(it) }
+                      .forEach { listener?.addPreconditions(it) }
+
+    fun registerCommandPreconditions(vararg preconditions: PreconditionData) =
+            listener?.addPreconditions(*preconditions)
+
     fun configure(setup: KConfiguration.() -> Unit) {
         config.setup()
 
@@ -84,8 +89,15 @@ class KUtils(val config: KConfiguration) {
     }
 
     private fun registerPreconditionsByPath() {
-        Reflections(config.globalPath, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Precondition::class.java)
-                .map { diService.invokeReturningMethod(it) as ((CommandEvent) -> PreconditionResult) }
+        Reflections(config.globalPath, MethodAnnotationsScanner())
+                .getMethodsAnnotatedWith(Precondition::class.java)
+                .map {
+                    val preconditionAnnotation = it.annotations.first { annotation -> annotation.annotationClass == Precondition::class }
+                    val priority = (preconditionAnnotation as Precondition).priority
+                    val condition = diService.invokeReturningMethod(it) as ((CommandEvent) -> PreconditionResult)
+
+                    PreconditionData(condition, priority)
+                }
                 .forEach { registerCommandPreconditions(it) }
     }
 
