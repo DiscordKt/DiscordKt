@@ -7,23 +7,22 @@ import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.MessageEmbed
 
-interface Discord {
-  @Deprecated("To be removed")
-  val jda: JDA
+abstract class Discord {
+    @Deprecated("To be removed")
+    abstract val jda: JDA
+    abstract val configuration: KConfiguration
 
-  fun addEventListener(er: EventRegister): Unit
+    abstract fun addEventListener(er: EventRegister): Unit
 
-  fun getUserById(userId: String): User?
-
-  companion object {
-    fun build(configuration: KConfiguration): Discord = KJDA.build(configuration)
-  }
+    abstract fun getUserById(userId: String): User?
 }
 
 interface User {
-  val isBot: Boolean
+    val isBot: Boolean
 
-  fun sendPrivateMessage(msg: String, log: BotLogger = DefaultLogger())
-  fun sendPrivateMessage(msg: MessageEmbed, log: BotLogger = DefaultLogger())
+    fun sendPrivateMessage(msg: String, log: BotLogger = DefaultLogger())
+    fun sendPrivateMessage(msg: MessageEmbed, log: BotLogger = DefaultLogger())
 }
+
+fun buildDiscordClient(configuration: KConfiguration): Discord = KJDA.build(configuration)
 
