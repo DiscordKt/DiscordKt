@@ -32,7 +32,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
                     }
 
                     null -> it.respond(embed{
-                        title("The category or command $query does not exist")
+                        title = "The category or command $query does not exist"
                         val recommendation = CommandRecommender.recommendCommand(query,
                                 { cmd -> config.visibilityPredicate(cmd, it.author, it.channel, it.guild) })
                         setDescription("Did you mean $recommendation ?\n" +
@@ -46,8 +46,8 @@ class HelpService(private val container: CommandsContainer, private val config: 
     }
 
     private fun generateCommandEmbed(command: Command) = embed {
-        title("Displaying help for ${command.name}")
-        description(command.description)
+        title = "Displaying help for ${command.name}"
+        description = command.description
         setColor(Color.CYAN)
         val commandInvocation = "${config.prefix}${command.name} "
 
