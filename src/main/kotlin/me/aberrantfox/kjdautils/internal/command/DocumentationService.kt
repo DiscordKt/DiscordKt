@@ -29,23 +29,21 @@ class DocumentationService(private val container: CommandsContainer) {
                 fun format(format: String) = String.format(format, name, args, description)
             }
 
+            fun Command.toCommandData() = CommandData(
+                name,
+                expectedArgs.joinToString {
+                    if (it.optional)
+                        "(${it.type.name})"
+                    else
+                        it.type.name
+                }.takeIf { it.isNotEmpty() } ?: "<none>",
+                description.replace("|", "\\|")
+            )
+
             //Map the commands to a data class for easier manipulation
-            val commandData = entry.value.map { command ->
-                CommandData(
-                    command.name,
-                    command.expectedArgs.joinToString {
-                        if (it.optional)
-                            "(${it.type.name})"
-                        else
-                            it.type.name
-                    }.takeIf { it.isNotEmpty() } ?: "<none>",
-                    command.description.replace("|", "\\|")
-                )
-            } as ArrayList
+            val commandData = entry.value.map { it.toCommandData() } as ArrayList
 
             with(commandData) {
-                operator fun String.times(x: Int) = this.repeat(x)
-
                 //Determine the max width of the data in each column (including headers)
                 val headers = CommandData("Commands", "Arguments", "Description")
                 add(headers)
@@ -58,7 +56,7 @@ class DocumentationService(private val container: CommandsContainer) {
                 //Apply the column format to the command data
                 val docs = StringBuilder()
                 docs.appendln(headers.format(columnFormat))
-                docs.appendln(String.format(columnFormat, "-" * longestName, "-" * longestArgs, "-" * longestDescription))
+                docs.appendln(String.format(columnFormat, "-".repeat(longestName), "-".repeat(longestArgs), "-".repeat(longestDescription)))
 
                 sortedBy { it.name }.forEach {
                     docs.appendln(it.format(columnFormat))

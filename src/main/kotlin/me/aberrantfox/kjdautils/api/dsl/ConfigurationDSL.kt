@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.MessageChannel
 import net.dv8tion.jda.api.entities.User
 import java.io.*
-import javax.swing.SortOrder
 
 enum class PrefixDeleteMode {
     Single,
