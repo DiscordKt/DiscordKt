@@ -3,6 +3,7 @@ package me.aberrantfox.kjdautils.api.dsl
 import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
+import me.aberrantfox.kjdautils.internal.command.CommandData
 import me.aberrantfox.kjdautils.internal.command.CommandStruct
 import me.aberrantfox.kjdautils.internal.command.arguments.WordArg
 import me.aberrantfox.kjdautils.internal.di.DIService
@@ -74,6 +75,14 @@ class Command(val name: String,
 
     fun expect(args: Command.() -> Array<out CommandArgument>) {
         this.expectedArgs = args()
+    }
+
+    fun toCommandData(): CommandData {
+        val expectedArgs = expectedArgs.joinToString {
+            if (it.optional) "(${it.type.name})" else it.type.name
+        }.takeIf { it.isNotEmpty() } ?: "<none>"
+
+        return CommandData(name, expectedArgs, description.replace("|", "\\|"))
     }
 }
 

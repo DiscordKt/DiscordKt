@@ -1,13 +1,27 @@
 package me.aberrantfox.kjdautils.internal.command
 
 import me.aberrantfox.kjdautils.api.annotation.Service
-import me.aberrantfox.kjdautils.api.dsl.*
-import java.io.*
+import me.aberrantfox.kjdautils.api.dsl.Command
+import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
+import java.io.OutputStream
+
+private val HEADER_DATA = CommandData("Commands", "Arguments", "Description")
+
+data class CommandData(val name: String, val args: String, val description: String) {
+    fun format(format: String) = String.format(format, name, args, description)
+}
+
+data class CategoryDocs(val name: String, val docString: String)
+
+data class CommandsOutputFormatter(
+        val columnFormat: String,
+        var longestName: Int = HEADER_DATA.name.length,
+        var longestArgs: Int = HEADER_DATA.args.length,
+        var longestDescription: Int = HEADER_DATA.description.length
+)
 
 @Service
 class DocumentationService(private val container: CommandsContainer) {
-    private data class CategoryDocs(val name: String, val docString: String)
-
     fun generateDocumentation(outputStream: OutputStream?, sortOrder: List<String>) {
         outputStream ?: return
 
@@ -15,56 +29,17 @@ class DocumentationService(private val container: CommandsContainer) {
         val categoryDocs = generateDocsByCategory(categories)
 
         val sortedDocs =
-            if (sortOrder.isNotEmpty())
+            if (sortOrder.isNotEmpty()) {
                 sortCategoryDocs(categoryDocs, sortOrder)
-            else
+            } else {
                 categoryDocs.sortedBy { it.name }
+            }
 
         outputDocs(outputStream, sortedDocs)
     }
 
     private fun generateDocsByCategory(categories: Map<String, List<Command>>) =
-        categories.map { entry ->
-            data class CommandData(val name: String, val args: String, val description: String) {
-                fun format(format: String) = String.format(format, name, args, description)
-            }
-
-            fun Command.toCommandData() = CommandData(
-                name,
-                expectedArgs.joinToString {
-                    if (it.optional)
-                        "(${it.type.name})"
-                    else
-                        it.type.name
-                }.takeIf { it.isNotEmpty() } ?: "<none>",
-                description.replace("|", "\\|")
-            )
-
-            //Map the commands to a data class for easier manipulation
-            val commandData = entry.value.map { it.toCommandData() } as ArrayList
-
-            with(commandData) {
-                //Determine the max width of the data in each column (including headers)
-                val headers = CommandData("Commands", "Arguments", "Description")
-                add(headers)
-                val longestName = maxBy { it.name.length }!!.name.length
-                val longestArgs = maxBy { it.args.length }!!.args.length
-                val longestDescription = maxBy { it.description.length }!!.description.length
-                val columnFormat = "| %-${longestName}s | %-${longestArgs}s | %-${longestDescription}s |"
-                remove(headers)
-
-                //Apply the column format to the command data
-                val docs = StringBuilder()
-                docs.appendln(headers.format(columnFormat))
-                docs.appendln(String.format(columnFormat, "-".repeat(longestName), "-".repeat(longestArgs), "-".repeat(longestDescription)))
-
-                sortedBy { it.name }.forEach {
-                    docs.appendln(it.format(columnFormat))
-                }
-
-                CategoryDocs(entry.key, docs.toString())
-            }
-        } as ArrayList<CategoryDocs>
+            categories.map { generateSingleCategoryDoc(it) } as ArrayList<CategoryDocs>
 
     private fun sortCategoryDocs(categoryDocs: ArrayList<CategoryDocs>, sortOrder: List<String>): List<CategoryDocs> {
         val sortedMap = LinkedHashMap<String, CategoryDocs?>()
@@ -86,14 +61,14 @@ class DocumentationService(private val container: CommandsContainer) {
 
         val deadCategories = sortedMap.filter { it.value == null }.map { it.key }
 
-        with (rogueCategories) {
+        with(rogueCategories) {
             if (isEmpty())
                 return@with
 
             println("Found $size rogue categories not requested for sort. Appending to sorted docs: ${joinToString()}")
         }
 
-        with (deadCategories) {
+        with(deadCategories) {
             if (isEmpty())
                 return@with
 
@@ -120,4 +95,41 @@ class DocumentationService(private val container: CommandsContainer) {
 
         outputStream.write(docsAsString.toByteArray())
     }
+
+    private fun generateSingleCategoryDoc(entry: Map.Entry<String, List<Command>>): CategoryDocs {
+        val commandData = entry.value.map { it.toCommandData() }
+        val commandDataFormat = generateFormat(commandData)
+        val separator = generateSeparator(commandDataFormat)
+
+        val commandString = commandData
+                .sortedBy { it.name }
+                .joinToString("\n"){ it.format(commandDataFormat.columnFormat) }
+
+        val docs =
+            """ ${HEADER_DATA.format(commandDataFormat.columnFormat)}
+                $separator
+                $commandString
+            """.trimIndent()
+
+        return CategoryDocs(entry.key, docs)
+    }
+
+    private fun generateSeparator(cformat: CommandsOutputFormatter) = with(cformat) {
+        String.format(columnFormat, "-".repeat(longestName), "-".repeat(longestArgs), "-".repeat(longestDescription))
+    }
+
+    private fun generateFormat(commandData: List<CommandData>): CommandsOutputFormatter {
+        val longestName = commandData.maxBy { it.name.length }!!.name.length
+        val longestArgs = commandData.maxBy { it.args.length }!!.args.length
+        val longestDescription = commandData.maxBy { it.description.length }!!.description.length
+        val columnFormat = "| %-${longestName}s | %-${longestArgs}s | %-${longestDescription}s |"
+
+        return CommandsOutputFormatter(columnFormat).apply {
+            //check to see if any of the real data was longer than our pre-defined default values
+            this.longestArgs = maxOf(this.longestArgs, longestArgs)
+            this.longestName = maxOf(this.longestName, longestName)
+            this.longestDescription = maxOf(this.longestDescription, longestDescription)
+        }
+    }
+
 }
