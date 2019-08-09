@@ -18,7 +18,7 @@ data class KConfiguration(
     var globalPath: String = "",
     var reactToCommands: Boolean = true,
     var deleteMode: PrefixDeleteMode = PrefixDeleteMode.Single,
-    var documentationOutputStream: OutputStream = File("commands.md").outputStream(),
+    var documentationOutputStream: OutputStream? = File("commands.md").outputStream(),
     var documentationSortOrder: List<String> = listOf(),
     var visibilityPredicate: (command: String, User, MessageChannel, Guild?) -> Boolean= { _, _, _, _ -> true }
 )
