@@ -1,16 +1,10 @@
-package me.aberrantfox.kjdautils.internal.command
+package me.aberrantfox.kjdautils.internal.services
 
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
-import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
-import me.aberrantfox.kjdautils.api.dsl.Conversation
-import me.aberrantfox.kjdautils.api.dsl.ConversationStateContainer
-import me.aberrantfox.kjdautils.api.dsl.Convo
-import me.aberrantfox.kjdautils.api.dsl.KConfiguration
-import me.aberrantfox.kjdautils.api.dsl.Step
+import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.discord.Discord
-import me.aberrantfox.kjdautils.extensions.jda.sendPrivateMessage
+import me.aberrantfox.kjdautils.internal.command.ArgumentResult
+import me.aberrantfox.kjdautils.internal.command.CommandStruct
 import me.aberrantfox.kjdautils.internal.di.DIService
-import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent

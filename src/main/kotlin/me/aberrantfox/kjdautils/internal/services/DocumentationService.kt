@@ -1,4 +1,4 @@
-package me.aberrantfox.kjdautils.internal.command
+package me.aberrantfox.kjdautils.internal.services
 
 import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.Command

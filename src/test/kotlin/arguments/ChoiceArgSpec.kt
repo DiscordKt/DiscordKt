@@ -1,7 +1,7 @@
 package arguments
 
+import me.aberrantfox.kjdautils.internal.arguments.ChoiceArg
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult
-import me.aberrantfox.kjdautils.internal.command.arguments.ChoiceArg
 import mock.GherkinMessages
 import mock.attemptConvert
 import mock.convertToSingle

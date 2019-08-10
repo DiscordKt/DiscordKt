@@ -6,15 +6,12 @@ import me.aberrantfox.kjdautils.api.annotation.Data
 import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.api.startBot
-import me.aberrantfox.kjdautils.extensions.jda.fullName
-import me.aberrantfox.kjdautils.internal.command.ConversationService
+import me.aberrantfox.kjdautils.internal.arguments.IntegerArg
+import me.aberrantfox.kjdautils.internal.arguments.SentenceArg
 import me.aberrantfox.kjdautils.internal.command.Fail
 import me.aberrantfox.kjdautils.internal.command.Pass
-import me.aberrantfox.kjdautils.internal.command.arguments.IntegerArg
-import me.aberrantfox.kjdautils.internal.command.arguments.SentenceArg
-import me.aberrantfox.kjdautils.internal.command.arguments.UserArg
 import me.aberrantfox.kjdautils.internal.di.PersistenceService
-import net.dv8tion.jda.api.entities.User
+import me.aberrantfox.kjdautils.internal.services.ConversationService
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
 data class MyCustomBotConfiguration(val version: String, val token: String)
@@ -35,6 +32,7 @@ fun main(args: Array<String>) {
         configure {
             prefix = "!"
             globalPath = "me.aberrantfox.kjdautils.examples"
+            documentationSortOrder = listOf("services-demo")
         }
 
         registerCommandPreconditions({

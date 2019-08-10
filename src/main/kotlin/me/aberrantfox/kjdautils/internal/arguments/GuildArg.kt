@@ -1,8 +1,10 @@
-package me.aberrantfox.kjdautils.internal.command.arguments
+package me.aberrantfox.kjdautils.internal.arguments
 
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
-import me.aberrantfox.kjdautils.internal.command.*
+import me.aberrantfox.kjdautils.internal.command.ArgumentResult
+import me.aberrantfox.kjdautils.internal.command.ArgumentType
+import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
 open class GuildArg(override val name: String = "Guild") : ArgumentType {
     companion object : GuildArg()

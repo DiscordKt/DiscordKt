@@ -1,4 +1,4 @@
-package me.aberrantfox.kjdautils.internal.command.arguments
+package me.aberrantfox.kjdautils.internal.arguments
 
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.extensions.stdlib.trimToID

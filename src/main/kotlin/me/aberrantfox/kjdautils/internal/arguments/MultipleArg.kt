@@ -1,7 +1,9 @@
-package me.aberrantfox.kjdautils.internal.command.arguments
+package me.aberrantfox.kjdautils.internal.arguments
 
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
-import me.aberrantfox.kjdautils.internal.command.*
+import me.aberrantfox.kjdautils.internal.command.ArgumentResult
+import me.aberrantfox.kjdautils.internal.command.ArgumentType
+import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
 class MultipleArg(val base: ArgumentType, name: String = ""): ArgumentType {
     override val name = if (name.isNotBlank()) name else "${base.name}..."

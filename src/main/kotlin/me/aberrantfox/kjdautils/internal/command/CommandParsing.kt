@@ -1,9 +1,9 @@
 package me.aberrantfox.kjdautils.internal.command
 
 
-import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.Command
-import me.aberrantfox.kjdautils.internal.command.arguments.Manual
+import me.aberrantfox.kjdautils.api.dsl.KConfiguration
+import me.aberrantfox.kjdautils.internal.arguments.Manual
 
 data class CommandStruct(val commandName: String,
                          val commandArgs: List<String> = listOf(),
