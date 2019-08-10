@@ -41,6 +41,9 @@ class EmbedDSLHandle {
         fields.add(field)
     }
 
+    fun addField(name: String?, value: String?, inline: Boolean = false) = fields.add(FieldStore(name, value, inline))
+    fun addInlineField(name: String?, value: String?) = fields.add(FieldStore(name, value, true))
+
     fun build() : MessageEmbed {
         val b = EmbedBuilder()
         title.let { b.setTitle(it) }
