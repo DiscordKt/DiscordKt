@@ -1,8 +1,9 @@
-package me.aberrantfox.kjdautils.internal.command
+package me.aberrantfox.kjdautils.internal.services
 
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.extensions.stdlib.randomListItem
-import me.aberrantfox.kjdautils.internal.command.arguments.WordArg
+import me.aberrantfox.kjdautils.internal.arguments.WordArg
+import me.aberrantfox.kjdautils.internal.command.CommandRecommender
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color
 

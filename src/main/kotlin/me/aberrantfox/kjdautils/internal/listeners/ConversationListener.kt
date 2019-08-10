@@ -1,7 +1,7 @@
 package me.aberrantfox.kjdautils.internal.listeners
 
 import com.google.common.eventbus.Subscribe
-import me.aberrantfox.kjdautils.internal.command.ConversationService
+import me.aberrantfox.kjdautils.internal.services.ConversationService
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 
 class ConversationListener(private val conversationService: ConversationService) {

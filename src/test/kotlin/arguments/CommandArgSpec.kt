@@ -1,8 +1,8 @@
 package arguments
 
 import me.aberrantfox.kjdautils.api.dsl.Command
+import me.aberrantfox.kjdautils.internal.arguments.CommandArg
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult
-import me.aberrantfox.kjdautils.internal.command.arguments.CommandArg
 import mock.GherkinMessages
 import mock.attemptConvert
 import mock.convertToSingle

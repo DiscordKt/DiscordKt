@@ -1,8 +1,8 @@
 package arguments
 
 
+import me.aberrantfox.kjdautils.internal.arguments.CategoryArg
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult
-import me.aberrantfox.kjdautils.internal.command.arguments.CategoryArg
 import mock.FakeIds
 import mock.GherkinMessages
 import mock.attemptConvert

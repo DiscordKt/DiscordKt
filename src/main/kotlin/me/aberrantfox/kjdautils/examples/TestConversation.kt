@@ -1,9 +1,10 @@
 package me.aberrantfox.kjdautils.examples
 
-import me.aberrantfox.kjdautils.api.dsl.embed
 import me.aberrantfox.kjdautils.api.dsl.Convo
 import me.aberrantfox.kjdautils.api.dsl.conversation
-import me.aberrantfox.kjdautils.internal.command.arguments.*
+import me.aberrantfox.kjdautils.api.dsl.embed
+import me.aberrantfox.kjdautils.internal.arguments.SentenceArg
+import me.aberrantfox.kjdautils.internal.arguments.UserArg
 import net.dv8tion.jda.api.entities.User
 import java.awt.Color
 

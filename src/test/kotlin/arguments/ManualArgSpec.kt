@@ -1,7 +1,7 @@
 package arguments
 
+import me.aberrantfox.kjdautils.internal.arguments.Manual
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult
-import me.aberrantfox.kjdautils.internal.command.arguments.Manual
 import mock.attemptConvert
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.gherkin.Feature

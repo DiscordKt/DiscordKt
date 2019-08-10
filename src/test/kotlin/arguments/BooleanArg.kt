@@ -1,11 +1,12 @@
 package arguments
 
-import me.aberrantfox.kjdautils.internal.command.*
-import me.aberrantfox.kjdautils.internal.command.arguments.BooleanArg
-import mock.*
-import org.junit.jupiter.api.*
+import me.aberrantfox.kjdautils.internal.arguments.BooleanArg
+import me.aberrantfox.kjdautils.internal.command.ArgumentResult
+import mock.attemptConvert
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.*
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 
 class BooleanArgTest {
     companion object {

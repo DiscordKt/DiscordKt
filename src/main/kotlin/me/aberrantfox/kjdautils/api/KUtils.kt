@@ -5,13 +5,19 @@ import me.aberrantfox.kjdautils.api.annotation.Data
 import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.discord.buildDiscordClient
-import me.aberrantfox.kjdautils.internal.command.*
+import me.aberrantfox.kjdautils.internal.command.CommandExecutor
+import me.aberrantfox.kjdautils.internal.command.CommandRecommender
+import me.aberrantfox.kjdautils.internal.command.PreconditionData
+import me.aberrantfox.kjdautils.internal.command.PreconditionResult
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.CommandListener
 import me.aberrantfox.kjdautils.internal.listeners.ConversationListener
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
+import me.aberrantfox.kjdautils.internal.services.ConversationService
+import me.aberrantfox.kjdautils.internal.services.DocumentationService
+import me.aberrantfox.kjdautils.internal.services.HelpService
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 import kotlin.system.exitProcess
@@ -23,6 +29,7 @@ class KUtils(val config: KConfiguration) {
     private var listener: CommandListener? = null
     private var executor: CommandExecutor? = null
     private val helpService: HelpService
+    private val documentationService: DocumentationService
     private val diService = DIService()
 
     init {
@@ -37,6 +44,7 @@ class KUtils(val config: KConfiguration) {
         registerInjectionObject(conversationService)
         discord.addEventListener(EventRegister)
         helpService = HelpService(container, config)
+        documentationService = DocumentationService(container)
         registerListeners(ConversationListener(conversationService))
     }
 
@@ -61,6 +69,7 @@ class KUtils(val config: KConfiguration) {
         registerListenersByPath()
         registerPreconditionsByPath()
         conversationService.registerConversations(config.globalPath)
+        documentationService.generateDocumentation(config.documentationSortOrder)
     }
 
     fun registerListeners(vararg listeners: Any) = listeners.forEach { EventRegister.eventBus.register(it) }

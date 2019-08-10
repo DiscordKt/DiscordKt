@@ -1,6 +1,6 @@
 package arguments
 
-import me.aberrantfox.kjdautils.internal.command.arguments.MessageArg
+import me.aberrantfox.kjdautils.internal.arguments.MessageArg
 import mock.FakeIds
 import mock.GherkinMessages
 import mock.convertToSingle

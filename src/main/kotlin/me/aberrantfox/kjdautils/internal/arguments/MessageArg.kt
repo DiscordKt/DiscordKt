@@ -1,4 +1,4 @@
-package me.aberrantfox.kjdautils.internal.command.arguments
+package me.aberrantfox.kjdautils.internal.arguments
 
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
@@ -7,19 +7,20 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import me.aberrantfox.kjdautils.internal.command.tryRetrieveSnowflake
 
-open class VoiceChannelArg(override val name : String = "The ID of any valid voice channel.") : ArgumentType {
-    companion object : VoiceChannelArg()
+open class MessageArg(override val name: String = "MessageID") : ArgumentType {
+    companion object : MessageArg()
 
-    override val examples = arrayListOf("360583945982836746", "360729317631721482")
+    override val examples = arrayListOf("455099008013303819", "455099111327137807", "244099459327137807")
     override val consumptionType = ConsumptionType.Single
-
     override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
-        val retrieved = tryRetrieveSnowflake(event.discord.jda) { it.getVoiceChannelById(arg.trimToID()) }
+        val retrieved = tryRetrieveSnowflake(event.discord.jda) {
+            event.channel.retrieveMessageById(arg.trimToID()).complete()
+        }
 
         return if (retrieved != null) {
             ArgumentResult.Single(retrieved)
         } else {
-            ArgumentResult.Error("Couldn't retrieve voice channel: $arg")
+            ArgumentResult.Error("Couldn't retrieve a message with the id given from this channel.")
         }
     }
 }
