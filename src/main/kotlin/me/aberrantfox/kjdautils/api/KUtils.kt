@@ -69,7 +69,7 @@ class KUtils(val config: KConfiguration) {
         registerListenersByPath()
         registerPreconditionsByPath()
         conversationService.registerConversations(config.globalPath)
-        documentationService.generateDocumentation(config.documentationOutputStream, config.documentationSortOrder)
+        documentationService.generateDocumentation(config.documentationSortOrder)
     }
 
     fun registerListeners(vararg listeners: Any) = listeners.forEach { EventRegister.eventBus.register(it) }

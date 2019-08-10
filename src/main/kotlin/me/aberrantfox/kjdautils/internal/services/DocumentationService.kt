@@ -3,27 +3,22 @@ package me.aberrantfox.kjdautils.internal.services
 import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.Command
 import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
-import java.io.OutputStream
+import me.aberrantfox.kjdautils.internal.businessobjects.CategoryDocs
+import me.aberrantfox.kjdautils.internal.businessobjects.CommandData
+import me.aberrantfox.kjdautils.internal.businessobjects.CommandsOutputFormatter
+import me.aberrantfox.kjdautils.internal.businessobjects.HEADER_DATA
+import java.io.File
 
-private val HEADER_DATA = CommandData("Commands", "Arguments", "Description")
-
-data class CommandData(val name: String, val args: String, val description: String) {
-    fun format(format: String) = String.format(format, name, args, description)
-}
-
-data class CategoryDocs(val name: String, val docString: String)
-
-data class CommandsOutputFormatter(
-        var longestName: Int = HEADER_DATA.name.length,
-        var longestArgs: Int = HEADER_DATA.args.length,
-        var longestDescription: Int = HEADER_DATA.description.length) {
-    fun generateFormatString() = "| %-${longestName}s | %-${longestArgs}s | %-${longestDescription}s |"
-}
+const val saveLocation = "commands.md"
+val saveFile = File(saveLocation)
 
 @Service
 class DocumentationService(private val container: CommandsContainer) {
-    fun generateDocumentation(outputStream: OutputStream?, sortOrder: List<String>) {
-        outputStream ?: return
+    fun obtainDocumentationString() = saveFile.readText()
+
+    fun obtainDocumentationFile() = saveFile
+
+    fun generateDocumentation(sortOrder: List<String>) {
 
         val categories = container.commands.values.groupBy { it.category }
         val categoryDocs = generateDocsByCategory(categories)
@@ -35,7 +30,7 @@ class DocumentationService(private val container: CommandsContainer) {
                 categoryDocs.sortedBy { it.name }
             }
 
-        outputDocs(outputStream, sortedDocs)
+        outputDocs(sortedDocs)
     }
 
     private fun generateDocsByCategory(categories: Map<String, List<Command>>) =
@@ -52,7 +47,7 @@ class DocumentationService(private val container: CommandsContainer) {
         return sortedCategories.toList()
     }
 
-    private fun outputDocs(outputStream: OutputStream, rawDocs: List<CategoryDocs>) {
+    private fun outputDocs(rawDocs: List<CategoryDocs>) {
         val indentLevel = "##"
         val docsAsString =
             "# Commands\n\n" +
@@ -66,7 +61,7 @@ class DocumentationService(private val container: CommandsContainer) {
                 }
             }
 
-        outputStream.write(docsAsString.toByteArray())
+        saveFile.writeText(docsAsString)
     }
 
     private fun generateSingleCategoryDoc(entry: Map.Entry<String, List<Command>>): CategoryDocs {
