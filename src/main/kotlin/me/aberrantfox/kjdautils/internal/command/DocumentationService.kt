@@ -41,42 +41,15 @@ class DocumentationService(private val container: CommandsContainer) {
     private fun generateDocsByCategory(categories: Map<String, List<Command>>) =
             categories.map { generateSingleCategoryDoc(it) } as ArrayList<CategoryDocs>
 
-    private fun sortCategoryDocs(categoryDocs: ArrayList<CategoryDocs>, sortOrder: List<String>): List<CategoryDocs> {
-        val sortedMap = LinkedHashMap<String, CategoryDocs?>()
-        val rogueCategories = arrayListOf<String>()
+    private fun sortCategoryDocs(categoryDocs: ArrayList<CategoryDocs>, categoryNameOrder: List<String>): List<CategoryDocs> {
+        val sortedCategories = categoryDocs
+                .filter { cat -> categoryNameOrder.any { it.toLowerCase() == cat.name.toLowerCase() } }
+                .sortedBy { cat -> categoryNameOrder.indexOfFirst { it == cat.name } }.toMutableList()
 
-        //Populate the map keys with the desired sort order
-        sortOrder.forEach {
-            sortedMap[it] = null
-        }
+        //add back anything that was missing
+        sortedCategories.addAll(categoryDocs.filter { !sortedCategories.contains(it) })
 
-        //Populate the (sorted) map values with docs by name
-        //If the sort order was not specified for a doc, it is appended to the end.
-        categoryDocs.forEach {
-            if (!sortedMap.containsKey(it.name))
-                rogueCategories.add(it.name)
-
-            sortedMap[it.name] = it
-        }
-
-        val deadCategories = sortedMap.filter { it.value == null }.map { it.key }
-
-        with(rogueCategories) {
-            if (isEmpty())
-                return@with
-
-            println("Found $size rogue categories not requested for sort. Appending to sorted docs: ${joinToString()}")
-        }
-
-        with(deadCategories) {
-            if (isEmpty())
-                return@with
-
-            println("Found $size categories with no commands requested for sorting. Ignoring: ${joinToString()}")
-        }
-
-        //Remove dead keys (values with no data)
-        return sortedMap.values.filterNotNull()
+        return sortedCategories.toList()
     }
 
     private fun outputDocs(outputStream: OutputStream, rawDocs: List<CategoryDocs>) {
