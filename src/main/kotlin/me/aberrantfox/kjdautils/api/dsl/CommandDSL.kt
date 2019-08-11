@@ -86,7 +86,7 @@ class Command(val name: String,
     }
 }
 
-data class CommandArgument(val type: ArgumentType, val optional: Boolean = false, val defaultValue: Any = "") {
+data class CommandArgument(val type: ArgumentType, val optional: Boolean = false, val defaultValue: Any? = null) {
     override fun equals(other: Any?): Boolean {
         if(other == null) return false
 
@@ -156,6 +156,6 @@ fun commands(construct: CommandsContainer.() -> Unit): CommandsContainer {
     return commands
 }
 
-fun arg(type: ArgumentType, optional: Boolean = false, default: Any = "") = CommandArgument(type, optional, default)
+fun arg(type: ArgumentType, optional: Boolean = false, default: Any? = null) = CommandArgument(type, optional, default)
 
-fun arg(type: ArgumentType, optional: Boolean = false, default: (CommandEvent) -> Any) = CommandArgument(type, optional, default)
+fun arg(type: ArgumentType, optional: Boolean = false, default: (CommandEvent) -> Any?) = CommandArgument(type, optional, default)

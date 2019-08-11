@@ -34,7 +34,8 @@ internal fun convertArguments(actual: List<String>, expected: List<CommandArgume
 private fun convertOptional(arg: CommandArgument, event: CommandEvent): Any? {
     if (!arg.optional) return null
 
-    val default = arg.defaultValue
+    val default = arg.defaultValue ?: return null
+
     return when (default) {
         is Function<*> -> (default as (CommandEvent) -> Any).invoke(event)
         else -> default
