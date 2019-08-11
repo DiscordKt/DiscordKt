@@ -16,7 +16,7 @@ annotation class CommandSet(val category: String = "uncategorized")
 
 data class CommandEvent(val commandStruct: CommandStruct,
                         val message: Message,
-                        var args: List<Any>,
+                        var args: List<Any?>,
                         val container: CommandsContainer,
                         val stealthInvocation: Boolean,
                         val discord: Discord,
