@@ -99,6 +99,16 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         }
     }
 
+    command("optionalInput") {
+        description = "Optionally input some text"
+        expect(arg(SentenceArg, optional = true))
+        execute {
+            val sentence = it.args.component1() as String? ?: "<No input>"
+
+            it.respond("Your input was: $sentence")
+        }
+    }
+
     command("guildsize") {
         description = "Display how many members are in a guild"
         requiresGuild = true
