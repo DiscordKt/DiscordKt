@@ -10,6 +10,8 @@ import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.jda.deleteIfExists
 import me.aberrantfox.kjdautils.extensions.jda.descriptor
 import me.aberrantfox.kjdautils.extensions.jda.isCommandInvocation
+import me.aberrantfox.kjdautils.extensions.jda.message
+import me.aberrantfox.kjdautils.extensions.jda.messageTimed
 import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
 import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.command.CommandExecutor
@@ -63,7 +65,8 @@ internal class CommandListener(val config: KConfiguration,
 
         getPreconditionError(event)?.let {
             if (it != "") {
-                event.respond(it)
+                if(config.deleteErrors) event.respondTimed(it)
+                else event.respond(it)
             }
             return
         }
@@ -75,13 +78,16 @@ internal class CommandListener(val config: KConfiguration,
             val cleanName = commandName.sanitiseMentions()
 
             if (shouldDelete) message.deleteIfExists()
-
-            channel.sendMessage("I don't know what $cleanName is, perhaps you meant $recommended?").queue()
+            val errorMsg = "I don't know what $cleanName is, perhaps you meant $recommended?"
+            if(config.deleteErrors) channel.messageTimed(errorMsg)
+            else channel.message(errorMsg)
             return
         }
 
         if (command.requiresGuild && !invokedInGuild) {
-            channel.sendMessage("This command must be invoked in a guild channel and not through PM").queue()
+            val errorMsg = "This command must be invoked in a guild channel and not through PM"
+            if(config.deleteErrors) channel.messageTimed(errorMsg)
+            else channel.message(errorMsg)
             return
         }
 
