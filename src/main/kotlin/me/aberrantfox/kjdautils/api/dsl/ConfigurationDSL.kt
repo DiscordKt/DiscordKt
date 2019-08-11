@@ -16,6 +16,7 @@ data class KConfiguration(
     var globalPath: String = "",
     var reactToCommands: Boolean = true,
     var deleteMode: PrefixDeleteMode = PrefixDeleteMode.Single,
+    var deleteErrors: Boolean = false,
     var documentationSortOrder: List<String> = listOf(),
     var visibilityPredicate: (command: String, User, MessageChannel, Guild?) -> Boolean= { _, _, _, _ -> true }
 )

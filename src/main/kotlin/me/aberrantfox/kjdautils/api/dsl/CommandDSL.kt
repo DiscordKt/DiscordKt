@@ -1,5 +1,8 @@
 package me.aberrantfox.kjdautils.api.dsl
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
 import me.aberrantfox.kjdautils.internal.arguments.WordArg
@@ -10,6 +13,7 @@ import me.aberrantfox.kjdautils.internal.di.DIService
 import net.dv8tion.jda.api.entities.*
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
+import java.lang.IllegalArgumentException
 
 
 annotation class CommandSet(val category: String = "uncategorized")
@@ -27,6 +31,32 @@ data class CommandEvent(val commandStruct: CommandStruct,
     fun respond(msg: String) = unsafeRespond(msg.sanitiseMentions())
 
     fun respond(embed: MessageEmbed) = this.channel.sendMessage(embed).queue()
+
+    fun respondTimed(msg: String, millis: Long = 5000) {
+        if(millis < 0) {
+            throw IllegalArgumentException("RespondTimed: Delay cannot be negative.")
+        }
+
+        this.channel.sendMessage(msg.sanitiseMentions()).queue {
+            GlobalScope.launch {
+                delay(millis)
+                it.delete().queue()
+            }
+        }
+    }
+
+    fun respondTimed(embed: MessageEmbed, millis: Long = 5000) {
+        if(millis < 0) {
+            throw IllegalArgumentException("RespondTimed: Delay cannot be negative.")
+        }
+
+        this.channel.sendMessage(embed).queue {
+            GlobalScope.launch {
+                delay(millis)
+                it.delete().queue()
+            }
+        }
+    }
 
     fun unsafeRespond(msg: String) =
             if(msg.length > 2000){

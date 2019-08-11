@@ -3,6 +3,8 @@ package me.aberrantfox.kjdautils.internal.command
 import kotlinx.coroutines.*
 import me.aberrantfox.kjdautils.api.dsl.Command
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
+import me.aberrantfox.kjdautils.extensions.jda.message
+import me.aberrantfox.kjdautils.extensions.jda.messageTimed
 import me.aberrantfox.kjdautils.internal.command.Result.Error
 import me.aberrantfox.kjdautils.internal.command.Result.Results
 
@@ -18,7 +20,8 @@ internal class CommandExecutor {
         val channel = event.channel
 
         getArgCountError(actualArgs, command)?.let {
-            channel.sendMessage(it).queue()
+            if(event.discord.configuration.deleteErrors) channel.messageTimed(it)
+            else channel.message(it)
             return
         }
 
@@ -27,7 +30,8 @@ internal class CommandExecutor {
         when (conversionResult) {
             is Results -> event.args = conversionResult.results
             is Error -> {
-                event.respond(conversionResult.error)
+                if(event.discord.configuration.deleteErrors) event.respondTimed(conversionResult.error)
+                else event.respond(conversionResult.error)
                 return
             }
         }
