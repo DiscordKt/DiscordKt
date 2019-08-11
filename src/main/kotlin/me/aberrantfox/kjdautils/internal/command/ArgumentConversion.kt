@@ -32,9 +32,8 @@ internal fun convertArguments(actual: List<String>, expected: List<CommandArgume
 }
 
 private fun convertOptional(arg: CommandArgument, event: CommandEvent): Any? {
-    if (!arg.optional) return null
+    val default = arg.defaultValue ?: return null
 
-    val default = arg.defaultValue
     return when (default) {
         is Function<*> -> (default as (CommandEvent) -> Any).invoke(event)
         else -> default
@@ -48,7 +47,10 @@ private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, e
     var lastError: ArgumentResult.Error? = null
     val converted = expected.map { expectedArg ->
         if (remaining.isEmpty()) {
-            convertOptional(expectedArg, event) ?: return Error("Missing non-optional argument(s). Try using `help`")
+            if (expectedArg.optional)
+                convertOptional(expectedArg, event)
+            else
+                return Error("Missing non-optional argument(s). Try using `help`")
         } else {
             var actualArg = remaining.first()
             while (actualArg.isBlank()) {
@@ -69,7 +71,11 @@ private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, e
                 }
                 is ArgumentResult.Error -> {
                     lastError = result
-                    convertOptional(expectedArg, event) ?: return Error(result.error)
+
+                    if (expectedArg.optional)
+                        convertOptional(expectedArg, event)
+                    else
+                        return Error(result.error)
                 }
             }
         }

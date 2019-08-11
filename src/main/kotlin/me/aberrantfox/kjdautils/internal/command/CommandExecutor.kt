@@ -25,7 +25,7 @@ internal class CommandExecutor {
         val conversionResult = convertArguments(actualArgs, command.expectedArgs.toList(), event)
 
         when (conversionResult) {
-            is Results -> event.args = conversionResult.results.requireNoNulls()
+            is Results -> event.args = conversionResult.results
             is Error -> {
                 event.respond(conversionResult.error)
                 return
