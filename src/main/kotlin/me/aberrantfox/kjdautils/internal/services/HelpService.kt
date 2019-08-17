@@ -36,9 +36,9 @@ class HelpService(private val container: CommandsContainer, private val config: 
                         title = "The category or command $query does not exist"
                         val recommendation = CommandRecommender.recommendCommand(query,
                                 { cmd -> config.visibilityPredicate(cmd, it.author, it.channel, it.guild) })
-                        setDescription("Did you mean $recommendation ?\n" +
-                                       "Maybe you should try ${config.prefix}help")
-                        setColor(Color.RED)
+                        description = "Did you mean $recommendation ?\n" +
+                                       "Maybe you should try ${config.prefix}help"
+                        color = Color.RED
                     })
                 }
             }
@@ -49,7 +49,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
     private fun generateCommandEmbed(command: Command) = embed {
         title = "Displaying help for ${command.name}"
         description = command.description
-        setColor(Color.CYAN)
+        color = Color.CYAN
         val commandInvocation = "${config.prefix}${command.name} "
 
         field {
@@ -73,9 +73,9 @@ class HelpService(private val container: CommandsContainer, private val config: 
                 .reduceRight{a, b -> "$a, $b"}
 
         return embed {
-            setTitle("Displaying commands in the $category category")
-            setDescription(commands.toLowerCase())
-            setColor(Color.decode("#00C4A6"))
+            title = "Displaying commands in the $category category"
+            description = commands.toLowerCase()
+            color = Color.decode("#00C4A6")
         }
     }
 
@@ -88,9 +88,9 @@ class HelpService(private val container: CommandsContainer, private val config: 
                 .reduceRight { a, b -> "$a, $b" }
 
         return embed {
-            setTitle("Help menu")
-            setDescription("Use ${config.prefix}help <command|category> for more information")
-            setColor(Color.decode("#00E58D"))
+            title = "Help menu"
+            description = "Use ${config.prefix}help <command|category> for more information"
+            color = Color.decode("#00E58D")
 
             field {
                 name = "Currently available categories"
