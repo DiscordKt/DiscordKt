@@ -149,7 +149,7 @@ data class CommandsContainer(var commands: HashMap<String, Command> = HashMap())
 
     fun has(name: String) = this.commands.containsKey(name)
 
-    operator fun get(name: String) = this.commands.get(name)
+    operator fun get(name: String) = this.commands.values.firstOrNull { it.name.toLowerCase() == name.toLowerCase() }
 }
 
 fun produceContainer(path: String, diService: DIService): CommandsContainer {

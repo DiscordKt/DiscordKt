@@ -1,6 +1,7 @@
 package me.aberrantfox.kjdautils.internal.services
 
 import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.extensions.jda.toMember
 import me.aberrantfox.kjdautils.extensions.stdlib.randomListItem
 import me.aberrantfox.kjdautils.internal.arguments.WordArg
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
@@ -14,16 +15,15 @@ class HelpService(private val container: CommandsContainer, private val config: 
         container.command("Help") {
             description = "Display a help menu"
             category = "Utility"
-            expect(arg(WordArg, true))
+            expect(arg(WordArg("Category or Command"), true, null))
 
             execute {
-                val query = it.args.component1() as String
-
-                if(query.isEmpty()){ it.respond(defaultEmbed(it)); return@execute }
+                val query = it.args.component1() as String?
+                    ?: return@execute it.respond(defaultEmbed(it))
 
                 when(fetchArgumentType(query, it)) {
                     SelectionArgument.CommandName -> {
-                        val command = container[query.toLowerCase()]!!
+                        val command = container[query]!!
 
                         it.respond(generateCommandEmbed(command))
                     }
@@ -80,21 +80,21 @@ class HelpService(private val container: CommandsContainer, private val config: 
     }
 
     private fun defaultEmbed(event: CommandEvent) :MessageEmbed {
-        val categories = container.commands
-                .filter { config.visibilityPredicate(it.key.toLowerCase(), event.author, event.channel, event.guild) }
-                .map { it.component2().category }
-                .distinct()
-                .filter { it.isNotBlank() }
-                .reduceRight { a, b -> "$a, $b" }
+        val commands = container.commands.values.asSequence()
+            .groupBy { it.category }
+            .toList().distinct()
+            .filter { it.second.isNotEmpty() }
+            .filter { config.visibilityPredicate(it.first.toLowerCase(), event.author, event.channel, event.guild) }
+            .sortedBy { (_, value) -> -value.size }
+            .toList().toMap()
 
         return embed {
             title = "Help menu"
             description = "Use ${config.prefix}help <command|category> for more information"
             color = Color.decode("#00E58D")
 
-            field {
-                name = "Currently available categories"
-                value = categories
+            commands.forEach {
+                addInlineField(it.key, it.value.sortedBy { it.name }.joinToString("\n") { it.name })
             }
         }
     }
