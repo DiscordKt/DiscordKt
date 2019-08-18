@@ -28,7 +28,6 @@ class KUtils(val config: KConfiguration) {
 
     private var listener: CommandListener? = null
     private var executor: CommandExecutor? = null
-    private val helpService: HelpService
     private val documentationService: DocumentationService
     private val diService = DIService()
 
@@ -43,7 +42,6 @@ class KUtils(val config: KConfiguration) {
     init {
         registerInjectionObject(conversationService)
         discord.addEventListener(EventRegister)
-        helpService = HelpService(container, config)
         documentationService = DocumentationService(container)
         registerListeners(ConversationListener(conversationService))
     }
@@ -76,6 +74,11 @@ class KUtils(val config: KConfiguration) {
 
     private fun registerCommands(): CommandsContainer {
         val localContainer = produceContainer(config.globalPath, diService)
+
+        //Add KUtils help command if a command named "Help" is not already provided
+        val helpService = HelpService(container, config)
+        localContainer["Help"] ?: localContainer.join(helpService.produceHelpCommandContainer())
+
         CommandRecommender.addAll(localContainer.listCommands())
 
         val executor = CommandExecutor()

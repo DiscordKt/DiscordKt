@@ -11,12 +11,11 @@ import java.awt.Color
 enum class SelectionArgument { CommandName, CategoryName }
 
 class HelpService(private val container: CommandsContainer, private val config: KConfiguration) {
-    init {
-        container.command("Help") {
-            description = "Display a help menu"
+    fun produceHelpCommandContainer() = commands {
+        command("Help") {
+            description = "Display a help menu."
             category = "Utility"
             expect(arg(WordArg("Category or Command"), true, null))
-
             execute {
                 val query = it.args.component1() as String?
                     ?: return@execute it.respond(defaultEmbed(it))
@@ -34,16 +33,15 @@ class HelpService(private val container: CommandsContainer, private val config: 
 
                     null -> it.respond(embed{
                         title = "The category or command $query does not exist"
-                        val recommendation = CommandRecommender.recommendCommand(query,
-                                { cmd -> config.visibilityPredicate(cmd, it.author, it.channel, it.guild) })
+                        val recommendation = CommandRecommender.recommendCommand(query)
+                            { cmd -> config.visibilityPredicate(cmd, it.author, it.channel, it.guild) }
                         description = "Did you mean $recommendation ?\n" +
-                                       "Maybe you should try ${config.prefix}help"
+                            "Maybe you should try ${config.prefix}help"
                         color = Color.RED
                     })
                 }
             }
         }
-        CommandRecommender.addPossibility("help")
     }
 
     private fun generateCommandEmbed(command: Command) = embed {
