@@ -4,6 +4,8 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color
 
+private const val deprecationMessage = "Use property access. EOL 0.11.x"
+
 class EmbedDSLHandle {
     var title : String? = null
     var description : String? = null
@@ -13,21 +15,17 @@ class EmbedDSLHandle {
 
     operator fun invoke(args: EmbedDSLHandle.() -> Unit) {}
 
-    @Deprecated("use title")
+    @Deprecated(deprecationMessage, ReplaceWith("apply { this.title = t }"), DeprecationLevel.WARNING)
     fun setTitle(t: String?) : EmbedDSLHandle = apply { this.title = t }
 
-    @Deprecated("use description")
+    @Deprecated(deprecationMessage, ReplaceWith("apply { this.description = d }"), DeprecationLevel.WARNING)
     fun setDescription(d: String?) : EmbedDSLHandle = apply { this.description = d }
 
-    @Deprecated("use color")
+    @Deprecated(deprecationMessage, ReplaceWith("apply { this.color = c }"), DeprecationLevel.WARNING)
     fun setColor(c: Color) : EmbedDSLHandle = apply { this.color = c }
 
-    @Deprecated("use thumbnail")
+    @Deprecated(deprecationMessage, ReplaceWith("apply { this.thumbnail = t }"), DeprecationLevel.WARNING)
     fun setThumbnail(t: String?) : EmbedDSLHandle = apply { this.thumbnail = t }
-
-    fun addBlankField(inl: Boolean) = field {
-        inline = inl
-    }
 
     fun field(construct: FieldStore.() -> Unit) {
         val field = FieldStore()
@@ -43,19 +41,17 @@ class EmbedDSLHandle {
 
     fun addField(name: String?, value: String?, inline: Boolean = false) = fields.add(FieldStore(name, value, inline))
     fun addInlineField(name: String?, value: String?) = fields.add(FieldStore(name, value, true))
+    fun addBlankField(inline: Boolean) = fields.add(FieldStore("", "", inline))
 
-    fun build() : MessageEmbed {
-        val b = EmbedBuilder()
-        title.let { b.setTitle(it) }
-        description.let { b.setDescription(it) }
-        color.let { b.setColor(it) }
-        thumbnail.let { b.setThumbnail(it) }
-
-        fields.forEach { b.addField(it.name, it.value, it.inline) }
-
-        return b.build()
+    fun build() =
+        EmbedBuilder().apply {
+            setTitle(title)
+            setDescription(description)
+            setColor(color)
+            setThumbnail(thumbnail)
+            this@EmbedDSLHandle.fields.forEach { addField(it.name, it.value, it.inline) }
+        }.build()
     }
-}
 
 data class FieldStore(var name: String? = "", var value: String? = "", var inline: Boolean = false)
 
