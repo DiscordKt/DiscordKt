@@ -32,7 +32,7 @@ fun main(args: Array<String>) {
         configure {
             prefix = "!"
             globalPath = "me.aberrantfox.kjdautils.examples"
-            documentationSortOrder = listOf("services-demo")
+            documentationSortOrder = listOf("Data", "ServicesDemo", "Misc", "Utility")
         }
 
         registerCommandPreconditions({
@@ -58,18 +58,17 @@ class MessageLogger(val myConfig: MyCustomBotConfiguration) {
     }
 }
 
-@CommandSet("utility")
+@CommandSet("Utility")
 fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService) = commands {
-    command("version") {
+    command("Version") {
         description = "A command which will show the verison."
-        category = "info"
         execute {
             it.respond(myConfig.version)
             log.log("Version logged!")
         }
     }
 
-    command("echo") {
+    command("Echo") {
         expect(SentenceArg)
         execute {
             val response = it.args.component1() as String
@@ -77,7 +76,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         }
     }
 
-    command("add") {
+    command("Add") {
         description = "Add two numbers together"
         expect(IntegerArg, IntegerArg)
         execute {
@@ -88,7 +87,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         }
     }
 
-    command("optionalAdd") {
+    command("OptionalAdd") {
         description = "Add two numbers together"
         expect(arg(IntegerArg, false), arg(IntegerArg, true, 1))
         execute {
@@ -99,7 +98,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         }
     }
 
-    command("optionalInput") {
+    command("OptionalInput") {
         description = "Optionally input some text"
         expect(arg(SentenceArg, optional = true))
         execute {
@@ -109,7 +108,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         }
     }
 
-    command("guildsize") {
+    command("GuildSize") {
         description = "Display how many members are in a guild"
         requiresGuild = true
         execute {
@@ -117,7 +116,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         }
     }
 
-    command("guildowner") {
+    command("GuildOwner") {
         description = "Provide info about the guild you executed the command in"
         execute {
             //This command just won't do anything if it's executed in DM. You may want to send a response.
@@ -126,7 +125,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         }
     }
 
-    command("conversationtest") {
+    command("ConversationTest") {
         description = "Test the implementation of the ConversationDSL"
         requiresGuild = true
         execute {
@@ -135,9 +134,9 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
     }
 }
 
-@CommandSet
+@CommandSet("Misc")
 fun defineOther(log: MyCustomLogger) = commands {
-    command("someCommand") {
+    command("SomeCommand") {
         execute { log.log("Hello, World!") }
     }
 }
@@ -185,9 +184,9 @@ class SingleDependency(noDependencies: NoDependencies)
 @Service
 class DoubleDependency(noDependencies: NoDependencies, singleDependency: SingleDependency)
 
-@CommandSet("services-demo")
+@CommandSet("ServicesDemo")
 fun dependsOnAllServices(none: NoDependencies, single: SingleDependency, double: DoubleDependency) = commands {
-    command("dependsOnAll") {
+    command("DependsOnAll") {
         description = "I depend on all services"
         execute {
             it.respond("This command is only available if all dependencies were correctly piped to the wrapping function")
@@ -199,17 +198,18 @@ fun dependsOnAllServices(none: NoDependencies, single: SingleDependency, double:
 @Data("config.json")
 data class ConfigurationObject(var prefix: String = "!")
 
-@CommandSet
+@CommandSet("Data")
 fun dependsOnAboveDataObject(config: ConfigurationObject, persistenceService: PersistenceService) = commands {
-    command("data-see") {
-        description = "This command depends on the data object above, which is automatically loaded from the designated path." +
-                "if it does not exist at the designated path, it is created using the default arguments."
+    //This command depends on the data object above, which is automatically loaded from the designated path.
+    //If the file does not exist at the designated path, it is created using the default arguments.
+    command("DataSee") {
+        description = "This command demonstrates loading and injecting Data objects by viewing its contents."
         execute {
             it.respond(config.prefix)
         }
     }
-    command("data-save") {
-        description = "This command tests the save command"
+    command("DataSave") {
+        description = "This command lets you modify a Data object's contents."
         execute {
             config.prefix = "different"
             persistenceService.save(config)
