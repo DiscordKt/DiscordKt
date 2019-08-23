@@ -29,7 +29,7 @@
 | Echo             | Text                  | No Description Provider                                  |
 | GuildOwner       | <none>                | Provide info about the guild you executed the command in |
 | GuildSize        | <none>                | Display how many members are in a guild                  |
-| Help             | (Category or Command) | Display a help menu                                      |
+| Help             | (Category or Command) | Display a help menu.                                     |
 | OptionalAdd      | Integer, (Integer)    | Add two numbers together                                 |
 | OptionalInput    | (Text)                | Optionally input some text                               |
 | Version          | <none>                | A command which will show the verison.                   |

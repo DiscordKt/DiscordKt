@@ -23,8 +23,8 @@ import org.reflections.scanners.MethodAnnotationsScanner
 import kotlin.system.exitProcess
 
 
-class KUtils(val config: KConfiguration) {
-    val discord = buildDiscordClient(config)
+class KUtils(val config: KConfiguration, token: String) {
+    val discord = buildDiscordClient(config, token)
 
     private var listener: CommandListener? = null
     private var executor: CommandExecutor? = null
@@ -137,7 +137,7 @@ class KUtils(val config: KConfiguration) {
 }
 
 fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
-    val util = KUtils(KConfiguration(token))
+    val util = KUtils(KConfiguration(), token)
     util.operate()
     return util
 }

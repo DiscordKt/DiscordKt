@@ -11,7 +11,6 @@ enum class PrefixDeleteMode {
 }
 
 data class KConfiguration(
-    val token: String = "",
     var prefix: String = "+",
     var globalPath: String = "",
     var reactToCommands: Boolean = true,
