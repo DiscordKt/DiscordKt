@@ -17,23 +17,23 @@ fun testConversation(config: MyCustomBotConfiguration) = conversation {
     steps {
         step {
             prompt = embed {
-                setTitle("Test Conversation")
+                title = "Test Conversation"
                 field {
                     name = "Step 1"
                     value = "To test various use cases I'd like you to tell me a user Id to start with."
                 }
-                setColor(Color.CYAN)
+                color = Color.CYAN
             }
             expect = UserArg
         }
         step {
             prompt = embed {
-                setTitle("Test Conversation")
+                title = "Test Conversation"
                 field {
                     name = "Step 2"
                     value = "Alright, now tell me a random sentence."
                 }
-                setColor(Color.CYAN)
+                color = Color.CYAN
             }
             expect = SentenceArg
         }
@@ -43,8 +43,8 @@ fun testConversation(config: MyCustomBotConfiguration) = conversation {
         val user = it.responses.component1() as User
         val word = it.responses.component2() as String
         val summary = embed {
-            setTitle("Summary - That's what you've told me")
-            setThumbnail(user.avatarUrl)
+            title = "Summary - That's what you've told me"
+            thumbnail = user.avatarUrl
             field {
                 name = "Some user account"
                 value = "The account of **${user.name}** was created on **${user.timeCreated}**."
@@ -58,7 +58,7 @@ fun testConversation(config: MyCustomBotConfiguration) = conversation {
                 name = "Test Completed"
                 value = "Thanks for participating!"
             }
-            setColor(Color.GREEN)
+            color = Color.GREEN
         }
         it.respond(summary)
     }

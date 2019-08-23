@@ -26,8 +26,8 @@ class KJDA(override val jda: JDA, override val configuration: KConfiguration) : 
     }
 
     companion object {
-        fun build(config: KConfiguration) =
-                KJDA(JDABuilder(AccountType.BOT).setToken(config.token).build(), config)
+        fun build(config: KConfiguration, token: String) =
+                KJDA(JDABuilder(AccountType.BOT).setToken(token).build(), config)
     }
 }
 

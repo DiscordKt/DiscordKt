@@ -1,6 +1,7 @@
 package me.aberrantfox.kjdautils.internal.services
 
 import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.extensions.jda.toMember
 import me.aberrantfox.kjdautils.extensions.stdlib.randomListItem
 import me.aberrantfox.kjdautils.internal.arguments.WordArg
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
@@ -10,20 +11,18 @@ import java.awt.Color
 enum class SelectionArgument { CommandName, CategoryName }
 
 class HelpService(private val container: CommandsContainer, private val config: KConfiguration) {
-    init {
-        container.command("help") {
-            description = "Display a help menu"
-            category = "utility"
-            expect(arg(WordArg, true))
-
+    fun produceHelpCommandContainer() = commands {
+        command("Help") {
+            description = "Display a help menu."
+            category = "Utility"
+            expect(arg(WordArg("Category or Command"), true, null))
             execute {
-                val query = it.args.component1() as String
-
-                if(query.isEmpty()){ it.respond(defaultEmbed(it)); return@execute }
+                val query = it.args.component1() as String?
+                    ?: return@execute it.respond(defaultEmbed(it))
 
                 when(fetchArgumentType(query, it)) {
                     SelectionArgument.CommandName -> {
-                        val command = container[query.toLowerCase()]!!
+                        val command = container[query]!!
 
                         it.respond(generateCommandEmbed(command))
                     }
@@ -34,22 +33,21 @@ class HelpService(private val container: CommandsContainer, private val config: 
 
                     null -> it.respond(embed{
                         title = "The category or command $query does not exist"
-                        val recommendation = CommandRecommender.recommendCommand(query,
-                                { cmd -> config.visibilityPredicate(cmd, it.author, it.channel, it.guild) })
-                        setDescription("Did you mean $recommendation ?\n" +
-                                       "Maybe you should try ${config.prefix}help")
-                        setColor(Color.RED)
+                        val recommendation = CommandRecommender.recommendCommand(query)
+                            { cmd -> config.visibilityPredicate(cmd, it.author, it.channel, it.guild) }
+                        description = "Did you mean $recommendation ?\n" +
+                            "Maybe you should try ${config.prefix}help"
+                        color = Color.RED
                     })
                 }
             }
         }
-        CommandRecommender.addPossibility("help")
     }
 
     private fun generateCommandEmbed(command: Command) = embed {
         title = "Displaying help for ${command.name}"
         description = command.description
-        setColor(Color.CYAN)
+        color = Color.CYAN
         val commandInvocation = "${config.prefix}${command.name} "
 
         field {
@@ -73,28 +71,28 @@ class HelpService(private val container: CommandsContainer, private val config: 
                 .reduceRight{a, b -> "$a, $b"}
 
         return embed {
-            setTitle("Displaying commands in the $category category")
-            setDescription(commands.toLowerCase())
-            setColor(Color.decode("#00C4A6"))
+            title = "Displaying commands in the $category category"
+            description = commands.toLowerCase()
+            color = Color.decode("#00C4A6")
         }
     }
 
     private fun defaultEmbed(event: CommandEvent) :MessageEmbed {
-        val categories = container.commands
-                .filter { config.visibilityPredicate(it.key.toLowerCase(), event.author, event.channel, event.guild) }
-                .map { it.component2().category }
-                .distinct()
-                .filter { it.isNotBlank() }
-                .reduceRight { a, b -> "$a, $b" }
+        val commands = container.commands.values.asSequence()
+            .groupBy { it.category }
+            .toList().distinct()
+            .filter { it.second.isNotEmpty() }
+            .filter { config.visibilityPredicate(it.first.toLowerCase(), event.author, event.channel, event.guild) }
+            .sortedBy { (_, value) -> -value.size }
+            .toList().toMap()
 
         return embed {
-            setTitle("Help menu")
-            setDescription("Use ${config.prefix}help <command|category> for more information")
-            setColor(Color.decode("#00E58D"))
+            title = "Help menu"
+            description = "Use ${config.prefix}help <command|category> for more information"
+            color = Color.decode("#00E58D")
 
-            field {
-                name = "Currently available categories"
-                value = categories
+            commands.forEach {
+                addInlineField(it.key, it.value.sortedBy { it.name }.joinToString("\n") { it.name })
             }
         }
     }
