@@ -60,8 +60,25 @@ class MessageLogger(val myConfig: MyCustomBotConfiguration) {
 
 @CommandSet("Utility")
 fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService) = commands {
+    command("DisplayEmbed") {
+        description = "Display an example embed."
+        execute {
+            it.respond(
+                embed {
+                    title = "This is the title."
+                    description = "This is the description."
+
+                    field {
+                        name = "This is a field."
+                        value = "Fields can have titles and descriptions."
+                    }
+                }
+            )
+        }
+    }
+
     command("Version") {
-        description = "A command which will show the verison."
+        description = "A command which will show the version."
         execute {
             it.respond(myConfig.version)
             log.log("Version logged!")
@@ -142,11 +159,11 @@ fun defineOther(log: MyCustomLogger) = commands {
 }
 
 @Precondition
-fun nameBeginsWithF() = precondition {
-    if(it.author.name.toLowerCase().startsWith("f")) {
+fun nameBeginsWithLetter() = precondition {
+    if(it.author.name.toLowerCase().first() in 'a'..'z') {
         return@precondition Pass
     } else {
-        return@precondition Fail("Your name must start with F!")
+        return@precondition Fail("Your name must start with a letter!")
     }
 }
 
