@@ -4,30 +4,31 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color
 
+private typealias EmbedField = MessageEmbed.Field
+
 class EmbedDSLHandle {
     var title : String? = null
     var description : String? = null
     var color : Color? = null
     var thumbnail : String? = null
-    var fields : MutableList<FieldStore> = mutableListOf()
+    var mutableFields : MutableList<EmbedField> = mutableListOf()
 
-    operator fun invoke(args: EmbedDSLHandle.() -> Unit) {}
-
-    fun field(construct: FieldStore.() -> Unit) {
-        val field = FieldStore()
-        field.construct()
-        fields.add(field)
+    fun field(construct: FieldBuilder.() -> Unit) {
+        val fieldBuilder = FieldBuilder()
+        fieldBuilder.construct()
+        mutableFields.add(fieldBuilder.build())
     }
 
-    fun ifield(construct: FieldStore.() -> Unit) {
-        val field = FieldStore()
-        field.construct()
-        fields.add(field)
+    fun ifield(construct: FieldBuilder.() -> Unit) {
+        val fieldBuilder = FieldBuilder()
+        fieldBuilder.construct()
+        mutableFields.add(fieldBuilder.build())
     }
 
-    fun addField(name: String?, value: String?, inline: Boolean = false) = fields.add(FieldStore(name, value, inline))
-    fun addInlineField(name: String?, value: String?) = fields.add(FieldStore(name, value, true))
-    fun addBlankField(inline: Boolean) = fields.add(FieldStore("", "", inline))
+    fun addField(field: EmbedField) = mutableFields.add(field)
+    fun addField(name: String?, value: String?, inline: Boolean = false) = addField(EmbedField(name, value, inline))
+    fun addInlineField(name: String?, value: String?) = addField(EmbedField(name, value, true))
+    fun addBlankField(inline: Boolean) = addField(EmbedField("", "", inline))
 
     fun build() =
         EmbedBuilder().apply {
@@ -35,11 +36,13 @@ class EmbedDSLHandle {
             setDescription(description)
             setColor(color)
             setThumbnail(thumbnail)
-            this@EmbedDSLHandle.fields.forEach { addField(it.name, it.value, it.inline) }
+            this.fields.addAll(mutableFields)
         }.build()
-    }
+}
 
-data class FieldStore(var name: String? = "", var value: String? = "", var inline: Boolean = false)
+data class FieldBuilder(var name: String? = "", var value: String? = "", var inline: Boolean = false) {
+    fun build() = EmbedField(name, value, inline)
+}
 
 fun embed(construct: EmbedDSLHandle.() -> Unit): MessageEmbed {
     val handle = EmbedDSLHandle()
