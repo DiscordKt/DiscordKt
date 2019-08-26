@@ -65,6 +65,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         execute {
             it.respond(
                 embed {
+                    author = it.author
                     title = "This is the title."
                     description = "This is the description."
 

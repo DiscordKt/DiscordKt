@@ -1,17 +1,22 @@
 package me.aberrantfox.kjdautils.api.dsl
 
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.*
 import java.awt.Color
+import java.time.temporal.TemporalAccessor
 
 private typealias EmbedField = MessageEmbed.Field
 
 class EmbedDSLHandle {
+    var mutableFields : MutableList<EmbedField> = mutableListOf()
+
     var title : String? = null
     var description : String? = null
     var color : Color? = null
     var thumbnail : String? = null
-    var mutableFields : MutableList<EmbedField> = mutableListOf()
+    var image: String? = null
+    var author: User? = null
+    var timeStamp: TemporalAccessor? = null
 
     fun field(construct: FieldBuilder.() -> Unit) {
         val fieldBuilder = FieldBuilder()
@@ -32,11 +37,16 @@ class EmbedDSLHandle {
 
     fun build() =
         EmbedBuilder().apply {
+            this.fields.addAll(mutableFields)
             setTitle(title)
             setDescription(description)
             setColor(color)
             setThumbnail(thumbnail)
-            this.fields.addAll(mutableFields)
+            setImage(image)
+            setTimestamp(timeStamp)
+
+            if (author != null)
+                setAuthor(author!!.name, null, author!!.effectiveAvatarUrl)
         }.build()
 }
 
