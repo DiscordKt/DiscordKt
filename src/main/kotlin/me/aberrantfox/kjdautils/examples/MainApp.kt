@@ -6,6 +6,7 @@ import me.aberrantfox.kjdautils.api.annotation.Data
 import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.api.startBot
+import me.aberrantfox.kjdautils.extensions.jda.fullName
 import me.aberrantfox.kjdautils.internal.arguments.IntegerArg
 import me.aberrantfox.kjdautils.internal.arguments.SentenceArg
 import me.aberrantfox.kjdautils.internal.command.Fail
@@ -65,13 +66,22 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         execute {
             it.respond(
                 embed {
-                    author = it.author
                     title = "This is the title."
                     description = "This is the description."
+
+                    author {
+                        name = it.author.fullName()
+                        iconUrl = it.author.effectiveAvatarUrl
+                    }
 
                     field {
                         name = "This is a field."
                         value = "Fields can have titles and descriptions."
+                    }
+
+                    footer {
+                        iconUrl = it.discord.jda.selfUser.effectiveAvatarUrl
+                        text = "This is some footer text."
                     }
                 }
             )
