@@ -37,12 +37,6 @@ class EmbedDSLHandle {
         footer = footerBuilder.build()
     }
 
-    fun ifield(construct: FieldBuilder.() -> Unit) {
-        val fieldBuilder = FieldBuilder()
-        fieldBuilder.construct()
-        mutableFields.add(fieldBuilder.build())
-    }
-
     fun addField(field: EmbedField) = mutableFields.add(field)
     fun addField(name: String?, value: String?, inline: Boolean = false) = addField(EmbedField(name, value, inline))
     fun addInlineField(name: String?, value: String?) = addField(EmbedField(name, value, true))
