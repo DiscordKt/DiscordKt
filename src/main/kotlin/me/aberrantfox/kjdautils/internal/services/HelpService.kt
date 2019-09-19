@@ -1,7 +1,6 @@
 package me.aberrantfox.kjdautils.internal.services
 
 import me.aberrantfox.kjdautils.api.dsl.*
-import me.aberrantfox.kjdautils.extensions.jda.toMember
 import me.aberrantfox.kjdautils.extensions.stdlib.randomListItem
 import me.aberrantfox.kjdautils.internal.arguments.WordArg
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
@@ -77,14 +76,14 @@ class HelpService(private val container: CommandsContainer, private val config: 
         }
     }
 
-    private fun defaultEmbed(event: CommandEvent) :MessageEmbed {
+    private fun defaultEmbed(event: CommandEvent): MessageEmbed {
         val commands = container.commands.values.asSequence()
+            .filter { config.visibilityPredicate(it.name.toLowerCase(), event.author, event.channel, event.guild) }
             .groupBy { it.category }
+            .filter { it.value.isNotEmpty() }
             .toList().distinct()
-            .filter { it.second.isNotEmpty() }
-            .filter { config.visibilityPredicate(it.first.toLowerCase(), event.author, event.channel, event.guild) }
-            .sortedBy { (_, value) -> -value.size }
-            .toList().toMap()
+            .sortedBy { (category, commands) -> -commands.size }
+            .toMap()
 
         return embed {
             title = "Help menu"
