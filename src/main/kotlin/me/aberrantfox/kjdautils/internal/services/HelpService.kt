@@ -4,10 +4,7 @@ import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.extensions.stdlib.randomListItem
 import me.aberrantfox.kjdautils.internal.arguments.WordArg
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
-import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color
-
-enum class SelectionArgument { CommandName, CategoryName }
 
 class HelpService(private val container: CommandsContainer, private val config: KConfiguration) {
     fun produceHelpCommandContainer() = commands {
@@ -17,28 +14,15 @@ class HelpService(private val container: CommandsContainer, private val config: 
             expect(arg(WordArg("Category or Command"), true, null))
             execute {
                 val query = it.args.component1() as String?
-                    ?: return@execute it.respond(defaultEmbed(it))
+                    ?: return@execute it.respond(generateDefaultEmbed(it))
 
-                when(fetchArgumentType(query, it)) {
-                    SelectionArgument.CommandName -> {
-                        val command = container[query]!!
-
-                        it.respond(generateCommandEmbed(command))
-                    }
-
-                    SelectionArgument.CategoryName -> {
-                        it.respond(generateCategoriesEmbed(query, it))
-                    }
-
-                    null -> it.respond(embed{
-                        title = "The category or command $query does not exist"
-                        val recommendation = CommandRecommender.recommendCommand(query)
-                            { cmd -> config.visibilityPredicate(cmd, it.author, it.channel, it.guild) }
-                        description = "Did you mean $recommendation ?\n" +
-                            "Maybe you should try ${config.prefix}help"
-                        color = Color.RED
-                    })
+                val responseEmbed = when {
+                    query.isCommand(it) -> generateCommandEmbed(container[query]!!)
+                    query.isCategory(it) -> generateCategoriesEmbed(query, it)
+                    else -> generateRecommendationEmbed(query, it)
                 }
+
+                it.respond(responseEmbed)
             }
         }
     }
@@ -47,84 +31,79 @@ class HelpService(private val container: CommandsContainer, private val config: 
         title = "Displaying help for ${command.name}"
         description = command.description
         color = Color.CYAN
+
         val commandInvocation = "${config.prefix}${command.name} "
-
-        field {
-            name = "What is the structure of the command?"
-            value = "$commandInvocation ${generateStructure(command)}"
-            inline = false
-        }
-
-        field {
-            name = "Show me an example of someone using the command."
-            value = "$commandInvocation ${generateExample(command)}"
-            inline = false
-        }
+        addField("What is the structure of the command?", "$commandInvocation ${generateStructure(command)}")
+        addField("Show me an example of someone using the command.", "$commandInvocation ${generateExample(command)}")
     }
 
-    private fun generateCategoriesEmbed(category: String, event: CommandEvent) : MessageEmbed {
-        val commands = container.commands.values
+    private fun generateCategoriesEmbed(category: String, event: CommandEvent) =
+        embed {
+            val commands = container.commands.values
                 .filter { it.category.toLowerCase() == category.toLowerCase() }
-                .filter { config.visibilityPredicate(it, event.author, event.channel, event.guild) }
+                .filter { it.isVisible(event) }
                 .map { it.name }
                 .reduceRight{a, b -> "$a, $b"}
 
-        return embed {
             title = "Displaying commands in the $category category"
             description = commands.toLowerCase()
             color = Color.decode("#00C4A6")
         }
-    }
 
-    private fun defaultEmbed(event: CommandEvent): MessageEmbed {
-        val commands = container.commands.values.asSequence()
-            .filter { config.visibilityPredicate(it, event.author, event.channel, event.guild) }
-            .groupBy { it.category }
-            .filter { it.value.isNotEmpty() }
-            .toList().distinct()
-            .sortedBy { (category, commands) -> -commands.size }
-            .toMap()
-
-        return embed {
+    private fun generateDefaultEmbed(event: CommandEvent) =
+        embed {
             title = "Help menu"
             description = "Use ${config.prefix}help <command|category> for more information"
             color = Color.decode("#00E58D")
 
-            commands.forEach {
-                addInlineField(it.key, it.value.sortedBy { it.name }.joinToString("\n") { it.name })
-            }
+            container.commands.values.asSequence()
+                .filter { it.isVisible(event) }
+                .groupBy { it.category }
+                .filter { it.value.isNotEmpty() }
+                .toList().distinct()
+                .sortedBy { (category, commands) -> -commands.size }
+                .map { (category, commands) ->
+                    field {
+                        name = category
+                        value = commands.sortedBy { it.name }.joinToString("\n") { it.name }
+                        inline = true
+                    }
+                }
         }
-    }
+
+    private fun generateRecommendationEmbed(query: String, event: CommandEvent) =
+        embed {
+            val recommendation = CommandRecommender.recommendCommand(query) { it.isVisible(event) }
+
+            title = "Could not find a category or command with that name."
+            description = "Did you mean $recommendation?\nMaybe you should try ${config.prefix}help"
+            color = Color.RED
+        }
 
     private fun generateStructure(command: Command) =
-            command.expectedArgs.joinToString(" ") {
-                if (it.optional) {
-                    "(${it.type.name})"
-                } else {
-                    "[${it.type.name}]"
-                }
+        command.expectedArgs.joinToString(" ") {
+            if (it.optional) {
+                "(${it.type.name})"
+            } else {
+                "[${it.type.name}]"
             }
+        }
 
     private fun generateExample(command: Command) =
-            command.expectedArgs.joinToString(" ") {
-                it.type.examples.randomListItem()
-            }
-
-    private fun fetchArgumentType(value: String, event: CommandEvent): SelectionArgument? {
-
-        val isCategory = container.commands.any {
-            it.component2().category.toLowerCase() == value.toLowerCase()
-                    && config.visibilityPredicate(it.value, event.author, event.channel, event.guild)
+        command.expectedArgs.joinToString(" ") {
+            it.type.examples.randomListItem()
         }
 
-        if(isCategory) return SelectionArgument.CategoryName
-
-        val isCommand = container.commands.any {
-            it.component2().name.toLowerCase() == value.toLowerCase()
-                    && config.visibilityPredicate(it.value, event.author, event.channel, event.guild)
+    private fun String.isCategory(event: CommandEvent) = container.commands.values
+        .any {
+            this.toLowerCase() == it.category.toLowerCase() && it.isVisible(event)
         }
-        if(isCommand) return SelectionArgument.CommandName
 
-        return null
-    }
+    private fun String.isCommand(event: CommandEvent) = container.commands.values
+        .any {
+            this.toLowerCase() == it.name.toLowerCase() && it.isVisible(event)
+        }
+
+    private fun Command.isVisible(event: CommandEvent) =
+        config.visibilityPredicate(this, event.author, event.channel, event.guild)
 }
