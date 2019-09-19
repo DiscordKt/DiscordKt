@@ -11,12 +11,12 @@ class HelpService(private val container: CommandsContainer, private val config: 
         command("Help") {
             description = "Display a help menu."
             category = "Utility"
-            expect(arg(WordArg("Category or Command"), true, null))
+            expect(arg(WordArg("Category or Command"), true, ""))
             execute {
-                val query = it.args.component1() as String?
-                    ?: return@execute it.respond(generateDefaultEmbed(it))
+                val query = it.args.component1() as String
 
                 val responseEmbed = when {
+                    query.isEmpty() -> generateDefaultEmbed(it)
                     query.isCommand(it) -> generateCommandEmbed(container[query]!!)
                     query.isCategory(it) -> generateCategoriesEmbed(query, it)
                     else -> generateRecommendationEmbed(query, it)
@@ -26,6 +26,27 @@ class HelpService(private val container: CommandsContainer, private val config: 
             }
         }
     }
+
+    private fun generateDefaultEmbed(event: CommandEvent) =
+        embed {
+            title = "Help menu"
+            description = "Use ${config.prefix}help <command|category> for more information"
+            color = Color.decode("#00E58D")
+
+            val categoryMap = container.commands.values
+                .filter { it.isVisible(event) }
+                .groupBy { it.category }
+
+            categoryMap.toList()
+                .sortedBy { (_, commands) -> -commands.size }
+                .map { (category, commands) ->
+                    field {
+                        name = category
+                        value = commands.sortedBy { it.name }.joinToString("\n") { it.name }
+                        inline = true
+                    }
+            }
+        }
 
     private fun generateCommandEmbed(command: Command) = embed {
         title = "Displaying help for ${command.name}"
@@ -50,27 +71,6 @@ class HelpService(private val container: CommandsContainer, private val config: 
             color = Color.decode("#00C4A6")
         }
 
-    private fun generateDefaultEmbed(event: CommandEvent) =
-        embed {
-            title = "Help menu"
-            description = "Use ${config.prefix}help <command|category> for more information"
-            color = Color.decode("#00E58D")
-
-            container.commands.values.asSequence()
-                .filter { it.isVisible(event) }
-                .groupBy { it.category }
-                .filter { it.value.isNotEmpty() }
-                .toList().distinct()
-                .sortedBy { (category, commands) -> -commands.size }
-                .map { (category, commands) ->
-                    field {
-                        name = category
-                        value = commands.sortedBy { it.name }.joinToString("\n") { it.name }
-                        inline = true
-                    }
-                }
-        }
-
     private fun generateRecommendationEmbed(query: String, event: CommandEvent) =
         embed {
             val recommendation = CommandRecommender.recommendCommand(query) { it.isVisible(event) }
@@ -82,11 +82,8 @@ class HelpService(private val container: CommandsContainer, private val config: 
 
     private fun generateStructure(command: Command) =
         command.expectedArgs.joinToString(" ") {
-            if (it.optional) {
-                "(${it.type.name})"
-            } else {
-                "[${it.type.name}]"
-            }
+            val type = it.type.name
+            if (it.optional) "($type)" else "[$type]"
         }
 
     private fun generateExample(command: Command) =
