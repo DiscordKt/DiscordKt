@@ -63,10 +63,10 @@ class HelpService(private val container: CommandsContainer, private val config: 
     }
 
     private fun generateCategoriesEmbed(category: String, event: CommandEvent) : MessageEmbed {
-        val commands = container.commands
-                .filter { it.component2().category.toLowerCase() == category.toLowerCase() }
-                .map { it.component2().name }
-                .filter { config.visibilityPredicate(it.toLowerCase(), event.author, event.channel, event.guild) }
+        val commands = container.commands.values
+                .filter { it.category.toLowerCase() == category.toLowerCase() }
+                .filter { config.visibilityPredicate(it, event.author, event.channel, event.guild) }
+                .map { it.name }
                 .reduceRight{a, b -> "$a, $b"}
 
         return embed {
@@ -78,7 +78,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
 
     private fun defaultEmbed(event: CommandEvent): MessageEmbed {
         val commands = container.commands.values.asSequence()
-            .filter { config.visibilityPredicate(it.name.toLowerCase(), event.author, event.channel, event.guild) }
+            .filter { config.visibilityPredicate(it, event.author, event.channel, event.guild) }
             .groupBy { it.category }
             .filter { it.value.isNotEmpty() }
             .toList().distinct()
@@ -110,17 +110,18 @@ class HelpService(private val container: CommandsContainer, private val config: 
                 it.type.examples.randomListItem()
             }
 
-    private fun fetchArgumentType(value: String, event: CommandEvent): SelectionArgument?{
+    private fun fetchArgumentType(value: String, event: CommandEvent): SelectionArgument? {
+
         val isCategory = container.commands.any {
             it.component2().category.toLowerCase() == value.toLowerCase()
-                    && config.visibilityPredicate(it.key.toLowerCase(), event.author, event.channel, event.guild)
+                    && config.visibilityPredicate(it.value, event.author, event.channel, event.guild)
         }
 
         if(isCategory) return SelectionArgument.CategoryName
 
         val isCommand = container.commands.any {
             it.component2().name.toLowerCase() == value.toLowerCase()
-                    && config.visibilityPredicate(value.toLowerCase(), event.author, event.channel, event.guild)
+                    && config.visibilityPredicate(it.value, event.author, event.channel, event.guild)
         }
         if(isCommand) return SelectionArgument.CommandName
 
