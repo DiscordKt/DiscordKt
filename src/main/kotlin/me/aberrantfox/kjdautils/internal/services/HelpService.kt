@@ -11,14 +11,13 @@ class HelpService(private val container: CommandsContainer, private val config: 
         command("Help") {
             description = "Display a help menu."
             category = "Utility"
-            expect(arg(WordArg("Category or Command"), true, ""))
+            expect(arg(WordArg("Command"), true, ""))
             execute {
                 val query = it.args.component1() as String
 
                 val responseEmbed = when {
                     query.isEmpty() -> generateDefaultEmbed(it)
                     query.isCommand(it) -> generateCommandEmbed(container[query]!!)
-                    query.isCategory(it) -> generateCategoriesEmbed(query, it)
                     else -> generateRecommendationEmbed(query, it)
                 }
 
@@ -30,12 +29,10 @@ class HelpService(private val container: CommandsContainer, private val config: 
     private fun generateDefaultEmbed(event: CommandEvent) =
         embed {
             title = "Help menu"
-            description = "Use ${config.prefix}help <command|category> for more information"
+            description = "Use `${config.prefix}help <command>` for more information."
             color = Color.decode("#00E58D")
 
-            val categoryMap = container.commands.values
-                .filter { it.isVisible(event) }
-                .groupBy { it.category }
+            val categoryMap = fetchVisibleCommands(event).groupBy { it.category }
 
             categoryMap.toList()
                 .sortedBy { (_, commands) -> -commands.size }
@@ -49,7 +46,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
         }
 
     private fun generateCommandEmbed(command: Command) = embed {
-        title = "Displaying help for ${command.name}"
+        title = command.name
         description = command.description
         color = Color.CYAN
 
@@ -58,24 +55,11 @@ class HelpService(private val container: CommandsContainer, private val config: 
         addField("Show me an example of someone using the command.", "$commandInvocation ${generateExample(command)}")
     }
 
-    private fun generateCategoriesEmbed(category: String, event: CommandEvent) =
-        embed {
-            val commands = container.commands.values
-                .filter { it.category.toLowerCase() == category.toLowerCase() }
-                .filter { it.isVisible(event) }
-                .map { it.name }
-                .reduceRight{a, b -> "$a, $b"}
-
-            title = "Displaying commands in the $category category"
-            description = commands.toLowerCase()
-            color = Color.decode("#00C4A6")
-        }
-
     private fun generateRecommendationEmbed(query: String, event: CommandEvent) =
         embed {
             val recommendation = CommandRecommender.recommendCommand(query) { it.isVisible(event) }
 
-            title = "Could not find a category or command with that name."
+            title = "Could not find a command with that name."
             description = "Did you mean $recommendation?\nMaybe you should try ${config.prefix}help"
             color = Color.RED
         }
@@ -91,15 +75,12 @@ class HelpService(private val container: CommandsContainer, private val config: 
             it.type.examples.randomListItem()
         }
 
-    private fun String.isCategory(event: CommandEvent) = container.commands.values
+    private fun String.isCommand(event: CommandEvent) = fetchVisibleCommands(event)
         .any {
-            this.toLowerCase() == it.category.toLowerCase() && it.isVisible(event)
+            this.toLowerCase() == it.name.toLowerCase()
         }
 
-    private fun String.isCommand(event: CommandEvent) = container.commands.values
-        .any {
-            this.toLowerCase() == it.name.toLowerCase() && it.isVisible(event)
-        }
+    private fun fetchVisibleCommands(event: CommandEvent) = container.commands.values.filter { it.isVisible(event) }
 
     private fun Command.isVisible(event: CommandEvent) =
         config.visibilityPredicate(this, event.author, event.channel, event.guild)
