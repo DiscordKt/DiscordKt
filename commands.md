@@ -5,32 +5,33 @@
 | ---------- | -------------------------- |
 | (Argument) | This argument is optional. |
 
-## services-demo
+## Data
+| Commands | Arguments | Description                                                                           |
+| -------- | --------- | ------------------------------------------------------------------------------------- |
+| DataSave | <none>    | This command lets you modify a Data object's contents.                                |
+| DataSee  | <none>    | This command demonstrates loading and injecting Data objects by viewing its contents. |
+
+## ServicesDemo
 | Commands     | Arguments | Description              |
 | ------------ | --------- | ------------------------ |
-| dependsOnAll | <none>    | I depend on all services |
+| DependsOnAll | <none>    | I depend on all services |
 
-## utility
-| Commands         | Arguments          | Description                                              |
-| ---------------- | ------------------ | -------------------------------------------------------- |
-| add              | Integer, Integer   | Add two numbers together                                 |
-| conversationtest | <none>             | Test the implementation of the ConversationDSL           |
-| echo             | Text               | No Description Provider                                  |
-| guildowner       | <none>             | Provide info about the guild you executed the command in |
-| guildsize        | <none>             | Display how many members are in a guild                  |
-| help             | (Word)             | Display a help menu                                      |
-| optionalAdd      | Integer, (Integer) | Add two numbers together                                 |
-| optionalInput    | (Text)             | Optionally input some text                               |
+## Misc
+| Commands    | Arguments | Description             |
+| ----------- | --------- | ----------------------- |
+| SomeCommand | <none>    | No Description Provider |
 
-## uncategorized
-| Commands    | Arguments | Description                                                                                                                                                                                   |
-| ----------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| data-save   | <none>    | This command tests the save command                                                                                                                                                           |
-| data-see    | <none>    | This command depends on the data object above, which is automatically loaded from the designated path.if it does not exist at the designated path, it is created using the default arguments. |
-| someCommand | <none>    | No Description Provider                                                                                                                                                                       |
-
-## info
-| Commands | Arguments | Description                            |
-| -------- | --------- | -------------------------------------- |
-| version  | <none>    | A command which will show the verison. |
+## Utility
+| Commands         | Arguments             | Description                                              |
+| ---------------- | --------------------- | -------------------------------------------------------- |
+| Add              | Integer, Integer      | Add two numbers together                                 |
+| ConversationTest | <none>                | Test the implementation of the ConversationDSL           |
+| DisplayEmbed     | <none>                | Display an example embed.                                |
+| Echo             | Text                  | No Description Provider                                  |
+| GuildOwner       | <none>                | Provide info about the guild you executed the command in |
+| GuildSize        | <none>                | Display how many members are in a guild                  |
+| Help             | (Category or Command) | Display a help menu.                                     |
+| OptionalAdd      | Integer, (Integer)    | Add two numbers together                                 |
+| OptionalInput    | (Text)                | Optionally input some text                               |
+| Version          | <none>                | A command which will show the version.                   |
 

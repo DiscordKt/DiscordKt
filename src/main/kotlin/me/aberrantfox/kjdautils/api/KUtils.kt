@@ -23,12 +23,11 @@ import org.reflections.scanners.MethodAnnotationsScanner
 import kotlin.system.exitProcess
 
 
-class KUtils(val config: KConfiguration) {
-    val discord = buildDiscordClient(config)
+class KUtils(val config: KConfiguration, token: String) {
+    val discord = buildDiscordClient(config, token)
 
     private var listener: CommandListener? = null
     private var executor: CommandExecutor? = null
-    private val helpService: HelpService
     private val documentationService: DocumentationService
     private val diService = DIService()
 
@@ -43,7 +42,6 @@ class KUtils(val config: KConfiguration) {
     init {
         registerInjectionObject(conversationService)
         discord.addEventListener(EventRegister)
-        helpService = HelpService(container, config)
         documentationService = DocumentationService(container)
         registerListeners(ConversationListener(conversationService))
     }
@@ -76,7 +74,14 @@ class KUtils(val config: KConfiguration) {
 
     private fun registerCommands(): CommandsContainer {
         val localContainer = produceContainer(config.globalPath, diService)
-        CommandRecommender.addAll(localContainer.listCommands())
+
+        //Add KUtils help command if a command named "Help" is not already provided
+        val helpService = HelpService(container, config)
+        localContainer["Help"] ?: localContainer.join(helpService.produceHelpCommandContainer())
+
+        val commandList = localContainer.commands.map { it.value }
+
+        CommandRecommender.addAll(commandList)
 
         val executor = CommandExecutor()
         val listener = CommandListener(config, container, logger, discord, executor)
@@ -134,7 +139,7 @@ class KUtils(val config: KConfiguration) {
 }
 
 fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
-    val util = KUtils(KConfiguration(token))
+    val util = KUtils(KConfiguration(), token)
     util.operate()
     return util
 }

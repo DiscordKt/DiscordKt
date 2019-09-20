@@ -112,7 +112,9 @@ class Command(val name: String,
             if (it.optional) "(${it.type.name})" else it.type.name
         }.takeIf { it.isNotEmpty() } ?: "<none>"
 
-        return CommandData(name, expectedArgs, description.replace("|", "\\|"))
+        return CommandData(name.replace("|", "\\|"),
+            expectedArgs.replace("|", "\\|"),
+            description.replace("|", "\\|"))
     }
 }
 
@@ -149,7 +151,7 @@ data class CommandsContainer(var commands: HashMap<String, Command> = HashMap())
 
     fun has(name: String) = this.commands.containsKey(name)
 
-    operator fun get(name: String) = this.commands.get(name)
+    operator fun get(name: String) = this.commands.values.firstOrNull { it.name.toLowerCase() == name.toLowerCase() }
 }
 
 fun produceContainer(path: String, diService: DIService): CommandsContainer {

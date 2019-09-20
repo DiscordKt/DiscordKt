@@ -24,5 +24,5 @@ interface User {
     fun sendPrivateMessage(msg: MessageEmbed, log: BotLogger = DefaultLogger())
 }
 
-fun buildDiscordClient(configuration: KConfiguration): Discord = KJDA.build(configuration)
+fun buildDiscordClient(configuration: KConfiguration, token: String): Discord = KJDA.build(configuration, token)
 

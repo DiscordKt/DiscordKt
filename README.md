@@ -141,7 +141,7 @@ can see the fully exhaustive list below.
 
 ##### Available Arguments
 
- - **BooleanArg** - Accepts a boolean `true` or `false` (case insensitive)
+ - **BooleanArg** - Accepts a case (insensitive) boolean argument - `true` and `false` by default, but can be modified.
  - **CategoryArg** - Accepts Command categories
  - **CharArg** - Accepts a single character
  - **ChoiceArg** - Accepts true, or false. You can also provide it with a list of arguments to accept via the constructor,
@@ -158,7 +158,6 @@ can see the fully exhaustive list below.
  - **MemberArg** - Accepts a member ID or mention
  - **MessageArg** - Accepts a message ID
  - **MultipleArg** - Accepts multiple arguments of the same type
- - **OnOffArg** - Accepts `on` or `off` (case insensitive)
  - **RoleArg** - Accepts any given RoleID, useful for administrators. 
  - **SentenceArg** - Accepts multiple words worth of strings, e.g `!something a b c`, `a b c` would be a valid sentence arg.
    So would just `a`, though.
@@ -173,7 +172,6 @@ can see the fully exhaustive list below.
  - **UserArg** - Accepts any user ID or mention. 
  - **VoiceChannelArg** - Accepts any voice channel ID
  - **WordArg** - Accepts just a single word.
- - **YesNoArg** - Accepts `yes` or `no` (case insensitive)
 
 ##### Creating your own argument
 
@@ -495,7 +493,7 @@ Under the dependencies tag, add
 <dependency>
     <groupId>com.gitlab.aberrantfox</groupId>
     <artifactId>Kutils</artifactId>
-    <version>0.10.0</version>
+    <version>0.11.0</version>
 </dependency>
 ```
 
@@ -519,7 +517,7 @@ repositories {
 
 dependencies {
     //...
-    implementation "com.gitlab.aberrantfox:Kutils:0.10.0"
+    implementation "com.gitlab.aberrantfox:Kutils:0.11.0"
     //...
 }
 ```

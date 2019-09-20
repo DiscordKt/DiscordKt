@@ -1,24 +1,25 @@
 package me.aberrantfox.kjdautils.internal.command
 
+import me.aberrantfox.kjdautils.api.dsl.Command
 import org.apache.commons.text.similarity.LevenshteinDistance
 
 object CommandRecommender {
     private val calc = LevenshteinDistance()
-    private val possibilities: MutableList<String> = ArrayList()
+    private val possibilities: MutableList<Command> = ArrayList()
     private val smartAssComment = "to spam me like some kind of dummy"
 
     // only commands that satisfy the predicate will be considered for recommendation
-    fun recommendCommand(input: String, predicate: (String) -> Boolean = { true }): String {
+    fun recommendCommand(input: String, predicate: (Command) -> Boolean = { true }): String {
         val (reply, distance) = possibilities.filter(predicate)
-                .map { it to calc.apply(input, it) }
+                .map { it.name to calc.apply(input, it.name) }
                 .minBy { it.second } ?: return smartAssComment
 
         return if (distance > input.length / 2 + 2) smartAssComment else reply
     }
 
-    fun addPossibility(item: String) = possibilities.add(item)
+    fun addPossibility(item: Command) = possibilities.add(item)
 
-    fun addAll(list: List<String>) = possibilities.addAll(list)
+    fun addAll(list: List<Command>) = possibilities.addAll(list)
 
-    fun removePossibility(item: String) = possibilities.removeAll { it == item.toLowerCase() }
+    fun removePossibility(item: Command) = possibilities.removeAll { it == item }
 }

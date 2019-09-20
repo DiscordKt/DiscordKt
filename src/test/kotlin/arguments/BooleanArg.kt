@@ -10,13 +10,13 @@ import org.junit.jupiter.params.provider.MethodSource
 
 class BooleanArgTest {
     companion object {
+        private val modifiedArg = BooleanArg(name = "On or Off", truthValue = "On", falseValue = "Off")
+
         @JvmStatic
         fun arguments() = listOf(
             //Pass args
-            Arguments.of("T", true),
             Arguments.of("true", true),
             Arguments.of("True", true),
-            Arguments.of("F", false),
             Arguments.of("false", false),
             Arguments.of("False", false),
 
@@ -25,19 +25,43 @@ class BooleanArgTest {
             Arguments.of("12345", ArgumentResult.Error),
             Arguments.of("", ArgumentResult.Error)
         )
+
+        @JvmStatic
+        fun modifiedArguments() = listOf(
+            //Pass args
+            Arguments.of(modifiedArg.truthValue, true),
+            Arguments.of(modifiedArg.falseValue, false),
+
+            //Fail args
+            Arguments.of(modifiedArg.truthValue + modifiedArg.falseValue, ArgumentResult.Error)
+        )
     }
 
     @ParameterizedTest
     @MethodSource("arguments")
-    fun `Test BooleanArg conversion function`(arg: String, expected: Any) {
-        val argType = BooleanArg.attemptConvert(arg)
+    fun `Test standard BooleanArg conversion function`(arg: String, expected: Any) {
+        val result = BooleanArg.attemptConvert(arg)
 
-        if (argType is ArgumentResult.Error) {
+        if (result is ArgumentResult.Error) {
             Assertions.assertEquals(ArgumentResult.Error, expected)
             return
         }
 
-        val convertedValue = (argType as ArgumentResult.Single).result
+        val convertedValue = (result as ArgumentResult.Single).result
+        Assertions.assertEquals(convertedValue, expected)
+    }
+
+    @ParameterizedTest
+    @MethodSource("modifiedArguments")
+    fun `Test modified BooleanArg conversion function`(arg: String, expected: Any) {
+        val result = modifiedArg.attemptConvert(arg)
+
+        if (result is ArgumentResult.Error) {
+            Assertions.assertEquals(ArgumentResult.Error, expected)
+            return
+        }
+
+        val convertedValue = (result as ArgumentResult.Single).result
         Assertions.assertEquals(convertedValue, expected)
     }
 }
