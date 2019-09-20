@@ -18,23 +18,6 @@ purposes/cleaner code.
 6. Creating and using a Service
 7. Creating and using auto-injected data objects
 
-#### Starting up the bot and basic configuration
-
-##### Starting up
-The start up procedure for KUtils is very simple, you just need to provide the token in order to get going. This is the 
-minimal startup code required: 
-
-```kotlin
-fun main(args: Array<String>) {
-    val token = "a-real-bot-token-no-really"
-    startBot(token) {
-        //the bot is now started and running
-    }
-}
-```
-
-Of course, you can't do much with it just yet. You need to configure it just a little bit before it will be of much use.
-
 #### Creating commands
 
 ##### Basics
