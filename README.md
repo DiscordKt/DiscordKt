@@ -18,7 +18,6 @@ purposes/cleaner code.
 6. Creating and using a Service
 7. Creating and using auto-injected data objects
 
-
 #### Starting up the bot and basic configuration
 
 ##### Starting up
@@ -35,44 +34,6 @@ fun main(args: Array<String>) {
 ```
 
 Of course, you can't do much with it just yet. You need to configure it just a little bit before it will be of much use.
-
-##### Configuration
-
-When inside the `startBot` block, there is a `configure` block, in which you can set the `prefix`, which is used to 
-invoke commands, and the `globalPath`. 
-
-###### Prefix
-The prefix is pretty self-explanatory, consider the below usage of a command:
-`!Ban Tim Being a bad user.`
-
-In this case, the prefix is `!`. You can freely set this to any string of any length. The bot also comes equipped with
-several kinds of prefix behaviour. These are configurable by setting `deleteMode`. This is an enum which can have three 
-values:
- - Single - invoking commands with a single `!` will cause the command message to be deleted, but invoking with `!!` 
-   (the prefix repeated twice) will result in the message staying. 
- - Double - The inverse of Single
- - None - Neither double or single prefixing will delete the message.
-
-###### GlobalPath
-The `globalPath` variable is just a stirrup for the rest of the framework, it uses this to quickly read out and create
-all of your services, commands, etc. You should set it to the root package of your project.  E.g. if you have the 
-following folder structure:
-
-```
--- me.bob.mycoolbot
-   -- commands
-      -- AdminCommands.kt
-      -- ModeratorCommands.kt
-      -- UtilityCommands.kt
-   -- listeners
-      -- SpamListener.kt
-   -- conversations
-      -- SetupConversation.kt
--- Main
-```
-
-The `root` as mentioned earlier in *this* example is `me.bob.mycoolbot`, as it is the highest directory containing all
-the code.
 
 #### Creating commands
 
