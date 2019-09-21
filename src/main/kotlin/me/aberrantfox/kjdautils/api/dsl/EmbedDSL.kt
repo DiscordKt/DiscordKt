@@ -8,7 +8,7 @@ import java.time.temporal.TemporalAccessor
 private typealias EmbedField = MessageEmbed.Field
 
 class EmbedDSLHandle {
-    private var mutableFields : MutableList<EmbedField> = mutableListOf()
+    private val mutableFields : MutableList<EmbedField> = mutableListOf()
     private var author: MessageEmbed.AuthorInfo? = null
     private var footer: MessageEmbed.Footer? = null
 
@@ -42,8 +42,8 @@ class EmbedDSLHandle {
     fun addInlineField(name: String?, value: String?) = addField(EmbedField(name, value, true))
     fun addBlankField(inline: Boolean) = addField(EmbedField("", "", inline))
 
-    fun build() =
-        EmbedBuilder().apply {
+    fun build(): MessageEmbed {
+        val embedBuilder = EmbedBuilder().apply {
             fields.addAll(mutableFields)
             setTitle(title)
             setDescription(description)
@@ -53,7 +53,12 @@ class EmbedDSLHandle {
             setTimestamp(timeStamp)
             setAuthor(author?.name, author?.url, author?.iconUrl)
             setFooter(footer?.text, footer?.iconUrl)
-        }.build()
+        }
+
+        require(!embedBuilder.isEmpty) { "Cannot build an empty embed." }
+
+        return embedBuilder.build()
+    }
 }
 
 data class FieldBuilder(var name: String? = "", var value: String? = "", var inline: Boolean = false) {
