@@ -61,6 +61,23 @@ class MessageLogger(val myConfig: MyCustomBotConfiguration) {
 
 @CommandSet("Utility")
 fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService) = commands {
+    command("DisplayMenu") {
+        description = "Display an example menu."
+        execute {
+            it.respond(
+                menu {
+                    embed {
+                        title = "Page 1"
+                    }
+
+                    embed {
+                        title = "Page 2"
+                    }
+                }
+            )
+        }
+    }
+
     command("DisplayEmbed") {
         description = "Display an example embed."
         execute {
