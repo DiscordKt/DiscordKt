@@ -18,65 +18,6 @@ purposes/cleaner code.
 6. Creating and using a Service
 7. Creating and using auto-injected data objects
 
-#### Creating commands
-
-##### Basics
-The command framework in KUtils is quite complex, but it provides a hell of a lot of free functionality for very little 
-code, so it is strongly recommend to learn how to use it as it will save you a lot of time in the future.
-
-The way you register commands with KUtils is by using the `@CommandSet` annotation. This annotation has one property, 
-`category`, which is a string. Here is an example command set. 
-
-```kotlin
-@CommandSet("utility-commands")
-fun createTheUtilityCommandSet() = commands {
-    command("ping") {
-        description = "Responds with pong!"
-        execute {
-            it.respond("pong!")
-        }
-    }
-}
-```
-
-Here, the `category` was set to `utility-commands`. This means that if you use !help utility-commands, you will be 
-presented with a list of commands in that category. In this case, just `ping`. If you use !help ping, you will receive
-a lot of information about the ping command. You will see that this command takes no arguments, and you will also 
-be provided with the description, as well as an example of someone using the command. Try it out for yourself!
-
-##### Commands with Arguments 
-
-Sometimes you need to define a command that will have extra information provided with it, like for example, a ban command.
-You can do that with KUtils, it will allow you to create commands that take as many arguments in many different ways,
-and it will do all of the checks for you. For example, let's take a look at a simple `add` command, this will take 
-2 double values, and then respond with the result.
-
-```kotlin
-@CommandSet("demo")
-fun addCommand() = commands {
-    command("add") {
-        description = "I will return the result of adding the two provided numbers."
-        expect(DoubleArg, DoubleArg)
-        execute {
-            val first = it.args.component1() as Double
-            val second = it.args.component2() as Double
-            
-            it.respond("${first + second} is the result")
-        }
-    }
-}
-```
-
-Some things to note: 
- - The `expect` function said that this command expects a `DoubleArg` and then another `DoubleArg`. No additional 
-   information, like if the argument is optional or not, was provided, so the command assumes it is required.
- - The execute function accesses the `args` array and then casts the values at the first and second indexes to Double.
-   You can safely do this because the library will not allow any values in that don't pass the checks provided by 
-   `DoubleArg`
- - The result is then responded to the user as normal.
- - The help function will be able to generate example usage of this command despite requiring more arguments. Try 
-   if for yourself. :) 
-   
 ##### Additional command options
 
 There are some more tricks to commands that will help you achieve the kind of functionality you want. For example,
