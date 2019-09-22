@@ -1,14 +1,14 @@
 package me.aberrantfox.kjdautils.api.dsl
 
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color
 import java.time.temporal.TemporalAccessor
 
 private typealias EmbedField = MessageEmbed.Field
 
 class EmbedDSLHandle {
-    private var mutableFields : MutableList<EmbedField> = mutableListOf()
+    private val mutableFields : MutableList<EmbedField> = mutableListOf()
     private var author: MessageEmbed.AuthorInfo? = null
     private var footer: MessageEmbed.Footer? = null
 
@@ -42,8 +42,8 @@ class EmbedDSLHandle {
     fun addInlineField(name: String?, value: String?) = addField(EmbedField(name, value, true))
     fun addBlankField(inline: Boolean) = addField(EmbedField("", "", inline))
 
-    fun build() =
-        EmbedBuilder().apply {
+    fun build(): MessageEmbed {
+        val embedBuilder = EmbedBuilder().apply {
             fields.addAll(mutableFields)
             setTitle(title)
             setDescription(description)
@@ -53,7 +53,12 @@ class EmbedDSLHandle {
             setTimestamp(timeStamp)
             setAuthor(author?.name, author?.url, author?.iconUrl)
             setFooter(footer?.text, footer?.iconUrl)
-        }.build()
+        }
+
+        require(!embedBuilder.isEmpty) { "Cannot build an empty embed." }
+
+        return embedBuilder.build()
+    }
 }
 
 data class FieldBuilder(var name: String? = "", var value: String? = "", var inline: Boolean = false) {
@@ -73,3 +78,16 @@ fun embed(construct: EmbedDSLHandle.() -> Unit): MessageEmbed {
     handle.construct()
     return handle.build()
 }
+
+fun MessageEmbed.toEmbedBuilder() =
+    EmbedBuilder().apply {
+        setTitle(title)
+        setDescription(description)
+        setFooter(footer?.text, footer?.iconUrl)
+        setThumbnail(thumbnail?.url)
+        setTimestamp(timestamp)
+        setImage(image?.url)
+        setColor(colorRaw)
+        setAuthor(author?.name)
+        fields.addAll(this@toEmbedBuilder.fields)
+    }
