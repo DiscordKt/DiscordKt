@@ -27,6 +27,7 @@
 | Add              | Integer, Integer   | Add two numbers together                                 |
 | ConversationTest | <none>             | Test the implementation of the ConversationDSL           |
 | DisplayEmbed     | <none>             | Display an example embed.                                |
+| DisplayMenu      | <none>             | Display an example menu.                                 |
 | Echo             | Text               | No Description Provider                                  |
 | GuildOwner       | <none>             | Provide info about the guild you executed the command in |
 | GuildSize        | <none>             | Display how many members are in a guild                  |
