@@ -16,14 +16,7 @@ class DIService {
 
     fun addElement(element: Any) = elementMap.put(element::class.java, element)
 
-    private val nullReturnException = IllegalArgumentException(
-            "A commands container, conversation, or precondition function hasn't returned properly.\n" +
-                    "Check that your '@CommandSet', '@Precondition', or '@Convo' functions properly return the 'commands { ... }', 'precondition { ... }', or 'conversation { ... }' calls.\n" +
-                    "e.g. Make sure that the '=' is used in '@CommandSet fun commandSet(...) = commands { ... }'\n" +
-                    " or '@Precondition fun preconditionFunc() = precondition { ... }'\n" +
-                    " or '@Convo fun testConversation(...) = conversation { ... }'"
-    )
-    fun getElement(serviceClass: Class<*>) = elementMap.get(serviceClass)
+    fun getElement(serviceClass: Class<*>) = elementMap[serviceClass]
 
     fun invokeReturningMethod(method: Method): Any {
         val arguments: Array<out Class<*>> = method.parameterTypes
@@ -62,9 +55,19 @@ class DIService {
             return
         }
 
-        if (failed.size == last) {
-            throw IllegalStateException("Attempted to reflectively build up dependencies, however an infinite loop was detected." +
-                    " Are all dependencies properly marked and available?")
+        val sortedFailedDependencies = failed
+                .sortedBy { it.constructors.first().parameterCount }
+                .map { Pair(it.simpleName,it.constructors.first().parameterCount)  }
+
+        val failedDependencies = sortedFailedDependencies
+                .groupBy({ it.second }) { it.first }
+                .entries.joinToString("\n") { "Dependencies with ${it.key} parameters: ${it.value.joinToString(", ")}" }
+
+        check(failed.size != last) {
+            "Attempted to reflectively build up dependencies, however an infinite loop was detected." +
+            " Are all dependencies properly marked and available? You can see a list of failed dependencies" +
+            "here sorted by how many parameters their constructors have. Double check ones with the lowest params first" +
+            "that is where the error is.:\n$failedDependencies"
         }
 
         invokeDestructiveList(failed, failed.size)
@@ -105,8 +108,7 @@ class DIService {
     fun saveObject(obj: Any) {
         val clazz = obj::class.java
 
-        if (!(elementMap.containsKey(clazz)))
-            throw IllegalArgumentException("You may only pass @Data annotated objects to PersistenceService#save")
+        require((elementMap.containsKey(clazz))) { "You may only pass @Data annotated objects to PersistenceService#save" }
 
         val annotation = clazz.getAnnotation(Data::class.java) ?: return
 
@@ -123,6 +125,14 @@ class DIService {
                         ?.value
                         ?: throw IllegalStateException("Couldn't inject $arg from registered objects")
             }.toTypedArray()
+
+    private val nullReturnException = IllegalArgumentException(
+            "A commands container, conversation, or precondition function hasn't returned properly.\n" +
+                    "Check that your '@CommandSet', '@Precondition', or '@Convo' functions properly return the 'commands { ... }', 'precondition { ... }', or 'conversation { ... }' calls.\n" +
+                    "e.g. Make sure that the '=' is used in '@CommandSet fun commandSet(...) = commands { ... }'\n" +
+                    " or '@Precondition fun preconditionFunc() = precondition { ... }'\n" +
+                    " or '@Convo fun testConversation(...) = conversation { ... }'"
+    )
 }
 
 class PersistenceService(private val diService: DIService) {
