@@ -1,7 +1,7 @@
 package me.aberrantfox.kjdautils.api.dsl
 
 import net.dv8tion.jda.api.EmbedBuilder
-import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color
 import java.time.temporal.TemporalAccessor
 
@@ -78,3 +78,16 @@ fun embed(construct: EmbedDSLHandle.() -> Unit): MessageEmbed {
     handle.construct()
     return handle.build()
 }
+
+fun MessageEmbed.toEmbedBuilder() =
+    EmbedBuilder().apply {
+        setTitle(title)
+        setDescription(description)
+        setFooter(footer?.text, footer?.iconUrl)
+        setThumbnail(thumbnail?.url)
+        setTimestamp(timestamp)
+        setImage(image?.url)
+        setColor(colorRaw)
+        setAuthor(author?.name)
+        fields.addAll(this@toEmbedBuilder.fields)
+    }

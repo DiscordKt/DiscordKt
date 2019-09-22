@@ -2,18 +2,17 @@ package me.aberrantfox.kjdautils.examples
 
 
 import com.google.common.eventbus.Subscribe
-import me.aberrantfox.kjdautils.api.annotation.Data
-import me.aberrantfox.kjdautils.api.annotation.Service
+import me.aberrantfox.kjdautils.api.annotation.*
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.extensions.jda.fullName
-import me.aberrantfox.kjdautils.internal.arguments.IntegerArg
-import me.aberrantfox.kjdautils.internal.arguments.SentenceArg
-import me.aberrantfox.kjdautils.internal.command.Fail
-import me.aberrantfox.kjdautils.internal.command.Pass
+import me.aberrantfox.kjdautils.internal.arguments.*
+import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.di.PersistenceService
 import me.aberrantfox.kjdautils.internal.services.ConversationService
+import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import java.awt.Color
 
 data class MyCustomBotConfiguration(val version: String, val token: String)
 
@@ -72,6 +71,11 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
 
                     embed {
                         title = "Page 2"
+                    }
+
+                    reaction("\uD83C\uDF08") { currentEmbed: EmbedBuilder ->
+                        val randomColor = Color((0..255).random(), (0..255).random(), (0..255).random())
+                        currentEmbed.setColor(randomColor)
                     }
                 }
             )

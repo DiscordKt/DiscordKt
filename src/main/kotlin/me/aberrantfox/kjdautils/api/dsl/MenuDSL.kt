@@ -1,15 +1,18 @@
 package me.aberrantfox.kjdautils.api.dsl
 
+import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
 import net.dv8tion.jda.api.hooks.EventListener
 
-private const val leftArrow = "⬅"
-private const val rightArrow = "➡"
+typealias ReactionAction = (currentEmbed: EmbedBuilder) -> Unit
 
 class MenuDSLHandle {
     private var embeds: MutableList<MessageEmbed> = mutableListOf()
+    private var reactions: HashMap<String, ReactionAction> = hashMapOf()
+    var leftReact: String = "⬅"
+    var rightReact: String = "➡"
 
     fun embed(construct: EmbedDSLHandle.() -> Unit) {
         val handle = EmbedDSLHandle()
@@ -17,10 +20,17 @@ class MenuDSLHandle {
         embeds.add(handle.build())
     }
 
-    fun build() = Menu(embeds)
+    fun reaction(reaction: String, action: ReactionAction) {
+        reactions[reaction] = action
+    }
+
+    fun build() = Menu(embeds, leftReact, rightReact, reactions)
 }
 
-class Menu(val embeds: MutableList<MessageEmbed>)
+data class Menu(val embeds: MutableList<MessageEmbed>,
+                val leftReact: String,
+                val rightReact: String,
+                val customReactions: HashMap<String, ReactionAction>)
 
 fun menu(construct: MenuDSLHandle.() -> Unit): Menu {
     val handle = MenuDSLHandle()
@@ -33,14 +43,19 @@ fun CommandEvent.respond(menu: Menu) {
 
     val firstPage = menu.embeds.first()
 
-    channel.sendMessage(firstPage).queue {
-        it.addReaction(leftArrow).queue()
-        it.addReaction(rightArrow).queue()
-        discord.jda.addEventListener(ReactionListener(it, menu))
+    channel.sendMessage(firstPage).queue { message ->
+        message.addReaction(menu.leftReact).queue()
+        message.addReaction(menu.rightReact).queue()
+
+        menu.customReactions.keys.forEach {
+            message.addReaction(it).queue()
+        }
+
+        discord.jda.addEventListener(ReactionListener(message, menu))
     }
 }
 
-class ReactionListener(message: Message, private val menu: Menu): EventListener {
+private class ReactionListener(message: Message, private val menu: Menu): EventListener {
     private var index = 0
     private val messageId = message.id
 
@@ -48,33 +63,38 @@ class ReactionListener(message: Message, private val menu: Menu): EventListener 
         if (event !is GuildMessageReactionAddEvent)
             return
 
-        if (event.member.user == event.jda.selfUser)
-            return
+        if (event.member.user.isBot) return
+        if (event.messageId != messageId) return
 
-        if (event.messageId != messageId)
-            return
+        event.reaction.removeReaction(event.member.user).queue()
 
-        val reaction = event.reaction
-        val reactionString = reaction.reactionEmote.emoji
+        val reactionString = event.reaction.reactionEmote.emoji
 
-        reaction.removeReaction(event.member.user).queue()
+        fun editEmbed() = event.channel.editMessageById(event.messageId, menu.embeds[index]).queue()
 
-        fun editEmbed() {
-            event.channel.editMessageById(event.messageId, menu.embeds[index]).queue()
-        }
+        when (reactionString) {
+            menu.leftReact -> {
+                if (index != 0) {
+                    index--
+                    editEmbed()
+                    return
+                }
+            }
 
-        if (reactionString == leftArrow) {
-            if (index != 0) {
-                index--
-                editEmbed()
+            menu.rightReact -> {
+                if (index != menu.embeds.lastIndex) {
+                    index++
+                    editEmbed()
+                    return
+                }
             }
         }
 
-        if (reactionString == rightArrow) {
-            if (index != menu.embeds.lastIndex) {
-                index++
-                editEmbed()
-            }
-        }
+        val action = menu.customReactions[reactionString] ?: return
+        val exposedBuilder = menu.embeds[index].toEmbedBuilder()
+
+        action.invoke(exposedBuilder)
+        menu.embeds[index] = exposedBuilder.build()
+        editEmbed()
     }
 }
