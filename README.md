@@ -18,39 +18,6 @@ purposes/cleaner code.
 6. Creating and using a Service
 7. Creating and using auto-injected data objects
 
-##### Additional command options
-
-There are some more tricks to commands that will help you achieve the kind of functionality you want. For example,
-you can set it such that a command requires being invoked in a guild by setting `requiresGuild` to true on the `command`
-block. 
-
-You also have the option to add generic checks prior to all command invocations. If you wanted to build your own permission
-system, you would need this. 
-
-##### Making arguments optional
-
-As a final note on command arguments, you can also making them optional like so:
-
-
-```kotlin
-@CommandSet("sample")
-fun optionalArgExample() = commands {
-    command("add") {
-        description = "Add two numbers together"
-        expect(arg(IntegerArg, false), arg(IntegerArg, true, 1))
-        execute {
-            val first = it.args.component1() as Int
-            val second = it.args.component2() as Int
-            
-            it.respond("${first + second}")
-        }
-    }
-}
-```
-
-You can see the second argument in our `add` command here is now optional (as seen by the `true` value in the `arg` method),
-and it sets the default value to `1`. This means that this command can have 1 or 2 arguments instead of just 2.
-
 #### Creating and using conversations
 
 Sometimes you need commands which are many times more robust than what the current system offers. CommandArguments 
