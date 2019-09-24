@@ -181,23 +181,6 @@ You'll notice a few things:
  - Conversations are invoked by name. This means that the name you set on the conversation declaration is important.
   You may want to set it as a `const val` on an `object` so that you don't forget it or mistype it.
 
-#### Creating and using auto-injected data objects
-
-As a final utility, there is a nice method for getting data objects into your services. Remember our `DatabaseManager`?
-Say you want to pass a `DatabaseConfig` into it, how do you do that? Simple, the `@Data` annotation. 
-
-This will allow you manage a config (or any other data, like a messages.json). The way this works is you specify 
-the `path` in the `@Data` annotation, if there is a `.json` file at the path, then it will read that file, deserialize 
-it into an instance of the object that you annotated and make it available for injection. Consider the following:
-
-```kotlin
-@Data("config.json")
-class BotConfiguration(val prefix: String = "!", val ownerID: String = "my-id-here")
-```
-
-As you can see, there are default values provided. If the file does not exist, the no-arg constructor will be used to 
-create and write the file the first time. 
-
 #### Add to your project with Maven
 Under the dependencies tag, add
 
