@@ -4,52 +4,36 @@
   </a>
 </p>
 
-##### Purpose
-The purpose of this is to provide a nice kotlin wrapper over JDA and to add a bunch of extension functions for utility 
-purposes/cleaner code.
+The documentation for this project is located on the [GitLab Wiki](https://gitlab.com/Aberrantfox/KUtils/wikis/home).
 
-#### Index
-
-1. Starting up the bot and basic configuration
-2. Creating commands
-3. Command arguments
-4. Listening to events
-5. Creating and using conversations
-6. Creating and using a Service
-7. Creating and using auto-injected data objects
-
-#### Add to your project with Maven
-Under the dependencies tag, add
-
+#### Add with Maven
 ```xml
-<dependency>
-    <groupId>com.gitlab.aberrantfox</groupId>
-    <artifactId>Kutils</artifactId>
-    <version>0.10.1</version>
-</dependency>
+<project>
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+    
+    <dependencies>
+        <dependency>
+            <groupId>com.gitlab.aberrantfox</groupId>
+            <artifactId>KUtils</artifactId>
+            <version>0.11.1</version>
+        </dependency>
+    </dependencies>
+</project>
 ```
 
-Under the repositories tag, add
-
-```xml
-<repository>
-    <id>jitpack.io</id>
-    <url>https://jitpack.io</url>
-</repository>
-```
-
-#### Add to your project with Gradle
+#### Add with Gradle
 ```groovy
 repositories {
-    //...
     maven { url 'https://jitpack.io' }
     jcenter()
-    //...
 }
 
 dependencies {
-    //...
-    implementation "com.gitlab.aberrantfox:Kutils:0.10.1"
-    //...
+    implementation "com.gitlab.aberrantfox:KUtils:0.11.1"
 }
 ```
