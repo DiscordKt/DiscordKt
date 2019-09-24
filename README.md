@@ -27,24 +27,6 @@ block.
 You also have the option to add generic checks prior to all command invocations. If you wanted to build your own permission
 system, you would need this. 
 
-
-```kotlin
-@Precondition
-fun nameBeginsWithF() = precondition {
-    if(it.author.name.toLowerCase().startsWith("f")) {
-        return@precondition Pass
-    } else {
-        return@precondition Fail("Your name must start with F!")
-    }
-}
-```
-
-Above, you can see a simple usage of preconditions. You can see that it checks if the CommandEvent Author's name starts 
-with an F. If it does, they can use the commands (any command, this check runs before them all). If not, they will 
-get the error message. You can easily use this to make it so that only people with your UserID are able to use the commands.
-You could also make it so that only IDs within a file or database table can use commands using preconditions.
-
-
 ##### Making arguments optional
 
 As a final note on command arguments, you can also making them optional like so:
