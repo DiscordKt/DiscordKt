@@ -181,56 +181,6 @@ You'll notice a few things:
  - Conversations are invoked by name. This means that the name you set on the conversation declaration is important.
   You may want to set it as a `const val` on an `object` so that you don't forget it or mistype it.
 
-
-#### Creating and using a Service   
-
-##### Overview
-
-Services in KUtils are very useful for allowing you to pass around things you may need for building functionality. 
-Say you build a `DatabaseManager`. You can imagine that this is some object which connects to your database for 
-performing CRUD operations. Maybe you need it for a !warn command. That being the case, how do you allow the !warn
-command to access it? Quite simple, let's take a look
-
-```kotlin
-//in any DatabaseManager.kt
-@Service
-class DatabaseManager {
-    //...
-}
-
-//in Moderatorcommands.kt
-
-@CommandSet("moderation")
-fun createModeratorCommands(dbManager: DatabaseManager) = commands {
-    command("warn") {
-        //dbManager is fully accessible here or in any other command in this function
-    }
-}
-```
-
-As you can see, simply be decorating the class with `@Service` and then accepting an instance of a `DatabaseManager` as 
-a parameter, it will be automatically passed into the right place. 
-
-##### Services which depend on services
-
-If you have a service that depends on another service, that's no problem. KUtils will figure out what depends on what
-and invoke things the right way. This example works:
-
-```kotlin
-@Service
-class A
-
-@Service
-class B(val a: A)
-
-@Service
-class C(val a: A, val b: B)
-```
-
-In this case it will figure out that A must be invoked first, then B, then C, and so on.
-
-Do note: **Services can be passed into preconditions, other services, conversations and commands**
-
 #### Creating and using auto-injected data objects
 
 As a final utility, there is a nice method for getting data objects into your services. Remember our `DatabaseManager`?
