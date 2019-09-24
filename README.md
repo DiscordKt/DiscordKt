@@ -51,28 +51,6 @@ fun optionalArgExample() = commands {
 You can see the second argument in our `add` command here is now optional (as seen by the `true` value in the `arg` method),
 and it sets the default value to `1`. This means that this command can have 1 or 2 arguments instead of just 2.
 
-#### Listening to events
-
-Listening to discord events basically couldn't be any easier. KUtils drops and removes the old ListenerAdapter method 
-and instead presents the Guava EventBus as a means to hook into events. This is done using the `@Subscribe` annotation.
-
-Simply annotate *any* method in *any* class that accepts the event you want to listen to. It is recommend to put listeners
-in their own package to keep things clean. You can see an example here:
-
-```kotlin
-class MessageLogger {
-    @Subscribe
-    fun onMessage(event: GuildMessageReceivedEvent) {
-        println("ExampleBot :: V${myConfig.version} :: ${event.message.contentRaw}")
-    }
-}
-```
-
-You can see that this class has a function which is subscribed to the GuildMessageReceivedEvent, you can see a full list
-of events directly [here](https://github.com/DV8FromTheWorld/JDA/wiki/8%29-List-of-Events), you may subscribe to all of
-these as you wish. 
-
-
 #### Creating and using conversations
 
 Sometimes you need commands which are many times more robust than what the current system offers. CommandArguments 
