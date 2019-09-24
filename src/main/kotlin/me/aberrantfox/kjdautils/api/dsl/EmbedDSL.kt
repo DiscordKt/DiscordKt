@@ -3,60 +3,91 @@ package me.aberrantfox.kjdautils.api.dsl
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color
+import java.time.temporal.TemporalAccessor
 
-private const val deprecationMessage = "Use property access. EOL 0.11.x"
+private typealias EmbedField = MessageEmbed.Field
 
 class EmbedDSLHandle {
+    private val mutableFields : MutableList<EmbedField> = mutableListOf()
+    private var author: MessageEmbed.AuthorInfo? = null
+    private var footer: MessageEmbed.Footer? = null
+
     var title : String? = null
     var description : String? = null
     var color : Color? = null
     var thumbnail : String? = null
-    var fields : MutableList<FieldStore> = mutableListOf()
+    var image: String? = null
+    var timeStamp: TemporalAccessor? = null
 
-    operator fun invoke(args: EmbedDSLHandle.() -> Unit) {}
-
-    @Deprecated(deprecationMessage, ReplaceWith("apply { this.title = t }"), DeprecationLevel.WARNING)
-    fun setTitle(t: String?) : EmbedDSLHandle = apply { this.title = t }
-
-    @Deprecated(deprecationMessage, ReplaceWith("apply { this.description = d }"), DeprecationLevel.WARNING)
-    fun setDescription(d: String?) : EmbedDSLHandle = apply { this.description = d }
-
-    @Deprecated(deprecationMessage, ReplaceWith("apply { this.color = c }"), DeprecationLevel.WARNING)
-    fun setColor(c: Color) : EmbedDSLHandle = apply { this.color = c }
-
-    @Deprecated(deprecationMessage, ReplaceWith("apply { this.thumbnail = t }"), DeprecationLevel.WARNING)
-    fun setThumbnail(t: String?) : EmbedDSLHandle = apply { this.thumbnail = t }
-
-    fun field(construct: FieldStore.() -> Unit) {
-        val field = FieldStore()
-        field.construct()
-        fields.add(field)
+    fun author(construct: AuthorBuilder.() -> Unit) {
+        val authorBuilder = AuthorBuilder()
+        authorBuilder.construct()
+        author = authorBuilder.build()
     }
 
-    fun ifield(construct: FieldStore.() -> Unit) {
-        val field = FieldStore()
-        field.construct()
-        fields.add(field)
+    fun field(construct: FieldBuilder.() -> Unit) {
+        val fieldBuilder = FieldBuilder()
+        fieldBuilder.construct()
+        mutableFields.add(fieldBuilder.build())
     }
 
-    fun addField(name: String?, value: String?, inline: Boolean = false) = fields.add(FieldStore(name, value, inline))
-    fun addInlineField(name: String?, value: String?) = fields.add(FieldStore(name, value, true))
-    fun addBlankField(inline: Boolean) = fields.add(FieldStore("", "", inline))
+    fun footer(construct: FooterBuilder.() -> Unit) {
+        val footerBuilder = FooterBuilder()
+        footerBuilder.construct()
+        footer = footerBuilder.build()
+    }
 
-    fun build() =
-        EmbedBuilder().apply {
+    fun addField(field: EmbedField) = mutableFields.add(field)
+    fun addField(name: String?, value: String?, inline: Boolean = false) = addField(EmbedField(name, value, inline))
+    fun addInlineField(name: String?, value: String?) = addField(EmbedField(name, value, true))
+    fun addBlankField(inline: Boolean) = addField(EmbedField("", "", inline))
+
+    fun build(): MessageEmbed {
+        val embedBuilder = EmbedBuilder().apply {
+            fields.addAll(mutableFields)
             setTitle(title)
             setDescription(description)
             setColor(color)
             setThumbnail(thumbnail)
-            this@EmbedDSLHandle.fields.forEach { addField(it.name, it.value, it.inline) }
-        }.build()
-    }
+            setImage(image)
+            setTimestamp(timeStamp)
+            setAuthor(author?.name, author?.url, author?.iconUrl)
+            setFooter(footer?.text, footer?.iconUrl)
+        }
 
-data class FieldStore(var name: String? = "", var value: String? = "", var inline: Boolean = false)
+        require(!embedBuilder.isEmpty) { "Cannot build an empty embed." }
+
+        return embedBuilder.build()
+    }
+}
+
+data class FieldBuilder(var name: String? = "", var value: String? = "", var inline: Boolean = false) {
+    fun build() = EmbedField(name, value, inline)
+}
+
+data class AuthorBuilder(var name: String? = "", var url: String? = null, var iconUrl: String? = null) {
+    fun build() = MessageEmbed.AuthorInfo(name, url, iconUrl, null)
+}
+
+data class FooterBuilder(var text: String? = "", var iconUrl: String? = null) {
+    fun build() = MessageEmbed.Footer(text, iconUrl, null)
+}
 
 fun embed(construct: EmbedDSLHandle.() -> Unit): MessageEmbed {
     val handle = EmbedDSLHandle()
     handle.construct()
     return handle.build()
 }
+
+fun MessageEmbed.toEmbedBuilder() =
+    EmbedBuilder().apply {
+        setTitle(title)
+        setDescription(description)
+        setFooter(footer?.text, footer?.iconUrl)
+        setThumbnail(thumbnail?.url)
+        setTimestamp(timestamp)
+        setImage(image?.url)
+        setColor(colorRaw)
+        setAuthor(author?.name)
+        fields.addAll(this@toEmbedBuilder.fields)
+    }

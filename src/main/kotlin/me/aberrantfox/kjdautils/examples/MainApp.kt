@@ -2,17 +2,17 @@ package me.aberrantfox.kjdautils.examples
 
 
 import com.google.common.eventbus.Subscribe
-import me.aberrantfox.kjdautils.api.annotation.Data
-import me.aberrantfox.kjdautils.api.annotation.Service
+import me.aberrantfox.kjdautils.api.annotation.*
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.api.startBot
-import me.aberrantfox.kjdautils.internal.arguments.IntegerArg
-import me.aberrantfox.kjdautils.internal.arguments.SentenceArg
-import me.aberrantfox.kjdautils.internal.command.Fail
-import me.aberrantfox.kjdautils.internal.command.Pass
+import me.aberrantfox.kjdautils.extensions.jda.fullName
+import me.aberrantfox.kjdautils.internal.arguments.*
+import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.di.PersistenceService
 import me.aberrantfox.kjdautils.internal.services.ConversationService
+import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import java.awt.Color
 
 data class MyCustomBotConfiguration(val version: String, val token: String)
 
@@ -60,8 +60,57 @@ class MessageLogger(val myConfig: MyCustomBotConfiguration) {
 
 @CommandSet("Utility")
 fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService) = commands {
+    command("DisplayMenu") {
+        description = "Display an example menu."
+        execute {
+            it.respond(
+                menu {
+                    embed {
+                        title = "Page 1"
+                    }
+
+                    embed {
+                        title = "Page 2"
+                    }
+
+                    reaction("\uD83C\uDF08") { currentEmbed: EmbedBuilder ->
+                        val randomColor = Color((0..255).random(), (0..255).random(), (0..255).random())
+                        currentEmbed.setColor(randomColor)
+                    }
+                }
+            )
+        }
+    }
+
+    command("DisplayEmbed") {
+        description = "Display an example embed."
+        execute {
+            it.respond(
+                embed {
+                    title = "This is the title."
+                    description = "This is the description."
+
+                    author {
+                        name = it.author.fullName()
+                        iconUrl = it.author.effectiveAvatarUrl
+                    }
+
+                    field {
+                        name = "This is a field."
+                        value = "Fields can have titles and descriptions."
+                    }
+
+                    footer {
+                        iconUrl = it.discord.jda.selfUser.effectiveAvatarUrl
+                        text = "This is some footer text."
+                    }
+                }
+            )
+        }
+    }
+
     command("Version") {
-        description = "A command which will show the verison."
+        description = "A command which will show the version."
         execute {
             it.respond(myConfig.version)
             log.log("Version logged!")
@@ -142,11 +191,11 @@ fun defineOther(log: MyCustomLogger) = commands {
 }
 
 @Precondition
-fun nameBeginsWithF() = precondition {
-    if(it.author.name.toLowerCase().startsWith("f")) {
+fun nameBeginsWithLetter() = precondition {
+    if(it.author.name.toLowerCase().first() in 'a'..'z') {
         return@precondition Pass
     } else {
-        return@precondition Fail("Your name must start with F!")
+        return@precondition Fail("Your name must start with a letter!")
     }
 }
 
