@@ -34,20 +34,6 @@ fun main(args: Array<String>) {
             globalPath = "me.aberrantfox.kjdautils.examples"
             documentationSortOrder = listOf("Data", "ServicesDemo", "Misc", "Utility")
         }
-
-        registerCommandPreconditions({
-            if (it.channel.name != "ignored") {
-                Pass
-            } else {
-                Fail()
-            }
-        }, {
-            if (it.author.discriminator == "3693") {
-                Fail("Ignoring users with your discriminator.")
-            } else {
-                Pass
-            }
-        })
     }
 }
 
@@ -216,13 +202,6 @@ fun userWithID() = precondition {
         Pass
     }
 }
-
-@Precondition(priority = 2)
-fun guildPrecondition() = precondition {
-    if (it.guild != null) return@precondition Pass
-    else return@precondition Fail("Must be in a guild")
-}
-
 
 @Service
 class NoDependencies

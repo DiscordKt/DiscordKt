@@ -1,6 +1,5 @@
 package me.aberrantfox.kjdautils.internal.listeners
 
-
 import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
@@ -16,10 +15,7 @@ import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
 import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.command.CommandExecutor
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.MessageChannel
-import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 
@@ -37,7 +33,6 @@ internal class CommandListener(val config: KConfiguration,
     @Subscribe
     fun privateMessageHandler(e: PrivateMessageReceivedEvent) =
             handleMessage(e.channel, e.message, e.author)
-
 
     fun addPreconditions(vararg conditions: PreconditionData) = preconditions.addAll(conditions)
 
@@ -107,6 +102,8 @@ internal class CommandListener(val config: KConfiguration,
         if (!(message.isCommandInvocation(config))) return false
 
         if (author.isBot) return false
+
+        if (!config.allowPrivateMessages && message.channel.type == ChannelType.PRIVATE) return false
 
         return true
     }

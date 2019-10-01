@@ -16,6 +16,7 @@ data class KConfiguration(
     var reactToCommands: Boolean = true,
     var deleteMode: PrefixDeleteMode = PrefixDeleteMode.Single,
     var deleteErrors: Boolean = false,
+    var allowPrivateMessages: Boolean = false,
     var documentationSortOrder: List<String> = listOf(),
     var visibilityPredicate: (command: Command, User, MessageChannel, Guild?) -> Boolean= { _, _, _, _ -> true }
 )
