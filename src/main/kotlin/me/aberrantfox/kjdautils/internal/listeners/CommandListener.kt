@@ -11,7 +11,7 @@ import me.aberrantfox.kjdautils.extensions.jda.descriptor
 import me.aberrantfox.kjdautils.extensions.jda.isCommandInvocation
 import me.aberrantfox.kjdautils.extensions.jda.message
 import me.aberrantfox.kjdautils.extensions.jda.messageTimed
-import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
+import me.aberrantfox.kjdautils.extensions.stdlib.*
 import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.command.CommandExecutor
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
@@ -40,7 +40,7 @@ internal class CommandListener(val config: KConfiguration,
 
         if (author.isBot) return
 
-        if (message.contentRaw == channel.jda.selfUser.asMention) {
+        if (message.contentRaw.trimToID() == channel.jda.selfUser.id) {
             val mentionEmbed = discord.configuration.mentionEmbed ?: return
             channel.sendMessage(mentionEmbed).queue()
             return

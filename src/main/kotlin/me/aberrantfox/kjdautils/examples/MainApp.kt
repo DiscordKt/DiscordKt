@@ -33,6 +33,9 @@ fun main(args: Array<String>) {
             prefix = "!"
             globalPath = "me.aberrantfox.kjdautils.examples"
             documentationSortOrder = listOf("Data", "ServicesDemo", "Misc", "Utility")
+            mentionEmbed = embed {
+                title = "Hello World!"
+            }
         }
     }
 }
