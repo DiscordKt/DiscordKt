@@ -37,6 +37,14 @@ fun main(args: Array<String>) {
                 title = "Hello World!"
             }
         }
+
+        registerCommandPreconditions({
+            if (it.channel.name != "ignored") {
+                Pass
+            } else {
+                Fail()
+            }
+        })
     }
 }
 
