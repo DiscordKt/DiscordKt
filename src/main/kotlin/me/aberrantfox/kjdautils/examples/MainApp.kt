@@ -30,8 +30,8 @@ fun main(args: Array<String>) {
         registerInjectionObject(myConfig, myLog)
 
         configure {
-            prefix = "!"
-            documentationSortOrder = listOf("Data", "ServicesDemo", "Misc", "Utility")
+           prefix = "!"
+           documentationSortOrder = listOf("Data", "ServicesDemo", "Misc", "Utility")
         }
 
         registerCommandPreconditions({

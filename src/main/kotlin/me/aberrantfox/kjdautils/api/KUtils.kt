@@ -31,6 +31,7 @@ class KUtils(val config: KConfiguration, token: String) {
     private var executor: CommandExecutor? = null
     private val documentationService: DocumentationService
     private val diService = DIService()
+    var configured = false
 
     init {
         registerInjectionObject(discord)
@@ -58,7 +59,8 @@ class KUtils(val config: KConfiguration, token: String) {
     fun registerCommandPreconditions(vararg preconditions: PreconditionData) =
             listener?.addPreconditions(*preconditions)
 
-    fun configure(setup: KConfiguration.() -> Unit) {
+    fun configure(setup: KConfiguration.() -> Unit = {}) {
+        configured = true
         config.setup()
 
         detectData()
@@ -143,6 +145,11 @@ fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
     val util = KUtils(KConfiguration(), token)
     util.config.globalPath = defaultGlobalPath(Exception())
     util.operate()
+
+    if(!util.configured) {
+        util.configure()
+    }
+
     println("KUtils: GlobalPath set to ${util.config.globalPath}")
     return util
 }

@@ -11,15 +11,15 @@
 | DataSave | <none>    | This command lets you modify a Data object's contents.                                |
 | DataSee  | <none>    | This command demonstrates loading and injecting Data objects by viewing its contents. |
 
-## ServicesDemo
-| Commands     | Arguments | Description              |
-| ------------ | --------- | ------------------------ |
-| DependsOnAll | <none>    | I depend on all services |
-
 ## Misc
 | Commands    | Arguments | Description             |
 | ----------- | --------- | ----------------------- |
 | SomeCommand | <none>    | No Description Provider |
+
+## ServicesDemo
+| Commands     | Arguments | Description              |
+| ------------ | --------- | ------------------------ |
+| DependsOnAll | <none>    | I depend on all services |
 
 ## Utility
 | Commands           | Arguments                | Description                                                                      |
