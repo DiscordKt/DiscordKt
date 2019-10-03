@@ -38,7 +38,15 @@ internal class CommandListener(val config: KConfiguration,
 
     private fun handleMessage(channel: MessageChannel, message: Message, author: User, guild: Guild? = null) {
 
-        if (!isUsableCommand(message, author)) return
+        if (author.isBot) return
+
+        if (message.contentRaw == channel.jda.selfUser.asMention) {
+            val mentionEmbed = discord.configuration.mentionEmbed ?: return
+            channel.sendMessage(mentionEmbed).queue()
+            return
+        }
+
+        if (!isUsableCommand(message)) return
 
         val commandStruct = cleanCommandMessage(message.contentRaw, config)
         val (commandName, actualArgs, isDoubleInvocation) = commandStruct
@@ -96,14 +104,12 @@ internal class CommandListener(val config: KConfiguration,
         if (shouldDelete) message.deleteIfExists()
     }
 
-    private fun isUsableCommand(message: Message, author: User): Boolean {
+    private fun isUsableCommand(message: Message): Boolean {
         if (message.contentRaw.length > 1500) return false
 
-        if (!(message.isCommandInvocation(config))) return false
+        if (!message.isCommandInvocation(config)) return false
 
-        if (author.isBot) return false
-
-        if (!config.allowPrivateMessages && message.channel.type == ChannelType.PRIVATE) return false
+        if (!config.allowPrivateMessages && message.channelType == ChannelType.PRIVATE) return false
 
         return true
     }
