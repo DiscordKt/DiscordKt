@@ -30,9 +30,8 @@ fun main(args: Array<String>) {
         registerInjectionObject(myConfig, myLog)
 
         configure {
-            prefix = "!"
-            globalPath = "me.aberrantfox.kjdautils.examples"
-            documentationSortOrder = listOf("Data", "ServicesDemo", "Misc", "Utility")
+           prefix = "!"
+           documentationSortOrder = listOf("Data", "ServicesDemo", "Misc", "Utility")
         }
 
         registerCommandPreconditions({
@@ -179,6 +178,17 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         requiresGuild = true
         execute {
             conversationService.createConversation(it.author.id, it.guild!!.id, "test-conversation")
+        }
+    }
+
+    command("DiscordJsStringArg") {
+        description = "This command demonstrates how to get a discord.js like string argument in Kutils"
+        expect(JsStringArg, JsStringArg)
+        execute {
+            val arg = it.args.first() as String
+            val arg2 = it.args.component2() as String
+            it.respond(arg)
+            it.respond(arg2)
         }
     }
 }
