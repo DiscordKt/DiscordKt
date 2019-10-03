@@ -20,6 +20,7 @@ import me.aberrantfox.kjdautils.internal.services.DocumentationService
 import me.aberrantfox.kjdautils.internal.services.HelpService
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
+import java.lang.Exception
 import kotlin.system.exitProcess
 
 
@@ -140,6 +141,13 @@ class KUtils(val config: KConfiguration, token: String) {
 
 fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
     val util = KUtils(KConfiguration(), token)
+    util.config.globalPath = defaultGlobalPath(Exception())
     util.operate()
+    println("KUtils: GlobalPath set to ${util.config.globalPath}")
     return util
+}
+
+private fun defaultGlobalPath(exception: Exception): String {
+    val full = exception.stackTrace[1].className
+    return full.substring(0, full.lastIndexOf("."))
 }
