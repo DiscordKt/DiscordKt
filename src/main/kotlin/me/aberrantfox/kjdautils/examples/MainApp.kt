@@ -30,8 +30,11 @@ fun main(args: Array<String>) {
         registerInjectionObject(myConfig, myLog)
 
         configure {
-           prefix = "!"
-           documentationSortOrder = listOf("Data", "ServicesDemo", "Misc", "Utility")
+            prefix = "!"
+            documentationSortOrder = listOf("Data", "ServicesDemo", "Misc", "Utility")
+            mentionEmbed = embed {
+                title = "Hello World!"
+            }
         }
 
         registerCommandPreconditions({
@@ -39,12 +42,6 @@ fun main(args: Array<String>) {
                 Pass
             } else {
                 Fail()
-            }
-        }, {
-            if (it.author.discriminator == "3693") {
-                Fail("Ignoring users with your discriminator.")
-            } else {
-                Pass
             }
         })
     }
@@ -226,13 +223,6 @@ fun userWithID() = precondition {
         Pass
     }
 }
-
-@Precondition(priority = 2)
-fun guildPrecondition() = precondition {
-    if (it.guild != null) return@precondition Pass
-    else return@precondition Fail("Must be in a guild")
-}
-
 
 @Service
 class NoDependencies
