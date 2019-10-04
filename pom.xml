@@ -23,7 +23,6 @@
         <commons.version>1.1</commons.version>
         <surefire.version>2.22.0</surefire.version>
         <coroutines.version>1.0.1</coroutines.version>
-        <mockito.version>2.0.0</mockito.version>
         <junit.version>5.5.2</junit.version>
         <mockk.version>1.9.2</mockk.version>
     </properties>
@@ -99,12 +98,6 @@
             <groupId>io.mockk</groupId>
             <artifactId>mockk</artifactId>
             <version>${mockk.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.nhaarman.mockitokotlin2</groupId>
-            <artifactId>mockito-kotlin</artifactId>
-            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
