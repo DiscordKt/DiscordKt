@@ -31,8 +31,10 @@ fun main(args: Array<String>) {
 
         configure {
             prefix = "!"
-            globalPath = "me.aberrantfox.kjdautils.examples"
             documentationSortOrder = listOf("Data", "ServicesDemo", "Misc", "Utility")
+            mentionEmbed = embed {
+                title = "Hello World!"
+            }
         }
 
         registerCommandPreconditions({
@@ -40,12 +42,6 @@ fun main(args: Array<String>) {
                 Pass
             } else {
                 Fail()
-            }
-        }, {
-            if (it.author.discriminator == "3693") {
-                Fail("Ignoring users with your discriminator.")
-            } else {
-                Pass
             }
         })
     }
@@ -181,6 +177,17 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
             conversationService.createConversation(it.author.id, it.guild!!.id, "test-conversation")
         }
     }
+
+    command("DiscordJsStringArg") {
+        description = "This command demonstrates how to get a discord.js like string argument in Kutils"
+        expect(JsStringArg, JsStringArg)
+        execute {
+            val arg = it.args.first() as String
+            val arg2 = it.args.component2() as String
+            it.respond(arg)
+            it.respond(arg2)
+        }
+    }
 }
 
 @CommandSet("Misc")
@@ -216,13 +223,6 @@ fun userWithID() = precondition {
         Pass
     }
 }
-
-@Precondition(priority = 2)
-fun guildPrecondition() = precondition {
-    if (it.guild != null) return@precondition Pass
-    else return@precondition Fail("Must be in a guild")
-}
-
 
 @Service
 class NoDependencies

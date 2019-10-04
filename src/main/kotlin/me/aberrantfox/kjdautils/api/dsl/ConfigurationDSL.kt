@@ -1,8 +1,6 @@
 package me.aberrantfox.kjdautils.api.dsl
 
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.MessageChannel
-import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.entities.*
 
 enum class PrefixDeleteMode {
     Single,
@@ -16,6 +14,8 @@ data class KConfiguration(
     var reactToCommands: Boolean = true,
     var deleteMode: PrefixDeleteMode = PrefixDeleteMode.Single,
     var deleteErrors: Boolean = false,
+    var allowPrivateMessages: Boolean = false,
     var documentationSortOrder: List<String> = listOf(),
-    var visibilityPredicate: (command: Command, User, MessageChannel, Guild?) -> Boolean= { _, _, _, _ -> true }
+    var mentionEmbed: MessageEmbed? = null,
+    var visibilityPredicate: (command: Command, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _ -> true }
 )

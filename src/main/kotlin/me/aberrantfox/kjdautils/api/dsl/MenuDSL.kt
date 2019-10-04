@@ -43,6 +43,11 @@ fun CommandEvent.respond(menu: Menu) {
 
     val firstPage = menu.embeds.first()
 
+    if (menu.embeds.size == 1) {
+        channel.sendMessage(firstPage).queue()
+        return
+    }
+
     channel.sendMessage(firstPage).queue { message ->
         message.addReaction(menu.leftReact).queue()
         message.addReaction(menu.rightReact).queue()

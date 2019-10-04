@@ -55,8 +55,6 @@ class EmbedDSLHandle {
             setFooter(footer?.text, footer?.iconUrl)
         }
 
-        require(!embedBuilder.isEmpty) { "Cannot build an empty embed." }
-
         return embedBuilder.build()
     }
 }

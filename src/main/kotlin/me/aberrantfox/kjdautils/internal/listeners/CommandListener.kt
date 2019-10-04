@@ -1,6 +1,5 @@
 package me.aberrantfox.kjdautils.internal.listeners
 
-
 import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
@@ -12,14 +11,11 @@ import me.aberrantfox.kjdautils.extensions.jda.descriptor
 import me.aberrantfox.kjdautils.extensions.jda.isCommandInvocation
 import me.aberrantfox.kjdautils.extensions.jda.message
 import me.aberrantfox.kjdautils.extensions.jda.messageTimed
-import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
+import me.aberrantfox.kjdautils.extensions.stdlib.*
 import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.command.CommandExecutor
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.MessageChannel
-import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 
@@ -38,12 +34,19 @@ internal class CommandListener(val config: KConfiguration,
     fun privateMessageHandler(e: PrivateMessageReceivedEvent) =
             handleMessage(e.channel, e.message, e.author)
 
-
     fun addPreconditions(vararg conditions: PreconditionData) = preconditions.addAll(conditions)
 
     private fun handleMessage(channel: MessageChannel, message: Message, author: User, guild: Guild? = null) {
 
-        if (!isUsableCommand(message, author)) return
+        if (author.isBot) return
+
+        if (message.contentRaw.trimToID() == channel.jda.selfUser.id) {
+            val mentionEmbed = discord.configuration.mentionEmbed ?: return
+            channel.sendMessage(mentionEmbed).queue()
+            return
+        }
+
+        if (!isUsableCommand(message)) return
 
         val commandStruct = cleanCommandMessage(message.contentRaw, config)
         val (commandName, actualArgs, isDoubleInvocation) = commandStruct
@@ -101,12 +104,12 @@ internal class CommandListener(val config: KConfiguration,
         if (shouldDelete) message.deleteIfExists()
     }
 
-    private fun isUsableCommand(message: Message, author: User): Boolean {
+    private fun isUsableCommand(message: Message): Boolean {
         if (message.contentRaw.length > 1500) return false
 
-        if (!(message.isCommandInvocation(config))) return false
+        if (!message.isCommandInvocation(config)) return false
 
-        if (author.isBot) return false
+        if (!config.allowPrivateMessages && message.channelType == ChannelType.PRIVATE) return false
 
         return true
     }
