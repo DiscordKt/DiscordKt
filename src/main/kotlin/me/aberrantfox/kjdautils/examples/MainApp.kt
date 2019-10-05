@@ -32,8 +32,13 @@ fun main(args: Array<String>) {
         configure {
             prefix = "!"
             documentationSortOrder = listOf("Data", "ServicesDemo", "Misc", "Utility")
-            mentionEmbed = embed {
-                title = "Hello World!"
+            mentionEmbed = { event ->
+                embed {
+                    val name = event.guild.name
+
+                    title = "Hello World!"
+                    description = "I was mentioned in $name"
+                }
             }
         }
 

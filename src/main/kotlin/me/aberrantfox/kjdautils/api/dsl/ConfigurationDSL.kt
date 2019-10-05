@@ -1,6 +1,7 @@
 package me.aberrantfox.kjdautils.api.dsl
 
 import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
 enum class PrefixDeleteMode {
     Single,
@@ -16,6 +17,6 @@ data class KConfiguration(
     var deleteErrors: Boolean = false,
     var allowPrivateMessages: Boolean = false,
     var documentationSortOrder: List<String> = listOf(),
-    var mentionEmbed: MessageEmbed? = null,
+    var mentionEmbed: ((GuildMessageReceivedEvent) -> MessageEmbed)? = null,
     var visibilityPredicate: (command: Command, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _ -> true }
 )

@@ -27,8 +27,21 @@ internal class CommandListener(val config: KConfiguration,
                                private val preconditions: MutableList<PreconditionData> = mutableListOf()) {
 
     @Subscribe
-    fun guildMessageHandler(e: GuildMessageReceivedEvent) =
-            handleMessage(e.channel, e.message, e.author, e.guild)
+    fun guildMessageHandler(event: GuildMessageReceivedEvent) {
+        val author = event.author
+        val channel = event.channel
+        val message = event.message
+
+        if (author.isBot) return
+
+        if (message.contentRaw.trimToID() == channel.jda.selfUser.id) {
+            val mentionEmbed = discord.configuration.mentionEmbed?.invoke(event) ?: return
+            channel.sendMessage(mentionEmbed).queue()
+            return
+        }
+
+        handleMessage(channel, message, author, event.guild)
+    }
 
     @Subscribe
     fun privateMessageHandler(e: PrivateMessageReceivedEvent) =
@@ -37,15 +50,6 @@ internal class CommandListener(val config: KConfiguration,
     fun addPreconditions(vararg conditions: PreconditionData) = preconditions.addAll(conditions)
 
     private fun handleMessage(channel: MessageChannel, message: Message, author: User, guild: Guild? = null) {
-
-        if (author.isBot) return
-
-        if (message.contentRaw.trimToID() == channel.jda.selfUser.id) {
-            val mentionEmbed = discord.configuration.mentionEmbed ?: return
-            channel.sendMessage(mentionEmbed).queue()
-            return
-        }
-
         if (!isUsableCommand(message)) return
 
         val commandStruct = cleanCommandMessage(message.contentRaw, config)
