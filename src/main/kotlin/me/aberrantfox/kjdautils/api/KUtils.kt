@@ -30,7 +30,7 @@ class KUtils(val config: KConfiguration, token: String) {
     private var listener: CommandListener? = null
     private var executor: CommandExecutor? = null
     private val documentationService: DocumentationService
-    private val diService = DIService()
+    val diService = DIService()
     var configured = false
 
     init {
@@ -50,7 +50,7 @@ class KUtils(val config: KConfiguration, token: String) {
 
     fun registerInjectionObject(vararg obj: Any) = obj.forEach { diService.addElement(it) }
 
-    fun getInjectionObject(serviceClass: Class<*>) = diService.getElement(serviceClass)
+    inline fun <reified T> getInjectionObject() = diService.getElement(T::class.java) as T?
 
     fun registerCommandPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) =
             conditions.map { PreconditionData(it) }
