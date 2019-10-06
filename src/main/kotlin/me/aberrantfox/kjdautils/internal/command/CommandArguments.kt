@@ -20,7 +20,7 @@ enum class ConsumptionType {
     Single, Multiple, All
 }
 
-abstract class ArgumentType<T> {
+abstract class ArgumentType<T>: Cloneable {
     abstract val consumptionType: ConsumptionType
     abstract val examples: ArrayList<String>
     abstract val name: String
@@ -29,17 +29,20 @@ abstract class ArgumentType<T> {
         private set
 
     var defaultValue: T? = null
+        private set
 
-    fun makeOptional(default: T) = apply {
-        isOptional = true
-        this.defaultValue = default
+    fun makeOptional(default: T): ArgumentType<T> {
+        val newArg = this.clone() as (ArgumentType<T>)
+        newArg.isOptional = true
+        newArg.defaultValue = default
+        return newArg
     }
 
     fun makeNullableOptional(default: T? = null): ArgumentType<T?> {
-        isOptional = true
-        this.defaultValue = default
-
-        return this as ArgumentType<T?>
+        val newArg = this.clone() as (ArgumentType<T?>)
+        newArg.isOptional = true
+        newArg.defaultValue = default
+        return newArg
     }
 
     abstract fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>

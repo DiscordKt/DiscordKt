@@ -178,8 +178,8 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
     command("DiscordJsStringArg") {
         description = "This command demonstrates how to get a discord.js like string argument in Kutils"
         execute(JsStringArg, JsStringArg) {
-            val arg = it.args.component1() as String
-            val arg2 = it.args.component2() as String
+            val arg = it.args.component1()
+            val arg2 = it.args.component2()
             it.respond(arg)
             it.respond(arg2)
         }

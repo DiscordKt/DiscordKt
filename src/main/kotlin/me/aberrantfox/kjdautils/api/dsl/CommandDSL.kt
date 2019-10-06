@@ -82,11 +82,12 @@ data class CommandEvent<T: ArgumentContainer>(
     fun respondTimed(embed: MessageEmbed, millis: Long = 5000) = discordContext.respondTimed(embed, millis)
     fun unsafeRespond(msg: String) = discordContext.unsafeRespond(msg)
 }
+
 @CommandTagMarker
 class Command(val name: String,
               var category: String = "",
               var expectedArgs: ArgumentCollection<*> = args(),
-              var execute: (CommandEvent<*>) -> Unit = {},
+              private var execute: (CommandEvent<*>) -> Unit = {},
               var requiresGuild: Boolean = false,
               var description: String = "No Description Provider") {
 
@@ -181,18 +182,6 @@ fun commands(construct: CommandsContainer.() -> Unit): CommandsContainer {
     return commands
 }
 
-fun Command.execute(execute: (CommandEvent<NoArg>) -> Unit) {
-    execute(args(), execute)
-}
-
-fun<T> Command.execute(argument: ArgumentType<T>, execute: (CommandEvent<SingleArg<T>>) -> Unit) {
-    execute(args(argument), execute)
-}
-
-fun<A, B> Command.execute(first: ArgumentType<A>, second: ArgumentType<B>, execute: (CommandEvent<DoubleArg<A, B>>) -> Unit) {
-    execute(args(first, second), execute)
-}
-
 open class ArgumentContainer
 class NoArg: ArgumentContainer()
 data class SingleArg<T>(val first: T): ArgumentContainer()
@@ -209,23 +198,70 @@ interface ArgumentCollection<T : ArgumentContainer> {
     fun bundle(arguments: List<Any>): T
 }
 
-fun args() = object : ArgumentCollection<NoArg> {
-    override val arguments: List<ArgumentType<Nothing>>
-        get() = listOf()
+private fun args() =
+    object : ArgumentCollection<NoArg> {
+        override val arguments: List<ArgumentType<Nothing>>
+            get() = listOf()
 
-    override fun bundle(arguments: List<Any>) = NoArg()
+        override fun bundle(arguments: List<Any>) = NoArg()
+    }
+
+fun Command.execute(execute: (CommandEvent<NoArg>) -> Unit) {
+    execute(args(), execute)
 }
 
-fun <T> args(first: ArgumentType<T>) = object : ArgumentCollection<SingleArg<T>> {
-    override val arguments: List<ArgumentType<*>>
-        get() = listOf(first)
+fun<T> Command.execute(argument: ArgumentType<T>, execute: (CommandEvent<SingleArg<T>>) -> Unit) {
+    fun <A> args(first: ArgumentType<A>) =
+        object : ArgumentCollection<SingleArg<A>> {
+            override val arguments: List<ArgumentType<*>>
+                get() = listOf(first)
 
-    override fun bundle(arguments: List<Any>) = SingleArg(arguments[0]) as SingleArg<T>
+            override fun bundle(arguments: List<Any>): SingleArg<A> {
+                return SingleArg(arguments[0]) as SingleArg<A>
+            }
+        }
+
+    execute(args(argument), execute)
 }
 
-fun <A, B> args(first: ArgumentType<A>, second: ArgumentType<B>) = object : ArgumentCollection<DoubleArg<A, B>> {
-    override val arguments: List<ArgumentType<*>>
-        get() = listOf(first, second)
+fun<A, B> Command.execute(first: ArgumentType<A>, second: ArgumentType<B>, execute: (CommandEvent<DoubleArg<A, B>>) -> Unit) {
+    fun <A, B> args(first: ArgumentType<A>, second: ArgumentType<B>) =
+        object : ArgumentCollection<DoubleArg<A, B>> {
+            override val arguments: List<ArgumentType<*>>
+                get() = listOf(first, second)
 
-    override fun bundle(arguments: List<Any>) = DoubleArg(arguments[0], arguments[1]) as DoubleArg<A, B>
+            override fun bundle(arguments: List<Any>): DoubleArg<A, B> {
+                return DoubleArg(arguments[0], arguments[1]) as DoubleArg<A, B>
+            }
+        }
+
+    execute(args(first, second), execute)
+}
+
+fun<A, B, C> Command.execute(first: ArgumentType<A>, second: ArgumentType<B>, third: ArgumentType<C>, execute: (CommandEvent<TripleArg<A, B, C>>) -> Unit) {
+    fun <A, B, C> args(first: ArgumentType<A>, second: ArgumentType<B>, third: ArgumentType<C>) =
+        object : ArgumentCollection<TripleArg<A, B, C>> {
+            override val arguments: List<ArgumentType<*>>
+                get() = listOf(first, second, third)
+
+            override fun bundle(arguments: List<Any>): TripleArg<A, B, C> {
+                return TripleArg(arguments[0], arguments[1], arguments[2]) as TripleArg<A, B, C>
+            }
+        }
+
+    execute(args(first, second, third), execute)
+}
+
+fun<A, B, C, D> Command.execute(first: ArgumentType<A>, second: ArgumentType<B>, third: ArgumentType<C>, fourth: ArgumentType<D>, execute: (CommandEvent<QuadArg<A, B, C, D>>) -> Unit) {
+    fun <A, B, C, D> args(first: ArgumentType<A>, second: ArgumentType<B>, third: ArgumentType<C>, fourth: ArgumentType<D>) =
+        object : ArgumentCollection<QuadArg<A, B, C, D>> {
+            override val arguments: List<ArgumentType<*>>
+                get() = listOf(first, second, third, fourth)
+
+            override fun bundle(arguments: List<Any>): QuadArg<A, B, C, D> {
+                return QuadArg(arguments[0], arguments[1], arguments[2], arguments[3]) as QuadArg<A, B, C, D>
+            }
+        }
+
+    execute(args(first, second, third, fourth), execute)
 }
