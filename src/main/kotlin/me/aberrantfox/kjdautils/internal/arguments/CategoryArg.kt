@@ -1,18 +1,19 @@
 package me.aberrantfox.kjdautils.internal.arguments
 
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
+import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.extensions.stdlib.isLong
 import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
+import net.dv8tion.jda.api.entities.Category
 
-open class CategoryArg(override val name: String = "Category", private val guildId: String = "") : ArgumentType {
+open class CategoryArg(override val name: String = "Category", private val guildId: String = ""): ArgumentType<Category>() {
     companion object : CategoryArg()
 
     override val examples = arrayListOf("302134543639511050", "Staff", "Chat Channels")
     override val consumptionType = ConsumptionType.Multiple
-    override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
+    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
 
         val guild = if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild
         guild ?: return ArgumentResult.Error("Failed to resolve guild! Pass a valid guild id to CategoryArg.")
@@ -22,7 +23,7 @@ open class CategoryArg(override val name: String = "Category", private val guild
             val category = event.discord.jda.getCategoryById(arg)
                 ?: return ArgumentResult.Error("Could not resolve category by ID.")
 
-            return ArgumentResult.Single(category)
+            return ArgumentResult.Success(category)
         }
 
         var categories = guild.categories
@@ -38,10 +39,8 @@ open class CategoryArg(override val name: String = "Category", private val guild
             categories.size > 1
         }
 
-        val error = ArgumentResult.Error("Couldn't retrieve category :: $categoryBuilder")
-
         //Get the single category that survived filtering
-        val resolvedCategory = categories.firstOrNull() ?: return error
+        val resolvedCategory = categories.firstOrNull() ?: return ArgumentResult.Error("Couldn't retrieve category :: $categoryBuilder")
         val resolvedName = resolvedCategory.name
 
         //Determine how many args this category would consume
@@ -51,6 +50,6 @@ open class CategoryArg(override val name: String = "Category", private val guild
         val argList = args.take(lengthOfCategory)
         val isValid = resolvedName.toLowerCase() == argList.joinToString(" ").toLowerCase()
 
-        return if (isValid) ArgumentResult.Multiple(resolvedCategory, argList) else error
+        return if (isValid) ArgumentResult.Success(resolvedCategory, argList) else ArgumentResult.Error("Couldn't retrieve category :: $categoryBuilder")
     }
 }

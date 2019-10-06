@@ -119,40 +119,32 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
     }
 
     command("Echo") {
-        expect(SentenceArg)
-        execute {
-            val response = it.args.component1() as String
+        execute(SentenceArg) {
+            val response = it.args.component1()
             it.respond(response)
         }
     }
 
     command("Add") {
         description = "Add two numbers together"
-        expect(IntegerArg, IntegerArg)
-        execute {
-            val first = it.args.component1() as Int
-            val second = it.args.component2() as Int
-
+        execute(IntegerArg, IntegerArg) {
+            val (first, second) = it.args
             it.respond("${first + second}")
         }
     }
 
     command("OptionalAdd") {
         description = "Add two numbers together"
-        expect(arg(IntegerArg, false), arg(IntegerArg, true, 1))
-        execute {
-            val first = it.args.component1() as Int
-            val second = it.args.component2() as Int
-
+        execute(IntegerArg, IntegerArg.makeOptional(5)) {
+            val (first, second) = it.args
             it.respond("${first + second}")
         }
     }
 
     command("OptionalInput") {
         description = "Optionally input some text"
-        expect(arg(SentenceArg, optional = true))
-        execute {
-            val sentence = it.args.component1() as String? ?: "<No input>"
+        execute(SentenceArg.makeNullableOptional()) {
+            val sentence = it.args.component1() ?: "<No input>"
 
             it.respond("Your input was: $sentence")
         }
@@ -185,10 +177,9 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
 
     command("DiscordJsStringArg") {
         description = "This command demonstrates how to get a discord.js like string argument in Kutils"
-        expect(JsStringArg, JsStringArg)
-        execute {
-            val arg = it.args.first() as String
-            val arg2 = it.args.component2() as String
+        execute(JsStringArg, JsStringArg) {
+            val arg = it.args.component1()
+            val arg2 = it.args.component2()
             it.respond(arg)
             it.respond(arg2)
         }

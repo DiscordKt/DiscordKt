@@ -6,4 +6,4 @@ const val defaultPreconditionPriority = 5
 
 annotation class Precondition(val priority: Int = defaultPreconditionPriority)
 
-fun precondition(condition: (CommandEvent) -> PreconditionResult): (CommandEvent) -> PreconditionResult = condition
+fun precondition(condition: (CommandEvent<*>) -> PreconditionResult): (CommandEvent<*>) -> PreconditionResult = condition

@@ -1,22 +1,19 @@
 package me.aberrantfox.kjdautils.internal.command
 
 import kotlinx.coroutines.*
-import me.aberrantfox.kjdautils.api.dsl.Command
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
-import me.aberrantfox.kjdautils.extensions.jda.message
-import me.aberrantfox.kjdautils.extensions.jda.messageTimed
+import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.extensions.jda.*
 import me.aberrantfox.kjdautils.internal.command.Result.Error
-import me.aberrantfox.kjdautils.internal.command.Result.Results
 
 internal class CommandExecutor {
 
-    fun executeCommand(command: Command, args: List<String>, event: CommandEvent) = runBlocking {
+    fun executeCommand(command: Command, args: List<String>, event: CommandEvent<ArgumentContainer>) = runBlocking {
         GlobalScope.launch {
             invokeCommand(command, args, event)
         }
     }
 
-    private fun invokeCommand(command: Command, actualArgs: List<String>, event: CommandEvent) {
+    private fun invokeCommand(command: Command, actualArgs: List<String>, event: CommandEvent<ArgumentContainer>) {
         val channel = event.channel
 
         getArgCountError(actualArgs, command)?.let {
@@ -25,18 +22,16 @@ internal class CommandExecutor {
             return
         }
 
-        val conversionResult = convertArguments(actualArgs, command.expectedArgs.toList(), event)
+        val conversionResult = convertArguments(actualArgs, command.expectedArgs, event)
 
-        when (conversionResult) {
-            is Results -> event.args = conversionResult.results
-            is Error -> {
-                if(event.discord.configuration.deleteErrors) event.respondTimed(conversionResult.error)
-                else event.respond(conversionResult.error)
-                return
-            }
+        if (conversionResult is Error) {
+            if(event.discord.configuration.deleteErrors) event.respondTimed(conversionResult.error)
+            else event.respond(conversionResult.error)
+            return
         }
 
-        command.execute(event)
+        val args = conversionResult as Result.Results
+
+        command.invoke(args.results, event)
     }
 }
-

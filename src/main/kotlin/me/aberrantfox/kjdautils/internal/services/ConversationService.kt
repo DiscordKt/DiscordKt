@@ -5,8 +5,7 @@ import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.CommandStruct
 import me.aberrantfox.kjdautils.internal.di.DIService
-import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
@@ -37,7 +36,7 @@ class ConversationService(val dc: Discord, private val config: KConfiguration, v
         val totalSteps = conversationState.conversation.steps.size
         val response = parseResponse(event.message, getCurrentStep(conversationState))
 
-        if (response is ArgumentResult.Error) {
+        if (response is ArgumentResult.Error<*>) {
             sendToUser(userId, response.error)
             sendToUser(userId, currentStep.prompt)
         } else {
@@ -58,15 +57,17 @@ class ConversationService(val dc: Discord, private val config: KConfiguration, v
         }
     }
 
-    private fun parseResponse(message: Message, step: Step): Any {
+    private fun parseResponse(message: Message, step: Step): Any? {
         val commandStruct = CommandStruct("", message.contentStripped.split(" "), false)
-        val commandEvent = CommandEvent(commandStruct, message, commandStruct.commandArgs, CommandsContainer(), false, dc)
-        val result = step.expect.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
+
+        val discordContext = DiscordContext(false, dc, message)
+
+        val commandEvent = CommandEvent<Nothing>(commandStruct, CommandsContainer(), discordContext)
+        val result: ArgumentResult<*> = step.expect.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
 
         return when (result) {
-            is ArgumentResult.Single -> result.result
-            is ArgumentResult.Multiple -> result.result
-            is ArgumentResult.Error -> result
+            is ArgumentResult.Success<*> -> result.result
+            is ArgumentResult.Error<*> -> result
         }
     }
 

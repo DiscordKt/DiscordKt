@@ -28,18 +28,15 @@ fun cleanCommandMessage(message: String, config: KConfiguration): CommandStruct 
 }
 
 fun getArgCountError(actual: List<String>, cmd: Command): String? {
-    val optionalCount = cmd.expectedArgs.count { it.optional }
+    val optionalCount = cmd.expectedArgs.arguments.count { it.isOptional }
     val validRange = (cmd.parameterCount - optionalCount) .. cmd.parameterCount
     val actualNonBlank = actual.count { it.isNotBlank() }
 
-    val manual = cmd.expectedArgs
-            .map { it.type }
-            .any { it == Manual }
-
+    val manual = cmd.expectedArgs.arguments.any { it == Manual }
     if (manual) return null
 
-    val hasMultipleArg = cmd.expectedArgs
-            .map { it.type.consumptionType }
+    val hasMultipleArg = cmd.expectedArgs.arguments
+            .map { it.consumptionType }
             .any { it in listOf(ConsumptionType.Multiple, ConsumptionType.All) }
 
     if (hasMultipleArg) {

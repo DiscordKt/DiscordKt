@@ -38,7 +38,7 @@ fun menu(construct: MenuDSLHandle.() -> Unit): Menu {
     return handle.build()
 }
 
-fun CommandEvent.respond(menu: Menu) {
+fun CommandEvent<*>.respond(menu: Menu) {
     require(menu.embeds.isNotEmpty()) { "Cannot build a menu with no embeds." }
 
     val firstPage = menu.embeds.first()

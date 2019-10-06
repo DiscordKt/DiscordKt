@@ -52,7 +52,7 @@ class KUtils(val config: KConfiguration, token: String) {
 
     inline fun <reified T> getInjectionObject() = diService.getElement(T::class.java) as T?
 
-    fun registerCommandPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) =
+    fun registerCommandPreconditions(vararg conditions: (CommandEvent<*>) -> PreconditionResult) =
             conditions.map { PreconditionData(it) }
                       .forEach { listener?.addPreconditions(it) }
 
@@ -111,7 +111,7 @@ class KUtils(val config: KConfiguration, token: String) {
                 .map {
                     val preconditionAnnotation = it.annotations.first { annotation -> annotation.annotationClass == Precondition::class }
                     val priority = (preconditionAnnotation as Precondition).priority
-                    val condition = diService.invokeReturningMethod(it) as ((CommandEvent) -> PreconditionResult)
+                    val condition = diService.invokeReturningMethod(it) as ((CommandEvent<*>) -> PreconditionResult)
 
                     PreconditionData(condition, priority)
                 }
