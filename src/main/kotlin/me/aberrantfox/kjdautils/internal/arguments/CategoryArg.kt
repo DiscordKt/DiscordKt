@@ -8,7 +8,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import net.dv8tion.jda.api.entities.Category
 
-open class CategoryArg(override val name: String = "Category", private val guildId: String = ""): ArgumentType<Category> {
+open class CategoryArg(override val name: String = "Category", private val guildId: String = ""): ArgumentType<Category>() {
     companion object : CategoryArg()
 
     override val examples = arrayListOf("302134543639511050", "Staff", "Chat Channels")

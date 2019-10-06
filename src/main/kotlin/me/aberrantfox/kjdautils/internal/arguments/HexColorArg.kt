@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
-open class HexColorArg(override val name : String = "Hex Color"): ArgumentType<Int> {
+open class HexColorArg(override val name : String = "Hex Color"): ArgumentType<Int>() {
     companion object : HexColorArg()
 
     override val examples = arrayListOf("#000000", "FFFF00", "#3498db", "db3434")

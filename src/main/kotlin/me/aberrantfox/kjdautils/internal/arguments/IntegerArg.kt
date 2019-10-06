@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
-open class IntegerArg(override val name: String = "Integer"): ArgumentType<Int> {
+open class IntegerArg(override val name: String = "Integer"): ArgumentType<Int>() {
     companion object : IntegerArg()
 
     override val examples = arrayListOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")

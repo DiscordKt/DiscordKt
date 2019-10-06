@@ -6,7 +6,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import me.aberrantfox.kjdautils.internal.command.separatorCharacter
 
-open class SplitterArg(override val name : String = "(Separated|Text)"): ArgumentType<List<String>> {
+open class SplitterArg(override val name : String = "(Separated|Text)"): ArgumentType<List<String>>() {
     companion object : SplitterArg()
 
     override val examples = arrayListOf("sentence one | Sentence two | Sentence three", "one | two")

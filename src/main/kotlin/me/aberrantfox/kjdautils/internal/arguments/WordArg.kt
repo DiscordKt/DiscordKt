@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
-open class WordArg(override val name : String = "Word") : ArgumentType<String> {
+open class WordArg(override val name : String = "Word") : ArgumentType<String>() {
     companion object : WordArg()
 
     override val examples = arrayListOf("exampleWord", "123", "bob")

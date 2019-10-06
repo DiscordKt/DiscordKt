@@ -8,7 +8,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import net.dv8tion.jda.api.entities.Member
 
-open class MemberArg(override val name: String = "Member"): ArgumentType<Member> {
+open class MemberArg(override val name: String = "Member"): ArgumentType<Member>() {
     companion object : MemberArg()
 
     override val examples = arrayListOf("@Bob", "133997975662886912", "215210079148834816")

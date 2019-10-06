@@ -7,7 +7,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import net.dv8tion.jda.api.entities.TextChannel
 
-open class TextChannelArg(override val name : String = "TextChannel"): ArgumentType<TextChannel> {
+open class TextChannelArg(override val name : String = "TextChannel"): ArgumentType<TextChannel>() {
     companion object : TextChannelArg()
 
     override val examples = arrayListOf("#chat", "4421069003953932345", "#test-channel", "292106900395393024")

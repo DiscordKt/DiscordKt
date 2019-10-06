@@ -2,6 +2,7 @@ package me.aberrantfox.kjdautils.internal.command
 
 import me.aberrantfox.kjdautils.api.dsl.*
 import net.dv8tion.jda.api.JDA
+import sun.jvm.hotspot.oops.CellTypeState.value
 
 sealed class ArgumentResult<T> {
     data class Success<T>(val result: T, val consumed: List<String> = listOf()): ArgumentResult<T>()
@@ -20,12 +21,29 @@ enum class ConsumptionType {
     Single, Multiple, All
 }
 
-interface ArgumentType<T> {
-    val consumptionType: ConsumptionType
-    val examples: ArrayList<String>
-    val name: String
+abstract class ArgumentType<T> {
+    abstract val consumptionType: ConsumptionType
+    abstract val examples: ArrayList<String>
+    abstract val name: String
 
-    fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
+    var isOptional: Boolean = false
+        private set
+
+    var defaultValue: T? = null
+
+    fun makeOptional(default: T) = apply {
+        isOptional = true
+        this.defaultValue = default
+    }
+
+    fun makeNullableOptional(default: T? = null): ArgumentType<T?> {
+        isOptional = true
+        this.defaultValue = default
+
+        return this as ArgumentType<T?>
+    }
+
+    abstract fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
 }
 
 fun tryRetrieveSnowflake(jda: JDA, action: (JDA) -> Any?): Any? =

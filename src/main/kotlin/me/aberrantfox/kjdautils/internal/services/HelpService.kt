@@ -11,9 +11,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
         command("Help") {
             description = "Display a help menu."
             category = "Utility"
-
-            /*
-            execute(arg(WordArg("Command"), true, "")) {
+            execute(WordArg("Command").makeOptional("")) {
                 val query = it.args.component1()
 
                 val responseEmbed = when {
@@ -24,8 +22,6 @@ class HelpService(private val container: CommandsContainer, private val config: 
 
                 it.respond(responseEmbed)
             }
-
-             */
         }
     }
 
@@ -69,13 +65,13 @@ class HelpService(private val container: CommandsContainer, private val config: 
 
     private fun generateStructure(command: Command) =
         command.expectedArgs.joinToString(" ") {
-            val type = it.type.name
-            if (it.optional) "($type)" else "[$type]"
+            val type = it.name
+            if (it.isOptional) "($type)" else "[$type]"
         }
 
     private fun generateExample(command: Command) =
         command.expectedArgs.joinToString(" ") {
-            it.type.examples.randomListItem()
+            it.examples.randomListItem()
         }
 
     private fun String.isCommand(event: CommandEvent<*>) = fetchVisibleCommands(event)

@@ -11,7 +11,7 @@ sealed class Either<out E, out V> {
 }
 
 // Either accept the left argument or the right argument type. Left is tried first.
-class EitherArg(val left: ArgumentType<*>, val right: ArgumentType<*>, name: String = ""): ArgumentType<Either<*, *>> {
+class EitherArg(val left: ArgumentType<*>, val right: ArgumentType<*>, name: String = ""): ArgumentType<Either<*, *>>() {
     override val name = if (name.isNotBlank()) name else "${left.name} | ${right.name}"
     override val examples: ArrayList<String> = ArrayList(left.examples + right.examples)
     override val consumptionType = ConsumptionType.Single

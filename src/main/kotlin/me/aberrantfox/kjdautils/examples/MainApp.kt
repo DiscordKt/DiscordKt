@@ -135,16 +135,16 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         }
     }
 
-/*
     command("OptionalAdd") {
         description = "Add two numbers together"
-        execute(arg(IntegerArg, false), arg(IntegerArg, true, 1)) {
+        execute(IntegerArg, IntegerArg.makeOptional(5)) {
             val (first, second) = it.args
 
             it.respond("${first + second}")
         }
     }
 
+/*
     command("OptionalInput") {
         description = "Optionally input some text"
         execute(arg(SentenceArg, optional = true)) {

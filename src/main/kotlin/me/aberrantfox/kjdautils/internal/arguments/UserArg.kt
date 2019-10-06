@@ -8,7 +8,7 @@ import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import me.aberrantfox.kjdautils.internal.command.tryRetrieveSnowflake
 import net.dv8tion.jda.api.entities.User
 
-open class UserArg(override val name: String = "User", private val allowsBot: Boolean = false): ArgumentType<User> {
+open class UserArg(override val name: String = "User", private val allowsBot: Boolean = false): ArgumentType<User>() {
     companion object : UserArg()
 
     override val examples = arrayListOf("@Bob", "268856125007331328", "275544730887127040")

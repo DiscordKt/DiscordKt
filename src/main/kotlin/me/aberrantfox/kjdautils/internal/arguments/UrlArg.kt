@@ -6,7 +6,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
-open class UrlArg(override val name : String = "URL"): ArgumentType<String> {
+open class UrlArg(override val name : String = "URL"): ArgumentType<String>() {
     companion object : UrlArg()
 
     override val examples = arrayListOf("http://www.google.com", "https://www.youtube.co.uk")

@@ -7,7 +7,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import net.dv8tion.jda.api.entities.*
 
-open class VoiceChannelArg(override val name : String = "The ID of any valid voice channel.") : ArgumentType<VoiceChannel> {
+open class VoiceChannelArg(override val name : String = "The ID of any valid voice channel.") : ArgumentType<VoiceChannel>() {
     companion object : VoiceChannelArg()
 
     override val examples = arrayListOf("360583945982836746", "360729317631721482")

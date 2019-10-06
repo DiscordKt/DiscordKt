@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
-open class Manual(override val name: String = "Unknown"): ArgumentType<Any?> {
+open class Manual(override val name: String = "Unknown"): ArgumentType<Any?>() {
     companion object : Manual()
 
     override val examples = arrayListOf("None-specified")

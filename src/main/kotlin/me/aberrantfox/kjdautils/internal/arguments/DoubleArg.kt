@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
-open class DoubleArg(override val name: String = "Decimal"): ArgumentType<Double> {
+open class DoubleArg(override val name: String = "Decimal"): ArgumentType<Double>() {
     companion object : DoubleArg()
 
     override val examples = arrayListOf("2.3", "5.6", "64.442234", "664.3443", "25.00")

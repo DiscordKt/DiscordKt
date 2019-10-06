@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
-open class CommandArg(override val name: String = "Command"): ArgumentType<Command> {
+open class CommandArg(override val name: String = "Command"): ArgumentType<Command>() {
     companion object : CommandArg()
     
     override val examples = arrayListOf("Help", "Ping")

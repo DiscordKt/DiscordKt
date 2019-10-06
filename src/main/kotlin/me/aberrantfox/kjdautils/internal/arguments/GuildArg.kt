@@ -7,7 +7,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import net.dv8tion.jda.api.entities.Guild
 
-open class GuildArg(override val name: String = "Guild"): ArgumentType<Guild> {
+open class GuildArg(override val name: String = "Guild"): ArgumentType<Guild>() {
     companion object : GuildArg()
 
     override val examples = arrayListOf("244230771232079873")

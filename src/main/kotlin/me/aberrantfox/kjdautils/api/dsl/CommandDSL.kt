@@ -70,7 +70,7 @@ data class CommandEvent<T>(
 @CommandTagMarker
 class Command(val name: String,
               var category: String = "",
-              var expectedArgs: List<CommandArgument> = listOf(),
+              var expectedArgs: List<ArgumentType<*>> = listOf(),
               var requiresGuild: Boolean = false,
               var description: String = "No Description Provider") {
 
@@ -83,28 +83,18 @@ class Command(val name: String,
         this.requiresGuild = requiresGuild
     }
 
-    fun<T : ArgumentContainer> execute(collection: ArgumentCollection<T>?, execute: (CommandEvent<T>) -> Unit) {
+    fun<T : ArgumentContainer> execute(collection: ArgumentCollection<T>?, event: (CommandEvent<T>) -> Unit) {
 
     }
 
     fun toCommandData(): CommandData {
         val expectedArgs = expectedArgs.joinToString {
-            if (it.optional) "(${it.type.name})" else it.type.name
+            if (it.isOptional) "(${it.name})" else it.name
         }.takeIf { it.isNotEmpty() } ?: "<none>"
 
         return CommandData(name.replace("|", "\\|"),
             expectedArgs.replace("|", "\\|"),
             description.replace("|", "\\|"))
-    }
-}
-
-data class CommandArgument(val type: ArgumentType<*>, val optional: Boolean = false, val defaultValue: Any? = null) {
-    override fun equals(other: Any?): Boolean {
-        if(other == null) return false
-
-        if(other !is CommandArgument) return false
-
-        return other.type == this.type
     }
 }
 
@@ -175,10 +165,6 @@ fun commands(construct: CommandsContainer.() -> Unit): CommandsContainer {
     return commands
 }
 
-fun arg(type: ArgumentType<*>, optional: Boolean = false, default: Any? = null) = CommandArgument(type, optional, default)
-
-fun arg(type: ArgumentType<*>, optional: Boolean = false, default: (CommandEvent<*>) -> Any?) = CommandArgument(type, optional, default)
-
 fun Command.execute(execute: (CommandEvent<*>) -> Unit) {
     execute(args(), execute)
 }
@@ -226,18 +212,4 @@ fun <A, B> args(first: ArgumentType<A>, second: ArgumentType<B>) = object : Argu
         get() = listOf(first, second)
 
     override fun bundle(arguments: List<ArgumentType<*>>) = DoubleArg(arguments[0], arguments[1]) as DoubleArg<A, B>
-}
-
-fun <A, B, C> args(first: ArgumentType<A>, second: ArgumentType<B>, third: ArgumentType<C>) = object : ArgumentCollection<TripleArg<A, B, C>> {
-    override val arguments: List<ArgumentType<*>>
-        get() = listOf(first, second, third)
-
-    override fun bundle(arguments: List<ArgumentType<*>>) = TripleArg(arguments[0], arguments[1], arguments[2]) as TripleArg<A, B, C>
-}
-
-fun <A, B, C, D> args(first: ArgumentType<A>, second: ArgumentType<B>, third: ArgumentType<C>, fourth: ArgumentType<D>) = object : ArgumentCollection<QuadArg<A, B, C, D>> {
-    override val arguments: List<ArgumentType<*>>
-        get() = listOf(first, second, third, fourth)
-
-    override fun bundle(arguments: List<ArgumentType<*>>) = QuadArg(arguments[0], arguments[1], arguments[2], arguments[3]) as QuadArg<A, B, C, D>
 }

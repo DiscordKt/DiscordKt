@@ -15,13 +15,13 @@ sealed class Result {
                 is Error -> this
             }
 
-    data class Results(val results: List<Any?>) : Result()
+    data class Results(val results: ArgumentContainer) : Result()
     data class Error(val error: String) : Result()
 }
 
-internal fun convertArguments(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent<*>): Result {
+internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<*>>, event: CommandEvent<*>): Result {
 
-    val expectedTypes = expected.map { it.type }
+    val expectedTypes = expected.map { it }
 
     if (expectedTypes.contains(Manual)) {
         return Results(actual)
@@ -30,7 +30,7 @@ internal fun convertArguments(actual: List<String>, expected: List<CommandArgume
     return convertArgs(actual, expected, event)
 }
 
-private fun convertOptional(arg: CommandArgument, event: CommandEvent<*>): Any? {
+private fun convertOptional(arg: ArgumentType<*>, event: CommandEvent<*>): Any? {
     val default = arg.defaultValue ?: return null
 
     return when (default) {
@@ -39,14 +39,14 @@ private fun convertOptional(arg: CommandArgument, event: CommandEvent<*>): Any? 
     }
 }
 
-private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent<*>): Result {
+private fun convertArgs(actual: List<String>, expected: List<ArgumentType<*>>, event: CommandEvent<*>): Result {
 
     val remaining = actual.toMutableList()
 
     var lastError: ArgumentResult.Error<*>? = null
     val converted = expected.map { expectedArg ->
         if (remaining.isEmpty()) {
-            if (expectedArg.optional)
+            if (expectedArg.isOptional)
                 convertOptional(expectedArg, event)
             else
                 return Error("Missing non-optional argument(s). Try using `help`")
@@ -57,7 +57,7 @@ private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, e
                 actualArg = remaining.first()
             }
 
-            val result = expectedArg.type.convert(actualArg, remaining.toList(), event)
+            val result = expectedArg.convert(actualArg, remaining.toList(), event)
 
             when (result) {
                 is ArgumentResult.Success -> {
@@ -71,7 +71,7 @@ private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, e
                 is ArgumentResult.Error -> {
                     lastError = result
 
-                    if (expectedArg.optional)
+                    if (expectedArg.isOptional)
                         convertOptional(expectedArg, event)
                     else
                         return Error(result.error)

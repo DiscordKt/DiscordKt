@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
-open class CharArg(override val name : String = "Character"): ArgumentType<Char> {
+open class CharArg(override val name : String = "Character"): ArgumentType<Char>() {
     companion object : CharArg()
 
     override val examples = arrayListOf("a", "b", "c")

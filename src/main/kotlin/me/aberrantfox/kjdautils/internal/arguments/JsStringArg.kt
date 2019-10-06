@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
-open class JsStringArg(override val name : String = "JsStringArg"): ArgumentType<String> {
+open class JsStringArg(override val name : String = "JsStringArg"): ArgumentType<String>() {
     companion object : JsStringArg()
     override val examples = arrayListOf("\"A sample\"")
     override val consumptionType = ConsumptionType.Multiple

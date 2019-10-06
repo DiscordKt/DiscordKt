@@ -6,7 +6,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import net.dv8tion.jda.api.entities.Role
 
-open class RoleArg(override val name : String = "Role", private val guildId: String = ""): ArgumentType<Role> {
+open class RoleArg(override val name : String = "Role", private val guildId: String = ""): ArgumentType<Role>() {
     companion object : RoleArg()
 
     override val examples = arrayListOf("Moderator", "Level 1", "406612842968776706")

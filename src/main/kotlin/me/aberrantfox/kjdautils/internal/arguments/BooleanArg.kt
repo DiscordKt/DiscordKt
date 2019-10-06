@@ -6,7 +6,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import java.lang.IllegalArgumentException
 
-open class BooleanArg(override val name: String = "Boolean", val truthValue: String = "true", val falseValue: String = "false"): ArgumentType<Boolean> {
+open class BooleanArg(override val name: String = "Boolean", val truthValue: String = "true", val falseValue: String = "false"): ArgumentType<Boolean>() {
     companion object : BooleanArg()
 
     override val examples = arrayListOf(truthValue, falseValue)

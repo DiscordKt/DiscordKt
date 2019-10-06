@@ -8,7 +8,7 @@ import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 import me.aberrantfox.kjdautils.internal.command.tryRetrieveSnowflake
 import net.dv8tion.jda.api.entities.Message
 
-open class MessageArg(override val name: String = "MessageID"): ArgumentType<Message> {
+open class MessageArg(override val name: String = "MessageID"): ArgumentType<Message>() {
     companion object : MessageArg()
 
     override val examples = arrayListOf("455099008013303819", "455099111327137807", "244099459327137807")
