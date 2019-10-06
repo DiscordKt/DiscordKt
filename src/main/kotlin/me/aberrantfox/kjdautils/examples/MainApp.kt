@@ -128,9 +128,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
     command("Add") {
         description = "Add two numbers together"
         execute(IntegerArg, IntegerArg) {
-            val first = it.args.component1()
-            val second = it.args.component2()
-
+            val (first, second) = it.args
             it.respond("${first + second}")
         }
     }
@@ -144,16 +142,14 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         }
     }
 
-/*
     command("OptionalInput") {
         description = "Optionally input some text"
-        execute(arg(SentenceArg, optional = true)) {
-            val sentence = it.args.component1() as String? ?: "<No input>"
+        execute(SentenceArg.makeNullableOptional()) {
+            val sentence = it.args.component1() ?: "<No input>"
 
             it.respond("Your input was: $sentence")
         }
     }
-*/
 
     command("GuildSize") {
         description = "Display how many members are in a guild"

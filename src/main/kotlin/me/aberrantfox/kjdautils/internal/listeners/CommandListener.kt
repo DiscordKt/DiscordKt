@@ -1,10 +1,7 @@
 package me.aberrantfox.kjdautils.internal.listeners
 
 import com.google.common.eventbus.Subscribe
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
-import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
-import me.aberrantfox.kjdautils.api.dsl.KConfiguration
-import me.aberrantfox.kjdautils.api.dsl.PrefixDeleteMode
+import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.jda.deleteIfExists
 import me.aberrantfox.kjdautils.extensions.jda.descriptor
@@ -64,11 +61,8 @@ internal class CommandListener(val config: KConfiguration,
             PrefixDeleteMode.None   ->  false
         }
 
-        val event = CommandEvent(commandStruct, message, actualArgs, container,
-                discord = discord,
-                stealthInvocation = shouldDelete,
-                guild = guild
-        )
+        val discordContext = DiscordContext(shouldDelete, discord, message, author, channel, guild)
+        val event = CommandEvent<ArgumentCollection<*>>(commandStruct, container, discordContext)
 
         getPreconditionError(event)?.let {
             if (it != "") {
@@ -124,7 +118,6 @@ internal class CommandListener(val config: KConfiguration,
                 .toList()
                 .sortedBy { (priority, conditions) -> priority }
                 .map { (priority, conditions) -> conditions }
-
 
         // Lazy sequence allows lower priorities to assume higher priorities are already verified
         val failedResults = sortedConditions.asSequence()

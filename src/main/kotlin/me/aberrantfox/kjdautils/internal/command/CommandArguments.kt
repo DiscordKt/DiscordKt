@@ -2,7 +2,6 @@ package me.aberrantfox.kjdautils.internal.command
 
 import me.aberrantfox.kjdautils.api.dsl.*
 import net.dv8tion.jda.api.JDA
-import sun.jvm.hotspot.oops.CellTypeState.value
 
 sealed class ArgumentResult<T> {
     data class Success<T>(val result: T, val consumed: List<String> = listOf()): ArgumentResult<T>()

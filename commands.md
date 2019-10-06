@@ -33,5 +33,7 @@
 | GuildOwner         | <none>    | Provide info about the guild you executed the command in                         |
 | GuildSize          | <none>    | Display how many members are in a guild                                          |
 | Help               | <none>    | Display a help menu.                                                             |
+| OptionalAdd        | <none>    | Add two numbers together                                                         |
+| OptionalInput      | <none>    | Optionally input some text                                                       |
 | Version            | <none>    | A command which will show the version.                                           |
 
