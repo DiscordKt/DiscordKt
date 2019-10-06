@@ -64,13 +64,13 @@ class HelpService(private val container: CommandsContainer, private val config: 
         }
 
     private fun generateStructure(command: Command) =
-        command.expectedArgs.joinToString(" ") {
+        command.expectedArgs.arguments.joinToString(" ") {
             val type = it.name
             if (it.isOptional) "($type)" else "[$type]"
         }
 
     private fun generateExample(command: Command) =
-        command.expectedArgs.joinToString(" ") {
+        command.expectedArgs.arguments.joinToString(" ") {
             it.examples.randomListItem()
         }
 

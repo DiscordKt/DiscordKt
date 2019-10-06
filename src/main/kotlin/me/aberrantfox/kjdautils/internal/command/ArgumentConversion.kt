@@ -9,15 +9,11 @@ import me.aberrantfox.kjdautils.internal.command.Result.Results
 const val separatorCharacter = "|"
 
 sealed class Result {
-    data class Results(val results: List<Any?>) : Result()
+    data class Results(val results: ArgumentContainer) : Result()
     data class Error(val error: String) : Result()
 }
 
-internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<*>>, event: CommandEvent<*>): Result {
-    if (expected.contains(Manual)) {
-        return Results(actual)
-    }
-
+internal fun convertArguments(actual: List<String>, expected: ArgumentCollection<*>, event: CommandEvent<*>): Result {
     return convertArgs(actual, expected, event)
 }
 
@@ -30,13 +26,13 @@ private fun convertOptional(arg: ArgumentType<*>, event: CommandEvent<*>): Any? 
     }
 }
 
-private fun convertArgs(actual: List<String>, expected: List<ArgumentType<*>>, event: CommandEvent<*>): Result {
+private fun convertArgs(actual: List<String>, expected: ArgumentCollection<*>, event: CommandEvent<*>): Result {
 
     val remaining = actual.toMutableList()
 
     var lastError: ArgumentResult.Error<*>? = null
 
-    val converted = expected.map { expectedArg ->
+    val converted = expected.arguments.map { expectedArg ->
         if (remaining.isEmpty()) {
             if (expectedArg.isOptional)
                 convertOptional(expectedArg, event)
@@ -75,5 +71,5 @@ private fun convertArgs(actual: List<String>, expected: List<ArgumentType<*>>, e
     if (remaining.isNotEmpty())
         return Error(lastError?.error ?: "Unmatched arguments. Try using `help`")
 
-    return Results(converted)
+    return Results(expected.bundle(converted as List<Any>))
 }

@@ -62,7 +62,7 @@ internal class CommandListener(val config: KConfiguration,
         }
 
         val discordContext = DiscordContext(shouldDelete, discord, message, author, channel, guild)
-        val event = CommandEvent<ArgumentCollection<*>>(commandStruct, container, discordContext)
+        val event = CommandEvent<ArgumentContainer>(commandStruct, container, discordContext)
 
         getPreconditionError(event)?.let {
             if (it != "") {

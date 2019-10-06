@@ -137,7 +137,6 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         description = "Add two numbers together"
         execute(IntegerArg, IntegerArg.makeOptional(5)) {
             val (first, second) = it.args
-
             it.respond("${first + second}")
         }
     }

@@ -62,7 +62,7 @@ data class DiscordContext(
         }
 }
 
-data class CommandEvent<T>(
+data class CommandEvent<T: ArgumentContainer>(
     val commandStruct: CommandStruct,
     val container: CommandsContainer,
     private val discordContext: DiscordContext
@@ -74,7 +74,7 @@ data class CommandEvent<T>(
     val channel = discordContext.channel
     val guild = discordContext.guild
 
-    var args: T = args() as T
+    var args: T = NoArg() as T
 
     fun respond(msg: String) = discordContext.respond(msg)
     fun respond(embed: MessageEmbed) = discordContext.respond(embed)
@@ -82,30 +82,29 @@ data class CommandEvent<T>(
     fun respondTimed(embed: MessageEmbed, millis: Long = 5000) = discordContext.respondTimed(embed, millis)
     fun unsafeRespond(msg: String) = discordContext.unsafeRespond(msg)
 }
-
 @CommandTagMarker
 class Command(val name: String,
               var category: String = "",
-              var expectedArgs: List<ArgumentType<*>> = listOf(),
+              var expectedArgs: ArgumentCollection<*> = args(),
               var execute: (CommandEvent<*>) -> Unit = {},
               var requiresGuild: Boolean = false,
               var description: String = "No Description Provider") {
 
-    operator fun invoke(args: Command.() -> Unit) {}
+    fun invoke(parsedData: ArgumentContainer, event: CommandEvent<ArgumentContainer>) {
+        event.args = parsedData
+        execute.invoke(event)
+    }
 
     val parameterCount: Int
         get() = this.expectedArgs.size
 
-    fun<T : ArgumentContainer> execute(collection: ArgumentCollection<T>, event: (CommandEvent<T>) -> Unit) {
-        expectedArgs = collection.arguments
-    }
-
-    fun execute(execute: (CommandEvent<*>) -> Unit) {
-        this.execute = execute
+    fun<T : ArgumentContainer> execute(collection: ArgumentCollection<*>, event: (CommandEvent<T>) -> Unit) {
+        expectedArgs = collection
+        this.execute = event as (CommandEvent<*>) -> Unit
     }
 
     fun toCommandData(): CommandData {
-        val expectedArgs = expectedArgs.joinToString {
+        val expectedArgs = expectedArgs.arguments.joinToString {
             if (it.isOptional) "(${it.name})" else it.name
         }.takeIf { it.isNotEmpty() } ?: "<none>"
 
@@ -182,6 +181,10 @@ fun commands(construct: CommandsContainer.() -> Unit): CommandsContainer {
     return commands
 }
 
+fun Command.execute(execute: (CommandEvent<NoArg>) -> Unit) {
+    execute(args(), execute)
+}
+
 fun<T> Command.execute(argument: ArgumentType<T>, execute: (CommandEvent<SingleArg<T>>) -> Unit) {
     execute(args(argument), execute)
 }
@@ -203,26 +206,26 @@ interface ArgumentCollection<T : ArgumentContainer> {
     val size: Int
         get() = arguments.size
 
-    fun bundle(arguments: List<ArgumentType<*>>): T
+    fun bundle(arguments: List<Any>): T
 }
 
 fun args() = object : ArgumentCollection<NoArg> {
-    override val arguments: List<ArgumentType<*>>
+    override val arguments: List<ArgumentType<Nothing>>
         get() = listOf()
 
-    override fun bundle(arguments: List<ArgumentType<*>>) = NoArg()
+    override fun bundle(arguments: List<Any>) = NoArg()
 }
 
 fun <T> args(first: ArgumentType<T>) = object : ArgumentCollection<SingleArg<T>> {
     override val arguments: List<ArgumentType<*>>
         get() = listOf(first)
 
-    override fun bundle(arguments: List<ArgumentType<*>>) = SingleArg(arguments[0]) as SingleArg<T>
+    override fun bundle(arguments: List<Any>) = SingleArg(arguments[0]) as SingleArg<T>
 }
 
 fun <A, B> args(first: ArgumentType<A>, second: ArgumentType<B>) = object : ArgumentCollection<DoubleArg<A, B>> {
     override val arguments: List<ArgumentType<*>>
         get() = listOf(first, second)
 
-    override fun bundle(arguments: List<ArgumentType<*>>) = DoubleArg(arguments[0], arguments[1]) as DoubleArg<A, B>
+    override fun bundle(arguments: List<Any>) = DoubleArg(arguments[0], arguments[1]) as DoubleArg<A, B>
 }

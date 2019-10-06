@@ -7,13 +7,13 @@ import me.aberrantfox.kjdautils.internal.command.Result.Error
 
 internal class CommandExecutor {
 
-    fun executeCommand(command: Command, args: List<String>, event: CommandEvent<*>) = runBlocking {
+    fun executeCommand(command: Command, args: List<String>, event: CommandEvent<ArgumentContainer>) = runBlocking {
         GlobalScope.launch {
             invokeCommand(command, args, event)
         }
     }
 
-    private fun invokeCommand(command: Command, actualArgs: List<String>, event: CommandEvent<*>) {
+    private fun invokeCommand(command: Command, actualArgs: List<String>, event: CommandEvent<ArgumentContainer>) {
         val channel = event.channel
 
         getArgCountError(actualArgs, command)?.let {
@@ -30,9 +30,8 @@ internal class CommandExecutor {
             return
         }
 
-        conversionResult as Result.Results
+        val args = conversionResult as Result.Results
 
-        TODO("Execution with args")
-        command.execute(event)
+        command.invoke(args.results, event)
     }
 }
