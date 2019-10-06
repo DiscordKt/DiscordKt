@@ -22,18 +22,18 @@
 | SomeCommand | <none>    | No Description Provider |
 
 ## Utility
-| Commands           | Arguments | Description                                                                      |
-| ------------------ | --------- | -------------------------------------------------------------------------------- |
-| Add                | <none>    | Add two numbers together                                                         |
-| ConversationTest   | <none>    | Test the implementation of the ConversationDSL                                   |
-| DiscordJsStringArg | <none>    | This command demonstrates how to get a discord.js like string argument in Kutils |
-| DisplayEmbed       | <none>    | Display an example embed.                                                        |
-| DisplayMenu        | <none>    | Display an example menu.                                                         |
-| Echo               | <none>    | No Description Provider                                                          |
-| GuildOwner         | <none>    | Provide info about the guild you executed the command in                         |
-| GuildSize          | <none>    | Display how many members are in a guild                                          |
-| Help               | <none>    | Display a help menu.                                                             |
-| OptionalAdd        | <none>    | Add two numbers together                                                         |
-| OptionalInput      | <none>    | Optionally input some text                                                       |
-| Version            | <none>    | A command which will show the version.                                           |
+| Commands           | Arguments                | Description                                                                      |
+| ------------------ | ------------------------ | -------------------------------------------------------------------------------- |
+| Add                | (Integer), (Integer)     | Add two numbers together                                                         |
+| ConversationTest   | <none>                   | Test the implementation of the ConversationDSL                                   |
+| DiscordJsStringArg | JsStringArg, JsStringArg | This command demonstrates how to get a discord.js like string argument in Kutils |
+| DisplayEmbed       | <none>                   | Display an example embed.                                                        |
+| DisplayMenu        | <none>                   | Display an example menu.                                                         |
+| Echo               | (Text)                   | No Description Provider                                                          |
+| GuildOwner         | <none>                   | Provide info about the guild you executed the command in                         |
+| GuildSize          | <none>                   | Display how many members are in a guild                                          |
+| Help               | (Command)                | Display a help menu.                                                             |
+| OptionalAdd        | (Integer), (Integer)     | Add two numbers together                                                         |
+| OptionalInput      | (Text)                   | Optionally input some text                                                       |
+| Version            | <none>                   | A command which will show the version.                                           |
 

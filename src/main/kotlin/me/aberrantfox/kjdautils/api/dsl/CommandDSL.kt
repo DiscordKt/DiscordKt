@@ -87,6 +87,7 @@ data class CommandEvent<T>(
 class Command(val name: String,
               var category: String = "",
               var expectedArgs: List<ArgumentType<*>> = listOf(),
+              var execute: (CommandEvent<*>) -> Unit = {},
               var requiresGuild: Boolean = false,
               var description: String = "No Description Provider") {
 
@@ -96,7 +97,11 @@ class Command(val name: String,
         get() = this.expectedArgs.size
 
     fun<T : ArgumentContainer> execute(collection: ArgumentCollection<T>, event: (CommandEvent<T>) -> Unit) {
+        expectedArgs = collection.arguments
+    }
 
+    fun execute(execute: (CommandEvent<*>) -> Unit) {
+        this.execute = execute
     }
 
     fun toCommandData(): CommandData {
@@ -175,10 +180,6 @@ fun commands(construct: CommandsContainer.() -> Unit): CommandsContainer {
     val commands = CommandsContainer()
     commands.construct()
     return commands
-}
-
-fun Command.execute(execute: (CommandEvent<*>) -> Unit) {
-    execute(args(), execute)
 }
 
 fun<T> Command.execute(argument: ArgumentType<T>, execute: (CommandEvent<SingleArg<T>>) -> Unit) {
