@@ -8,7 +8,7 @@ import kotlin.Double
 private typealias Quantity = Double
 private typealias Quantifier = String
 
-fun convertTimeString(actual: List<String>): ArgumentResult {
+fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
 
     val possibleEnd = actual.indexOfFirst { toTimeElement(it) == null }
 
@@ -66,7 +66,7 @@ fun convertTimeString(actual: List<String>): ArgumentResult {
             .reduce { a, b -> a + b }
 
 
-    return Multiple(timeInSeconds, consumed)
+    return Success(timeInSeconds, consumed)
 }
 
 private fun toTimeElement(element: String): Any? {

@@ -118,7 +118,7 @@ internal class CommandListener(val config: KConfiguration,
         return true
     }
 
-    private fun getPreconditionError(event: CommandEvent): String? {
+    private fun getPreconditionError(event: CommandEvent<*>): String? {
         val sortedConditions = preconditions
                 .groupBy({ it.priority }, { it.condition })
                 .toList()

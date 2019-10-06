@@ -37,7 +37,7 @@ class ConversationService(val dc: Discord, private val config: KConfiguration, v
         val totalSteps = conversationState.conversation.steps.size
         val response = parseResponse(event.message, getCurrentStep(conversationState))
 
-        if (response is ArgumentResult.Error) {
+        if (response is ArgumentResult.Error<*>) {
             sendToUser(userId, response.error)
             sendToUser(userId, currentStep.prompt)
         } else {
@@ -58,15 +58,14 @@ class ConversationService(val dc: Discord, private val config: KConfiguration, v
         }
     }
 
-    private fun parseResponse(message: Message, step: Step): Any {
+    private fun parseResponse(message: Message, step: Step): Any? {
         val commandStruct = CommandStruct("", message.contentStripped.split(" "), false)
         val commandEvent = CommandEvent(commandStruct, message, commandStruct.commandArgs, CommandsContainer(), false, dc)
-        val result = step.expect.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
+        val result: ArgumentResult<*> = step.expect.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
 
         return when (result) {
-            is ArgumentResult.Single -> result.result
-            is ArgumentResult.Multiple -> result.result
-            is ArgumentResult.Error -> result
+            is ArgumentResult.Success<*> -> result.result
+            is ArgumentResult.Error<*> -> result
         }
     }
 

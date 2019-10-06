@@ -11,9 +11,10 @@ class HelpService(private val container: CommandsContainer, private val config: 
         command("Help") {
             description = "Display a help menu."
             category = "Utility"
-            expect(arg(WordArg("Command"), true, ""))
-            execute {
-                val query = it.args.component1() as String
+
+            /*
+            execute(arg(WordArg("Command"), true, "")) {
+                val query = it.args.component1()
 
                 val responseEmbed = when {
                     query.isEmpty() -> generateDefaultEmbed(it)
@@ -23,10 +24,12 @@ class HelpService(private val container: CommandsContainer, private val config: 
 
                 it.respond(responseEmbed)
             }
+
+             */
         }
     }
 
-    private fun generateDefaultEmbed(event: CommandEvent) =
+    private fun generateDefaultEmbed(event: CommandEvent<*>) =
         embed {
             title = "Help menu"
             description = "Use `${config.prefix}help <command>` for more information."
@@ -55,7 +58,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
         addField("Show me an example of someone using the command.", "$commandInvocation ${generateExample(command)}")
     }
 
-    private fun generateRecommendationEmbed(query: String, event: CommandEvent) =
+    private fun generateRecommendationEmbed(query: String, event: CommandEvent<*>) =
         embed {
             val recommendation = CommandRecommender.recommendCommand(query) { it.isVisible(event) }
 
@@ -75,13 +78,13 @@ class HelpService(private val container: CommandsContainer, private val config: 
             it.type.examples.randomListItem()
         }
 
-    private fun String.isCommand(event: CommandEvent) = fetchVisibleCommands(event)
+    private fun String.isCommand(event: CommandEvent<*>) = fetchVisibleCommands(event)
         .any {
             this.toLowerCase() == it.name.toLowerCase()
         }
 
-    private fun fetchVisibleCommands(event: CommandEvent) = container.commands.values.filter { it.isVisible(event) }
+    private fun fetchVisibleCommands(event: CommandEvent<*>) = container.commands.values.filter { it.isVisible(event) }
 
-    private fun Command.isVisible(event: CommandEvent) =
+    private fun Command.isVisible(event: CommandEvent<*>) =
         config.visibilityPredicate(this, event.author, event.channel, event.guild)
 }

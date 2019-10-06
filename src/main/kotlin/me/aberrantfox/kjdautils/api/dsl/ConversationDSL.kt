@@ -11,12 +11,12 @@ class Conversation(val name: String,
                    var onComplete: (ConversationStateContainer) -> Unit = {}
 )
 
-data class Step(val prompt: Any, val expect: ArgumentType)
+data class Step(val prompt: Any, val expect: ArgumentType<*>)
 
 data class ConversationStateContainer(
     val userId: String,
     val guildId: String,
-    var responses: MutableList<Any>,
+    var responses: MutableList<Any?>,
     val conversation: Conversation,
     var currentStep: Int,
     val discord: Discord) {
@@ -51,7 +51,7 @@ class Steps: ArrayList<Step>() {
 
 class StepBuilder {
     var prompt: Any = ""
-    var expect: ArgumentType = WordArg
+    var expect: ArgumentType<*> = WordArg
     fun build(): Step = Step(prompt, expect)
 }
 

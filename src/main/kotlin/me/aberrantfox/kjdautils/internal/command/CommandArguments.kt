@@ -1,21 +1,18 @@
 package me.aberrantfox.kjdautils.internal.command
 
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
+import me.aberrantfox.kjdautils.api.dsl.*
 import net.dv8tion.jda.api.JDA
 
-sealed class ArgumentResult {
-    /** A result that has only consumed the single argument passed. **/
-    data class Single(val result: Any) : ArgumentResult() {
-        companion object
-    }
+sealed class ArgumentResult<T> {
+    data class Success<T>(val result: T, val consumed: List<String> = listOf()): ArgumentResult<T>()
 
-    /** A result that has consumed more than just the argument given. **/
-    data class Multiple(val result: Any, val consumed: List<String>) : ArgumentResult() {
-        companion object
-    }
+    data class Error<T>(val error: String): ArgumentResult<T>()
 
-    data class Error(val error: String) : ArgumentResult() {
-        companion object
+    inline fun<R> map(mapper: (T) -> R): ArgumentResult<R> {
+        return when (this) {
+            is Error<T> -> this as ArgumentResult<R>
+            is Success<T> -> Success(mapper(result))
+        }
     }
 }
 
@@ -23,12 +20,12 @@ enum class ConsumptionType {
     Single, Multiple, All
 }
 
-interface ArgumentType {
+interface ArgumentType<T> {
     val consumptionType: ConsumptionType
     val examples: ArrayList<String>
     val name: String
 
-    fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult
+    fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
 }
 
 fun tryRetrieveSnowflake(jda: JDA, action: (JDA) -> Any?): Any? =

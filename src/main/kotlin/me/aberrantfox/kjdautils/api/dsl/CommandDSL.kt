@@ -15,19 +15,19 @@ import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 import java.lang.IllegalArgumentException
 
-
 annotation class CommandSet(val category: String = "uncategorized")
 
-data class CommandEvent(val commandStruct: CommandStruct,
-                        val message: Message,
-                        var args: List<Any?>,
-                        val container: CommandsContainer,
-                        val stealthInvocation: Boolean,
-                        val discord: Discord,
-                        val author: User = message.author,
-                        val channel: MessageChannel = message.channel,
-                        val guild: Guild? = null) {
-
+data class CommandEvent<T>(
+    val commandStruct: CommandStruct,
+    val message: Message,
+    var args: T,
+    val container: CommandsContainer,
+    val stealthInvocation: Boolean,
+    val discord: Discord,
+    val author: User = message.author,
+    val channel: MessageChannel = message.channel,
+    val guild: Guild? = null
+) {
     fun respond(msg: String) = unsafeRespond(msg.sanitiseMentions())
 
     fun respond(embed: MessageEmbed) = this.channel.sendMessage(embed).queue()
@@ -65,14 +65,12 @@ data class CommandEvent(val commandStruct: CommandStruct,
             } else{
                 channel.sendMessage(msg).queue()
             }
-
 }
 
 @CommandTagMarker
 class Command(val name: String,
               var category: String = "",
-              var expectedArgs: Array<out CommandArgument> = arrayOf(),
-              var execute: (CommandEvent) -> Unit = {},
+              var expectedArgs: List<CommandArgument> = listOf(),
               var requiresGuild: Boolean = false,
               var description: String = "No Description Provider") {
 
@@ -85,26 +83,8 @@ class Command(val name: String,
         this.requiresGuild = requiresGuild
     }
 
-    fun execute(execute: (CommandEvent) -> Unit) {
-        this.execute = execute
-    }
+    fun<T : ArgumentContainer> execute(collection: ArgumentCollection<T>?, execute: (CommandEvent<T>) -> Unit) {
 
-    fun expect(vararg args: CommandArgument) {
-        this.expectedArgs = args
-    }
-
-    fun expect(vararg args: ArgumentType) {
-        val clone = Array(args.size) { arg(WordArg) }
-
-        for (x in args.indices) {
-            clone[x] = arg(args[x])
-        }
-
-        this.expectedArgs = clone
-    }
-
-    fun expect(args: Command.() -> Array<out CommandArgument>) {
-        this.expectedArgs = args()
     }
 
     fun toCommandData(): CommandData {
@@ -118,7 +98,7 @@ class Command(val name: String,
     }
 }
 
-data class CommandArgument(val type: ArgumentType, val optional: Boolean = false, val defaultValue: Any? = null) {
+data class CommandArgument(val type: ArgumentType<*>, val optional: Boolean = false, val defaultValue: Any? = null) {
     override fun equals(other: Any?): Boolean {
         if(other == null) return false
 
@@ -195,6 +175,69 @@ fun commands(construct: CommandsContainer.() -> Unit): CommandsContainer {
     return commands
 }
 
-fun arg(type: ArgumentType, optional: Boolean = false, default: Any? = null) = CommandArgument(type, optional, default)
+fun arg(type: ArgumentType<*>, optional: Boolean = false, default: Any? = null) = CommandArgument(type, optional, default)
 
-fun arg(type: ArgumentType, optional: Boolean = false, default: (CommandEvent) -> Any?) = CommandArgument(type, optional, default)
+fun arg(type: ArgumentType<*>, optional: Boolean = false, default: (CommandEvent<*>) -> Any?) = CommandArgument(type, optional, default)
+
+fun Command.execute(execute: (CommandEvent<*>) -> Unit) {
+    execute(args(), execute)
+}
+
+fun<T> Command.execute(argument: ArgumentType<T>, execute: (CommandEvent<SingleArg<T>>) -> Unit) {
+    execute(args(argument), execute)
+}
+
+fun<A, B> Command.execute(first: ArgumentType<A>, second: ArgumentType<B>, execute: (CommandEvent<DoubleArg<A, B>>) -> Unit) {
+    execute(args(first, second), execute)
+}
+
+open class ArgumentContainer
+class NoArg: ArgumentContainer()
+data class SingleArg<T>(val first: T): ArgumentContainer()
+data class DoubleArg<A, B>(val first: A, val second: B): ArgumentContainer()
+data class TripleArg<A, B, C>(val first: A, val second: B, val third: C): ArgumentContainer()
+data class QuadArg<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D): ArgumentContainer()
+
+interface ArgumentCollection<T : ArgumentContainer> {
+    val arguments: List<ArgumentType<*>>
+
+    val size: Int
+        get() = arguments.size
+
+    fun bundle(arguments: List<ArgumentType<*>>): T
+}
+
+fun args() = object : ArgumentCollection<NoArg> {
+    override val arguments: List<ArgumentType<*>>
+        get() = listOf()
+
+    override fun bundle(arguments: List<ArgumentType<*>>) = NoArg()
+}
+
+fun <T> args(first: ArgumentType<T>) = object : ArgumentCollection<SingleArg<T>> {
+    override val arguments: List<ArgumentType<*>>
+        get() = listOf(first)
+
+    override fun bundle(arguments: List<ArgumentType<*>>) = SingleArg(arguments[0]) as SingleArg<T>
+}
+
+fun <A, B> args(first: ArgumentType<A>, second: ArgumentType<B>) = object : ArgumentCollection<DoubleArg<A, B>> {
+    override val arguments: List<ArgumentType<*>>
+        get() = listOf(first, second)
+
+    override fun bundle(arguments: List<ArgumentType<*>>) = DoubleArg(arguments[0], arguments[1]) as DoubleArg<A, B>
+}
+
+fun <A, B, C> args(first: ArgumentType<A>, second: ArgumentType<B>, third: ArgumentType<C>) = object : ArgumentCollection<TripleArg<A, B, C>> {
+    override val arguments: List<ArgumentType<*>>
+        get() = listOf(first, second, third)
+
+    override fun bundle(arguments: List<ArgumentType<*>>) = TripleArg(arguments[0], arguments[1], arguments[2]) as TripleArg<A, B, C>
+}
+
+fun <A, B, C, D> args(first: ArgumentType<A>, second: ArgumentType<B>, third: ArgumentType<C>, fourth: ArgumentType<D>) = object : ArgumentCollection<QuadArg<A, B, C, D>> {
+    override val arguments: List<ArgumentType<*>>
+        get() = listOf(first, second, third, fourth)
+
+    override fun bundle(arguments: List<ArgumentType<*>>) = QuadArg(arguments[0], arguments[1], arguments[2], arguments[3]) as QuadArg<A, B, C, D>
+}

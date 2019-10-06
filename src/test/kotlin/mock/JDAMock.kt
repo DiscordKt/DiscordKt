@@ -45,7 +45,7 @@ val commandContainerMock = mockk<CommandsContainer> {
 
 }
 
-val commandEventMock = mockk<CommandEvent> {
+val commandEventMock = mockk<CommandEvent<*>> {
     every { discord } returns discordMock
     every { container } returns commandContainerMock
     every { channel } returns channelMock

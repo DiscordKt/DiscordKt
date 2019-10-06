@@ -1,8 +1,7 @@
 package me.aberrantfox.kjdautils.internal.command
 
 
-import me.aberrantfox.kjdautils.api.dsl.CommandArgument
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
+import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.internal.arguments.Manual
 import me.aberrantfox.kjdautils.internal.command.Result.Error
 import me.aberrantfox.kjdautils.internal.command.Result.Results
@@ -20,7 +19,7 @@ sealed class Result {
     data class Error(val error: String) : Result()
 }
 
-internal fun convertArguments(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): Result {
+internal fun convertArguments(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent<*>): Result {
 
     val expectedTypes = expected.map { it.type }
 
@@ -31,20 +30,20 @@ internal fun convertArguments(actual: List<String>, expected: List<CommandArgume
     return convertArgs(actual, expected, event)
 }
 
-private fun convertOptional(arg: CommandArgument, event: CommandEvent): Any? {
+private fun convertOptional(arg: CommandArgument, event: CommandEvent<*>): Any? {
     val default = arg.defaultValue ?: return null
 
     return when (default) {
-        is Function<*> -> (default as (CommandEvent) -> Any).invoke(event)
+        is Function<*> -> (default as (CommandEvent<*>) -> Any).invoke(event)
         else -> default
     }
 }
 
-private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): Result {
+private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent<*>): Result {
 
     val remaining = actual.toMutableList()
 
-    var lastError: ArgumentResult.Error? = null
+    var lastError: ArgumentResult.Error<*>? = null
     val converted = expected.map { expectedArg ->
         if (remaining.isEmpty()) {
             if (expectedArg.optional)
@@ -61,12 +60,12 @@ private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, e
             val result = expectedArg.type.convert(actualArg, remaining.toList(), event)
 
             when (result) {
-                is ArgumentResult.Single -> {
-                    remaining.remove(actualArg)
-                    result.result
-                }
-                is ArgumentResult.Multiple -> {
-                    result.consumed.map { remaining.remove(it) }
+                is ArgumentResult.Success -> {
+                    if (result.consumed.isNotEmpty())
+                        remaining.removeAll(result.consumed)
+                    else
+                        remaining.remove(actualArg)
+
                     result.result
                 }
                 is ArgumentResult.Error -> {
