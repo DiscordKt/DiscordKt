@@ -145,25 +145,26 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         description = "Optionally input some text"
         execute(SentenceArg.makeNullableOptional()) {
             val sentence = it.args.component1() ?: "<No input>"
-
             it.respond("Your input was: $sentence")
         }
     }
 
-    command("GuildSize") {
-        description = "Display how many members are in a guild"
-        requiresGuild = true
-        execute {
-            it.respond("There are ${it.guild!!.members.size} members ")
+    command("NumberOrWord") {
+        description = "Enter a word or a number"
+        execute(IntegerArg or WordArg) {
+            when (val input = it.args.first) {
+                is Either.Left -> it.respond("You input the number: ${input.left}")
+                is Either.Right -> it.respond("You input the word: ${input.right}")
+            }
         }
     }
 
-    command("GuildOwner") {
-        description = "Provide info about the guild you executed the command in"
-        execute {
-            //This command just won't do anything if it's executed in DM. You may want to send a response.
-            val guild = it.guild ?: return@execute
-            it.respond("${guild.name} is owned by ${guild.owner}")
+    command("Sum") {
+        description = "Sum a set of numbers"
+        execute(MultipleArg(IntegerArg, "Numbers").makeOptional(listOf(0))) {
+            val numbers = it.args.component1()
+            val sum = numbers.sum()
+            it.respond("Sum: $sum")
         }
     }
 
@@ -172,16 +173,6 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         requiresGuild = true
         execute {
             conversationService.createConversation(it.author.id, it.guild!!.id, "test-conversation")
-        }
-    }
-
-    command("DiscordJsStringArg") {
-        description = "This command demonstrates how to get a discord.js like string argument in Kutils"
-        execute(JsStringArg, JsStringArg) {
-            val arg = it.args.component1()
-            val arg2 = it.args.component2()
-            it.respond(arg)
-            it.respond(arg2)
         }
     }
 }
