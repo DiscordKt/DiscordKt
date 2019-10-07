@@ -2,15 +2,14 @@ package me.aberrantfox.kjdautils.internal.services
 
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.discord.Discord
-import me.aberrantfox.kjdautils.internal.command.ArgumentResult
-import me.aberrantfox.kjdautils.internal.command.CommandStruct
+import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.di.DIService
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 
-class ConversationService(val dc: Discord, private val config: KConfiguration, val diService: DIService) {
+class ConversationService(val dc: Discord, val diService: DIService) {
     private var availableConversations = mutableListOf<Conversation>()
     private val activeConversations = mutableListOf<ConversationStateContainer>()
 

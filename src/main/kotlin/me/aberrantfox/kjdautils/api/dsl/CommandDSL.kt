@@ -1,18 +1,14 @@
 package me.aberrantfox.kjdautils.api.dsl
 
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.stdlib.sanitiseMentions
 import me.aberrantfox.kjdautils.internal.businessobjects.CommandData
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
-import me.aberrantfox.kjdautils.internal.command.CommandStruct
+import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.di.DIService
 import net.dv8tion.jda.api.entities.*
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
-import java.lang.IllegalArgumentException
 
 annotation class CommandSet(val category: String = "uncategorized")
 
@@ -28,9 +24,7 @@ data class DiscordContext(
     fun respond(embed: MessageEmbed) = this.channel.sendMessage(embed).queue()
 
     fun respondTimed(msg: String, millis: Long = 5000) {
-        if(millis < 0) {
-            throw IllegalArgumentException("RespondTimed: Delay cannot be negative.")
-        }
+        require(millis >= 0) { "RespondTimed: Delay cannot be negative." }
 
         this.channel.sendMessage(msg.sanitiseMentions()).queue {
             GlobalScope.launch {
@@ -41,9 +35,7 @@ data class DiscordContext(
     }
 
     fun respondTimed(embed: MessageEmbed, millis: Long = 5000) {
-        if(millis < 0) {
-            throw IllegalArgumentException("RespondTimed: Delay cannot be negative.")
-        }
+        require(millis >= 0) { "RespondTimed: Delay cannot be negative." }
 
         this.channel.sendMessage(embed).queue {
             GlobalScope.launch {
@@ -124,7 +116,7 @@ data class CommandsContainer(var commands: HashMap<String, Command> = HashMap())
     fun command(name: String, construct: Command.() -> Unit = {}): Command? {
         val command = Command(name)
         command.construct()
-        this.commands.put(name, command)
+        this.commands[name] = command
         return command
     }
 

@@ -1,11 +1,8 @@
 package me.aberrantfox.kjdautils.internal.arguments
 
-import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.api.dsl.CommandEvent
 import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
-import me.aberrantfox.kjdautils.internal.command.ArgumentResult
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
-import me.aberrantfox.kjdautils.internal.command.ConsumptionType
-import me.aberrantfox.kjdautils.internal.command.tryRetrieveSnowflake
+import me.aberrantfox.kjdautils.internal.command.*
 import net.dv8tion.jda.api.entities.Message
 
 open class MessageArg(override val name: String = "MessageID"): ArgumentType<Message>() {

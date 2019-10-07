@@ -40,14 +40,14 @@ fun getArgCountError(actual: List<String>, cmd: Command): String? {
             .any { it in listOf(ConsumptionType.Multiple, ConsumptionType.All) }
 
     if (hasMultipleArg) {
-        if (actualNonBlank < validRange.start) {
-            return "This command requires at least ${validRange.start} argument(s)"
+        if (actualNonBlank < validRange.first) {
+            return "This command requires at least ${validRange.first} argument(s)"
         }
     } else if (actualNonBlank !in validRange) {
-        return if (validRange.start == validRange.endInclusive) {
-            "This command requires ${validRange.start} argument(s)."
+        return if (validRange.first == validRange.last) {
+            "This command requires ${validRange.first} argument(s)."
         } else {
-            "This command requires between ${validRange.start} and ${validRange.endInclusive} arguments."
+            "This command requires between ${validRange.first} and ${validRange.last} arguments."
         }
     }
 
