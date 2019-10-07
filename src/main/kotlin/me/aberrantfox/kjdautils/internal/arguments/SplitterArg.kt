@@ -1,10 +1,7 @@
 package me.aberrantfox.kjdautils.internal.arguments
 
-import me.aberrantfox.kjdautils.api.dsl.*
-import me.aberrantfox.kjdautils.internal.command.ArgumentResult
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
-import me.aberrantfox.kjdautils.internal.command.ConsumptionType
-import me.aberrantfox.kjdautils.internal.command.separatorCharacter
+import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
+import me.aberrantfox.kjdautils.internal.command.*
 
 open class SplitterArg(override val name : String = "(Separated|Text)"): ArgumentType<List<String>>() {
     companion object : SplitterArg()

@@ -1,9 +1,7 @@
 package me.aberrantfox.kjdautils.internal.arguments
 
-import me.aberrantfox.kjdautils.api.dsl.*
-import me.aberrantfox.kjdautils.internal.command.ArgumentResult
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
-import me.aberrantfox.kjdautils.internal.command.ConsumptionType
+import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
+import me.aberrantfox.kjdautils.internal.command.*
 
 sealed class Either<out L, out R> {
     data class Left<out L>(val left: L): Either<L, Nothing>()

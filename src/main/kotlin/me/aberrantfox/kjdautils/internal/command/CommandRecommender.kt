@@ -1,6 +1,6 @@
 package me.aberrantfox.kjdautils.internal.command
 
-import me.aberrantfox.kjdautils.api.dsl.Command
+import me.aberrantfox.kjdautils.api.dsl.command.Command
 import org.apache.commons.text.similarity.LevenshteinDistance
 
 object CommandRecommender {

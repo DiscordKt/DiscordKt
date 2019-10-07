@@ -1,5 +1,6 @@
 package me.aberrantfox.kjdautils.api.dsl
 
+import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.PreconditionResult
 
 const val defaultPreconditionPriority = 5

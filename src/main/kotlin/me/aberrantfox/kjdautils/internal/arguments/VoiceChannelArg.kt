@@ -1,11 +1,9 @@
 package me.aberrantfox.kjdautils.internal.arguments
 
-import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
-import me.aberrantfox.kjdautils.internal.command.ArgumentResult
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
-import me.aberrantfox.kjdautils.internal.command.ConsumptionType
-import net.dv8tion.jda.api.entities.*
+import me.aberrantfox.kjdautils.internal.command.*
+import net.dv8tion.jda.api.entities.VoiceChannel
 
 open class VoiceChannelArg(override val name : String = "The ID of any valid voice channel.") : ArgumentType<VoiceChannel>() {
     companion object : VoiceChannelArg()

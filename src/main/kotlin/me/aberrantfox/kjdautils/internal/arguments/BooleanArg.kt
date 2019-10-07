@@ -1,6 +1,6 @@
 package me.aberrantfox.kjdautils.internal.arguments
 
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
+import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.*
 
 open class BooleanArg(override val name: String = "Boolean", val truthValue: String = "true", val falseValue: String = "false"): ArgumentType<Boolean>() {

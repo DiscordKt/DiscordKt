@@ -1,10 +1,8 @@
 package me.aberrantfox.kjdautils.internal.arguments
 
-import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.extensions.stdlib.randomInt
-import me.aberrantfox.kjdautils.internal.command.ArgumentResult
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
-import me.aberrantfox.kjdautils.internal.command.ConsumptionType
+import me.aberrantfox.kjdautils.internal.command.*
 
 open class IntegerRangeArg(val min: Int = 0, val max: Int, override val name: String = "Integer ($min-$max)"): ArgumentType<Int>() {
     companion object : IntegerRangeArg(min = 0, max = 10)

@@ -1,9 +1,7 @@
 package me.aberrantfox.kjdautils.internal.arguments
 
-import me.aberrantfox.kjdautils.api.dsl.*
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
-import me.aberrantfox.kjdautils.internal.command.ConsumptionType
-import me.aberrantfox.kjdautils.internal.command.convertTimeString
+import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
+import me.aberrantfox.kjdautils.internal.command.*
 
 open class TimeStringArg(override val name : String = "Time"): ArgumentType<Double>() {
     companion object : TimeStringArg()

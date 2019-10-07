@@ -1,8 +1,7 @@
 package mock
 
 import io.mockk.*
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
-import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
+import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.Discord
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Category

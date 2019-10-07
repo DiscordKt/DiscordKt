@@ -1,10 +1,8 @@
 package me.aberrantfox.kjdautils.internal.arguments
 
-import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.extensions.stdlib.containsURl
-import me.aberrantfox.kjdautils.internal.command.ArgumentResult
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
-import me.aberrantfox.kjdautils.internal.command.ConsumptionType
+import me.aberrantfox.kjdautils.internal.command.*
 
 open class UrlArg(override val name : String = "URL"): ArgumentType<String>() {
     companion object : UrlArg()

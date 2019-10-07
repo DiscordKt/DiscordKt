@@ -1,7 +1,7 @@
 package me.aberrantfox.kjdautils.internal.command
 
 import kotlinx.coroutines.*
-import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.extensions.jda.*
 import me.aberrantfox.kjdautils.internal.command.Result.Error
 

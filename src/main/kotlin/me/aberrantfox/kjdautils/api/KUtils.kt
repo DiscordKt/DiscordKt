@@ -3,6 +3,7 @@ package me.aberrantfox.kjdautils.api
 import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.annotation.*
 import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.buildDiscordClient
 import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.di.DIService

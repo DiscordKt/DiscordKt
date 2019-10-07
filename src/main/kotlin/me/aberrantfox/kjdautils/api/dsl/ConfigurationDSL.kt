@@ -1,5 +1,6 @@
 package me.aberrantfox.kjdautils.api.dsl
 
+import me.aberrantfox.kjdautils.api.dsl.command.Command
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
