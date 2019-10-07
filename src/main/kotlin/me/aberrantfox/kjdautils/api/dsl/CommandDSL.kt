@@ -70,6 +70,7 @@ data class CommandEvent<T: ArgumentContainer>(
 
     fun respond(msg: String) = discordContext.respond(msg)
     fun respond(embed: MessageEmbed) = discordContext.respond(embed)
+    fun respond(construct: EmbedDSLHandle.() -> Unit) = respond(embed (construct))
     fun respondTimed(msg: String, millis: Long = 5000) = discordContext.respondTimed(msg, millis)
     fun respondTimed(embed: MessageEmbed, millis: Long = 5000) = discordContext.respondTimed(embed, millis)
     fun unsafeRespond(msg: String) = discordContext.unsafeRespond(msg)
