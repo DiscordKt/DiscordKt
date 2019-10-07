@@ -28,10 +28,17 @@ abstract class ArgumentType<T>: Cloneable {
     var isOptional: Boolean = false
         private set
 
-    var defaultValue: T? = null
+    var defaultValue: ((CommandEvent<*>) -> T)? = null
         private set
 
     fun makeOptional(default: T): ArgumentType<T> {
+        val newArg = this.clone() as (ArgumentType<T>)
+        newArg.isOptional = true
+        newArg.defaultValue = { default }
+        return newArg
+    }
+
+    fun makeOptional(default: (CommandEvent<*>) -> T): ArgumentType<T> {
         val newArg = this.clone() as (ArgumentType<T>)
         newArg.isOptional = true
         newArg.defaultValue = default
@@ -39,6 +46,13 @@ abstract class ArgumentType<T>: Cloneable {
     }
 
     fun makeNullableOptional(default: T? = null): ArgumentType<T?> {
+        val newArg = this.clone() as (ArgumentType<T?>)
+        newArg.isOptional = true
+        newArg.defaultValue = { default }
+        return newArg
+    }
+
+    fun makeNullableOptional(default: (CommandEvent<*>) -> T?): ArgumentType<T?> {
         val newArg = this.clone() as (ArgumentType<T?>)
         newArg.isOptional = true
         newArg.defaultValue = default
