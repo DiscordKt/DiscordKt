@@ -1,5 +1,5 @@
 package me.aberrantfox.kjdautils.api.dsl
-
+import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.GenericEvent
@@ -38,7 +38,7 @@ fun menu(construct: MenuDSLHandle.() -> Unit): Menu {
     return handle.build()
 }
 
-fun CommandEvent.respond(menu: Menu) {
+fun CommandEvent<*>.respond(menu: Menu) {
     require(menu.embeds.isNotEmpty()) { "Cannot build a menu with no embeds." }
 
     val firstPage = menu.embeds.first()

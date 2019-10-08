@@ -1,16 +1,14 @@
 package me.aberrantfox.kjdautils.internal.arguments
 
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
-import me.aberrantfox.kjdautils.internal.command.ArgumentResult
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
-import me.aberrantfox.kjdautils.internal.command.ConsumptionType
+import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
+import me.aberrantfox.kjdautils.internal.command.*
 
-open class JsStringArg(override val name : String = "JsStringArg") : ArgumentType {
+open class JsStringArg(override val name : String = "JsStringArg"): ArgumentType<String>() {
     companion object : JsStringArg()
     override val examples = arrayListOf("\"A sample\"")
     override val consumptionType = ConsumptionType.Multiple
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult {
+    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         val joined = args.joinToString(" ")
         val countOfQuotes = joined.count { it == '\"' }
 
@@ -24,7 +22,7 @@ open class JsStringArg(override val name : String = "JsStringArg") : ArgumentTyp
                 listOf("\"$arg\"")
             }
 
-            ArgumentResult.Multiple(arg, consumed)
+            ArgumentResult.Success(arg, consumed)
         }
     }
 }

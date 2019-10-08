@@ -1,8 +1,7 @@
 package me.aberrantfox.kjdautils.internal.services
 
 import me.aberrantfox.kjdautils.api.annotation.Service
-import me.aberrantfox.kjdautils.api.dsl.Command
-import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
+import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.internal.businessobjects.CategoryDocs
 import me.aberrantfox.kjdautils.internal.businessobjects.CommandData
 import me.aberrantfox.kjdautils.internal.businessobjects.CommandsOutputFormatter

@@ -4,6 +4,7 @@ package me.aberrantfox.kjdautils.examples
 import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.annotation.*
 import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.extensions.jda.fullName
 import me.aberrantfox.kjdautils.internal.arguments.*
@@ -119,59 +120,52 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
     }
 
     command("Echo") {
-        expect(SentenceArg)
-        execute {
-            val response = it.args.component1() as String
+        execute(SentenceArg) {
+            val response = it.args.component1()
             it.respond(response)
         }
     }
 
     command("Add") {
         description = "Add two numbers together"
-        expect(IntegerArg, IntegerArg)
-        execute {
-            val first = it.args.component1() as Int
-            val second = it.args.component2() as Int
-
+        execute(IntegerArg, IntegerArg) {
+            val (first, second) = it.args
             it.respond("${first + second}")
         }
     }
 
     command("OptionalAdd") {
         description = "Add two numbers together"
-        expect(arg(IntegerArg, false), arg(IntegerArg, true, 1))
-        execute {
-            val first = it.args.component1() as Int
-            val second = it.args.component2() as Int
-
+        execute(IntegerArg, IntegerArg.makeOptional(5)) {
+            val (first, second) = it.args
             it.respond("${first + second}")
         }
     }
 
     command("OptionalInput") {
         description = "Optionally input some text"
-        expect(arg(SentenceArg, optional = true))
-        execute {
-            val sentence = it.args.component1() as String? ?: "<No input>"
-
+        execute(SentenceArg.makeNullableOptional()) {
+            val sentence = it.args.component1() ?: "<No input>"
             it.respond("Your input was: $sentence")
         }
     }
 
-    command("GuildSize") {
-        description = "Display how many members are in a guild"
-        requiresGuild = true
-        execute {
-            it.respond("There are ${it.guild!!.members.size} members ")
+    command("NumberOrWord") {
+        description = "Enter a word or a number"
+        execute(IntegerArg or WordArg) {
+            when (val input = it.args.first) {
+                is Either.Left -> it.respond("You input the number: ${input.left}")
+                is Either.Right -> it.respond("You input the word: ${input.right}")
+            }
         }
     }
 
-    command("GuildOwner") {
-        description = "Provide info about the guild you executed the command in"
-        execute {
-            //This command just won't do anything if it's executed in DM. You may want to send a response.
-            val guild = it.guild ?: return@execute
-            it.respond("${guild.name} is owned by ${guild.owner}")
+    command("Sum") {
+        description = "Sum a set of numbers"
+        execute(MultipleArg(IntegerArg, "Numbers").makeOptional(listOf(0))) {
+            val numbers = it.args.component1()
+            val sum = numbers.sum()
+            it.respond("Sum: $sum")
         }
     }
 
@@ -180,17 +174,6 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         requiresGuild = true
         execute {
             conversationService.createConversation(it.author.id, it.guild!!.id, "test-conversation")
-        }
-    }
-
-    command("DiscordJsStringArg") {
-        description = "This command demonstrates how to get a discord.js like string argument in Kutils"
-        expect(JsStringArg, JsStringArg)
-        execute {
-            val arg = it.args.first() as String
-            val arg2 = it.args.component2() as String
-            it.respond(arg)
-            it.respond(arg2)
         }
     }
 }
