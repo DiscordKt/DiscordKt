@@ -1,14 +1,12 @@
 package me.aberrantfox.kjdautils.internal.command
 
-import me.aberrantfox.kjdautils.extensions.stdlib.isDigitOrPeriod
-import me.aberrantfox.kjdautils.extensions.stdlib.isDouble
+import me.aberrantfox.kjdautils.extensions.stdlib.*
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult.*
-import kotlin.Double
 
 private typealias Quantity = Double
 private typealias Quantifier = String
 
-fun convertTimeString(actual: List<String>): ArgumentResult {
+fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
 
     val possibleEnd = actual.indexOfFirst { toTimeElement(it) == null }
 
@@ -25,7 +23,6 @@ fun convertTimeString(actual: List<String>): ArgumentResult {
             .map(String::toLowerCase)
             .map(::toTimeElement)
 
-
     val timeElements = possibleElements.dropLastWhile { it is Quantity } // assume trailing numbers are part of next arg (ID, Integer, etc.)
 
     if (timeElements.isEmpty()) {
@@ -41,7 +38,6 @@ fun convertTimeString(actual: List<String>): ArgumentResult {
         return Error("The number of quantities doesn't match the number of quantifiers.")
     }
 
-
     val hasMissingQuantifier = timeElements.withIndex().any { (index, current) ->
         val next = timeElements.getOrNull(index + 1)
 
@@ -52,8 +48,7 @@ fun convertTimeString(actual: List<String>): ArgumentResult {
         return Error("At least one quantity is missing a quantifier.")
     }
 
-
-    val timeInSeconds = timeElements.withIndex()
+    val timeInSeconds = timeElements.asSequence().withIndex()
             .mapNotNull { (index, element) ->
                 when (element) {
                     is Pair<*, *> -> element
@@ -62,11 +57,10 @@ fun convertTimeString(actual: List<String>): ArgumentResult {
                 }
             }
             .map { it as Pair<Quantity, Quantifier> }
-            .map { it.first * timeStringToSeconds[it.second]!! }
+            .map { (quantity, quantifier) -> quantity * timeStringToSeconds.getValue(quantifier) }
             .reduce { a, b -> a + b }
 
-
-    return Multiple(timeInSeconds, consumed)
+    return Success(timeInSeconds, consumed)
 }
 
 private fun toTimeElement(element: String): Any? {

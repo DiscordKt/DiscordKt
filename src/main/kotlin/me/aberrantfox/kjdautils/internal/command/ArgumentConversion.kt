@@ -1,53 +1,37 @@
 package me.aberrantfox.kjdautils.internal.command
 
-
-import me.aberrantfox.kjdautils.api.dsl.CommandArgument
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
-import me.aberrantfox.kjdautils.internal.arguments.Manual
-import me.aberrantfox.kjdautils.internal.command.Result.Error
-import me.aberrantfox.kjdautils.internal.command.Result.Results
+import me.aberrantfox.kjdautils.api.dsl.command.*
+import me.aberrantfox.kjdautils.internal.command.Result.*
 
 const val separatorCharacter = "|"
 
 sealed class Result {
-    fun then(function: (List<Any?>) -> Result): Result =
-            when (this) {
-                is Results -> function(results)
-                is Error -> this
-            }
-
-    data class Results(val results: List<Any?>) : Result()
+    data class Results(val results: ArgumentContainer) : Result()
     data class Error(val error: String) : Result()
 }
 
-internal fun convertArguments(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): Result {
-
-    val expectedTypes = expected.map { it.type }
-
-    if (expectedTypes.contains(Manual)) {
-        return Results(actual)
-    }
-
+internal fun convertArguments(actual: List<String>, expected: ArgumentCollection<*>, event: CommandEvent<*>): Result {
     return convertArgs(actual, expected, event)
 }
 
-private fun convertOptional(arg: CommandArgument, event: CommandEvent): Any? {
+private fun convertOptional(arg: ArgumentType<*>, event: CommandEvent<*>): Any? {
     val default = arg.defaultValue ?: return null
 
     return when (default) {
-        is Function<*> -> (default as (CommandEvent) -> Any).invoke(event)
+        is Function<*> -> (default as (CommandEvent<*>) -> Any).invoke(event)
         else -> default
     }
 }
 
-private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, event: CommandEvent): Result {
+private fun convertArgs(actual: List<String>, expected: ArgumentCollection<*>, event: CommandEvent<*>): Result {
 
     val remaining = actual.toMutableList()
 
-    var lastError: ArgumentResult.Error? = null
-    val converted = expected.map { expectedArg ->
+    var lastError: ArgumentResult.Error<*>? = null
+
+    val converted = expected.arguments.map { expectedArg ->
         if (remaining.isEmpty()) {
-            if (expectedArg.optional)
+            if (expectedArg.isOptional)
                 convertOptional(expectedArg, event)
             else
                 return Error("Missing non-optional argument(s). Try using `help`")
@@ -58,21 +42,21 @@ private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, e
                 actualArg = remaining.first()
             }
 
-            val result = expectedArg.type.convert(actualArg, remaining.toList(), event)
+            val result = expectedArg.convert(actualArg, remaining.toList(), event)
 
             when (result) {
-                is ArgumentResult.Single -> {
-                    remaining.remove(actualArg)
-                    result.result
-                }
-                is ArgumentResult.Multiple -> {
-                    result.consumed.map { remaining.remove(it) }
+                is ArgumentResult.Success -> {
+                    if (result.consumed.isNotEmpty())
+                        remaining.removeAll(result.consumed)
+                    else
+                        remaining.remove(actualArg)
+
                     result.result
                 }
                 is ArgumentResult.Error -> {
                     lastError = result
 
-                    if (expectedArg.optional)
+                    if (expectedArg.isOptional)
                         convertOptional(expectedArg, event)
                     else
                         return Error(result.error)
@@ -84,5 +68,5 @@ private fun convertArgs(actual: List<String>, expected: List<CommandArgument>, e
     if (remaining.isNotEmpty())
         return Error(lastError?.error ?: "Unmatched arguments. Try using `help`")
 
-    return Results(converted)
+    return Results(expected.bundle(converted as List<Any>))
 }

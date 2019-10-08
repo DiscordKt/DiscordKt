@@ -1,19 +1,12 @@
 package me.aberrantfox.kjdautils.internal.listeners
 
 import com.google.common.eventbus.Subscribe
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
-import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
-import me.aberrantfox.kjdautils.api.dsl.KConfiguration
-import me.aberrantfox.kjdautils.api.dsl.PrefixDeleteMode
+import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.Discord
-import me.aberrantfox.kjdautils.extensions.jda.deleteIfExists
-import me.aberrantfox.kjdautils.extensions.jda.descriptor
-import me.aberrantfox.kjdautils.extensions.jda.isCommandInvocation
-import me.aberrantfox.kjdautils.extensions.jda.message
-import me.aberrantfox.kjdautils.extensions.jda.messageTimed
+import me.aberrantfox.kjdautils.extensions.jda.*
 import me.aberrantfox.kjdautils.extensions.stdlib.*
 import me.aberrantfox.kjdautils.internal.command.*
-import me.aberrantfox.kjdautils.internal.command.CommandExecutor
 import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
@@ -27,8 +20,21 @@ internal class CommandListener(val config: KConfiguration,
                                private val preconditions: MutableList<PreconditionData> = mutableListOf()) {
 
     @Subscribe
-    fun guildMessageHandler(e: GuildMessageReceivedEvent) =
-            handleMessage(e.channel, e.message, e.author, e.guild)
+    fun guildMessageHandler(event: GuildMessageReceivedEvent) {
+        val author = event.author
+        val channel = event.channel
+        val message = event.message
+
+        if (author.isBot) return
+
+        if (message.contentRaw.trimToID() == channel.jda.selfUser.id) {
+            val mentionEmbed = discord.configuration.mentionEmbed?.invoke(event) ?: return
+            channel.sendMessage(mentionEmbed).queue()
+            return
+        }
+
+        handleMessage(channel, message, author, event.guild)
+    }
 
     @Subscribe
     fun privateMessageHandler(e: PrivateMessageReceivedEvent) =
@@ -37,15 +43,6 @@ internal class CommandListener(val config: KConfiguration,
     fun addPreconditions(vararg conditions: PreconditionData) = preconditions.addAll(conditions)
 
     private fun handleMessage(channel: MessageChannel, message: Message, author: User, guild: Guild? = null) {
-
-        if (author.isBot) return
-
-        if (message.contentRaw.trimToID() == channel.jda.selfUser.id) {
-            val mentionEmbed = discord.configuration.mentionEmbed ?: return
-            channel.sendMessage(mentionEmbed).queue()
-            return
-        }
-
         if (!isUsableCommand(message)) return
 
         val commandStruct = cleanCommandMessage(message.contentRaw, config)
@@ -60,11 +57,8 @@ internal class CommandListener(val config: KConfiguration,
             PrefixDeleteMode.None   ->  false
         }
 
-        val event = CommandEvent(commandStruct, message, actualArgs, container,
-                discord = discord,
-                stealthInvocation = shouldDelete,
-                guild = guild
-        )
+        val discordContext = DiscordContext(shouldDelete, discord, message, author, channel, guild)
+        val event = CommandEvent<ArgumentContainer>(commandStruct, container, discordContext)
 
         getPreconditionError(event)?.let {
             if (it != "") {
@@ -114,13 +108,12 @@ internal class CommandListener(val config: KConfiguration,
         return true
     }
 
-    private fun getPreconditionError(event: CommandEvent): String? {
+    private fun getPreconditionError(event: CommandEvent<*>): String? {
         val sortedConditions = preconditions
                 .groupBy({ it.priority }, { it.condition })
                 .toList()
                 .sortedBy { (priority, conditions) -> priority }
                 .map { (priority, conditions) -> conditions }
-
 
         // Lazy sequence allows lower priorities to assume higher priorities are already verified
         val failedResults = sortedConditions.asSequence()

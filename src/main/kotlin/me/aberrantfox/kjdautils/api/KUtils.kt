@@ -1,26 +1,18 @@
 package me.aberrantfox.kjdautils.api
 
 import com.google.common.eventbus.Subscribe
-import me.aberrantfox.kjdautils.api.annotation.Data
-import me.aberrantfox.kjdautils.api.annotation.Service
+import me.aberrantfox.kjdautils.api.annotation.*
 import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.buildDiscordClient
-import me.aberrantfox.kjdautils.internal.command.CommandExecutor
-import me.aberrantfox.kjdautils.internal.command.CommandRecommender
-import me.aberrantfox.kjdautils.internal.command.PreconditionData
-import me.aberrantfox.kjdautils.internal.command.PreconditionResult
+import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
-import me.aberrantfox.kjdautils.internal.listeners.CommandListener
-import me.aberrantfox.kjdautils.internal.listeners.ConversationListener
-import me.aberrantfox.kjdautils.internal.logging.BotLogger
-import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
-import me.aberrantfox.kjdautils.internal.services.ConversationService
-import me.aberrantfox.kjdautils.internal.services.DocumentationService
-import me.aberrantfox.kjdautils.internal.services.HelpService
+import me.aberrantfox.kjdautils.internal.listeners.*
+import me.aberrantfox.kjdautils.internal.logging.*
+import me.aberrantfox.kjdautils.internal.services.*
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
-import java.lang.Exception
 import kotlin.system.exitProcess
 
 
@@ -30,14 +22,14 @@ class KUtils(val config: KConfiguration, token: String) {
     private var listener: CommandListener? = null
     private var executor: CommandExecutor? = null
     private val documentationService: DocumentationService
-    private val diService = DIService()
+    val diService = DIService()
     var configured = false
 
     init {
         registerInjectionObject(discord)
     }
 
-    val conversationService: ConversationService = ConversationService(discord, config, diService)
+    val conversationService: ConversationService = ConversationService(discord, diService)
     val container = CommandsContainer()
     var logger: BotLogger = DefaultLogger()
 
@@ -50,9 +42,9 @@ class KUtils(val config: KConfiguration, token: String) {
 
     fun registerInjectionObject(vararg obj: Any) = obj.forEach { diService.addElement(it) }
 
-    fun getInjectionObject(serviceClass: Class<*>) = diService.getElement(serviceClass)
+    inline fun <reified T> getInjectionObject() = diService.getElement(T::class.java) as T?
 
-    fun registerCommandPreconditions(vararg conditions: (CommandEvent) -> PreconditionResult) =
+    fun registerCommandPreconditions(vararg conditions: (CommandEvent<*>) -> PreconditionResult) =
             conditions.map { PreconditionData(it) }
                       .forEach { listener?.addPreconditions(it) }
 
@@ -111,7 +103,7 @@ class KUtils(val config: KConfiguration, token: String) {
                 .map {
                     val preconditionAnnotation = it.annotations.first { annotation -> annotation.annotationClass == Precondition::class }
                     val priority = (preconditionAnnotation as Precondition).priority
-                    val condition = diService.invokeReturningMethod(it) as ((CommandEvent) -> PreconditionResult)
+                    val condition = diService.invokeReturningMethod(it) as ((CommandEvent<*>) -> PreconditionResult)
 
                     PreconditionData(condition, priority)
                 }
