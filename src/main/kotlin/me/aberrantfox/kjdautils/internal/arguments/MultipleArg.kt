@@ -9,24 +9,30 @@ class MultipleArg<T>(val base: ArgumentType<T>, name: String = ""): ArgumentType
     override val consumptionType = ConsumptionType.Multiple
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<T>> {
-        val result = mutableListOf<T>()
-        val consumed = mutableListOf<String>()
+        val totalResult = mutableListOf<T>()
+        val totalConsumed = mutableListOf<String>()
 
         args.forEach {
-            val subResult = base.convert(it, args, event) // if in the future we need multiple multiple.. fix this
-            when (subResult) {
-                is ArgumentResult.Success -> {
-                    result.add(subResult.result)
+            with(base.convert(it, args, event)) {
+                when (this) {
+                    is ArgumentResult.Success -> {
+                        totalResult.add(result)
 
-                    if (subResult.consumed.isNotEmpty())
-                        consumed.addAll(subResult.consumed)
-                    else
-                        consumed.add(it)
+                        if (consumed.isNotEmpty())
+                            totalConsumed.addAll(consumed)
+                        else
+                            totalConsumed.add(it)
+                    }
+                    is ArgumentResult.Error -> {
+                        if (totalResult.isEmpty())
+                            return ArgumentResult.Error(this.error)
+                        else
+                            return@forEach
+                    }
                 }
-                is ArgumentResult.Error -> return@forEach
             }
         }
 
-        return ArgumentResult.Success(result, consumed)
+        return ArgumentResult.Success(totalResult, totalConsumed)
     }
 }
