@@ -1,11 +1,7 @@
 package mock
 
-
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import me.aberrantfox.kjdautils.api.dsl.Command
-import me.aberrantfox.kjdautils.api.dsl.CommandEvent
-import me.aberrantfox.kjdautils.api.dsl.CommandsContainer
+import io.mockk.*
+import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.Discord
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Category
@@ -14,49 +10,42 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.requests.RestAction
 
-
-val categoryMock = mock<Category> {
-    on { id } doReturn FakeIds.Category
+val categoryMock = mockk<Category> {
+    every { id } returns FakeIds.Category
 }
 
-val messageMock = mock<Message> {
-    on { id } doReturn FakeIds.Message
+val messageMock = mockk<Message> {
+    every { id } returns FakeIds.Message
 }
 
-val guildMock = mock<Guild> {
-    on { id } doReturn FakeIds.Guild
+val guildMock = mockk<Guild> {
+    every { id } returns FakeIds.Guild
 }
 
-val restActionMessageMock = mock<RestAction<Message>> {
-     on { complete() } doReturn messageMock
+val restActionMessageMock = mockk<RestAction<Message>> {
+    every { complete() } returns messageMock
 }
 
-val channelMock = mock<TextChannel> {
-    on { retrieveMessageById(FakeIds.Message) } doReturn restActionMessageMock
+val channelMock = mockk<TextChannel> {
+    every { retrieveMessageById(FakeIds.Message) } returns restActionMessageMock
 }
 
-val jdaMock = mock<JDA> {
-    on { getCategoryById(FakeIds.Category) } doReturn categoryMock
-    on { getTextChannelById(FakeIds.Channel) } doReturn channelMock
-    on { getGuildById(FakeIds.Guild) } doReturn guildMock
+val jdaMock = mockk<JDA> {
+    every { getCategoryById(FakeIds.Category) } returns categoryMock
+    every { getTextChannelById(FakeIds.Channel) } returns channelMock
+    every { getGuildById(FakeIds.Guild) } returns guildMock
 }
 
-val discordMock = mock<Discord> {
-   on { jda } doReturn  jdaMock
+val discordMock = mockk<Discord> {
+    every { jda } returns jdaMock
 }
 
+val commandContainerMock = mockk<CommandsContainer> {
 
-val pingCommandMock = mock<Command> {
-    on { name } doReturn "ping"
-    on { execute } doReturn {}
 }
 
-val commandContainerMock = mock<CommandsContainer> {
-    on { get("ping") } doReturn pingCommandMock
-}
-
-val commandEventMock = mock<CommandEvent> {
-    on { discord } doReturn discordMock
-    on { container } doReturn commandContainerMock
-    on { channel } doReturn channelMock
+val commandEventMock = mockk<CommandEvent<*>> {
+    every { discord } returns discordMock
+    every { container } returns commandContainerMock
+    every { channel } returns channelMock
 }

@@ -12,7 +12,7 @@ abstract class Discord {
     abstract val jda: JDA
     abstract val configuration: KConfiguration
 
-    abstract fun addEventListener(er: EventRegister): Unit
+    abstract fun addEventListener(er: EventRegister)
 
     abstract fun getUserById(userId: String): User?
 }

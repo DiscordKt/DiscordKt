@@ -1,8 +1,7 @@
 package me.aberrantfox.kjdautils.extensions.jda
 
-import me.aberrantfox.kjdautils.extensions.stdlib.containsInvite
-import me.aberrantfox.kjdautils.extensions.stdlib.containsURl
 import me.aberrantfox.kjdautils.api.dsl.KConfiguration
+import me.aberrantfox.kjdautils.extensions.stdlib.*
 import net.dv8tion.jda.api.entities.Message
 
 fun Message.containsInvite() = contentRaw.containsInvite()
@@ -19,7 +18,7 @@ fun Message.mentionsSomeone() = (mentionsEveryone() || mentionedUsers.size > 0 |
 
 fun Message.isImagePost() =
     if(attachments.isNotEmpty()) {
-        attachments.first().isImage && contentRaw.isNullOrBlank()
+        attachments.first().isImage && contentRaw.isBlank()
     } else {
         false
     }
