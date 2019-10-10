@@ -1,7 +1,6 @@
 package me.aberrantfox.kjdautils.api.dsl
 
 import me.aberrantfox.kjdautils.discord.Discord
-import me.aberrantfox.kjdautils.internal.arguments.WordArg
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import net.dv8tion.jda.api.entities.MessageEmbed
 
@@ -11,7 +10,7 @@ class Conversation(val name: String,
                    var onComplete: (ConversationStateContainer) -> Unit = {}
 )
 
-data class Step(val prompt: Any, val expect: ArgumentType<*>)
+data class Step(val argumentType: ArgumentType<*>, val prompt: Any)
 
 data class ConversationStateContainer(
     val userId: String,
@@ -29,11 +28,13 @@ fun conversation(block: ConversationBuilder.() -> Unit): Conversation = Conversa
 class ConversationBuilder {
     var name = ""
     var description = ""
-    val steps = mutableListOf<Step>()
+    private val steps = mutableListOf<Step>()
     var onComplete: (ConversationStateContainer) -> Unit = {}
 
-    fun steps(block: Steps.() -> Unit) {
-        steps.addAll(Steps().apply(block))
+    fun steps(construct: Steps.() -> Unit) {
+        val stepsBuilder = Steps()
+        stepsBuilder.construct()
+        steps.addAll(stepsBuilder.build())
     }
 
     fun onComplete(onComplete: (ConversationStateContainer) -> Unit) {
@@ -43,16 +44,12 @@ class ConversationBuilder {
     fun build() = Conversation(name, description, steps, onComplete)
 }
 
-class Steps: ArrayList<Step>() {
-    fun step(block: StepBuilder.() -> Unit) {
-        add(StepBuilder().apply(block).build())
+data class Steps(private val steps: ArrayList<Step> = arrayListOf()) {
+    fun promptFor(argumentType: ArgumentType<*>, prompt: () -> Any) {
+        steps.add(Step(argumentType, prompt.invoke()))
     }
-}
 
-class StepBuilder {
-    var prompt: Any = ""
-    var expect: ArgumentType<*> = WordArg
-    fun build(): Step = Step(prompt, expect)
+    fun build() = steps
 }
 
 @Target(AnnotationTarget.FUNCTION)

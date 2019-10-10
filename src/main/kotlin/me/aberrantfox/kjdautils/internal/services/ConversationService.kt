@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 
-class ConversationService(val dc: Discord, val diService: DIService) {
+class ConversationService(private val discord: Discord, private val diService: DIService) {
     private var availableConversations = mutableListOf<Conversation>()
     private val activeConversations = mutableListOf<ConversationStateContainer>()
 
@@ -21,11 +21,11 @@ class ConversationService(val dc: Discord, val diService: DIService) {
     fun createConversation(userId: String, guildId: String, conversationName: String) {
         if (hasConversation(userId)) return
 
-        val user = dc.getUserById(userId)
+        val user = discord.getUserById(userId)
 
         if (user != null && !user.isBot) {
             val conversation = availableConversations.first { it.name == conversationName }
-            activeConversations.add(ConversationStateContainer(userId, guildId, mutableListOf(), conversation, 0, dc))
+            activeConversations.add(ConversationStateContainer(userId, guildId, mutableListOf(), conversation, 0, discord))
             sendToUser(userId, getCurrentStep(getConversationState(userId)).prompt)
         }
     }
@@ -60,10 +60,10 @@ class ConversationService(val dc: Discord, val diService: DIService) {
     private fun parseResponse(message: Message, step: Step): Any? {
         val commandStruct = CommandStruct("", message.contentStripped.split(" "), false)
 
-        val discordContext = DiscordContext(false, dc, message)
+        val discordContext = DiscordContext(false, discord, message)
 
         val commandEvent = CommandEvent<Nothing>(commandStruct, CommandsContainer(), discordContext)
-        val result: ArgumentResult<*> = step.expect.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
+        val result: ArgumentResult<*> = step.argumentType.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
 
         return when (result) {
             is ArgumentResult.Success<*> -> result.result
@@ -72,7 +72,7 @@ class ConversationService(val dc: Discord, val diService: DIService) {
     }
 
     private fun sendToUser(userId: String, message: Any) {
-        dc.getUserById(userId)?.let {
+        discord.getUserById(userId)?.let {
             if (message is MessageEmbed) it.sendPrivateMessage(message) else it.sendPrivateMessage(message as String)
         }
     }

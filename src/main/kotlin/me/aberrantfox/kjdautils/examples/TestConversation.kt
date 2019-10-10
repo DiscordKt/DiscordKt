@@ -1,10 +1,7 @@
 package me.aberrantfox.kjdautils.examples
 
-import me.aberrantfox.kjdautils.api.dsl.Convo
-import me.aberrantfox.kjdautils.api.dsl.conversation
-import me.aberrantfox.kjdautils.api.dsl.embed
-import me.aberrantfox.kjdautils.internal.arguments.SentenceArg
-import me.aberrantfox.kjdautils.internal.arguments.UserArg
+import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.internal.arguments.*
 import net.dv8tion.jda.api.entities.User
 import java.awt.Color
 
@@ -15,8 +12,8 @@ fun testConversation(config: MyCustomBotConfiguration) = conversation {
     description = "Test conversation to test the implementation within KUtils."
 
     steps {
-        step {
-            prompt = embed {
+        promptFor(UserArg) {
+            embed {
                 title = "Test Conversation"
                 field {
                     name = "Step 1"
@@ -24,10 +21,10 @@ fun testConversation(config: MyCustomBotConfiguration) = conversation {
                 }
                 color = Color.CYAN
             }
-            expect = UserArg
         }
-        step {
-            prompt = embed {
+
+        promptFor(SentenceArg) {
+            embed {
                 title = "Test Conversation"
                 field {
                     name = "Step 2"
@@ -35,13 +32,13 @@ fun testConversation(config: MyCustomBotConfiguration) = conversation {
                 }
                 color = Color.CYAN
             }
-            expect = SentenceArg
         }
     }
 
     onComplete {
         val user = it.responses.component1() as User
         val word = it.responses.component2() as String
+
         val summary = embed {
             title = "Summary - That's what you've told me"
             thumbnail = user.avatarUrl
@@ -60,6 +57,7 @@ fun testConversation(config: MyCustomBotConfiguration) = conversation {
             }
             color = Color.GREEN
         }
+
         it.respond(summary)
     }
 }
