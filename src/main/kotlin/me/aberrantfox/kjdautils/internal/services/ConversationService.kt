@@ -16,7 +16,7 @@ class ConversationService(private val discord: Discord, private val diService: D
 
     fun hasConversation(userId: String) = activeConversations.any { it.userId == userId }
     private fun getConversationState(userId: String) = activeConversations.first { it.userId == userId }
-    private fun getCurrentStep(conversationState: ConversationStateContainer) = conversationState.conversation.steps[conversationState.currentStep]
+    private fun getCurrentStep(conversationState: ConversationStateContainer) = conversationState.conversation.steps.peek()
 
     fun createConversation(userId: String, guildId: String, conversationName: String) {
         if (hasConversation(userId)) return
@@ -25,7 +25,7 @@ class ConversationService(private val discord: Discord, private val diService: D
 
         if (user != null && !user.isBot) {
             val conversation = availableConversations.first { it.name == conversationName }
-            activeConversations.add(ConversationStateContainer(userId, guildId, mutableListOf(), conversation, 0, discord))
+            activeConversations.add(ConversationStateContainer(userId, guildId, discord, conversation))
             sendToUser(userId, getCurrentStep(getConversationState(userId)).prompt)
         }
     }
@@ -40,9 +40,10 @@ class ConversationService(private val discord: Discord, private val diService: D
             sendToUser(userId, response.error)
             sendToUser(userId, currentStep.prompt)
         } else {
-            conversationState.responses.add(response)
-            if (conversationState.currentStep < (totalSteps - 1)) {
-                conversationState.currentStep++
+            conversationState.conversation.responses.add(response)
+            conversationState.conversation.steps.pop()
+
+            if (conversationState.conversation.steps.isNotEmpty()) {
                 sendToUser(conversationState.userId, getCurrentStep(conversationState).prompt)
             } else {
                 conversationState.conversation.onComplete.invoke(conversationState)

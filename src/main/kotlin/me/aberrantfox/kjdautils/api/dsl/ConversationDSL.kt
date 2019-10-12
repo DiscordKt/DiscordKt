@@ -3,10 +3,12 @@ package me.aberrantfox.kjdautils.api.dsl
 import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import net.dv8tion.jda.api.entities.MessageEmbed
+import java.util.ArrayDeque
 
 class Conversation(val name: String,
                    val description: String,
-                   val steps: List<Step>,
+                   val steps: ArrayDeque<Step>,
+                   val responses: MutableList<Any?> = mutableListOf(),
                    var onComplete: (ConversationStateContainer) -> Unit = {}
 )
 
@@ -15,10 +17,8 @@ data class Step(val argumentType: ArgumentType<*>, val prompt: Any)
 data class ConversationStateContainer(
     val userId: String,
     val guildId: String,
-    var responses: MutableList<Any?>,
-    val conversation: Conversation,
-    var currentStep: Int,
-    val discord: Discord) {
+    val discord: Discord,
+    val conversation: Conversation) {
     fun respond(message: String) = discord.getUserById(userId)?.sendPrivateMessage(message)
     fun respond(message: MessageEmbed) = discord.getUserById(userId)?.sendPrivateMessage(message)
 }
@@ -28,7 +28,8 @@ fun conversation(block: ConversationBuilder.() -> Unit): Conversation = Conversa
 class ConversationBuilder {
     var name = ""
     var description = ""
-    private val steps = mutableListOf<Step>()
+    private val steps = ArrayDeque<Step>()
+    val responses: MutableList<Any?> = mutableListOf()
     var onComplete: (ConversationStateContainer) -> Unit = {}
 
     fun steps(construct: Steps.() -> Unit) {
@@ -41,7 +42,7 @@ class ConversationBuilder {
         this.onComplete = onComplete
     }
 
-    fun build() = Conversation(name, description, steps, onComplete)
+    fun build() = Conversation(name, description, steps, responses, onComplete)
 }
 
 data class Steps(private val steps: ArrayList<Step> = arrayListOf()) {

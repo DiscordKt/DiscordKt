@@ -4,7 +4,6 @@ import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.internal.arguments.*
 import java.awt.Color
 
-//Dependency injection works here too
 @Convo
 fun testConversation(config: MyCustomBotConfiguration) = conversation {
     name = "test-conversation"
@@ -21,8 +20,8 @@ fun testConversation(config: MyCustomBotConfiguration) = conversation {
     }
 
     onComplete {
-        val userName = it.responses.component1() as String
-        val userAge = it.responses.component2() as Int
+        val userName = responses.component1() as String
+        val userAge = responses.component2() as Int
 
         val summary = embed {
             title = "Conversation Complete"
