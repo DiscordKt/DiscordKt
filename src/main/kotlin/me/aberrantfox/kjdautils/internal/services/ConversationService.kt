@@ -33,7 +33,6 @@ class ConversationService(private val discord: Discord, private val diService: D
     fun handleResponse(userId: String, event: PrivateMessageReceivedEvent) {
         val conversationState = getConversationState(userId)
         val currentStep = getCurrentStep(conversationState)
-        val totalSteps = conversationState.conversation.steps.size
         val response = parseResponse(event.message, getCurrentStep(conversationState))
 
         if (response is ArgumentResult.Error<*>) {
@@ -46,7 +45,6 @@ class ConversationService(private val discord: Discord, private val diService: D
             if (conversationState.conversation.steps.isNotEmpty()) {
                 sendToUser(conversationState.userId, getCurrentStep(conversationState).prompt)
             } else {
-                conversationState.conversation.onComplete.invoke(conversationState)
                 activeConversations.remove(conversationState)
             }
         }

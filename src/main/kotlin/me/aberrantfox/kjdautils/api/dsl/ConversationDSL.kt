@@ -8,8 +8,7 @@ import java.util.ArrayDeque
 class Conversation(val name: String,
                    val description: String,
                    val steps: ArrayDeque<Step>,
-                   val responses: MutableList<Any?> = mutableListOf(),
-                   var onComplete: (ConversationStateContainer) -> Unit = {}
+                   val responses: MutableList<Any?> = mutableListOf()
 )
 
 data class Step(val argumentType: ArgumentType<*>, val prompt: Any)
@@ -30,7 +29,6 @@ class ConversationBuilder {
     var description = ""
     private val steps = ArrayDeque<Step>()
     val responses: MutableList<Any?> = mutableListOf()
-    var onComplete: (ConversationStateContainer) -> Unit = {}
 
     fun steps(construct: Steps.() -> Unit) {
         val stepsBuilder = Steps()
@@ -38,11 +36,7 @@ class ConversationBuilder {
         steps.addAll(stepsBuilder.build())
     }
 
-    fun onComplete(onComplete: (ConversationStateContainer) -> Unit) {
-        this.onComplete = onComplete
-    }
-
-    fun build() = Conversation(name, description, steps, responses, onComplete)
+    fun build() = Conversation(name, description, steps, responses)
 }
 
 data class Steps(private val steps: ArrayList<Step> = arrayListOf()) {
