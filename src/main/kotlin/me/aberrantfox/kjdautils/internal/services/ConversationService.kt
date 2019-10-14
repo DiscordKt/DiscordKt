@@ -1,54 +1,18 @@
 package me.aberrantfox.kjdautils.internal.services
 
+import kotlinx.coroutines.runBlocking
 import me.aberrantfox.kjdautils.api.dsl.*
-import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.Discord
-import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.di.DIService
 import net.dv8tion.jda.api.entities.*
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 
 class ConversationService(private val discord: Discord, private val diService: DIService) {
-    private var availableConversations = mutableListOf<Conversation>()
-    private val activeConversations = mutableListOf<ConversationStateContainer>()
+    private val availableConversations = mutableListOf<Conversation>()
+    private val activeConversations = mutableMapOf<String, Conversation>()
 
-    fun hasConversation(userId: String) = activeConversations.any { it.userId == userId }
-    private fun getConversationState(userId: String) = activeConversations.first { it.userId == userId }
-    private fun getCurrentStep(conversationState: ConversationStateContainer) = conversationState.conversation.steps.peek()
-
-    fun createConversation(userId: String, guildId: String, conversationName: String) {
-        if (hasConversation(userId)) return
-
-        val user = discord.getUserById(userId)
-
-        if (user != null && !user.isBot) {
-            val conversation = availableConversations.first { it.name == conversationName }
-            activeConversations.add(ConversationStateContainer(userId, guildId, discord, conversation))
-            sendToUser(userId, getCurrentStep(getConversationState(userId)).prompt)
-        }
-    }
-
-    fun handleResponse(userId: String, event: PrivateMessageReceivedEvent) {
-        val conversationState = getConversationState(userId)
-        val currentStep = getCurrentStep(conversationState)
-        val response = parseResponse(event.message, getCurrentStep(conversationState))
-
-        if (response is ArgumentResult.Error<*>) {
-            sendToUser(userId, response.error)
-            sendToUser(userId, currentStep.prompt)
-        } else {
-            conversationState.conversation.responses.add(response)
-            conversationState.conversation.steps.pop()
-
-            if (conversationState.conversation.steps.isNotEmpty()) {
-                sendToUser(conversationState.userId, getCurrentStep(conversationState).prompt)
-            } else {
-                activeConversations.remove(conversationState)
-            }
-        }
-    }
+    private fun getConversation(user: User) = activeConversations[user.id]
 
     fun registerConversations(path: String) {
         Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Convo::class.java).forEach {
@@ -56,23 +20,25 @@ class ConversationService(private val discord: Discord, private val diService: D
         }
     }
 
-    private fun parseResponse(message: Message, step: Step): Any? {
-        val commandStruct = CommandStruct("", message.contentStripped.split(" "), false)
+    fun createConversation(user: User, guild: Guild, conversationName: String) {
+        if (getConversation(user) != null)
+            return
 
-        val discordContext = DiscordContext(false, discord, message)
+        if (!user.isBot) {
+            val conversation = availableConversations.firstOrNull { it.name == conversationName }
 
-        val commandEvent = CommandEvent<Nothing>(commandStruct, CommandsContainer(), discordContext)
-        val result: ArgumentResult<*> = step.argumentType.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
+            require(conversation != null) { "No conversation found with the name: $conversationName" }
 
-        return when (result) {
-            is ArgumentResult.Success<*> -> result.result
-            is ArgumentResult.Error<*> -> result
+            val state = ConversationStateContainer(user, guild, discord)
+            activeConversations[user.id] = conversation
+            conversation.start(state)
         }
     }
 
-    private fun sendToUser(userId: String, message: Any) {
-        discord.getUserById(userId)?.let {
-            if (message is MessageEmbed) it.sendPrivateMessage(message) else it.sendPrivateMessage(message as String)
+    fun handleResponse(message: Message) {
+        runBlocking {
+            val conversation = getConversation(message.author) ?: return@runBlocking
+            conversation.stateContainer.inputChannel.send(message)
         }
     }
 }

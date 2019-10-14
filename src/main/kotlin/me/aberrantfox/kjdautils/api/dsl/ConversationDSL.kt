@@ -1,51 +1,76 @@
 package me.aberrantfox.kjdautils.api.dsl
 
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.selects.select
+import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.Discord
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
-import net.dv8tion.jda.api.entities.MessageEmbed
-import java.util.ArrayDeque
+import me.aberrantfox.kjdautils.extensions.jda.sendPrivateMessage
+import me.aberrantfox.kjdautils.internal.command.*
+import net.dv8tion.jda.api.entities.*
 
-class Conversation(val name: String,
-                   val description: String,
-                   val steps: ArrayDeque<Step>,
-                   val responses: MutableList<Any?> = mutableListOf()
-)
+data class ConversationStateContainer(val user: User,
+                                      val guild: Guild,
+                                      val discord: Discord) {
 
-data class Step(val argumentType: ArgumentType<*>, val prompt: Any)
+    internal val inputChannel = Channel<Message>()
 
-data class ConversationStateContainer(
-    val userId: String,
-    val guildId: String,
-    val discord: Discord,
-    val conversation: Conversation) {
-    fun respond(message: String) = discord.getUserById(userId)?.sendPrivateMessage(message)
-    fun respond(message: MessageEmbed) = discord.getUserById(userId)?.sendPrivateMessage(message)
-}
+    fun <T> promptFor(argumentType: ArgumentType<T>, prompt: () -> Any): T = runBlocking {
+        fun parseResponse(message: Message): ArgumentResult<*> {
+            val commandStruct = CommandStruct("", message.contentStripped.split(" "), false)
+            val discordContext = DiscordContext(false, discord, message)
+            val commandEvent = CommandEvent<Nothing>(commandStruct, CommandsContainer(), discordContext)
+            return argumentType.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
+        }
 
-fun conversation(block: ConversationBuilder.() -> Unit): Conversation = ConversationBuilder().apply(block).build()
+        sendPrompt(prompt.invoke())
 
-class ConversationBuilder {
-    var name = ""
-    var description = ""
-    private val steps = ArrayDeque<Step>()
-    val responses: MutableList<Any?> = mutableListOf()
+        var finalResponse: T? = null
 
-    fun steps(construct: Steps.() -> Unit) {
-        val stepsBuilder = Steps()
-        stepsBuilder.construct()
-        steps.addAll(stepsBuilder.build())
+        while (finalResponse == null) {
+            finalResponse = select {
+                inputChannel.onReceive { input ->
+                    println("Channel received message with content: ${input.contentRaw}")
+
+                    val result = parseResponse(input)
+
+                    if (result is ArgumentResult.Error) {
+                        respond(result.error)
+                        sendPrompt(prompt.invoke())
+                        return@onReceive null
+                    }
+
+                    result as ArgumentResult.Success
+                    result.result as T
+                }
+            }
+        }
+
+        finalResponse!!
     }
 
-    fun build() = Conversation(name, description, steps, responses)
-}
-
-data class Steps(private val steps: ArrayList<Step> = arrayListOf()) {
-    fun promptFor(argumentType: ArgumentType<*>, prompt: () -> Any) {
-        steps.add(Step(argumentType, prompt.invoke()))
+    private fun sendPrompt(prompt: Any) {
+        when (prompt) {
+            is String -> respond(prompt)
+            is MessageEmbed -> respond(prompt)
+            else -> throw IllegalArgumentException("Prompt must be a String or a MessageEmbed")
+        }
     }
 
-    fun build() = steps
+    fun respond(msg: String) = user.sendPrivateMessage(msg)
+    fun respond(embed: MessageEmbed) = user.sendPrivateMessage(embed)
 }
+
+class Conversation(val name: String, private val block: (ConversationStateContainer) -> Unit) {
+    internal lateinit var stateContainer: ConversationStateContainer
+
+    fun start(conversationStateContainer: ConversationStateContainer) {
+        stateContainer = conversationStateContainer
+        block.invoke(conversationStateContainer)
+    }
+}
+
+fun conversation(name: String, block: ConversationStateContainer.() -> Unit) = Conversation(name, block)
 
 @Target(AnnotationTarget.FUNCTION)
 annotation class Convo

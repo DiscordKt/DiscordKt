@@ -173,7 +173,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         description = "Test the implementation of the ConversationDSL"
         requiresGuild = true
         execute {
-            conversationService.createConversation(it.author.id, it.guild!!.id, "test-conversation")
+            conversationService.createConversation(it.author, it.guild!!, "test-conversation")
         }
     }
 }
