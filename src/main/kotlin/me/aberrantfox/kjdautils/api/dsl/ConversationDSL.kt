@@ -30,18 +30,16 @@ data class ConversationStateContainer(val user: User,
         while (finalResponse == null) {
             finalResponse = select {
                 inputChannel.onReceive { input ->
-                    println("Channel received message with content: ${input.contentRaw}")
-
                     val result = parseResponse(input)
 
                     if (result is ArgumentResult.Error) {
                         respond(result.error)
                         sendPrompt(prompt.invoke())
-                        return@onReceive null
+                        null
+                    } else {
+                        result as ArgumentResult.Success
+                        result.result as T
                     }
-
-                    result as ArgumentResult.Success
-                    result.result as T
                 }
             }
         }
@@ -64,9 +62,10 @@ data class ConversationStateContainer(val user: User,
 class Conversation(val name: String, private val block: (ConversationStateContainer) -> Unit) {
     internal lateinit var stateContainer: ConversationStateContainer
 
-    fun start(conversationStateContainer: ConversationStateContainer) {
+    internal fun start(conversationStateContainer: ConversationStateContainer, onEnd: () -> Unit) {
         stateContainer = conversationStateContainer
         block.invoke(conversationStateContainer)
+        onEnd.invoke()
     }
 }
 

@@ -31,7 +31,9 @@ class ConversationService(private val discord: Discord, private val diService: D
 
             val state = ConversationStateContainer(user, guild, discord)
             activeConversations[user.id] = conversation
-            conversation.start(state)
+            conversation.start(state) {
+                activeConversations.remove(user.id)
+            }
         }
     }
 
