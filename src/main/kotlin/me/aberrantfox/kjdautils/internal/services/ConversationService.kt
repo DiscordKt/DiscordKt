@@ -13,6 +13,7 @@ class ConversationService(private val discord: Discord, private val diService: D
     private val activeConversations = mutableMapOf<String, Conversation>()
 
     private fun getConversation(user: User) = activeConversations[user.id]
+    fun hasConversation(user: User) = getConversation(user) != null
 
     fun registerConversations(path: String) {
         Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Convo::class.java).forEach {
@@ -21,7 +22,7 @@ class ConversationService(private val discord: Discord, private val diService: D
     }
 
     fun createConversation(user: User, guild: Guild, conversationName: String) {
-        if (getConversation(user) != null)
+        if (hasConversation(user))
             return
 
         if (!user.isBot) {
@@ -40,7 +41,7 @@ class ConversationService(private val discord: Discord, private val diService: D
     fun handleResponse(message: Message) {
         runBlocking {
             val conversation = getConversation(message.author) ?: return@runBlocking
-            conversation.stateContainer.inputChannel.send(message)
+            conversation.acceptMessage(message)
         }
     }
 }

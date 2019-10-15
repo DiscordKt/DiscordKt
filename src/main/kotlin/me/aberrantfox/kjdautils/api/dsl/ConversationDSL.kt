@@ -13,9 +13,30 @@ data class ConversationStateContainer(val user: User,
                                       val guild: Guild,
                                       val discord: Discord) {
 
-    internal val inputChannel = Channel<Message>()
+    private val inputChannel = Channel<Message>()
 
-    fun <T> promptFor(argumentType: ArgumentType<T>, prompt: () -> Any): T = runBlocking {
+    internal suspend fun acceptMessage(message: Message) {
+        inputChannel.send(message)
+    }
+
+    fun <T> promptUntil(argumentType: ArgumentType<T>, initialPrompt: () -> Any, until: (T) -> Boolean, errorMessage: () -> Any): T {
+        var value: T = prompt(argumentType, initialPrompt)
+
+        while (!until.invoke(value)) {
+            sendPrompt(errorMessage.invoke())
+            value = prompt(argumentType, initialPrompt)
+        }
+
+        return value
+    }
+
+    fun <T> prompt(argumentType: ArgumentType<T>, prompt: () -> Any): T = runBlocking {
+
+        val promptValue = prompt.invoke()
+
+        require(!argumentType.isOptional) { "Conversation arguments cannot be optional" }
+        require(promptValue is String || promptValue is MessageEmbed) { "Prompt must be a String or a MessageEmbed" }
+
         fun parseResponse(message: Message): ArgumentResult<*> {
             val commandStruct = CommandStruct("", message.contentStripped.split(" "), false)
             val discordContext = DiscordContext(false, discord, message)
@@ -23,7 +44,7 @@ data class ConversationStateContainer(val user: User,
             return argumentType.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
         }
 
-        sendPrompt(prompt.invoke())
+        sendPrompt(promptValue)
 
         var finalResponse: T? = null
 
@@ -34,7 +55,7 @@ data class ConversationStateContainer(val user: User,
 
                     if (result is ArgumentResult.Error) {
                         respond(result.error)
-                        sendPrompt(prompt.invoke())
+                        sendPrompt(promptValue)
                         null
                     } else {
                         result as ArgumentResult.Success
@@ -55,17 +76,21 @@ data class ConversationStateContainer(val user: User,
         }
     }
 
-    fun respond(msg: String) = user.sendPrivateMessage(msg)
+    fun respond(message: String) = user.sendPrivateMessage(message)
     fun respond(embed: MessageEmbed) = user.sendPrivateMessage(embed)
 }
 
 class Conversation(val name: String, private val block: (ConversationStateContainer) -> Unit) {
-    internal lateinit var stateContainer: ConversationStateContainer
+    private lateinit var stateContainer: ConversationStateContainer
 
     internal fun start(conversationStateContainer: ConversationStateContainer, onEnd: () -> Unit) {
         stateContainer = conversationStateContainer
         block.invoke(conversationStateContainer)
         onEnd.invoke()
+    }
+
+    internal suspend fun acceptMessage(message: Message) {
+        stateContainer.acceptMessage(message)
     }
 }
 
