@@ -11,14 +11,23 @@ interface SimpleArgTest {
     @TestFactory
     fun `valid input`() = validArgs.map { (input, expected) ->
         DynamicTest.dynamicTest("\"$input\" -> $expected") {
-            Assertions.assertEquals(expected, argumentType.convertToSingle(input))
+            Assertions.assertEquals(expected, argumentType.convertToSuccess(input))
         }
     }
 
     @TestFactory
     fun `invalid input`() = invalidArgs.map { input ->
-        DynamicTest.dynamicTest("\"$input\" -> Conversion Error") {
-            Assertions.assertTrue(argumentType.attemptConvert(input) is ArgumentResult.Error)
+        when (val conversionResult = argumentType.attemptConvert(input)) {
+            is ArgumentResult.Error -> {
+                DynamicTest.dynamicTest("\"$input\" -> ${conversionResult.error}") {
+                    Assertions.assertTrue(true)
+                }
+            }
+            is ArgumentResult.Success -> {
+                DynamicTest.dynamicTest("\"$input\" -> ${conversionResult.result}") {
+                    fail { "Conversion succeeded, but was expected to fail." }
+                }
+            }
         }
     }
 }
