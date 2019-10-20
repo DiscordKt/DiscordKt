@@ -1,8 +1,8 @@
-package mock
+package utilities
 
 import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
-import me.aberrantfox.kjdautils.internal.command.ArgumentResult
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
+import me.aberrantfox.kjdautils.internal.command.*
+import mock.commandEventMock
 
 fun ArgumentType<*>.convertToSingle(
         arg: String,
@@ -10,7 +10,7 @@ fun ArgumentType<*>.convertToSingle(
         event: CommandEvent<*> = commandEventMock
 ) = (convert(arg, args, event) as ArgumentResult.Success).result
 
-fun ArgumentType<*>.attemptConvert(
+fun <T> ArgumentType<T>.attemptConvert(
         arg: String,
         args: List<String> = listOf(arg),
         event: CommandEvent<*> = commandEventMock
