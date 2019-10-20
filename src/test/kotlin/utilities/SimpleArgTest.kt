@@ -11,7 +11,7 @@ interface SimpleArgTest {
     @TestFactory
     fun `valid input`() = validArgs.map { (input, expected) ->
         DynamicTest.dynamicTest("\"$input\" -> $expected") {
-            Assertions.assertEquals(expected, argumentType.convertToSuccess(input))
+            Assertions.assertEquals(expected, argumentType.convertToSuccess(input).result)
         }
     }
 

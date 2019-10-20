@@ -14,31 +14,34 @@ class TimeStringArgTest : SimpleArgTest {
 
     override val validArgs = listOf(
         "1s" to second,
-        "1sec" to second,
-        "1second" to second,
-        "1seconds" to second,
+        "1 sec" to second,
+        "1 second" to second,
+        "1 seconds" to second,
 
         "1m" to minute,
-        "1min" to minute,
-        "1mins" to minute,
-        "1minute" to minute,
-        "1minutes" to minute,
+        "1 min" to minute,
+        "1 mins" to minute,
+        "1 minute" to minute,
+        "1 minutes" to minute,
 
         "1h" to hour,
-        "1hour" to hour,
-        "1hours" to hour,
+        "1 hour" to hour,
+        "1 hours" to hour,
 
         "1d" to day,
-        "1day" to day,
-        "1days" to day,
+        "1 day" to day,
+        "1 days" to day,
 
         "1w" to week,
-        "1week" to week,
-        "1weeks" to week,
+        "1 week" to week,
+        "1 weeks" to week,
 
         "5s" to second * 5,
-        "5.5h" to hour * 5.5
+        "5.5h" to hour * 5.5,
+        "10 minutes 8 seconds" to (10 * minute) + (8 * second),
+        "1h 2m 10 seconds" to (hour) + (2 * minute) + (10 * second),
+        "1w 1d 1h 1m 1s" to week + day + hour + minute + second
     )
 
-    override val invalidArgs = listOf("5", "-5m", "hour", "1m 1s", "")
+    override val invalidArgs = listOf("5", "-5m", "hour", "1m1s", "")
 }
