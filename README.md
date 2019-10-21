@@ -20,7 +20,7 @@ The documentation for this project is located on the [GitLab Wiki](https://gitla
         <dependency>
             <groupId>com.gitlab.aberrantfox</groupId>
             <artifactId>KUtils</artifactId>
-            <version>0.12.0</version>
+            <version>0.12.1</version>
         </dependency>
     </dependencies>
 </project>
@@ -34,6 +34,6 @@ repositories {
 }
 
 dependencies {
-    implementation "com.gitlab.aberrantfox:KUtils:0.12.0"
+    implementation "com.gitlab.aberrantfox:KUtils:0.12.1"
 }
 ```
