@@ -19,53 +19,48 @@ data class ConversationStateContainer(val user: User,
         inputChannel.send(message)
     }
 
-    fun <T> promptUntil(argumentType: ArgumentType<T>, initialPrompt: () -> Any, until: (T) -> Boolean, errorMessage: () -> Any): T {
-        var value: T = prompt(argumentType, initialPrompt)
+    fun <T> blockingPromptUntil(argumentType: ArgumentType<T>, initialPrompt: () -> Any, until: (T) -> Boolean, errorMessage: () -> Any): T {
+        var value: T = blockingPrompt(argumentType, initialPrompt)
 
         while (!until.invoke(value)) {
             sendPrompt(errorMessage.invoke())
-            value = prompt(argumentType, initialPrompt)
+            value = blockingPrompt(argumentType, initialPrompt)
         }
 
         return value
     }
 
-    fun <T> prompt(argumentType: ArgumentType<T>, prompt: () -> Any): T = runBlocking {
-
+    fun <T> blockingPrompt(argumentType: ArgumentType<T>, prompt: () -> Any): T {
         val promptValue = prompt.invoke()
 
         require(!argumentType.isOptional) { "Conversation arguments cannot be optional" }
         require(promptValue is String || promptValue is MessageEmbed) { "Prompt must be a String or a MessageEmbed" }
 
-        fun parseResponse(message: Message): ArgumentResult<*> {
-            val commandStruct = CommandStruct("", message.contentStripped.split(" "), false)
-            val discordContext = DiscordContext(false, discord, message)
-            val commandEvent = CommandEvent<Nothing>(commandStruct, CommandsContainer(), discordContext)
-            return argumentType.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
-        }
+        return retrieveValidResponse(argumentType, promptValue)
+    }
 
-        sendPrompt(promptValue)
+    private fun <T> retrieveValidResponse(argumentType: ArgumentType<*>, prompt: Any): T = runBlocking<T> {
+        sendPrompt(prompt)
+        retrieveResponse(argumentType) ?: retrieveValidResponse(argumentType, prompt)
+    }
 
-        var finalResponse: T? = null
-
-        while (finalResponse == null) {
-            finalResponse = select {
-                inputChannel.onReceive { input ->
-                    val result = parseResponse(input)
-
-                    if (result is ArgumentResult.Error) {
-                        respond(result.error)
-                        sendPrompt(promptValue)
-                        null
-                    } else {
-                        result as ArgumentResult.Success
-                        result.result as T
-                    }
+    private suspend fun <T> retrieveResponse(argumentType: ArgumentType<*>) = select<T?> {
+        inputChannel.onReceive { input ->
+            when (val result = parseResponse(argumentType, input)) {
+                is ArgumentResult.Success -> result.result as T
+                is ArgumentResult.Error -> {
+                    respond(result.error)
+                    null
                 }
             }
         }
+    }
 
-        finalResponse!!
+    private fun parseResponse(argumentType: ArgumentType<*>, message: Message): ArgumentResult<*> {
+        val commandStruct = CommandStruct("", message.contentStripped.split(" "), false)
+        val discordContext = DiscordContext(false, discord, message)
+        val commandEvent = CommandEvent<Nothing>(commandStruct, CommandsContainer(), discordContext)
+        return argumentType.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
     }
 
     private fun sendPrompt(prompt: Any) {

@@ -5,11 +5,11 @@ import me.aberrantfox.kjdautils.internal.arguments.*
 
 @Convo
 fun testConversation() = conversation(name = "test-conversation") {
-    val name = prompt(WordArg) {
+    val name = blockingPrompt(WordArg) {
         "Please enter your name."
     }
 
-    val age = promptUntil(
+    val age = blockingPromptUntil(
         argumentType = IntegerArg,
         initialPrompt = { "Please enter your age." },
         until = { it > 0 },
