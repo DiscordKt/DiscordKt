@@ -17,7 +17,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
 
                 val responseEmbed = when {
                     query.isEmpty() -> generateDefaultEmbed(it)
-                    query.isCommand(it) -> generateCommandEmbed(container[query]!!)
+                    query.isCommand(it) -> generateCommandEmbed(container[query]!!, query)
                     else -> generateRecommendationEmbed(query, it)
                 }
 
@@ -39,18 +39,18 @@ class HelpService(private val container: CommandsContainer, private val config: 
                 .map { (category, commands) ->
                     field {
                         name = category
-                        value = commands.sortedBy { it.name }.joinToString("\n") { it.name }
+                        value = commands.sortedBy { it.names.joinToString() }.joinToString("\n") { it.names.joinToString() }
                         inline = true
                     }
             }
         }
 
-    private fun generateCommandEmbed(command: Command) = embed {
-        title = command.name
+    private fun generateCommandEmbed(command: Command, input: String) = embed {
+        title = command.names.joinToString()
         description = command.description
         color = Color.CYAN
 
-        val commandInvocation = "${config.prefix}${command.name} "
+        val commandInvocation = "${config.prefix}$input"
         addField("What is the structure of the command?", "$commandInvocation ${generateStructure(command)}")
         addField("Show me an example of someone using the command.", "$commandInvocation ${generateExample(command)}")
     }
@@ -77,10 +77,10 @@ class HelpService(private val container: CommandsContainer, private val config: 
 
     private fun String.isCommand(event: CommandEvent<*>) = fetchVisibleCommands(event)
         .any {
-            this.toLowerCase() == it.name.toLowerCase()
+            this.toLowerCase() in it.names.map { it.toLowerCase() }
         }
 
-    private fun fetchVisibleCommands(event: CommandEvent<*>) = container.commands.values.filter { it.isVisible(event) }
+    private fun fetchVisibleCommands(event: CommandEvent<*>) = container.commands.filter { it.isVisible(event) }
 
     private fun Command.isVisible(event: CommandEvent<*>) =
         config.visibilityPredicate(this, event.author, event.channel, event.guild)

@@ -33,6 +33,6 @@
 | NumberOrWord     | Integer \| Word    | Enter a word or a number                       |
 | OptionalAdd      | Integer, (Integer) | Add two numbers together                       |
 | OptionalInput    | (Text)             | Optionally input some text                     |
-| Sum              | (Numbers)          | Sum a set of numbers                           |
+| Sum, Addy        | (Numbers)          | Sum a set of numbers                           |
 | Version          | <none>             | A command which will show the version.         |
 

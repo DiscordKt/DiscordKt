@@ -160,7 +160,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         }
     }
 
-    command("Sum") {
+    command("Sum", "Addy") {
         description = "Sum a set of numbers"
         execute(MultipleArg(IntegerArg, "Numbers").makeOptional(listOf(0))) {
             val numbers = it.args.component1()

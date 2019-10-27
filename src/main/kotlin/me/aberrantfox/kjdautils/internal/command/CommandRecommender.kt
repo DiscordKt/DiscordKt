@@ -11,10 +11,10 @@ object CommandRecommender {
     // only commands that satisfy the predicate will be considered for recommendation
     fun recommendCommand(input: String, predicate: (Command) -> Boolean = { true }): String {
         val (reply, distance) = possibilities.filter(predicate)
-                .map { it.name to calc.apply(input, it.name) }
+                .map { it.names to calc.apply(input, it.names[0]) }
                 .minBy { it.second } ?: return smartAssComment
 
-        return if (distance > input.length / 2 + 2) smartAssComment else reply
+        return if (distance > input.length / 2 + 2) smartAssComment else reply[0]
     }
 
     fun addPossibility(item: Command) = possibilities.add(item)

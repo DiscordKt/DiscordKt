@@ -4,7 +4,7 @@ import me.aberrantfox.kjdautils.internal.businessobjects.CommandData
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 
 @CommandTagMarker
-class Command(val name: String,
+class Command(val names: List<String>,
               var category: String = "",
               var expectedArgs: ArgumentCollection<*> = args(),
               private var execute: (CommandEvent<*>) -> Unit = {},
@@ -29,7 +29,7 @@ class Command(val name: String,
             if (it.isOptional) "(${it.name})" else it.name
         }.takeIf { it.isNotEmpty() } ?: "<none>"
 
-        return CommandData(name.replace("|", "\\|"),
+        return CommandData(names.joinToString().replace("|", "\\|"),
             expectedArgs.replace("|", "\\|"),
             description.replace("|", "\\|"))
     }

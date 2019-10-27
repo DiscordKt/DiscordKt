@@ -74,9 +74,7 @@ class KUtils(val config: KConfiguration, token: String) {
         val helpService = HelpService(container, config)
         localContainer["Help"] ?: localContainer.join(helpService.produceHelpCommandContainer())
 
-        val commandList = localContainer.commands.map { it.value }
-
-        CommandRecommender.addAll(commandList)
+        CommandRecommender.addAll(localContainer.commands)
 
         val executor = CommandExecutor()
         val listener = CommandListener(config, container, logger, discord, executor)

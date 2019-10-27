@@ -2,10 +2,7 @@ package me.aberrantfox.kjdautils.internal.services
 
 import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.command.*
-import me.aberrantfox.kjdautils.internal.businessobjects.CategoryDocs
-import me.aberrantfox.kjdautils.internal.businessobjects.CommandData
-import me.aberrantfox.kjdautils.internal.businessobjects.CommandsOutputFormatter
-import me.aberrantfox.kjdautils.internal.businessobjects.HEADER_DATA
+import me.aberrantfox.kjdautils.internal.businessobjects.*
 import java.io.File
 
 const val saveLocation = "commands.md"
@@ -19,7 +16,7 @@ class DocumentationService(private val container: CommandsContainer) {
 
     fun generateDocumentation(sortOrder: List<String>) {
 
-        val categories = container.commands.values.groupBy { it.category }
+        val categories = container.commands.groupBy { it.category }
         val categoryDocs = generateDocsByCategory(categories)
 
         val sortedDocs =
