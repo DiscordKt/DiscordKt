@@ -8,6 +8,7 @@ class ConversationListener(private val conversationService: ConversationService)
     @Subscribe
     fun onPrivateMessageReceived(event: PrivateMessageReceivedEvent) {
         if (event.author.isBot) return
-        if (conversationService.hasConversation(event.author.id)) conversationService.handleResponse(event.author.id, event)
+
+        conversationService.handleResponse(event.message)
     }
 }
