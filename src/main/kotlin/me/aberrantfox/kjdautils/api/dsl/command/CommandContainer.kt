@@ -49,7 +49,7 @@ fun produceContainer(path: String, diService: DIService): CommandsContainer {
         println("KUtils: ${cmdMethods.size} command methods detected.")
     }
 
-    val container = cmdMethods
+    return cmdMethods
         .map { (method, cmdSetCategory) ->
             (diService.invokeReturningMethod(method) as CommandsContainer) to cmdSetCategory
         }
@@ -61,10 +61,4 @@ fun produceContainer(path: String, diService: DIService): CommandsContainer {
             }
         }
         .reduce { a, b -> a.join(b) }
-
-    //TODO Put this back
-    //val lowMap = container.commands.map { it.names.toLowerCase() } as List<Command>
-    //container.commands = lowMap
-
-    return container
 }
