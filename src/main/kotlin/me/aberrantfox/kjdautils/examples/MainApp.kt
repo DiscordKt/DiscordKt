@@ -62,28 +62,63 @@ class MessageLogger(val myConfig: MyCustomBotConfiguration) {
 
 @CommandSet("Utility")
 fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService) = commands {
-    command("DisplayMenu") {
-        description = "Display an example menu."
+
+    //Command with no args and multiple names
+    command("Version", "Ver", "V") {
+        description = "A command which will show the version."
         execute {
-            it.respond(
-                menu {
-                    embed {
-                        title = "Page 1"
-                    }
-
-                    embed {
-                        title = "Page 2"
-                    }
-
-                    reaction("\uD83C\uDF08") { currentEmbed: EmbedBuilder ->
-                        val randomColor = Color((0..255).random(), (0..255).random(), (0..255).random())
-                        currentEmbed.setColor(randomColor)
-                    }
-                }
-            )
+            it.respond(myConfig.version)
+            log.log("Version logged!")
         }
     }
 
+    //Command with 1 arg
+    command("Echo") {
+        execute(SentenceArg) {
+            val response = it.args.component1()
+            it.respond(response)
+        }
+    }
+
+    //Command with 2 args
+    command("Add") {
+        description = "Add two numbers together"
+        execute(IntegerArg, IntegerArg) {
+            val (first, second) = it.args
+            it.respond("${first + second}")
+        }
+    }
+
+    //Command with an optional arg
+    command("OptionalAdd") {
+        description = "Add two numbers together"
+        execute(IntegerArg, IntegerArg.makeOptional(5)) {
+            val (first, second) = it.args
+            it.respond("${first + second}")
+        }
+    }
+
+    //Command with an EitherArg
+    command("NumberOrWord") {
+        description = "Enter a word or a number"
+        execute(IntegerArg or WordArg) {
+            when (val input = it.args.first) {
+                is Either.Left -> it.respond("You input the number: ${input.left}")
+                is Either.Right -> it.respond("You input the word: ${input.right}")
+            }
+        }
+    }
+
+    //Command that starts a conversation
+    command("ConversationTest") {
+        description = "Test the implementation of the ConversationDSL"
+        requiresGuild = true
+        execute {
+            conversationService.createConversation(it.author, it.guild!!, "test-conversation")
+        }
+    }
+
+    //Command that displays an embed
     command("DisplayEmbed") {
         description = "Display an example embed."
         execute {
@@ -111,69 +146,26 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         }
     }
 
-    command("Version") {
-        description = "A command which will show the version."
+    //Command that displays a menu
+    command("DisplayMenu") {
+        description = "Display an example menu."
         execute {
-            it.respond(myConfig.version)
-            log.log("Version logged!")
-        }
-    }
+            it.respond(
+                menu {
+                    embed {
+                        title = "Page 1"
+                    }
 
-    command("Echo") {
-        execute(SentenceArg) {
-            val response = it.args.component1()
-            it.respond(response)
-        }
-    }
+                    embed {
+                        title = "Page 2"
+                    }
 
-    command("Add") {
-        description = "Add two numbers together"
-        execute(IntegerArg, IntegerArg) {
-            val (first, second) = it.args
-            it.respond("${first + second}")
-        }
-    }
-
-    command("OptionalAdd") {
-        description = "Add two numbers together"
-        execute(IntegerArg, IntegerArg.makeOptional(5)) {
-            val (first, second) = it.args
-            it.respond("${first + second}")
-        }
-    }
-
-    command("OptionalInput") {
-        description = "Optionally input some text"
-        execute(SentenceArg.makeNullableOptional()) {
-            val sentence = it.args.component1() ?: "<No input>"
-            it.respond("Your input was: $sentence")
-        }
-    }
-
-    command("NumberOrWord") {
-        description = "Enter a word or a number"
-        execute(IntegerArg or WordArg) {
-            when (val input = it.args.first) {
-                is Either.Left -> it.respond("You input the number: ${input.left}")
-                is Either.Right -> it.respond("You input the word: ${input.right}")
-            }
-        }
-    }
-
-    command("Sum") {
-        description = "Sum a set of numbers"
-        execute(MultipleArg(IntegerArg, "Numbers").makeOptional(listOf(0))) {
-            val numbers = it.args.component1()
-            val sum = numbers.sum()
-            it.respond("Sum: $sum")
-        }
-    }
-
-    command("ConversationTest") {
-        description = "Test the implementation of the ConversationDSL"
-        requiresGuild = true
-        execute {
-            conversationService.createConversation(it.author, it.guild!!, "test-conversation")
+                    reaction("\uD83C\uDF08") { currentEmbed: EmbedBuilder ->
+                        val randomColor = Color((0..255).random(), (0..255).random(), (0..255).random())
+                        currentEmbed.setColor(randomColor)
+                    }
+                }
+            )
         }
     }
 }

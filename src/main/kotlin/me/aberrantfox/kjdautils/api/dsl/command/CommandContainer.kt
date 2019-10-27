@@ -16,29 +16,25 @@ fun commands(construct: CommandsContainer.() -> Unit): CommandsContainer {
 }
 
 @CommandTagMarker
-data class CommandsContainer(var commands: HashMap<String, Command> = HashMap()) {
+data class CommandsContainer(var commands: ArrayList<Command> = arrayListOf()) {
     operator fun invoke(args: CommandsContainer.() -> Unit) {}
 
-    fun listCommands() = this.commands.keys.toList()
-
-    fun command(name: String, construct: Command.() -> Unit = {}): Command? {
-        val command = Command(name)
+    fun command(vararg names: String, construct: Command.() -> Unit = {}): Command? {
+        val command = Command(names.toMutableList())
         command.construct()
-        this.commands[name] = command
+        this.commands.add(command)
         return command
     }
 
     fun join(vararg cmds: CommandsContainer): CommandsContainer {
         cmds.forEach {
-            this.commands.putAll(it.commands)
+            this.commands.addAll(it.commands)
         }
 
         return this
     }
 
-    fun has(name: String) = this.commands.containsKey(name)
-
-    operator fun get(name: String) = this.commands.values.firstOrNull { it.name.toLowerCase() == name.toLowerCase() }
+    operator fun get(name: String) = this.commands.firstOrNull { name.toLowerCase() in it.names.map { it.toLowerCase() } }
 }
 
 fun produceContainer(path: String, diService: DIService): CommandsContainer {
@@ -53,21 +49,16 @@ fun produceContainer(path: String, diService: DIService): CommandsContainer {
         println("KUtils: ${cmdMethods.size} command methods detected.")
     }
 
-    val container = cmdMethods
+    return cmdMethods
         .map { (method, cmdSetCategory) ->
             (diService.invokeReturningMethod(method) as CommandsContainer) to cmdSetCategory
         }
         .map { (container, cmdSetCategory) ->
             container.also {
-                it.commands.values
+                it.commands
                     .filter { it.category == "" }
                     .forEach { it.category = cmdSetCategory }
             }
         }
         .reduce { a, b -> a.join(b) }
-
-    val lowMap = container.commands.mapKeys { it.key.toLowerCase() } as HashMap<String, Command>
-    container.commands = lowMap
-
-    return container
 }
