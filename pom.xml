@@ -6,7 +6,7 @@
 
     <groupId>me.aberrantfox</groupId>
     <artifactId>KJDAUtils</artifactId>
-    <version>0.13.0</version>
+    <version>0.13.1</version>
 
     <properties>
         <!-- Encoding -->
@@ -106,7 +106,7 @@
         <repository>
             <id>jcenter</id>
             <name>jcenter-bintray</name>
-            <url>http://jcenter.bintray.com</url>
+            <url>https://jcenter.bintray.com</url>
         </repository>
         <repository>
             <id>jitpack.io</id>
