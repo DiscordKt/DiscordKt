@@ -8,7 +8,7 @@ enum class RoleIdentifier {
 }
 
 fun JDA.getRoleIdentifier(role: String): RoleIdentifier {
-    val roles = guilds.map { it.roles }.flatten()
+    val roles = roles
 
     if (roles.any { it.id == role }) return RoleIdentifier.Id
 
@@ -17,8 +17,7 @@ fun JDA.getRoleIdentifier(role: String): RoleIdentifier {
     return RoleIdentifier.Invalid
 }
 
-fun JDA.isRole(role: String) = guilds.map { it.roles }.flatten().any { it.id == role || it.name.toLowerCase() == role.toLowerCase() }
+fun JDA.isRole(role: String) = roles.any { it.id == role || it.name.toLowerCase() == role.toLowerCase() }
 
 
-fun JDA.obtainRole(role: String): Role? = guilds.map { it.roles }.flatten().firstOrNull { it.name.toLowerCase() == role.toLowerCase() || it.id == role }
-
+fun JDA.obtainRole(role: String): Role? = roles.firstOrNull { it.name.toLowerCase() == role.toLowerCase() || it.id == role }
