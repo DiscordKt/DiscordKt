@@ -3,11 +3,18 @@ package me.aberrantfox.kjdautils.api.dsl
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
-import me.aberrantfox.kjdautils.api.dsl.command.*
+import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
+import me.aberrantfox.kjdautils.api.dsl.command.CommandsContainer
+import me.aberrantfox.kjdautils.api.dsl.command.DiscordContext
 import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.jda.sendPrivateMessage
-import me.aberrantfox.kjdautils.internal.command.*
-import net.dv8tion.jda.api.entities.*
+import me.aberrantfox.kjdautils.internal.command.ArgumentResult
+import me.aberrantfox.kjdautils.internal.command.ArgumentType
+import me.aberrantfox.kjdautils.internal.command.CommandStruct
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.User
 
 data class ConversationStateContainer(val user: User,
                                       val guild: Guild,
@@ -84,9 +91,7 @@ class Conversation(val name: String, private val block: (ConversationStateContai
         onEnd.invoke()
     }
 
-    internal suspend fun acceptMessage(message: Message) {
-        stateContainer.acceptMessage(message)
-    }
+    internal suspend fun acceptMessage(message: Message) = stateContainer.acceptMessage(message)
 }
 
 fun conversation(name: String, block: ConversationStateContainer.() -> Unit) = Conversation(name, block)

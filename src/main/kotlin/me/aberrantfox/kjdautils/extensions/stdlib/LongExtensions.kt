@@ -1,13 +1,15 @@
 package me.aberrantfox.kjdautils.extensions.stdlib
 
-import java.util.ArrayDeque
+import java.time.Duration
+import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalUnit
+import java.util.*
 
 private val unitStrings = arrayOf("day", "hour", "minute", "second")
 
 fun Long.toMinimalTimeString(): String {
     val info = arrayOf(0, 0, 0, this@toMinimalTimeString)
     val stack = ArrayDeque<String>()
-
     fun applyStr(index: Int) =
         stack.push("${info[index]} ${unitStrings[index]}${if (info[index] == 1L) "" else "s"}")
 
@@ -25,11 +27,26 @@ fun Long.toMinimalTimeString(): String {
     return stack.joinToString(" ")
 }
 
-fun Long.convertToTimeString(): String {
-    val seconds = this / 1000
-    val minutes = seconds / 60
-    val hours = minutes / 60
-    val days = hours / 24
+fun main() {
+    val longs = arrayOf(0L, 1000L, 10000000L, 12345789L, 321654987L, 147852369L)
+    longs.forEach {
+        println(it.toMinimalTimeString(unit = ChronoUnit.MILLIS))
+        println(it.convertToTimeString(unit = ChronoUnit.MILLIS))
+    }
+}
 
-    return "$days days, ${hours % 24} hours, ${minutes % 60} minutes, ${seconds % 60} seconds"
+private fun Long.toDuration(temporalUnit: TemporalUnit) = Duration.of(this, temporalUnit)
+
+fun Long.convertToTimeString(unit: TemporalUnit = ChronoUnit.MILLIS): String {
+    val duration = toDuration(unit)
+    return "${duration.toDaysPart()} days, ${duration.toHoursPart()} hours, ${duration.toHoursPart()} minutes, ${duration.toSecondsPart()} seconds"
+}
+
+fun Long.toMinimalTimeString(unit: TemporalUnit = ChronoUnit.MILLIS): String {
+    val duration = toDuration(unit)
+
+    fun pluralizeIfNeeded(amount: Number, text: String) = "$amount ${text.run { return@run if (amount.toLong() == 1L) text else "${text}s" }}"
+
+    listOf("das").random()
+    return "${pluralizeIfNeeded(duration.toDaysPart(), "day")} ${pluralizeIfNeeded(duration.toHoursPart(), "hour")} ${pluralizeIfNeeded(duration.toMinutesPart(), "minute")} ${pluralizeIfNeeded(duration.toSecondsPart(), "second")}"
 }
