@@ -26,18 +26,15 @@ fun Long.toMinimalTimeString(): String {
     return stack.joinToString(" ")
 }
 
-fun main() {
-    val longs = arrayOf(0L, 1L, 1000L, 10000000L, 12345789L, 321654987L, 147852369L)
-    longs.forEach {
-        println(it.toMinimalTimeString())
-        println(it.convertToTimeString())
-    }
-}
-
 fun Long.convertToTimeString(unit: TemporalUnit = ChronoUnit.SECONDS): String {
     val duration = Duration.of(this, unit)
 
-    fun pluralizeIfNeeded(amount: Number, text: String) = "$amount ${text.run { return@run if (amount.toLong() == 1L) text else "${text}s" }}"
+    fun createChunk(amount: Number, unit: String) = "$amount ${if (amount.toLong() == 1L) unit else "${unit}s"} "
 
-    return "${pluralizeIfNeeded(duration.toDaysPart(), "day")} ${pluralizeIfNeeded(duration.toHoursPart(), "hour")} ${pluralizeIfNeeded(duration.toMinutesPart(), "minute")} ${pluralizeIfNeeded(duration.toSecondsPart(), "second")}"
+    return with(duration) {
+        createChunk(toDaysPart(), "day") +
+        createChunk(toHoursPart(), "hour") +
+        createChunk(toMinutesPart(), "minute") +
+        createChunk(toSecondsPart(), "second").trimEnd()
+    }
 }
