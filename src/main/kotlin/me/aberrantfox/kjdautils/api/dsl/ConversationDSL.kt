@@ -95,6 +95,3 @@ class Conversation(val name: String, private val block: (ConversationStateContai
 }
 
 fun conversation(name: String, block: ConversationStateContainer.() -> Unit) = Conversation(name, block)
-
-@Target(AnnotationTarget.FUNCTION)
-annotation class Convo
