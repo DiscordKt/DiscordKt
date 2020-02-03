@@ -1,9 +1,8 @@
 package me.aberrantfox.kjdautils.extensions.stdlib
 
 import java.time.Duration
-import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalUnit
-import java.util.*
+import java.time.temporal.*
+import java.util.ArrayDeque
 
 private val unitStrings = arrayOf("day", "hour", "minute", "second")
 
@@ -28,25 +27,17 @@ fun Long.toMinimalTimeString(): String {
 }
 
 fun main() {
-    val longs = arrayOf(0L, 1000L, 10000000L, 12345789L, 321654987L, 147852369L)
+    val longs = arrayOf(0L, 1L, 1000L, 10000000L, 12345789L, 321654987L, 147852369L)
     longs.forEach {
-        println(it.toMinimalTimeString(unit = ChronoUnit.MILLIS))
-        println(it.convertToTimeString(unit = ChronoUnit.MILLIS))
+        println(it.toMinimalTimeString())
+        println(it.convertToTimeString())
     }
 }
 
-private fun Long.toDuration(temporalUnit: TemporalUnit) = Duration.of(this, temporalUnit)
-
-fun Long.convertToTimeString(unit: TemporalUnit = ChronoUnit.MILLIS): String {
-    val duration = toDuration(unit)
-    return "${duration.toDaysPart()} days, ${duration.toHoursPart()} hours, ${duration.toHoursPart()} minutes, ${duration.toSecondsPart()} seconds"
-}
-
-fun Long.toMinimalTimeString(unit: TemporalUnit = ChronoUnit.MILLIS): String {
-    val duration = toDuration(unit)
+fun Long.convertToTimeString(unit: TemporalUnit = ChronoUnit.SECONDS): String {
+    val duration = Duration.of(this, unit)
 
     fun pluralizeIfNeeded(amount: Number, text: String) = "$amount ${text.run { return@run if (amount.toLong() == 1L) text else "${text}s" }}"
 
-    listOf("das").random()
     return "${pluralizeIfNeeded(duration.toDaysPart(), "day")} ${pluralizeIfNeeded(duration.toHoursPart(), "hour")} ${pluralizeIfNeeded(duration.toMinutesPart(), "minute")} ${pluralizeIfNeeded(duration.toSecondsPart(), "second")}"
 }
