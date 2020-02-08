@@ -1,9 +1,7 @@
 package me.aberrantfox.kjdautils.extensions.stdlib
 
 import net.dv8tion.jda.api.JDA
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.Role
-import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.entities.*
 
 private val urlRegexes = listOf(
         "[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)",
@@ -18,40 +16,18 @@ fun String.containsInvite() = inviteRegex.matches(this)
 
 fun String.formatJdaDate() = this.substring(0, this.indexOf("T"))
 
-fun String.limit(length: Int) = if (this.length > length) substring(length) else this
-
-fun String.isInteger(): Boolean =
-        try {
-            this.toInt()
-            true
-        } catch (e: NumberFormatException) {
-            false
-        }
-
-fun String.isLong(): Boolean =
-        try {
-            this.toLong()
-            true
-        } catch (e: NumberFormatException) {
-            false
-        }
-
-fun String.isDouble(): Boolean =
-        try {
-            this.toDouble()
-            true
-        } catch (e: NumberFormatException) {
-            false
-        }
+fun String.isInteger(): Boolean = this.toIntOrNull() != null
+fun String.isLong() = this.toLongOrNull() != null
+fun String.isDouble() = this.toDoubleOrNull() != null
 
 fun String.isBooleanValue(): Boolean =
-        when (this.toLowerCase()) {
-            "true" -> true
-            "false" -> true
-            "t" -> true
-            "f" -> true
-            else -> false
-        }
+    when (this.toLowerCase()) {
+        "true" -> true
+        "false" -> true
+        "t" -> true
+        "f" -> true
+        else -> false
+    }
 
 fun String.toBooleanValue(): Boolean =
         when (this.toLowerCase()) {

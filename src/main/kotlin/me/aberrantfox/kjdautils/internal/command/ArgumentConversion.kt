@@ -14,14 +14,10 @@ internal fun convertArguments(actual: List<String>, expected: ArgumentCollection
     return convertArgs(actual, expected, event)
 }
 
-private fun convertOptional(arg: ArgumentType<*>, event: CommandEvent<*>): Any? {
-    val default = arg.defaultValue ?: return null
+private fun convertOptional(arg: ArgumentType<*>, event: CommandEvent<*>) = arg.defaultValue?.invoke(event)
 
-    return when (default) {
-        is Function<*> -> (default as (CommandEvent<*>) -> Any).invoke(event)
-        else -> default
-    }
-}
+private fun convertNoneConsumption(arg: ArgumentType<*>, event: CommandEvent<*>) =
+    arg.convert("", listOf(""), event)
 
 private fun convertArgs(actual: List<String>, expected: ArgumentCollection<*>, event: CommandEvent<*>): Result {
 
@@ -31,16 +27,26 @@ private fun convertArgs(actual: List<String>, expected: ArgumentCollection<*>, e
 
     val converted = expected.arguments.map { expectedArg ->
         if (remaining.isEmpty()) {
-            if (expectedArg.isOptional)
-                convertOptional(expectedArg, event)
-            else
-                return Error("Missing non-optional argument(s). Try using `help`")
+            when {
+                expectedArg.isOptional -> convertOptional(expectedArg, event)
+                expectedArg.consumptionType == ConsumptionType.None -> {
+                    val result = convertNoneConsumption(expectedArg, event)
+
+                    when (result) {
+                        is ArgumentResult.Success -> result.result
+                        is ArgumentResult.Error -> return Error(result.error)
+                    }
+                }
+                else -> return Error("Missing non-optional argument(s). Try using `help`")
+            }
         } else {
             var actualArg = remaining.first()
-            while (actualArg.isBlank()) {
-                remaining.remove(actualArg)
-                actualArg = remaining.first()
-            }
+
+            if (expectedArg.consumptionType != ConsumptionType.None)
+                while (actualArg.isBlank()) {
+                    remaining.remove(actualArg)
+                    actualArg = remaining.first()
+                }
 
             val result = expectedArg.convert(actualArg, remaining.toList(), event)
 
@@ -49,7 +55,8 @@ private fun convertArgs(actual: List<String>, expected: ArgumentCollection<*>, e
                     if (result.consumed.isNotEmpty())
                         remaining.removeAll(result.consumed)
                     else
-                        remaining.remove(actualArg)
+                        if (expectedArg.consumptionType != ConsumptionType.None)
+                            remaining.remove(actualArg)
 
                     result.result
                 }

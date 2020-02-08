@@ -1,5 +1,7 @@
 package me.aberrantfox.kjdautils.extensions.stdlib
 
+import java.time.Duration
+import java.time.temporal.*
 import java.util.ArrayDeque
 
 private val unitStrings = arrayOf("day", "hour", "minute", "second")
@@ -7,7 +9,6 @@ private val unitStrings = arrayOf("day", "hour", "minute", "second")
 fun Long.toMinimalTimeString(): String {
     val info = arrayOf(0, 0, 0, this@toMinimalTimeString)
     val stack = ArrayDeque<String>()
-
     fun applyStr(index: Int) =
         stack.push("${info[index]} ${unitStrings[index]}${if (info[index] == 1L) "" else "s"}")
 
@@ -25,11 +26,15 @@ fun Long.toMinimalTimeString(): String {
     return stack.joinToString(" ")
 }
 
-fun Long.convertToTimeString(): String {
-    val seconds = this / 1000
-    val minutes = seconds / 60
-    val hours = minutes / 60
-    val days = hours / 24
+fun Long.convertToTimeString(unit: TemporalUnit = ChronoUnit.SECONDS): String {
+    val duration = Duration.of(this, unit)
 
-    return "$days days, ${hours % 24} hours, ${minutes % 60} minutes, ${seconds % 60} seconds"
+    fun createChunk(amount: Number, unit: String) = "$amount ${if (amount.toLong() == 1L) unit else "${unit}s"} "
+
+    return with(duration) {
+        createChunk(toDaysPart(), "day") +
+        createChunk(toHoursPart(), "hour") +
+        createChunk(toMinutesPart(), "minute") +
+        createChunk(toSecondsPart(), "second").trimEnd()
+    }
 }

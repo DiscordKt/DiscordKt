@@ -1,13 +1,12 @@
 package me.aberrantfox.kjdautils.api.dsl.command
 
+import me.aberrantfox.kjdautils.api.annotation.CommandSet
 import me.aberrantfox.kjdautils.internal.di.DIService
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 
 @DslMarker
 annotation class CommandTagMarker
-
-annotation class CommandSet(val category: String = "uncategorized")
 
 fun commands(construct: CommandsContainer.() -> Unit): CommandsContainer {
     val commands = CommandsContainer()

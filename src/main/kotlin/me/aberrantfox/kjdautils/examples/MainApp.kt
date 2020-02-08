@@ -4,7 +4,7 @@ package me.aberrantfox.kjdautils.examples
 import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.annotation.*
 import me.aberrantfox.kjdautils.api.dsl.*
-import me.aberrantfox.kjdautils.api.dsl.command.*
+import me.aberrantfox.kjdautils.api.dsl.command.commands
 import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.extensions.jda.fullName
 import me.aberrantfox.kjdautils.internal.arguments.*
@@ -64,7 +64,7 @@ class MessageLogger(val myConfig: MyCustomBotConfiguration) {
 fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService) = commands {
 
     //Command with no args and multiple names
-    command("Version", "Ver", "V") {
+    command("Version", "V") {
         description = "A command which will show the version."
         execute {
             it.respond(myConfig.version)
@@ -98,6 +98,15 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         }
     }
 
+    //Command with a FileArg
+    command("File") {
+        description = "Input a file and display its name."
+        execute(FileArg) {
+            val file = it.args.first
+            it.respond(file.name)
+        }
+    }
+
     //Command with an EitherArg
     command("NumberOrWord") {
         description = "Enter a word or a number"
@@ -110,7 +119,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
     }
 
     //Command that starts a conversation
-    command("ConversationTest") {
+    command("Conversation") {
         description = "Test the implementation of the ConversationDSL"
         requiresGuild = true
         execute {
@@ -119,7 +128,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
     }
 
     //Command that displays an embed
-    command("DisplayEmbed") {
+    command("Embed") {
         description = "Display an example embed."
         execute {
             it.respond(
@@ -147,7 +156,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
     }
 
     //Command that displays a menu
-    command("DisplayMenu") {
+    command("Menu") {
         description = "Display an example menu."
         execute {
             it.respond(

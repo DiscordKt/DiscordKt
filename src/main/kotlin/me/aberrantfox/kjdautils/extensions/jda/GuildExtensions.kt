@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.User
 
 fun Guild.getMemberJoinString(target: User) =
-        if(this.isMember(target)) {
+        if (isMember(target)) {
             target.toMember(this)!!.timeJoined.toString().formatJdaDate()
         } else {
             "This user is not currently in this guild"
