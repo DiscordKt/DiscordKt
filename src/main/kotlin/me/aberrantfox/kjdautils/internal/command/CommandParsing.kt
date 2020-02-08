@@ -29,7 +29,8 @@ fun cleanCommandMessage(message: String, config: KConfiguration): CommandStruct 
 
 fun getArgCountError(actual: List<String>, cmd: Command): String? {
     val optionalCount = cmd.expectedArgs.arguments.count { it.isOptional }
-    val validRange = (cmd.parameterCount - optionalCount) .. cmd.parameterCount
+    val noConsumptionCount = cmd.expectedArgs.arguments.count { it.consumptionType == ConsumptionType.None }
+    val validRange = (cmd.parameterCount - optionalCount - noConsumptionCount) .. cmd.parameterCount
     val actualNonBlank = actual.count { it.isNotBlank() }
 
     val manual = cmd.expectedArgs.arguments.any { it == Manual }

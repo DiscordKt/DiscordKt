@@ -4,7 +4,7 @@ package me.aberrantfox.kjdautils.examples
 import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.annotation.*
 import me.aberrantfox.kjdautils.api.dsl.*
-import me.aberrantfox.kjdautils.api.dsl.command.*
+import me.aberrantfox.kjdautils.api.dsl.command.commands
 import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.extensions.jda.fullName
 import me.aberrantfox.kjdautils.internal.arguments.*
@@ -64,7 +64,7 @@ class MessageLogger(val myConfig: MyCustomBotConfiguration) {
 fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService) = commands {
 
     //Command with no args and multiple names
-    command("Version", "Ver", "V") {
+    command("Version", "V") {
         description = "A command which will show the version."
         execute {
             it.respond(myConfig.version)
@@ -95,6 +95,15 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
         execute(IntegerArg, IntegerArg.makeOptional(5)) {
             val (first, second) = it.args
             it.respond("${first + second}")
+        }
+    }
+
+    //Command with a FileArg
+    command("File") {
+        description = "Input a file and display its name."
+        execute(FileArg) {
+            val file = it.args.first
+            it.respond(file.name)
         }
     }
 

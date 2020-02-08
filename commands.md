@@ -29,8 +29,9 @@
 | DisplayEmbed     | <none>             | Display an example embed.                      |
 | DisplayMenu      | <none>             | Display an example menu.                       |
 | Echo             | Text               | No Description Provider                        |
+| File             | File               | Input a file and display its name.             |
 | Help             | (Command)          | Display a help menu.                           |
 | NumberOrWord     | Integer \| Word    | Enter a word or a number                       |
 | OptionalAdd      | Integer, (Integer) | Add two numbers together                       |
-| Version, Ver, V  | <none>             | A command which will show the version.         |
+| Version, V       | <none>             | A command which will show the version.         |
 
