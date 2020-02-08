@@ -119,7 +119,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
     }
 
     //Command that starts a conversation
-    command("ConversationTest") {
+    command("Conversation") {
         description = "Test the implementation of the ConversationDSL"
         requiresGuild = true
         execute {
@@ -128,7 +128,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
     }
 
     //Command that displays an embed
-    command("DisplayEmbed") {
+    command("Embed") {
         description = "Display an example embed."
         execute {
             it.respond(
@@ -156,7 +156,7 @@ fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversa
     }
 
     //Command that displays a menu
-    command("DisplayMenu") {
+    command("Menu") {
         description = "Display an example menu."
         execute {
             it.respond(
