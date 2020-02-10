@@ -22,15 +22,16 @@
 | SomeCommand | <none>    | No Description Provider |
 
 ## Utility
-| Commands         | Arguments          | Description                                    |
-| ---------------- | ------------------ | ---------------------------------------------- |
-| Add              | Integer, Integer   | Add two numbers together                       |
-| ConversationTest | <none>             | Test the implementation of the ConversationDSL |
-| DisplayEmbed     | <none>             | Display an example embed.                      |
-| DisplayMenu      | <none>             | Display an example menu.                       |
-| Echo             | Text               | No Description Provider                        |
-| Help             | (Command)          | Display a help menu.                           |
-| NumberOrWord     | Integer \| Word    | Enter a word or a number                       |
-| OptionalAdd      | Integer, (Integer) | Add two numbers together                       |
-| Version, Ver, V  | <none>             | A command which will show the version.         |
+| Commands     | Arguments          | Description                                    |
+| ------------ | ------------------ | ---------------------------------------------- |
+| Add          | Integer, Integer   | Add two numbers together                       |
+| Conversation | <none>             | Test the implementation of the ConversationDSL |
+| Echo         | Text               | No Description Provider                        |
+| Embed        | <none>             | Display an example embed.                      |
+| File         | File               | Input a file and display its name.             |
+| Help         | (Command)          | Display a help menu.                           |
+| Menu         | <none>             | Display an example menu.                       |
+| NumberOrWord | Integer \| Word    | Enter a word or a number                       |
+| OptionalAdd  | Integer, (Integer) | Add two numbers together                       |
+| Version, V   | <none>             | A command which will show the version.         |
 

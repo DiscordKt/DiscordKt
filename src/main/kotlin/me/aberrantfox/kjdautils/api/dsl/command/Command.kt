@@ -11,15 +11,15 @@ class Command(val names: List<String>,
               var requiresGuild: Boolean = false,
               var description: String = "No Description Provider") {
 
+    val parameterCount: Int
+        get() = this.expectedArgs.size
+
     fun invoke(parsedData: ArgumentContainer, event: CommandEvent<ArgumentContainer>) {
         event.args = parsedData
         execute.invoke(event)
     }
 
-    val parameterCount: Int
-        get() = this.expectedArgs.size
-
-    fun<T : ArgumentContainer> execute(collection: ArgumentCollection<*>, event: (CommandEvent<T>) -> Unit) {
+    fun <T : ArgumentContainer> execute(collection: ArgumentCollection<*>, event: (CommandEvent<T>) -> Unit) {
         expectedArgs = collection
         this.execute = event as (CommandEvent<*>) -> Unit
     }

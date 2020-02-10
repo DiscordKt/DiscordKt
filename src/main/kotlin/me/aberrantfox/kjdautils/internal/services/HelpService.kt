@@ -2,7 +2,6 @@ package me.aberrantfox.kjdautils.internal.services
 
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.api.dsl.command.*
-import me.aberrantfox.kjdautils.extensions.stdlib.randomListItem
 import me.aberrantfox.kjdautils.internal.arguments.WordArg
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
 import java.awt.Color
@@ -72,7 +71,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
 
     private fun generateExample(command: Command) =
         command.expectedArgs.arguments.joinToString(" ") {
-            it.examples.randomListItem()
+            it.examples.random()
         }
 
     private fun String.isCommand(event: CommandEvent<*>) = fetchVisibleCommands(event)

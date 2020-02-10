@@ -1,11 +1,13 @@
 package me.aberrantfox.kjdautils.internal.command
 
 import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
-import me.aberrantfox.kjdautils.api.dsl.defaultPreconditionPriority
+
+const val defaultPreconditionPriority = 5
+
+fun precondition(condition: (CommandEvent<*>) -> PreconditionResult): (CommandEvent<*>) -> PreconditionResult = condition
 
 data class PreconditionData(val condition: (CommandEvent<*>) -> PreconditionResult, val priority: Int = defaultPreconditionPriority)
 
 sealed class PreconditionResult
-
 object Pass : PreconditionResult()
 data class Fail(val reason: String? = null) : PreconditionResult()

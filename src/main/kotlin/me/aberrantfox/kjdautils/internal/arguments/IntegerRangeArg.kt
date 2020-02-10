@@ -1,13 +1,12 @@
 package me.aberrantfox.kjdautils.internal.arguments
 
 import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
-import me.aberrantfox.kjdautils.extensions.stdlib.randomInt
 import me.aberrantfox.kjdautils.internal.command.*
 
 open class IntegerRangeArg(val min: Int = 0, val max: Int, override val name: String = "Integer ($min-$max)"): ArgumentType<Int>() {
     companion object : IntegerRangeArg(min = 0, max = 10)
 
-    override val examples = arrayListOf(randomInt(min, max).toString())
+    override val examples = arrayListOf((min..max).random().toString())
     override val consumptionType = ConsumptionType.Single
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Int> {
 

@@ -17,7 +17,7 @@ sealed class ArgumentResult<T> {
 }
 
 enum class ConsumptionType {
-    Single, Multiple, All
+    None, Single, Multiple, All
 }
 
 abstract class ArgumentType<T>: Cloneable {

@@ -2,9 +2,9 @@ package me.aberrantfox.kjdautils.api
 
 import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.annotation.*
-import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.command.*
-import me.aberrantfox.kjdautils.discord.buildDiscordClient
+import me.aberrantfox.kjdautils.discord.*
 import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
@@ -15,6 +15,9 @@ import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 import kotlin.system.exitProcess
 
+@PublishedApi
+internal val diService = DIService()
+inline fun <reified T> Discord.getInjectionObject() = diService.getElement(T::class.java) as T?
 
 class KUtils(val config: KConfiguration, token: String) {
     val discord = buildDiscordClient(config, token)
@@ -22,7 +25,6 @@ class KUtils(val config: KConfiguration, token: String) {
     private var listener: CommandListener? = null
     private var executor: CommandExecutor? = null
     private val documentationService: DocumentationService
-    val diService = DIService()
     var configured = false
 
     init {
@@ -41,8 +43,6 @@ class KUtils(val config: KConfiguration, token: String) {
     }
 
     fun registerInjectionObject(vararg obj: Any) = obj.forEach { diService.addElement(it) }
-
-    inline fun <reified T> getInjectionObject() = diService.getElement(T::class.java) as T?
 
     fun registerCommandPreconditions(vararg conditions: (CommandEvent<*>) -> PreconditionResult) =
             conditions.map { PreconditionData(it) }

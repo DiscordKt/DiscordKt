@@ -1,6 +1,7 @@
 package me.aberrantfox.kjdautils.examples
 
-import me.aberrantfox.kjdautils.api.dsl.*
+import me.aberrantfox.kjdautils.api.annotation.Convo
+import me.aberrantfox.kjdautils.api.dsl.conversation
 import me.aberrantfox.kjdautils.internal.arguments.*
 
 @Convo
