@@ -1,4 +1,4 @@
-package me.aberrantfox.kjdautils.internal.di
+package me.aberrantfox.kjdautils.internal.services
 
 import com.google.gson.GsonBuilder
 import me.aberrantfox.kjdautils.api.annotation.Data

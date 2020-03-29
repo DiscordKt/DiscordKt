@@ -2,7 +2,7 @@ package me.aberrantfox.kjdautils.examples.implementations
 
 import me.aberrantfox.kjdautils.api.annotation.*
 import me.aberrantfox.kjdautils.api.dsl.command.commands
-import me.aberrantfox.kjdautils.internal.di.PersistenceService
+import me.aberrantfox.kjdautils.internal.services.PersistenceService
 
 //Data objects are automatically loaded from the designated path on startup.
 //If the file does not exist at the designated path, it is created using the default arguments.

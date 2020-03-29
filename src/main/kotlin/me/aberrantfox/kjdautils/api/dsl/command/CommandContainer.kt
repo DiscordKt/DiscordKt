@@ -1,7 +1,7 @@
 package me.aberrantfox.kjdautils.api.dsl.command
 
 import me.aberrantfox.kjdautils.api.annotation.CommandSet
-import me.aberrantfox.kjdautils.internal.di.DIService
+import me.aberrantfox.kjdautils.internal.services.DIService
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 

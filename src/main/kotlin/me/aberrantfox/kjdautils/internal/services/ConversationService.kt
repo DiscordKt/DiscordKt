@@ -4,7 +4,6 @@ import kotlinx.coroutines.runBlocking
 import me.aberrantfox.kjdautils.api.annotation.Convo
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.discord.Discord
-import me.aberrantfox.kjdautils.internal.di.DIService
 import net.dv8tion.jda.api.entities.*
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner

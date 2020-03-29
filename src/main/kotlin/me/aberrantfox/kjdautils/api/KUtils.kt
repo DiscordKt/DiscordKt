@@ -6,7 +6,7 @@ import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.*
 import me.aberrantfox.kjdautils.internal.command.*
-import me.aberrantfox.kjdautils.internal.di.DIService
+import me.aberrantfox.kjdautils.internal.services.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.*
 import me.aberrantfox.kjdautils.internal.logging.*
