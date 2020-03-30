@@ -76,6 +76,8 @@ class KUtils(val config: KConfiguration, token: String) {
 
         CommandRecommender.addAll(localContainer.commands)
 
+        validateCommandConsumption(localContainer)
+
         val executor = CommandExecutor()
         val listener = CommandListener(config, container, logger, discord, executor)
 
@@ -85,6 +87,30 @@ class KUtils(val config: KConfiguration, token: String) {
 
         registerListeners(listener)
         return container
+    }
+
+    private fun validateCommandConsumption(commandsContainer: CommandsContainer) {
+        commandsContainer.commands.forEach { command ->
+            val consumptionTypes = command.expectedArgs.arguments.map { it.consumptionType }
+
+            if (!consumptionTypes.contains(ConsumptionType.All))
+                return@forEach
+
+            val allIndex = consumptionTypes.indexOfFirst { it == ConsumptionType.All }
+            val lastIndex = consumptionTypes.lastIndex
+
+            if (allIndex == lastIndex)
+                return@forEach
+
+            val remainingConsumptionTypes = consumptionTypes.subList(allIndex + 1, lastIndex + 1)
+
+            remainingConsumptionTypes.takeWhile {
+                if (it != ConsumptionType.None) {
+                    System.err.println("Detected ConsumptionType.$it after ConsumptionType.All in command: ${command.names.first()}")
+                    false
+                } else true
+            }
+        }
     }
 
     private fun registerListenersByPath() {
