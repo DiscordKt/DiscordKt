@@ -6,7 +6,6 @@ import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.*
 import me.aberrantfox.kjdautils.internal.command.*
-import me.aberrantfox.kjdautils.internal.services.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.*
 import me.aberrantfox.kjdautils.internal.logging.*
@@ -106,7 +105,7 @@ class KUtils(val config: KConfiguration, token: String) {
 
             remainingConsumptionTypes.takeWhile {
                 if (it != ConsumptionType.None) {
-                    System.err.println("Detected ConsumptionType.$it after ConsumptionType.All in command: ${command.names.first()}")
+                    InternalLogger.error("Detected ConsumptionType.$it after ConsumptionType.All in command: ${command.names.first()}")
                     false
                 } else true
             }
@@ -114,24 +113,30 @@ class KUtils(val config: KConfiguration, token: String) {
     }
 
     private fun registerListenersByPath() {
-        Reflections(config.globalPath, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
-                .map { it.declaringClass }
-                .distinct()
-                .map { diService.invokeConstructor(it) }
-                .forEach { registerListeners(it) }
+        val listeners = Reflections(config.globalPath, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
+            .map { it.declaringClass }
+            .distinct()
+            .map { diService.invokeConstructor(it) }
+
+        InternalLogger.info("Detected ${listeners.size} listeners.")
+
+        listeners.forEach { registerListeners(it) }
     }
 
     private fun registerPreconditionsByPath() {
-        Reflections(config.globalPath, MethodAnnotationsScanner())
-                .getMethodsAnnotatedWith(Precondition::class.java)
-                .map {
-                    val preconditionAnnotation = it.annotations.first { annotation -> annotation.annotationClass == Precondition::class }
-                    val priority = (preconditionAnnotation as Precondition).priority
-                    val condition = diService.invokeReturningMethod(it) as ((CommandEvent<*>) -> PreconditionResult)
+        val preconditions = Reflections(config.globalPath, MethodAnnotationsScanner())
+            .getMethodsAnnotatedWith(Precondition::class.java)
+            .map {
+                val preconditionAnnotation = it.annotations.first { annotation -> annotation.annotationClass == Precondition::class }
+                val priority = (preconditionAnnotation as Precondition).priority
+                val condition = diService.invokeReturningMethod(it) as ((CommandEvent<*>) -> PreconditionResult)
 
-                    PreconditionData(condition, priority)
-                }
-                .forEach { registerCommandPreconditions(it) }
+                PreconditionData(condition, priority)
+            }
+
+        InternalLogger.info("Detected ${preconditions.size} preconditions.")
+
+        preconditions.forEach { registerCommandPreconditions(it) }
     }
 
     private fun detectServices() {
@@ -166,7 +171,7 @@ fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
         util.configure()
     }
 
-    println("KUtils: GlobalPath set to ${util.config.globalPath}")
+    InternalLogger.info("GlobalPath set to ${util.config.globalPath}")
     return util
 }
 
