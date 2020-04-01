@@ -10,7 +10,7 @@ fun Long.toMinimalTimeString(): String {
     val info = arrayOf(0, 0, 0, this@toMinimalTimeString)
     val stack = ArrayDeque<String>()
     fun applyStr(index: Int) =
-        stack.push("${info[index]} ${unitStrings[index]}${if (info[index] == 1L) "" else "s"}")
+        stack.push(info[index].pluralize(unitStrings[index]))
 
     fun evaluate(index: Int, maxValue: Int) =
         with(index + 1) {
@@ -29,12 +29,12 @@ fun Long.toMinimalTimeString(): String {
 fun Long.convertToTimeString(unit: TemporalUnit = ChronoUnit.SECONDS): String {
     val duration = Duration.of(this, unit)
 
-    fun createChunk(amount: Number, unit: String) = "$amount ${if (amount.toLong() == 1L) unit else "${unit}s"} "
-
     return with(duration) {
-        createChunk(toDaysPart(), "day") +
-        createChunk(toHoursPart(), "hour") +
-        createChunk(toMinutesPart(), "minute") +
-        createChunk(toSecondsPart(), "second").trimEnd()
+        toDaysPart().pluralize("day") + " " +
+        toHoursPart().pluralize("hour") + " "
+        toMinutesPart().pluralize("minute") + " "
+        toSecondsPart().pluralize("second")
     }
 }
+
+fun Number.pluralize(unit: String) = "$this ${if (this.toLong() == 1L) unit else "${unit}s"}"

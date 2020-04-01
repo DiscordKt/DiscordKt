@@ -5,6 +5,7 @@ import me.aberrantfox.kjdautils.api.annotation.*
 import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.*
+import me.aberrantfox.kjdautils.extensions.stdlib.pluralize
 import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.*
@@ -118,7 +119,7 @@ class KUtils(val config: KConfiguration, token: String) {
             .distinct()
             .map { diService.invokeConstructor(it) }
 
-        InternalLogger.info("Detected ${listeners.size} listeners.")
+        InternalLogger.info("Detected ${listeners.size.pluralize("listener")}.")
 
         listeners.forEach { registerListeners(it) }
     }
@@ -134,7 +135,7 @@ class KUtils(val config: KConfiguration, token: String) {
                 PreconditionData(condition, priority)
             }
 
-        InternalLogger.info("Detected ${preconditions.size} preconditions.")
+        InternalLogger.info("Detected ${preconditions.size.pluralize("precondition")}.")
 
         preconditions.forEach { registerCommandPreconditions(it) }
     }
