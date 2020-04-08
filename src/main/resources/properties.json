@@ -1,0 +1,4 @@
+{
+  "version": "${version}",
+  "repository": "${project.repository}"
+}

@@ -1,29 +1,48 @@
 package me.aberrantfox.kjdautils.examples
 
-
+import com.google.gson.Gson
 import me.aberrantfox.kjdautils.api.annotation.CommandSet
 import me.aberrantfox.kjdautils.api.dsl.command.commands
 import me.aberrantfox.kjdautils.api.dsl.embed
 import me.aberrantfox.kjdautils.api.startBot
+import me.aberrantfox.kjdautils.extensions.jda.fullName
+import java.awt.Color
+
+data class Properties(val version: String, val repository: String)
+
+private val propFile = Properties::class.java.getResource("/properties.json").readText()
+val project = Gson().fromJson(propFile, Properties::class.java)
 
 data class MyCustomBotConfiguration(val version: String)
 
 fun main(args: Array<String>) {
-    val token = args.firstOrNull() ?: throw IllegalArgumentException("No program arguments provided. Expected bot token.")
+    val token = args.firstOrNull()
+        ?: throw IllegalArgumentException("No program arguments provided. Expected bot token.")
 
     startBot(token) {
-        val myConfig = MyCustomBotConfiguration("0.1.0")
+        val myConfig = MyCustomBotConfiguration(project.version)
 
         registerInjectionObject(myConfig)
 
         configure {
             prefix = "!"
-            mentionEmbed = { event ->
+            mentionEmbed = {
                 embed {
-                    val name = event.guild.name
+                    val self = it.guild.jda.selfUser
 
-                    title = "Hello ${event.author.asTag}!"
-                    description = "I was mentioned in $name"
+                    color = Color(0x00bfff)
+                    thumbnail = self.effectiveAvatarUrl
+                    addField(self.fullName(), "This is an example embed that can be created whenever the bot is pinged.")
+                    addInlineField("Prefix", prefix)
+
+                    with(project) {
+                        addField("Build Info", "```" +
+                            "Version: $version\n" +
+                            "Kotlin:  ${KotlinVersion.CURRENT}" +
+                            "```")
+
+                        addInlineField("Source", repository)
+                    }
                 }
             }
         }
