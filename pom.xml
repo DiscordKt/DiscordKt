@@ -6,7 +6,7 @@
 
     <groupId>me.aberrantfox</groupId>
     <artifactId>KJDAUtils</artifactId>
-    <version>0.14.0</version>
+    <version>0.14.1</version>
 
     <properties>
         <!-- Encoding -->
@@ -16,15 +16,15 @@
         <!-- Version Numbers -->
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <kotlin.version>1.3.61</kotlin.version>
-        <jda.version>4.1.1_107</jda.version>
+        <kotlin.version>1.3.71</kotlin.version>
+        <jda.version>4.1.1_133</jda.version>
         <gson.version>2.8.6</gson.version>
         <reflections.version>0.9.12</reflections.version>
         <guava.version>28.2-jre</guava.version>
         <commons.version>1.8</commons.version>
         <surefire.version>3.0.0-M4</surefire.version>
-        <coroutines.version>1.3.3</coroutines.version>
-        <junit.version>5.6.0</junit.version>
+        <coroutines.version>1.3.5</coroutines.version>
+        <junit.version>5.6.1</junit.version>
         <mockk.version>1.9.3</mockk.version>
 
         <!-- Project -->
