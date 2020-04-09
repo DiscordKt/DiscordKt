@@ -1,6 +1,8 @@
 package me.aberrantfox.kjdautils.internal.command
 
+import me.aberrantfox.kjdautils.api.diService
 import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
+import me.aberrantfox.kjdautils.internal.services.DIService
 import net.dv8tion.jda.api.JDA
 
 sealed class ArgumentResult<T> {
@@ -21,9 +23,12 @@ enum class ConsumptionType {
 }
 
 abstract class ArgumentType<T>: Cloneable {
-    abstract val consumptionType: ConsumptionType
-    abstract val examples: ArrayList<String>
     abstract val name: String
+    abstract val consumptionType: ConsumptionType
+    open var exampleFactory: ((CommandEvent<*>) -> MutableList<String>)? = null
+    open val examples: MutableList<String> = mutableListOf()
+
+    protected fun createExampleFactory(factory: (CommandEvent<*>) -> MutableList<String>?) = factory
 
     var isOptional: Boolean = false
         private set

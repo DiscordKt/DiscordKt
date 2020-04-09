@@ -15,6 +15,7 @@
 | NumberOrWord | Integer \| Word    | Enter a number or a word.          |
 | OptionalAdd  | Integer, (Integer) | Add two numbers together.          |
 | Sum          | (Integer...)       | Add a list of numbers together.    |
+| User         | (User)             | Display a user's full name.        |
 
 ## Conversation Demo
 | Commands     | Arguments | Description                    |

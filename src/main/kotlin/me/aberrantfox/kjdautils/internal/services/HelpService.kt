@@ -16,7 +16,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
 
                 val responseEmbed = when {
                     query.isEmpty() -> generateDefaultEmbed(it)
-                    query.isCommand(it) -> generateCommandEmbed(container[query]!!, query)
+                    query.isCommand(it) -> generateCommandEmbed(container[query]!!, it, query)
                     else -> generateRecommendationEmbed(query, it)
                 }
 
@@ -44,14 +44,14 @@ class HelpService(private val container: CommandsContainer, private val config: 
             }
         }
 
-    private fun generateCommandEmbed(command: Command, input: String) = embed {
+    private fun generateCommandEmbed(command: Command, event: CommandEvent<*>, input: String) = embed {
         title = command.names.joinToString()
         description = command.description
         color = Color.CYAN
 
         val commandInvocation = "${config.prefix}$input"
         addField("What is the structure of the command?", "$commandInvocation ${generateStructure(command)}")
-        addField("Show me an example of someone using the command.", "$commandInvocation ${generateExample(command)}")
+        addField("Show me an example of someone using the command.", "$commandInvocation ${generateExample(command, event)}")
     }
 
     private fun generateRecommendationEmbed(query: String, event: CommandEvent<*>) =
@@ -69,9 +69,15 @@ class HelpService(private val container: CommandsContainer, private val config: 
             if (it.isOptional) "($type)" else "[$type]"
         }
 
-    private fun generateExample(command: Command) =
+    private fun generateExample(command: Command, event: CommandEvent<*>) =
         command.expectedArgs.arguments.joinToString(" ") {
-            it.examples.random()
+            val factory = it.exampleFactory?.invoke(event).takeUnless{ it.isNullOrEmpty() }
+            val constructedExamples = factory ?: it.examples
+
+            if (constructedExamples.isNotEmpty())
+                constructedExamples.random()
+            else
+                "<No Examples>"
         }
 
     private fun String.isCommand(event: CommandEvent<*>) = fetchVisibleCommands(event)

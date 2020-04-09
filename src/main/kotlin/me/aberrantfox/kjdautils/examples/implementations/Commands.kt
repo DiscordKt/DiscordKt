@@ -2,6 +2,7 @@ package me.aberrantfox.kjdautils.examples.implementations
 
 import me.aberrantfox.kjdautils.api.annotation.CommandSet
 import me.aberrantfox.kjdautils.api.dsl.command.commands
+import me.aberrantfox.kjdautils.extensions.jda.fullName
 import me.aberrantfox.kjdautils.internal.arguments.*
 
 //Commands are users will interact with your bot.
@@ -50,6 +51,15 @@ fun demoCommands() = commands {
         execute(MultipleArg(IntegerArg).makeOptional(listOf(0))) {
             val numbers = it.args.first
             it.respond("Total: ${numbers.sum()}")
+        }
+    }
+
+    //This command accepts an optional user and exposes the command event
+    command("User") {
+        description = "Display a user's full name."
+        execute(UserArg.makeOptional { it.author }) {
+            val user = it.args.first
+            it.respond(user.fullName())
         }
     }
 
