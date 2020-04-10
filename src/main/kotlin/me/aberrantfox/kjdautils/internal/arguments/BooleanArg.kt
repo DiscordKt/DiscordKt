@@ -6,14 +6,15 @@ import me.aberrantfox.kjdautils.internal.command.*
 open class BooleanArg(override val name: String = "Boolean", val truthValue: String = "true", val falseValue: String = "false"): ArgumentType<Boolean>() {
     companion object : BooleanArg()
 
-    override val examples = arrayListOf(truthValue, falseValue)
     override val consumptionType = ConsumptionType.Single
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Boolean> {
+    override val examples = mutableListOf(truthValue, falseValue)
 
-        require(!(truthValue.isEmpty() || falseValue.isEmpty())) { "Custom BooleanArg options cannot be empty!" }
-
+    init {
+        require(truthValue.isNotEmpty() && falseValue.isNotEmpty()) { "Custom BooleanArg options cannot be empty!" }
         require(truthValue.toLowerCase() != falseValue.toLowerCase()) { "Custom BooleanArg options cannot be the same!" }
+    }
 
+    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Boolean> {
         return when (arg.toLowerCase()) {
             truthValue.toLowerCase() -> ArgumentResult.Success(true)
             falseValue.toLowerCase() -> ArgumentResult.Success(false)

@@ -5,8 +5,8 @@ import me.aberrantfox.kjdautils.internal.command.*
 
 class MultipleArg<T>(val base: ArgumentType<T>, name: String = ""): ArgumentType<List<T>>() {
     override val name = if (name.isNotBlank()) name else "${base.name}..."
-    override val examples = ArrayList(base.examples.chunked(2).map { it.joinToString(" ") })
     override val consumptionType = ConsumptionType.Multiple
+    override val examples = base.examples.chunked(2).map { it.joinToString(" ") }.toMutableList()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<T>> {
         val totalResult = mutableListOf<T>()

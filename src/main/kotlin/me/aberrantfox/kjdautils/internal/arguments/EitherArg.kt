@@ -11,8 +11,9 @@ sealed class Either<out L, out R> {
 // Either accept the left argument or the right argument type. Left is tried first.
 class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, name: String = ""): ArgumentType<Either<L, R>>() {
     override val name = if (name.isNotBlank()) name else "${left.name} | ${right.name}"
-    override val examples: ArrayList<String> = ArrayList(left.examples + right.examples)
     override val consumptionType = ConsumptionType.Single
+    override val examples = (left.examples + right.examples).toMutableList()
+
     init {
         require(left.consumptionType == ConsumptionType.Single && right.consumptionType == ConsumptionType.Single) {
             "ArgumentTypes provided to EitherArg must be of ConsumptionType.Single"

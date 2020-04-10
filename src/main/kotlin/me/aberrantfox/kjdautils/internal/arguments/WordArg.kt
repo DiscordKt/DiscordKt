@@ -6,7 +6,8 @@ import me.aberrantfox.kjdautils.internal.command.*
 open class WordArg(override val name : String = "Word") : ArgumentType<String>() {
     companion object : WordArg()
 
-    override val examples = arrayListOf("exampleWord", "123", "bob")
     override val consumptionType = ConsumptionType.Single
+    override val examples = arrayListOf("Word")
+
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>) = ArgumentResult.Success(arg)
 }

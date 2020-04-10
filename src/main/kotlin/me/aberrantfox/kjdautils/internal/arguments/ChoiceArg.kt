@@ -10,13 +10,14 @@ import me.aberrantfox.kjdautils.internal.command.*
 open class ChoiceArg(override val name: String, vararg choices: Any): ArgumentType<String>() {
     companion object BinaryChoiceArg : ChoiceArg("Choice", true, false)
 
-    private val enumerations = choices.associateBy { it.toString().toLowerCase() }
-
-    override val examples = ArrayList(enumerations.keys)
     override val consumptionType = ConsumptionType.Single
+
+    private val enumerations = choices.associateBy { it.toString().toLowerCase() }
+    override val examples = enumerations.keys.toMutableList()
+
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         val selection = enumerations[arg.toLowerCase()] as? String
-            ?: return ArgumentResult.Error("Invalid choice. Available choices: ${enumerations.keys.joinToString (", ")}")
+            ?: return ArgumentResult.Error("Invalid choice. Available choices: ${enumerations.keys.joinToString(", ")}")
 
         return ArgumentResult.Success(selection)
     }

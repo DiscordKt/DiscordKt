@@ -25,10 +25,10 @@ enum class ConsumptionType {
 abstract class ArgumentType<T>: Cloneable {
     abstract val name: String
     abstract val consumptionType: ConsumptionType
-    open var exampleFactory: ((CommandEvent<*>) -> MutableList<String>)? = null
     open val examples: MutableList<String> = mutableListOf()
+    open var exampleFactory: ((CommandEvent<*>) -> MutableList<String>?)? = null
 
-    protected fun createExampleFactory(factory: (CommandEvent<*>) -> MutableList<String>?) = factory
+    protected fun createExampleFactory(factory: ((CommandEvent<*>) -> MutableList<String>?)?) = factory
 
     var isOptional: Boolean = false
         private set
