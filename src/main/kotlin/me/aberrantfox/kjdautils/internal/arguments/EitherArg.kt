@@ -31,7 +31,7 @@ class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, nam
     }
 
     override fun generateExamples(event: CommandEvent<*>) =
-        (left.generateExamples(event) + right.generateExamples(event)).toMutableList()
+        (left.generateExamples(event) + " | " + right.generateExamples(event)).toMutableList()
 }
 
 infix fun <L, R> ArgumentType<L>.or(right: ArgumentType<R>) = EitherArg(this, right)

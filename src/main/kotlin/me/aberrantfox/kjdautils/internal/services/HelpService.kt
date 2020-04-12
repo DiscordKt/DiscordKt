@@ -72,11 +72,9 @@ class HelpService(private val container: CommandsContainer, private val config: 
     private fun generateExample(command: Command, event: CommandEvent<*>) =
         command.expectedArgs.arguments.joinToString(" ") {
             val examples = it.generateExamples(event)
+            val example = if (examples.isNotEmpty()) examples.random() else "<Example>"
 
-            if (examples.isNotEmpty())
-                examples.random()
-            else
-                "<No Examples>"
+            if (it.isOptional) "($example)" else "[$example]"
         }
 
     private fun String.isCommand(event: CommandEvent<*>) = fetchVisibleCommands(event)
