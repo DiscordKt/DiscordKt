@@ -8,7 +8,6 @@ open class HexColorArg(override val name : String = "Hex Color"): ArgumentType<C
     companion object : HexColorArg()
 
     override val consumptionType = ConsumptionType.Single
-    override val examples = mutableListOf("#000000", "ffffff")
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Color> {
         if (arg.length !in 6..7) return ArgumentResult.Error("Invalid format. Hex colors are 6 digits in length.")
@@ -23,4 +22,6 @@ open class HexColorArg(override val name : String = "Hex Color"): ArgumentType<C
 
         return ArgumentResult.Success(Color(int))
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf("#000000", "ffffff")
 }

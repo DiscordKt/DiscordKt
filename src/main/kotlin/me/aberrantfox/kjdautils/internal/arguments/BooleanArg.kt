@@ -7,7 +7,6 @@ open class BooleanArg(override val name: String = "Boolean", val truthValue: Str
     companion object : BooleanArg()
 
     override val consumptionType = ConsumptionType.Single
-    override val examples = mutableListOf(truthValue, falseValue)
 
     init {
         require(truthValue.isNotEmpty() && falseValue.isNotEmpty()) { "Custom BooleanArg options cannot be empty!" }
@@ -21,4 +20,6 @@ open class BooleanArg(override val name: String = "Boolean", val truthValue: Str
             else -> ArgumentResult.Error("Invalid boolean argument. Expected `$truthValue` or `$falseValue`.")
         }
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(truthValue, falseValue)
 }

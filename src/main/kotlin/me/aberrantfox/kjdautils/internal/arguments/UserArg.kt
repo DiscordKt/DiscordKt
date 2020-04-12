@@ -9,9 +9,6 @@ open class UserArg(override val name: String = "User", private val allowsBot: Bo
     companion object : UserArg()
 
     override val consumptionType = ConsumptionType.Single
-    override var exampleFactory = createExampleFactory {
-        mutableListOf(it.author.id)
-    }
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {
         val user = tryRetrieveSnowflake(event.discord.jda) {
@@ -23,4 +20,6 @@ open class UserArg(override val name: String = "User", private val allowsBot: Bo
 
         return ArgumentResult.Success(user)
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(event.author.id)
 }

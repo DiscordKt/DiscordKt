@@ -7,7 +7,6 @@ open class IntegerRangeArg(val min: Int = 0, val max: Int, override val name: St
     companion object : IntegerRangeArg(min = 0, max = 10)
 
     override val consumptionType = ConsumptionType.Single
-    override val examples = mutableListOf((min..max).random().toString())
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Int> {
 
@@ -17,4 +16,6 @@ open class IntegerRangeArg(val min: Int = 0, val max: Int, override val name: St
 
         return ArgumentResult.Success(integerArg)
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf((min..max).random().toString())
 }

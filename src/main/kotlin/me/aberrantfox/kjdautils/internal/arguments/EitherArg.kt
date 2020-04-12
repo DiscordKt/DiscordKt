@@ -12,7 +12,6 @@ sealed class Either<out L, out R> {
 class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, name: String = ""): ArgumentType<Either<L, R>>() {
     override val name = if (name.isNotBlank()) name else "${left.name} | ${right.name}"
     override val consumptionType = ConsumptionType.Single
-    override val examples = (left.examples + right.examples).toMutableList()
 
     init {
         require(left.consumptionType == ConsumptionType.Single && right.consumptionType == ConsumptionType.Single) {
@@ -30,6 +29,9 @@ class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, nam
             else -> ArgumentResult.Error("Could not match input with either expected argument.")
         }
     }
+
+    override fun generateExamples(event: CommandEvent<*>) =
+        (left.generateExamples(event) + right.generateExamples(event)).toMutableList()
 }
 
 infix fun <L, R> ArgumentType<L>.or(right: ArgumentType<R>) = EitherArg(this, right)

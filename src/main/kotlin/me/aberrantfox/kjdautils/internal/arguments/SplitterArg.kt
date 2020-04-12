@@ -7,7 +7,6 @@ open class SplitterArg(override val name : String = "(Separated|Text)"): Argumen
     companion object : SplitterArg()
 
     override val consumptionType = ConsumptionType.All
-    override val examples = mutableListOf("one | two | three")
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<String>> {
         val joined = args.joinToString(" ")
@@ -16,4 +15,6 @@ open class SplitterArg(override val name : String = "(Separated|Text)"): Argumen
 
         return ArgumentResult.Success(joined.split(separatorCharacter).toList(), args)
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf("one | two | three")
 }

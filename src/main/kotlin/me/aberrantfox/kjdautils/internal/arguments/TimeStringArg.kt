@@ -7,7 +7,8 @@ open class TimeStringArg(override val name : String = "Time"): ArgumentType<Doub
     companion object : TimeStringArg()
 
     override val consumptionType = ConsumptionType.Multiple
-    override val examples = mutableListOf("5 seconds", "5s")
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>) = convertTimeString(args)
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf("5 seconds", "5s")
 }

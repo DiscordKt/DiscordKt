@@ -9,10 +9,6 @@ open class RoleArg(override val name : String = "Role", private val guildId: Str
     companion object : RoleArg()
 
     override val consumptionType = ConsumptionType.Multiple
-    override val examples = mutableListOf("Staff")
-    override var exampleFactory = createExampleFactory {
-        it.guild?.roles?.map { it.name }?.toMutableList()
-    }
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
 
@@ -50,4 +46,7 @@ open class RoleArg(override val name : String = "Role", private val guildId: Str
 
         return if (isValid) ArgumentResult.Success(resolvedRole, argList) else ArgumentResult.Error("Couldn't retrieve role :: $roleBuilder")
     }
+
+    override fun generateExamples(event: CommandEvent<*>) =
+        event.guild?.roles?.map { it.name }?.toMutableList().takeIf { !it.isNullOrEmpty() } ?: mutableListOf("Staff")
 }

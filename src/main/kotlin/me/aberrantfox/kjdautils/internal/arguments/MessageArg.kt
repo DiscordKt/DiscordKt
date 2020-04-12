@@ -9,9 +9,6 @@ open class MessageArg(override val name: String = "MessageID"): ArgumentType<Mes
     companion object : MessageArg()
 
     override val consumptionType = ConsumptionType.Single
-    override var exampleFactory = createExampleFactory {
-        mutableListOf(it.message.id)
-    }
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Message> {
         val retrieved = event.channel.retrieveMessageById(arg.trimToID()).complete()
@@ -19,4 +16,6 @@ open class MessageArg(override val name: String = "MessageID"): ArgumentType<Mes
 
         return ArgumentResult.Success(retrieved)
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(event.message.id)
 }

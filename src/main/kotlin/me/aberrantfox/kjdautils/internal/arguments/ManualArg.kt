@@ -7,7 +7,8 @@ open class Manual(override val name: String = "Unknown"): ArgumentType<Any?>() {
     companion object : Manual()
 
     override val consumptionType = ConsumptionType.All
-    override val examples = mutableListOf("None-specified")
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Any?> = ArgumentResult.Success(args, args)
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf("Manual")
 }

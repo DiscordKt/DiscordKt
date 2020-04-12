@@ -9,10 +9,6 @@ open class CategoryArg(override val name: String = "Category", private val guild
     companion object : CategoryArg()
 
     override val consumptionType = ConsumptionType.Multiple
-    override val examples = mutableListOf("Chat Channels")
-    override var exampleFactory = createExampleFactory {
-        it.guild?.categories?.map { it.id }?.toMutableList()
-    }
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
         val guild = if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild
@@ -51,5 +47,9 @@ open class CategoryArg(override val name: String = "Category", private val guild
         val isValid = resolvedName.toLowerCase() == argList.joinToString(" ").toLowerCase()
 
         return if (isValid) ArgumentResult.Success(resolvedCategory, argList) else ArgumentResult.Error("Couldn't retrieve category :: $categoryBuilder")
+    }
+
+    override fun generateExamples(event: CommandEvent<*>): MutableList<String> {
+        return event.guild?.categories?.map { it.id }?.toMutableList() ?: mutableListOf("Chat Channels")
     }
 }

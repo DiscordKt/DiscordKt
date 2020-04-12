@@ -7,7 +7,6 @@ open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>(
     companion object : QuoteArg()
 
     override val consumptionType = ConsumptionType.Multiple
-    override val examples = mutableListOf("\"A Quote\"")
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
 
@@ -33,6 +32,8 @@ open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>(
 
         return ArgumentResult.Success(quote, consumed)
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf("\"A Quote\"")
 }
 
 private fun List<String>.takeUntil(predicate: (String) -> Boolean): List<String> {

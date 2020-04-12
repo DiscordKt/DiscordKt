@@ -71,7 +71,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
 
     private fun generateExample(command: Command, event: CommandEvent<*>) =
         command.expectedArgs.arguments.joinToString(" ") {
-            val examples = it.exampleFactory?.invoke(event).takeUnless{ it.isNullOrEmpty() } ?: it.examples
+            val examples = it.generateExamples(event)
 
             if (examples.isNotEmpty())
                 examples.random()

@@ -9,10 +9,6 @@ open class TextChannelArg(override val name : String = "TextChannel"): ArgumentT
     companion object : TextChannelArg()
 
     override val consumptionType = ConsumptionType.Single
-    override val examples = arrayListOf("#chat", "4421069003953932345", "#test-channel", "292106900395393024")
-    override var exampleFactory = createExampleFactory {
-        mutableListOf(it.channel.id)
-    }
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<TextChannel> {
         val channel = event.discord.jda.getTextChannelById(arg.trimToID())
@@ -20,4 +16,6 @@ open class TextChannelArg(override val name : String = "TextChannel"): ArgumentT
 
         return ArgumentResult.Success(channel)
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(event.channel.id)
 }

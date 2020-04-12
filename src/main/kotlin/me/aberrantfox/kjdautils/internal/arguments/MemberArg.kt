@@ -10,9 +10,6 @@ open class MemberArg(override val name: String = "Member"): ArgumentType<Member>
     companion object : MemberArg()
 
     override val consumptionType = ConsumptionType.Single
-    override var exampleFactory = createExampleFactory {
-        mutableListOf(it.author.id)
-    }
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Member> {
         val user = event.discord.jda.getUserById(arg.trimToID())
@@ -25,4 +22,6 @@ open class MemberArg(override val name: String = "Member"): ArgumentType<Member>
 
         return ArgumentResult.Success(member)
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(event.author.id)
 }
