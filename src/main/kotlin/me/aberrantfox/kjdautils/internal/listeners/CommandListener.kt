@@ -76,14 +76,14 @@ internal class CommandListener(val config: KConfiguration,
             }
 
             if (shouldDelete) message.deleteIfExists()
-            if(config.deleteErrors) channel.messageTimed(errorEmbed)
+            if(config.deleteErrors) event.respondTimed(errorEmbed)
             else event.respond(errorEmbed)
             return
         }
 
         if (command.requiresGuild && !invokedInGuild) {
             val errorMsg = "This command must be invoked in a guild channel and not through PM"
-            if(config.deleteErrors) channel.messageTimed(errorMsg)
+            if(config.deleteErrors) event.respondTimed(errorMsg)
             else event.respond(errorMsg)
             return
         }
