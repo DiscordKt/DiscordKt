@@ -50,8 +50,10 @@ class HelpService(private val container: CommandsContainer, private val config: 
         color = Color.CYAN
 
         val commandInvocation = "${config.prefix}$input"
-        addField("What is the structure of the command?", "$commandInvocation ${generateStructure(command)}")
-        addField("Show me an example of someone using the command.", "$commandInvocation ${generateExample(command, event)}")
+        addField("Structure", "$commandInvocation ${generateStructure(command)}")
+
+        if (command.parameterCount != 0)
+            addField("Examples", "$commandInvocation ${generateExample(command, event)}")
     }
 
     private fun generateRecommendationEmbed(query: String, event: CommandEvent<*>) =
