@@ -57,13 +57,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
     }
 
     private fun generateRecommendationEmbed(query: String, event: CommandEvent<*>) =
-        embed {
-            val recommendation = CommandRecommender.recommendCommand(query) { it.isVisible(event) }
-
-            title = "Could not find a command with that name."
-            description = "Did you mean $recommendation?\nMaybe you should try ${config.prefix}help"
-            color = Color.RED
-        }
+        CommandRecommender.buildRecommendationEmbed(query) { it.isVisible(event) }
 
     private fun generateStructure(command: Command) =
         command.expectedArgs.arguments.joinToString(" ") {

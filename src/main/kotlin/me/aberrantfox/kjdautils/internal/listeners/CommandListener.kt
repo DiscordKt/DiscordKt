@@ -71,27 +71,26 @@ internal class CommandListener(val config: KConfiguration,
         val command = container[commandName]
 
         if (command == null) {
-            val recommended = CommandRecommender.recommendCommand(commandName) { config.visibilityPredicate(it, author, channel, guild) }
-            val cleanName = commandName.sanitiseMentions()
+            val errorEmbed = CommandRecommender.buildRecommendationEmbed(commandName) {
+                config.visibilityPredicate(it, author, channel, guild)
+            }
 
             if (shouldDelete) message.deleteIfExists()
-            val errorMsg = "I don't know what $cleanName is, perhaps you meant $recommended?"
-            if(config.deleteErrors) channel.messageTimed(errorMsg)
-            else channel.message(errorMsg)
+            if(config.deleteErrors) channel.messageTimed(errorEmbed)
+            else event.respond(errorEmbed)
             return
         }
 
         if (command.requiresGuild && !invokedInGuild) {
             val errorMsg = "This command must be invoked in a guild channel and not through PM"
             if(config.deleteErrors) channel.messageTimed(errorMsg)
-            else channel.message(errorMsg)
+            else event.respond(errorMsg)
             return
         }
 
         executor.executeCommand(command, actualArgs, event)
 
         if (!shouldDelete && config.reactToCommands) message.addReaction("\uD83D\uDC40").queue()
-
 
         log.cmd("${author.descriptor()} -- invoked $commandName in ${channel.name}")
 
