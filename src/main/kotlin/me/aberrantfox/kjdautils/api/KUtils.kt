@@ -5,8 +5,8 @@ import me.aberrantfox.kjdautils.api.annotation.*
 import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.*
+import me.aberrantfox.kjdautils.extensions.stdlib.pluralize
 import me.aberrantfox.kjdautils.internal.command.*
-import me.aberrantfox.kjdautils.internal.di.DIService
 import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.*
 import me.aberrantfox.kjdautils.internal.logging.*
@@ -76,6 +76,8 @@ class KUtils(val config: KConfiguration, token: String) {
 
         CommandRecommender.addAll(localContainer.commands)
 
+        validateCommandConsumption(localContainer)
+
         val executor = CommandExecutor()
         val listener = CommandListener(config, container, logger, discord, executor)
 
@@ -87,25 +89,55 @@ class KUtils(val config: KConfiguration, token: String) {
         return container
     }
 
+    private fun validateCommandConsumption(commandsContainer: CommandsContainer) {
+        commandsContainer.commands.forEach { command ->
+            val consumptionTypes = command.expectedArgs.arguments.map { it.consumptionType }
+
+            if (!consumptionTypes.contains(ConsumptionType.All))
+                return@forEach
+
+            val allIndex = consumptionTypes.indexOfFirst { it == ConsumptionType.All }
+            val lastIndex = consumptionTypes.lastIndex
+
+            if (allIndex == lastIndex)
+                return@forEach
+
+            val remainingConsumptionTypes = consumptionTypes.subList(allIndex + 1, lastIndex + 1)
+
+            remainingConsumptionTypes.takeWhile {
+                if (it != ConsumptionType.None) {
+                    InternalLogger.error("Detected ConsumptionType.$it after ConsumptionType.All in command: ${command.names.first()}")
+                    false
+                } else true
+            }
+        }
+    }
+
     private fun registerListenersByPath() {
-        Reflections(config.globalPath, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
-                .map { it.declaringClass }
-                .distinct()
-                .map { diService.invokeConstructor(it) }
-                .forEach { registerListeners(it) }
+        val listeners = Reflections(config.globalPath, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
+            .map { it.declaringClass }
+            .distinct()
+            .map { diService.invokeConstructor(it) }
+
+        InternalLogger.info("Detected ${listeners.size.pluralize("listener")}.")
+
+        listeners.forEach { registerListeners(it) }
     }
 
     private fun registerPreconditionsByPath() {
-        Reflections(config.globalPath, MethodAnnotationsScanner())
-                .getMethodsAnnotatedWith(Precondition::class.java)
-                .map {
-                    val preconditionAnnotation = it.annotations.first { annotation -> annotation.annotationClass == Precondition::class }
-                    val priority = (preconditionAnnotation as Precondition).priority
-                    val condition = diService.invokeReturningMethod(it) as ((CommandEvent<*>) -> PreconditionResult)
+        val preconditions = Reflections(config.globalPath, MethodAnnotationsScanner())
+            .getMethodsAnnotatedWith(Precondition::class.java)
+            .map {
+                val preconditionAnnotation = it.annotations.first { annotation -> annotation.annotationClass == Precondition::class }
+                val priority = (preconditionAnnotation as Precondition).priority
+                val condition = diService.invokeReturningMethod(it) as ((CommandEvent<*>) -> PreconditionResult)
 
-                    PreconditionData(condition, priority)
-                }
-                .forEach { registerCommandPreconditions(it) }
+                PreconditionData(condition, priority)
+            }
+
+        InternalLogger.info("Detected ${preconditions.size.pluralize("precondition")}.")
+
+        preconditions.forEach { registerCommandPreconditions(it) }
     }
 
     private fun detectServices() {
@@ -140,7 +172,7 @@ fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
         util.configure()
     }
 
-    println("KUtils: GlobalPath set to ${util.config.globalPath}")
+    InternalLogger.info("GlobalPath set to ${util.config.globalPath}")
     return util
 }
 

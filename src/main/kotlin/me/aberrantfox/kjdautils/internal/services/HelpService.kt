@@ -16,7 +16,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
 
                 val responseEmbed = when {
                     query.isEmpty() -> generateDefaultEmbed(it)
-                    query.isCommand(it) -> generateCommandEmbed(container[query]!!, query)
+                    query.isCommand(it) -> generateCommandEmbed(container[query]!!, it, query)
                     else -> generateRecommendationEmbed(query, it)
                 }
 
@@ -44,24 +44,20 @@ class HelpService(private val container: CommandsContainer, private val config: 
             }
         }
 
-    private fun generateCommandEmbed(command: Command, input: String) = embed {
+    private fun generateCommandEmbed(command: Command, event: CommandEvent<*>, input: String) = embed {
         title = command.names.joinToString()
         description = command.description
         color = Color.CYAN
 
         val commandInvocation = "${config.prefix}$input"
-        addField("What is the structure of the command?", "$commandInvocation ${generateStructure(command)}")
-        addField("Show me an example of someone using the command.", "$commandInvocation ${generateExample(command)}")
+        addField("Structure", "$commandInvocation ${generateStructure(command)}")
+
+        if (command.parameterCount != 0)
+            addField("Examples", "$commandInvocation ${generateExample(command, event)}")
     }
 
     private fun generateRecommendationEmbed(query: String, event: CommandEvent<*>) =
-        embed {
-            val recommendation = CommandRecommender.recommendCommand(query) { it.isVisible(event) }
-
-            title = "Could not find a command with that name."
-            description = "Did you mean $recommendation?\nMaybe you should try ${config.prefix}help"
-            color = Color.RED
-        }
+        CommandRecommender.buildRecommendationEmbed(query) { it.isVisible(event) }
 
     private fun generateStructure(command: Command) =
         command.expectedArgs.arguments.joinToString(" ") {
@@ -69,9 +65,12 @@ class HelpService(private val container: CommandsContainer, private val config: 
             if (it.isOptional) "($type)" else "[$type]"
         }
 
-    private fun generateExample(command: Command) =
+    private fun generateExample(command: Command, event: CommandEvent<*>) =
         command.expectedArgs.arguments.joinToString(" ") {
-            it.examples.random()
+            val examples = it.generateExamples(event)
+            val example = if (examples.isNotEmpty()) examples.random() else "<Example>"
+
+            if (it.isOptional) "($example)" else "[$example]"
         }
 
     private fun String.isCommand(event: CommandEvent<*>) = fetchVisibleCommands(event)

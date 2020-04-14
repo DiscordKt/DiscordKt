@@ -8,10 +8,9 @@ import net.dv8tion.jda.api.entities.Category
 open class CategoryArg(override val name: String = "Category", private val guildId: String = ""): ArgumentType<Category>() {
     companion object : CategoryArg()
 
-    override val examples = arrayListOf("302134543639511050", "Staff", "Chat Channels")
     override val consumptionType = ConsumptionType.Multiple
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
 
+    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
         val guild = if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild
         guild ?: return ArgumentResult.Error("Failed to resolve guild! Pass a valid guild id to CategoryArg.")
 
@@ -48,5 +47,9 @@ open class CategoryArg(override val name: String = "Category", private val guild
         val isValid = resolvedName.toLowerCase() == argList.joinToString(" ").toLowerCase()
 
         return if (isValid) ArgumentResult.Success(resolvedCategory, argList) else ArgumentResult.Error("Couldn't retrieve category :: $categoryBuilder")
+    }
+
+    override fun generateExamples(event: CommandEvent<*>): MutableList<String> {
+        return event.guild?.categories?.map { it.id }?.toMutableList() ?: mutableListOf("Chat Channels")
     }
 }

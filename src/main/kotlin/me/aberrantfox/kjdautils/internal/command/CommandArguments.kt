@@ -1,6 +1,9 @@
 package me.aberrantfox.kjdautils.internal.command
 
+import me.aberrantfox.kjdautils.api.diService
 import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
+import me.aberrantfox.kjdautils.internal.logging.InternalLogger
+import me.aberrantfox.kjdautils.internal.services.DIService
 import net.dv8tion.jda.api.JDA
 
 sealed class ArgumentResult<T> {
@@ -21,9 +24,8 @@ enum class ConsumptionType {
 }
 
 abstract class ArgumentType<T>: Cloneable {
-    abstract val consumptionType: ConsumptionType
-    abstract val examples: ArrayList<String>
     abstract val name: String
+    abstract val consumptionType: ConsumptionType
 
     var isOptional: Boolean = false
         private set
@@ -60,6 +62,7 @@ abstract class ArgumentType<T>: Cloneable {
     }
 
     abstract fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
+    abstract fun generateExamples(event: CommandEvent<*>): MutableList<String>
 }
 
 fun tryRetrieveSnowflake(jda: JDA, action: (JDA) -> Any?): Any? =

@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.entities.Member
 open class MemberArg(override val name: String = "Member"): ArgumentType<Member>() {
     companion object : MemberArg()
 
-    override val examples = arrayListOf("@Bob", "133997975662886912", "215210079148834816")
     override val consumptionType = ConsumptionType.Single
+
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Member> {
         val user = event.discord.jda.getUserById(arg.trimToID())
             ?: return ArgumentResult.Error("$arg does not share a common guild.")
@@ -22,4 +22,6 @@ open class MemberArg(override val name: String = "Member"): ArgumentType<Member>
 
         return ArgumentResult.Success(member)
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(event.author.id)
 }

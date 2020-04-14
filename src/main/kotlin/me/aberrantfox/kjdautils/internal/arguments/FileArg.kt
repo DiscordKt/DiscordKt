@@ -7,8 +7,8 @@ import java.io.File
 open class FileArg(override val name: String = "File"): ArgumentType<File>() {
     companion object : FileArg()
 
-    override val examples = arrayListOf("File")
     override val consumptionType = ConsumptionType.None
+
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<File> {
         val attachments = event.message.attachments
 
@@ -19,4 +19,6 @@ open class FileArg(override val name: String = "File"): ArgumentType<File>() {
 
         return ArgumentResult.Success(file)
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf("File")
 }

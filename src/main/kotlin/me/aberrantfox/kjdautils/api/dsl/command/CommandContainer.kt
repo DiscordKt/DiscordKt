@@ -1,7 +1,8 @@
 package me.aberrantfox.kjdautils.api.dsl.command
 
 import me.aberrantfox.kjdautils.api.annotation.CommandSet
-import me.aberrantfox.kjdautils.internal.di.DIService
+import me.aberrantfox.kjdautils.internal.logging.InternalLogger
+import me.aberrantfox.kjdautils.internal.services.DIService
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 
@@ -37,18 +38,16 @@ data class CommandsContainer(var commands: ArrayList<Command> = arrayListOf()) {
 }
 
 fun produceContainer(path: String, diService: DIService): CommandsContainer {
-    val cmdMethods = Reflections(path, MethodAnnotationsScanner())
+    val commandSets = Reflections(path, MethodAnnotationsScanner())
         .getMethodsAnnotatedWith(CommandSet::class.java)
         .map { it to (it.annotations.first { it is CommandSet } as CommandSet).category }
 
-    if(cmdMethods.isEmpty()) {
-        println("KUtils: No command methods detected.")
+    if (commandSets.isEmpty()) {
+        InternalLogger.info("No command methods detected.")
         return CommandsContainer()
-    } else {
-        println("KUtils: ${cmdMethods.size} command methods detected.")
     }
 
-    return cmdMethods
+    val container = commandSets
         .map { (method, cmdSetCategory) ->
             (diService.invokeReturningMethod(method) as CommandsContainer) to cmdSetCategory
         }
@@ -60,4 +59,8 @@ fun produceContainer(path: String, diService: DIService): CommandsContainer {
             }
         }
         .reduce { a, b -> a.join(b) }
+
+    InternalLogger.info("Detected ${container.commands.size} commands across ${commandSets.size} categories.")
+
+    return container
 }
