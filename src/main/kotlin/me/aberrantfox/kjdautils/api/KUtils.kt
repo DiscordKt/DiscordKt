@@ -36,6 +36,8 @@ class KUtils(val config: KConfiguration, token: String) {
     var logger: BotLogger = DefaultLogger()
 
     init {
+        println("--------------- KUtils Startup ---------------")
+
         registerInjectionObject(conversationService)
         discord.addEventListener(EventRegister)
         documentationService = DocumentationService(container)
@@ -119,7 +121,7 @@ class KUtils(val config: KConfiguration, token: String) {
             .distinct()
             .map { diService.invokeConstructor(it) }
 
-        InternalLogger.info("Detected ${listeners.size.pluralize("listener")}.")
+        InternalLogger.startup(listeners.size.pluralize("Listener"))
 
         listeners.forEach { registerListeners(it) }
     }
@@ -135,7 +137,7 @@ class KUtils(val config: KConfiguration, token: String) {
                 PreconditionData(condition, priority)
             }
 
-        InternalLogger.info("Detected ${preconditions.size.pluralize("precondition")}.")
+        InternalLogger.startup(preconditions.size.pluralize("Precondition"))
 
         preconditions.forEach { registerCommandPreconditions(it) }
     }
@@ -149,6 +151,8 @@ class KUtils(val config: KConfiguration, token: String) {
         val data = Reflections(config.globalPath).getTypesAnnotatedWith(Data::class.java)
         val fillInData = diService.collectDataObjects(data)
 
+        InternalLogger.startup(data.size.pluralize("Data"))
+
         exitIfDataNeedsToBeFilledIn(fillInData)
     }
 
@@ -157,8 +161,7 @@ class KUtils(val config: KConfiguration, token: String) {
 
         val dataString = data.joinToString(", ", postfix = ".")
 
-        println("The below data files were generated and must be filled in before re-running.")
-        println(dataString)
+        InternalLogger.info("The below data files were generated and must be filled in before re-running.\n$dataString")
         exitProcess(0)
     }
 }
@@ -166,13 +169,16 @@ class KUtils(val config: KConfiguration, token: String) {
 fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
     val util = KUtils(KConfiguration(), token)
     util.config.globalPath = defaultGlobalPath(Exception())
+
+    InternalLogger.startup("GlobalPath: ${util.config.globalPath}")
+
     util.operate()
 
     if(!util.configured) {
         util.configure()
     }
 
-    InternalLogger.info("GlobalPath set to ${util.config.globalPath}")
+    InternalLogger.startup("----------------------------------------------")
     return util
 }
 

@@ -1,6 +1,7 @@
 package me.aberrantfox.kjdautils.api.dsl.command
 
 import me.aberrantfox.kjdautils.api.annotation.CommandSet
+import me.aberrantfox.kjdautils.extensions.stdlib.pluralize
 import me.aberrantfox.kjdautils.internal.logging.InternalLogger
 import me.aberrantfox.kjdautils.internal.services.DIService
 import org.reflections.Reflections
@@ -60,7 +61,7 @@ fun produceContainer(path: String, diService: DIService): CommandsContainer {
         }
         .reduce { a, b -> a.join(b) }
 
-    InternalLogger.info("Detected ${container.commands.size} commands across ${commandSets.size} categories.")
+    InternalLogger.startup(commandSets.size.pluralize("CommandSet") + " -> " + container.commands.size.pluralize("command"))
 
     return container
 }
