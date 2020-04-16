@@ -6,12 +6,13 @@ import me.aberrantfox.kjdautils.api.dsl.command.commands
 import me.aberrantfox.kjdautils.api.dsl.embed
 import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.extensions.jda.fullName
+import me.aberrantfox.kjdautils.internal.arguments.SentenceArg
 import java.awt.Color
 
 data class Properties(val version: String, val repository: String)
 
 private val propFile = Properties::class.java.getResource("/properties.json").readText()
-val project = Gson().fromJson(propFile, Properties::class.java)
+private val project = Gson().fromJson(propFile, Properties::class.java)
 
 data class MyCustomBotConfiguration(val version: String)
 
@@ -22,7 +23,7 @@ fun main(args: Array<String>) {
     startBot(token) {
         val myConfig = MyCustomBotConfiguration(project.version)
 
-        registerInjectionObject(myConfig)
+        registerInjectionObjects(myConfig)
 
         configure {
             prefix = "!"

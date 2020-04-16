@@ -2,8 +2,8 @@ package me.aberrantfox.kjdautils.api.dsl.command
 
 import me.aberrantfox.kjdautils.api.annotation.CommandSet
 import me.aberrantfox.kjdautils.extensions.stdlib.pluralize
-import me.aberrantfox.kjdautils.internal.logging.InternalLogger
 import me.aberrantfox.kjdautils.internal.services.DIService
+import me.aberrantfox.kjdautils.internal.utils.InternalLogger
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 
@@ -44,7 +44,7 @@ fun produceContainer(path: String, diService: DIService): CommandsContainer {
         .map { it to (it.annotations.first { it is CommandSet } as CommandSet).category }
 
     if (commandSets.isEmpty()) {
-        InternalLogger.info("No command methods detected.")
+        InternalLogger.startup("0 CommandSets -> 0 Commands")
         return CommandsContainer()
     }
 
@@ -61,7 +61,7 @@ fun produceContainer(path: String, diService: DIService): CommandsContainer {
         }
         .reduce { a, b -> a.join(b) }
 
-    InternalLogger.startup(commandSets.size.pluralize("CommandSet") + " -> " + container.commands.size.pluralize("command"))
+    InternalLogger.startup(commandSets.size.pluralize("CommandSet") + " -> " + container.commands.size.pluralize("Command"))
 
     return container
 }

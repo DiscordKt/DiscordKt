@@ -1,9 +1,6 @@
 package me.aberrantfox.kjdautils.internal.command
 
-import me.aberrantfox.kjdautils.api.diService
 import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
-import me.aberrantfox.kjdautils.internal.logging.InternalLogger
-import me.aberrantfox.kjdautils.internal.services.DIService
 import net.dv8tion.jda.api.JDA
 
 sealed class ArgumentResult<T> {

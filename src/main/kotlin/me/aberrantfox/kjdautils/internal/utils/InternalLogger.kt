@@ -1,4 +1,4 @@
-package me.aberrantfox.kjdautils.internal.logging
+package me.aberrantfox.kjdautils.internal.utils
 
 internal class InternalLogger {
     companion object {
