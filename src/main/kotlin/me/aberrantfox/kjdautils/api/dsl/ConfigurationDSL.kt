@@ -16,6 +16,14 @@ data class KConfiguration(
     var deleteMode: PrefixDeleteMode = PrefixDeleteMode.Single,
     var deleteErrors: Boolean = false,
     var allowPrivateMessages: Boolean = false,
-    var mentionEmbed: ((GuildMessageReceivedEvent) -> MessageEmbed)? = null,
+    internal var mentionEmbed: ((GuildMessageReceivedEvent) -> MessageEmbed)? = null,
     var visibilityPredicate: (command: Command, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _ -> true }
-)
+) {
+    fun mentionEmbed(construct: EmbedDSLHandle.(GuildMessageReceivedEvent) -> Unit) {
+        mentionEmbed = {
+            val handle = EmbedDSLHandle()
+            handle.construct(it)
+            handle.build()
+        }
+    }
+}
