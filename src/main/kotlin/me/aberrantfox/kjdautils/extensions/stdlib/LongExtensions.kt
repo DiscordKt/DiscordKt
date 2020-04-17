@@ -26,15 +26,11 @@ fun Long.toMinimalTimeString(): String {
     return stack.joinToString(" ")
 }
 
-fun Long.convertToTimeString(unit: TemporalUnit = ChronoUnit.SECONDS): String {
-    val duration = Duration.of(this, unit)
-
-    return with(duration) {
-        toDaysPart().pluralize("day") + " " +
-        toHoursPart().pluralize("hour") + " "
-        toMinutesPart().pluralize("minute") + " "
+fun Long.toTimeString(unit: TemporalUnit = ChronoUnit.SECONDS) = with(Duration.of(this, unit)) {
+    "${toDaysPart().pluralize("day")} " +
+        "${toHoursPart().pluralize("hour")}  " +
+        "${toMinutesPart().pluralize("minute")} " +
         toSecondsPart().pluralize("second")
-    }
 }
 
 fun Number.pluralize(unit: String) = "$this ${if (this.toLong() == 1L) unit else "${unit}s"}"
