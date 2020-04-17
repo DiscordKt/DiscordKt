@@ -2,98 +2,70 @@ package me.aberrantfox.kjdautils.internal.services
 
 import me.aberrantfox.kjdautils.api.annotation.Service
 import me.aberrantfox.kjdautils.api.dsl.command.*
-import me.aberrantfox.kjdautils.internal.businessobjects.*
 import java.io.File
 
-const val saveLocation = "commands.md"
-val saveFile = File(saveLocation)
-
 @Service
-class DocumentationService(private val container: CommandsContainer) {
-    fun obtainDocumentationString() = saveFile.readText()
+class DocumentationService(container: CommandsContainer) {
+    private val saveFile = File("commands.md")
 
-    fun obtainDocumentationFile() = saveFile
+    data class CategoryDocs(val name: String, val docString: String)
 
-    fun generateDocumentation(sortOrder: List<String>) {
-
-        val categories = container.commands.groupBy { it.category }
-        val categoryDocs = generateDocsByCategory(categories)
-
-        val sortedDocs =
-            if (sortOrder.isNotEmpty()) {
-                sortCategoryDocs(categoryDocs, sortOrder)
-            } else {
-                categoryDocs.sortedBy { it.name }
-            }
-
-        outputDocs(sortedDocs)
+    data class CommandData(val name: String, val args: String, val description: String) {
+        fun format(format: String) = String.format(format, name, args, description)
     }
 
-    private fun generateDocsByCategory(categories: Map<String, List<Command>>) =
-            categories.map { generateSingleCategoryDoc(it) } as ArrayList<CategoryDocs>
+    init {
+        val docs = container.commands
+            .groupBy { it.category }
+            .map { generateCategoryDoc(it.key, it.value) }
+            .sortedBy { it.name }
 
-    private fun sortCategoryDocs(categoryDocs: ArrayList<CategoryDocs>, categoryNameOrder: List<String>): List<CategoryDocs> {
-        val sortedCategories = categoryDocs
-                .filter { cat -> categoryNameOrder.any { it.toLowerCase() == cat.name.toLowerCase() } }
-                .sortedBy { cat -> categoryNameOrder.indexOfFirst { it == cat.name } }.toMutableList()
-
-        //add back anything that was missing
-        sortedCategories.addAll(categoryDocs.filter { !sortedCategories.contains(it) })
-
-        return sortedCategories.toList()
+        outputDocs(docs)
     }
 
     private fun outputDocs(rawDocs: List<CategoryDocs>) {
-        val indentLevel = "##"
-        val docsAsString =
-            "# Commands\n\n" +
-            "$indentLevel Key\n" +
+        val docString = "# Commands\n\n" +
+            "## Key\n" +
             "| Symbol     | Meaning                    |\n" +
             "| ---------- | -------------------------- |\n" +
             "| (Argument) | This argument is optional. |\n\n" +
-            buildString {
-                rawDocs.forEach {
-                    appendln("$indentLevel ${it.name}\n${it.docString}")
-                }
-            }
+            rawDocs.joinToString("") { "## ${it.name}\n${it.docString}\n" }
 
-        saveFile.writeText(docsAsString)
+        saveFile.writeText(docString)
     }
 
-    private fun generateSingleCategoryDoc(entry: Map.Entry<String, List<Command>>): CategoryDocs {
-        val commandData = entry.value.map { it.toCommandData() }
-        val commandDataFormat = generateFormat(commandData)
-        val separator = generateSeparator(commandDataFormat)
+    private fun generateCategoryDoc(name: String, commands: List<Command>): CategoryDocs {
+        val commandData = commands.map { extractCommandData(it) }
+        val docs = formatDocs(commandData.toMutableList())
 
-        val commandString = commandData
-                .sortedBy { it.name }
-                .joinToString("\n"){ it.format(commandDataFormat.generateFormatString()) }
-
-        val docs =
-            """;;-${HEADER_DATA.format(commandDataFormat.generateFormatString())}
-               ;;-$separator
-               ;;-$commandString
-               ;;-
-            """.trimMargin(";;-")
-
-        return CategoryDocs(entry.key, docs)
+        return CategoryDocs(name, docs)
     }
 
-    private fun generateSeparator(cformat: CommandsOutputFormatter) = with(cformat) {
-        String.format(cformat.generateFormatString(), "-".repeat(longestName), "-".repeat(longestArgs), "-".repeat(longestDescription))
+    private fun extractCommandData(command: Command): CommandData {
+        val expectedArgs = command.expectedArgs.arguments.joinToString {
+            if (it.isOptional) "(${it.name})" else it.name
+        }.takeIf { it.isNotEmpty() } ?: "<none>"
+
+        return CommandData(command.names.joinToString().replace("|", "\\|"),
+            expectedArgs.replace("|", "\\|"),
+            command.description.replace("|", "\\|"))
     }
 
-    private fun generateFormat(commandData: List<CommandData>): CommandsOutputFormatter {
+    private fun formatDocs(commandData: MutableList<CommandData>): String {
+        val headerData = CommandData("Commands", "Arguments", "Description")
+
+        commandData.add(headerData)
         val longestName = commandData.maxBy { it.name.length }!!.name.length
         val longestArgs = commandData.maxBy { it.args.length }!!.args.length
         val longestDescription = commandData.maxBy { it.description.length }!!.description.length
+        commandData.remove(headerData)
 
-        return CommandsOutputFormatter().apply {
-            //check to see if any of the real data was longer than our pre-defined default values
-            this.longestArgs = maxOf(this.longestArgs, longestArgs)
-            this.longestName = maxOf(this.longestName, longestName)
-            this.longestDescription = maxOf(this.longestDescription, longestDescription)
-        }
+        val formatString = "| %-${longestName}s | %-${longestArgs}s | %-${longestDescription}s |"
+
+        val headerString = headerData.format(formatString)
+        val separator = formatString.format("-".repeat(longestName), "-".repeat(longestArgs), "-".repeat(longestDescription))
+        val commandString = commandData.sortedBy { it.name }.joinToString("\n") { it.format(formatString) }
+
+        return "$headerString\n$separator\n$commandString\n"
     }
-
 }

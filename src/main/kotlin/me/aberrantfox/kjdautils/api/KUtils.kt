@@ -46,9 +46,6 @@ class KUtils(val config: KConfiguration, token: String) {
         val commandListener = registerListeners(container)
         registerPreconditions(commandListener)
         conversationService.registerConversations(config.globalPath)
-
-        val documentationService = DocumentationService(container)
-        documentationService.generateDocumentation(config.documentationSortOrder)
     }
 
     private fun registerCommands(): CommandsContainer {

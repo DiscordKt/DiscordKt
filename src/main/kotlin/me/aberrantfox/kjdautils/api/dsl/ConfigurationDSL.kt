@@ -17,7 +17,6 @@ data class KConfiguration(
     var deleteMode: PrefixDeleteMode = PrefixDeleteMode.Single,
     var deleteErrors: Boolean = false,
     var allowPrivateMessages: Boolean = false,
-    var documentationSortOrder: List<String> = listOf(),
     var mentionEmbed: ((GuildMessageReceivedEvent) -> MessageEmbed)? = null,
     var visibilityPredicate: (command: Command, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _ -> true }
 )
