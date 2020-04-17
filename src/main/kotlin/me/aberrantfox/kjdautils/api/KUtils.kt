@@ -23,12 +23,13 @@ inline fun <reified T> Discord.getInjectionObject() = diService.getElement(T::cl
 
 private var configured = false
 
-class KUtils(val config: KConfiguration, token: String) {
+class KUtils(private val config: KConfiguration, token: String, private val globalPath: String) {
     val discord = buildDiscordClient(config, token)
     private val conversationService: ConversationService = ConversationService(discord, diService)
 
     init {
-        println("--------------- KUtils Startup ---------------")
+        InternalLogger.startup("--------------- KUtils Startup ---------------")
+        InternalLogger.startup("GlobalPath: $globalPath")
         discord.addEventListener(EventRegister)
         registerInjectionObjects(discord, conversationService)
     }
@@ -45,11 +46,11 @@ class KUtils(val config: KConfiguration, token: String) {
         val container = registerCommands()
         val commandListener = registerListeners(container)
         registerPreconditions(commandListener)
-        conversationService.registerConversations(config.globalPath)
+        conversationService.registerConversations(globalPath)
     }
 
     private fun registerCommands(): CommandsContainer {
-        val localContainer = produceContainer(config.globalPath, diService)
+        val localContainer = produceContainer(globalPath, diService)
 
         //Add KUtils help command if a command named "Help" is not already provided
         val helpService = HelpService(localContainer, config)
@@ -62,7 +63,7 @@ class KUtils(val config: KConfiguration, token: String) {
     }
 
     private fun registerListeners(container: CommandsContainer): CommandListener {
-        val listeners = Reflections(config.globalPath, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
+        val listeners = Reflections(globalPath, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
             .map { it.declaringClass }
             .distinct()
             .map { diService.invokeConstructor(it) }
@@ -82,7 +83,7 @@ class KUtils(val config: KConfiguration, token: String) {
     }
 
     private fun registerPreconditions(commandListener: CommandListener) {
-        val preconditions = Reflections(config.globalPath, MethodAnnotationsScanner())
+        val preconditions = Reflections(globalPath, MethodAnnotationsScanner())
             .getMethodsAnnotatedWith(Precondition::class.java)
             .map {
                 val annotation = it.annotations.first { it.annotationClass == Precondition::class } as Precondition
@@ -97,12 +98,12 @@ class KUtils(val config: KConfiguration, token: String) {
     }
 
     private fun detectServices() {
-        val services = Reflections(config.globalPath).getTypesAnnotatedWith(Service::class.java)
+        val services = Reflections(globalPath).getTypesAnnotatedWith(Service::class.java)
         diService.invokeDestructiveList(services)
     }
 
     private fun detectData() {
-        val data = Reflections(config.globalPath).getTypesAnnotatedWith(Data::class.java)
+        val data = Reflections(globalPath).getTypesAnnotatedWith(Data::class.java)
         val missingData = diService.collectDataObjects(data)
 
         InternalLogger.startup(data.size.pluralize("Data"))
@@ -117,12 +118,8 @@ class KUtils(val config: KConfiguration, token: String) {
     }
 }
 
-fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
-    val util = KUtils(KConfiguration(), token)
-    util.config.globalPath = defaultGlobalPath(Exception())
-
-    InternalLogger.startup("GlobalPath: ${util.config.globalPath}")
-
+fun startBot(token: String, globalPath: String = defaultGlobalPath(Exception()), operate: KUtils.() -> Unit = {}): KUtils {
+    val util = KUtils(KConfiguration(), token, globalPath)
     util.operate()
 
     if(!configured) {

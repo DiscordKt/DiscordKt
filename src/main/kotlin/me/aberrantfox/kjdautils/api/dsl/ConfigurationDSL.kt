@@ -12,7 +12,6 @@ enum class PrefixDeleteMode {
 
 data class KConfiguration(
     var prefix: String = "+",
-    var globalPath: String = "",
     var reactToCommands: Boolean = true,
     var deleteMode: PrefixDeleteMode = PrefixDeleteMode.Single,
     var deleteErrors: Boolean = false,
