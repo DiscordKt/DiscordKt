@@ -1,25 +1,23 @@
 package me.aberrantfox.kjdautils.extensions.jda
 
-import me.aberrantfox.kjdautils.internal.logging.BotLogger
-import me.aberrantfox.kjdautils.internal.logging.DefaultLogger
+import me.aberrantfox.kjdautils.internal.utils.InternalLogger
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
 
-
 fun User.toMember(guild: Guild) = guild.getMemberById(this.id)
 
-fun User.sendPrivateMessage(msg: MessageEmbed, log: BotLogger = DefaultLogger()) =
+fun User.sendPrivateMessage(msg: MessageEmbed) =
         openPrivateChannel().queue {
             it.sendMessage(msg).queue(null) {
-                notifyDirectMessageError(this.fullName(), log)
+                InternalLogger.error(fullName())
             }
         }
 
-fun User.sendPrivateMessage(msg: String, log: BotLogger = DefaultLogger()) =
+fun User.sendPrivateMessage(msg: String) =
         openPrivateChannel().queue {
             it.sendMessage(msg).queue(null) {
-                notifyDirectMessageError(this.fullName(), log)
+                notifyDirectMessageError(fullName())
             }
         }
 
@@ -27,4 +25,4 @@ fun User.fullName() = "$name#$discriminator"
 
 fun User.descriptor() = "${fullName()} :: ID :: $id"
 
-private fun notifyDirectMessageError(user: String, log: BotLogger) = log.alert("Couldn't open private chat with $user since the user doesn't allow direct messages from server members.")
+private fun notifyDirectMessageError(user: String) = InternalLogger.error("Failed to send private message to $user")

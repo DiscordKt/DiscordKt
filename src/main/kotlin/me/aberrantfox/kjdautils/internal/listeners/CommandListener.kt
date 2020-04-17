@@ -7,14 +7,12 @@ import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.jda.*
 import me.aberrantfox.kjdautils.extensions.stdlib.*
 import me.aberrantfox.kjdautils.internal.command.*
-import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 
 internal class CommandListener(val config: KConfiguration,
                                val container: CommandsContainer,
-                               var log: BotLogger,
                                val discord: Discord,
                                private val executor: CommandExecutor,
                                private val preconditions: MutableList<PreconditionData> = mutableListOf()) {
@@ -91,8 +89,6 @@ internal class CommandListener(val config: KConfiguration,
         executor.executeCommand(command, actualArgs, event)
 
         if (!shouldDelete && config.reactToCommands) message.addReaction("\uD83D\uDC40").queue()
-
-        log.cmd("${author.descriptor()} -- invoked $commandName in ${channel.name}")
 
         if (shouldDelete) message.deleteIfExists()
     }

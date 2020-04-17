@@ -9,7 +9,6 @@ import me.aberrantfox.kjdautils.extensions.stdlib.pluralize
 import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.*
-import me.aberrantfox.kjdautils.internal.logging.*
 import me.aberrantfox.kjdautils.internal.services.*
 import me.aberrantfox.kjdautils.internal.utils.InternalLogger
 import me.aberrantfox.kjdautils.internal.utils.Validator
@@ -73,7 +72,7 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
         fun registerListener(listener: Any) = EventRegister.eventBus.register(listener)
 
         val conversationListener = ConversationListener(conversationService)
-        val commandListener = CommandListener(config, container, DefaultLogger(), discord, CommandExecutor())
+        val commandListener = CommandListener(config, container, discord, CommandExecutor())
 
         registerListener(conversationListener)
         registerListener(commandListener)
