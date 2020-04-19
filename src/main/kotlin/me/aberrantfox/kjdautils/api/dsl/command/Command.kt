@@ -1,6 +1,5 @@
 package me.aberrantfox.kjdautils.api.dsl.command
 
-import me.aberrantfox.kjdautils.internal.businessobjects.CommandData
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 
 @CommandTagMarker
@@ -22,16 +21,6 @@ class Command(val names: List<String>,
     fun <T : ArgumentContainer> execute(collection: ArgumentCollection<*>, event: (CommandEvent<T>) -> Unit) {
         expectedArgs = collection
         this.execute = event as (CommandEvent<*>) -> Unit
-    }
-
-    fun toCommandData(): CommandData {
-        val expectedArgs = expectedArgs.arguments.joinToString {
-            if (it.isOptional) "(${it.name})" else it.name
-        }.takeIf { it.isNotEmpty() } ?: "<none>"
-
-        return CommandData(names.joinToString().replace("|", "\\|"),
-            expectedArgs.replace("|", "\\|"),
-            description.replace("|", "\\|"))
     }
 
     fun execute(execute: (CommandEvent<NoArg>) -> Unit) {

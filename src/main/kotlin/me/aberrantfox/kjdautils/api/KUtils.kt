@@ -9,8 +9,9 @@ import me.aberrantfox.kjdautils.extensions.stdlib.pluralize
 import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.event.EventRegister
 import me.aberrantfox.kjdautils.internal.listeners.*
-import me.aberrantfox.kjdautils.internal.logging.*
 import me.aberrantfox.kjdautils.internal.services.*
+import me.aberrantfox.kjdautils.internal.utils.InternalLogger
+import me.aberrantfox.kjdautils.internal.utils.Validator
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 import kotlin.system.exitProcess
@@ -19,37 +20,20 @@ import kotlin.system.exitProcess
 internal val diService = DIService()
 inline fun <reified T> Discord.getInjectionObject() = diService.getElement(T::class.java) as T?
 
-class KUtils(val config: KConfiguration, token: String) {
+private var configured = false
+
+class KUtils(private val config: KConfiguration, token: String, private val globalPath: String) {
     val discord = buildDiscordClient(config, token)
-
-    private var listener: CommandListener? = null
-    private var executor: CommandExecutor? = null
-    private val documentationService: DocumentationService
-    var configured = false
+    private val conversationService: ConversationService = ConversationService(discord, diService)
 
     init {
-        registerInjectionObject(discord)
-    }
-
-    val conversationService: ConversationService = ConversationService(discord, diService)
-    val container = CommandsContainer()
-    var logger: BotLogger = DefaultLogger()
-
-    init {
-        registerInjectionObject(conversationService)
+        InternalLogger.startup("--------------- KUtils Startup ---------------")
+        InternalLogger.startup("GlobalPath: $globalPath")
         discord.addEventListener(EventRegister)
-        documentationService = DocumentationService(container)
-        registerListeners(ConversationListener(conversationService))
+        registerInjectionObjects(discord, conversationService)
     }
 
-    fun registerInjectionObject(vararg obj: Any) = obj.forEach { diService.addElement(it) }
-
-    fun registerCommandPreconditions(vararg conditions: (CommandEvent<*>) -> PreconditionResult) =
-            conditions.map { PreconditionData(it) }
-                      .forEach { listener?.addPreconditions(it) }
-
-    fun registerCommandPreconditions(vararg preconditions: PreconditionData) =
-            listener?.addPreconditions(*preconditions)
+    fun registerInjectionObjects(vararg obj: Any) = obj.forEach { diService.addElement(it) }
 
     fun configure(setup: KConfiguration.() -> Unit = {}) {
         configured = true
@@ -58,121 +42,90 @@ class KUtils(val config: KConfiguration, token: String) {
         detectData()
         detectServices()
 
-        registerCommands()
-        registerListenersByPath()
-        registerPreconditionsByPath()
-        conversationService.registerConversations(config.globalPath)
-        documentationService.generateDocumentation(config.documentationSortOrder)
+        val container = registerCommands()
+        val commandListener = registerListeners(container)
+        registerPreconditions(commandListener)
+        conversationService.registerConversations(globalPath)
     }
 
-    fun registerListeners(vararg listeners: Any) = listeners.forEach { EventRegister.eventBus.register(it) }
-
     private fun registerCommands(): CommandsContainer {
-        val localContainer = produceContainer(config.globalPath, diService)
+        val localContainer = produceContainer(globalPath, diService)
 
         //Add KUtils help command if a command named "Help" is not already provided
-        val helpService = HelpService(container, config)
+        val helpService = HelpService(localContainer, config)
         localContainer["Help"] ?: localContainer.join(helpService.produceHelpCommandContainer())
 
         CommandRecommender.addAll(localContainer.commands)
+        Validator.validateCommandConsumption(localContainer)
 
-        validateCommandConsumption(localContainer)
-
-        val executor = CommandExecutor()
-        val listener = CommandListener(config, container, logger, discord, executor)
-
-        this.container.join(localContainer)
-        this.executor = executor
-        this.listener = listener
-
-        registerListeners(listener)
-        return container
+        return localContainer
     }
 
-    private fun validateCommandConsumption(commandsContainer: CommandsContainer) {
-        commandsContainer.commands.forEach { command ->
-            val consumptionTypes = command.expectedArgs.arguments.map { it.consumptionType }
-
-            if (!consumptionTypes.contains(ConsumptionType.All))
-                return@forEach
-
-            val allIndex = consumptionTypes.indexOfFirst { it == ConsumptionType.All }
-            val lastIndex = consumptionTypes.lastIndex
-
-            if (allIndex == lastIndex)
-                return@forEach
-
-            val remainingConsumptionTypes = consumptionTypes.subList(allIndex + 1, lastIndex + 1)
-
-            remainingConsumptionTypes.takeWhile {
-                if (it != ConsumptionType.None) {
-                    InternalLogger.error("Detected ConsumptionType.$it after ConsumptionType.All in command: ${command.names.first()}")
-                    false
-                } else true
-            }
-        }
-    }
-
-    private fun registerListenersByPath() {
-        val listeners = Reflections(config.globalPath, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
+    private fun registerListeners(container: CommandsContainer): CommandListener {
+        val listeners = Reflections(globalPath, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
             .map { it.declaringClass }
             .distinct()
             .map { diService.invokeConstructor(it) }
 
-        InternalLogger.info("Detected ${listeners.size.pluralize("listener")}.")
+        InternalLogger.startup(listeners.size.pluralize("Listener"))
 
-        listeners.forEach { registerListeners(it) }
+        fun registerListener(listener: Any) = EventRegister.eventBus.register(listener)
+
+        val conversationListener = ConversationListener(conversationService)
+        val commandListener = CommandListener(config, container, discord, CommandExecutor())
+
+        registerListener(conversationListener)
+        registerListener(commandListener)
+        listeners.forEach { registerListener(it) }
+
+        return commandListener
     }
 
-    private fun registerPreconditionsByPath() {
-        val preconditions = Reflections(config.globalPath, MethodAnnotationsScanner())
+    private fun registerPreconditions(commandListener: CommandListener) {
+        val preconditions = Reflections(globalPath, MethodAnnotationsScanner())
             .getMethodsAnnotatedWith(Precondition::class.java)
             .map {
-                val preconditionAnnotation = it.annotations.first { annotation -> annotation.annotationClass == Precondition::class }
-                val priority = (preconditionAnnotation as Precondition).priority
+                val annotation = it.annotations.first { it.annotationClass == Precondition::class } as Precondition
                 val condition = diService.invokeReturningMethod(it) as ((CommandEvent<*>) -> PreconditionResult)
 
-                PreconditionData(condition, priority)
+                PreconditionData(condition, annotation.priority)
             }
 
-        InternalLogger.info("Detected ${preconditions.size.pluralize("precondition")}.")
+        InternalLogger.startup(preconditions.size.pluralize("Precondition"))
 
-        preconditions.forEach { registerCommandPreconditions(it) }
+        preconditions.forEach { commandListener.addPreconditions(it) }
     }
 
     private fun detectServices() {
-        val services = Reflections(config.globalPath).getTypesAnnotatedWith(Service::class.java)
+        val services = Reflections(globalPath).getTypesAnnotatedWith(Service::class.java)
         diService.invokeDestructiveList(services)
     }
 
     private fun detectData() {
-        val data = Reflections(config.globalPath).getTypesAnnotatedWith(Data::class.java)
-        val fillInData = diService.collectDataObjects(data)
+        val data = Reflections(globalPath).getTypesAnnotatedWith(Data::class.java)
+        val missingData = diService.collectDataObjects(data)
 
-        exitIfDataNeedsToBeFilledIn(fillInData)
-    }
+        InternalLogger.startup(data.size.pluralize("Data"))
 
-    private fun exitIfDataNeedsToBeFilledIn(data: ArrayList<String>) {
-        if(data.isEmpty()) return
+        if(missingData.isEmpty()) return
 
-        val dataString = data.joinToString(", ", postfix = ".")
+        val dataString = missingData.joinToString(", ", postfix = ".")
 
-        println("The below data files were generated and must be filled in before re-running.")
-        println(dataString)
+        InternalLogger.error("The below data files were generated and must be filled in before re-running.\n$dataString")
+
         exitProcess(0)
     }
 }
 
-fun startBot(token: String, operate: KUtils.() -> Unit = {}): KUtils {
-    val util = KUtils(KConfiguration(), token)
-    util.config.globalPath = defaultGlobalPath(Exception())
+fun startBot(token: String, globalPath: String = defaultGlobalPath(Exception()), operate: KUtils.() -> Unit = {}): KUtils {
+    val util = KUtils(KConfiguration(), token, globalPath)
     util.operate()
 
-    if(!util.configured) {
+    if(!configured) {
         util.configure()
     }
 
-    InternalLogger.info("GlobalPath set to ${util.config.globalPath}")
+    InternalLogger.startup("----------------------------------------------")
     return util
 }
 

@@ -1,7 +1,11 @@
-package me.aberrantfox.kjdautils.internal.logging
+package me.aberrantfox.kjdautils.internal.utils
 
 internal class InternalLogger {
     companion object {
+        fun startup(message: String) {
+            println(message)
+        }
+
         fun info(message: String) {
             println("KUtils: $message")
         }
