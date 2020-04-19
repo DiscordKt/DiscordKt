@@ -15,17 +15,11 @@ data class Properties(val version: String, val repository: String)
 private val propFile = Properties::class.java.getResource("/properties.json").readText()
 private val project = Gson().fromJson(propFile, Properties::class.java)
 
-data class MyCustomBotConfiguration(val version: String)
-
 fun main(args: Array<String>) {
     val token = args.firstOrNull()
         ?: throw IllegalArgumentException("No program arguments provided. Expected bot token.")
 
     startBot(token) {
-        val myConfig = MyCustomBotConfiguration(project.version)
-
-        registerInjectionObjects(myConfig)
-
         configure {
             prefix = "!"
 
@@ -51,12 +45,12 @@ fun main(args: Array<String>) {
 }
 
 @CommandSet("Utility")
-fun commandSet(myConfig: MyCustomBotConfiguration) = commands {
+fun utilityCommands() = commands {
     //Command with no args and multiple names
     command("Version", "V") {
         description = "Display the version."
         execute {
-            it.respond(myConfig.version)
+            it.respond(project.version)
         }
     }
 }
