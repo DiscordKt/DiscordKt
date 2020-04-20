@@ -36,9 +36,6 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
     fun registerInjectionObjects(vararg obj: Any) = obj.forEach { diService.addElement(it) }
 
     fun configure(setup: KConfiguration.() -> Unit = {}) {
-        configured = true
-        config.setup()
-
         detectData()
         detectServices()
 
@@ -50,6 +47,9 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
 
         Validator.validateCommandConsumption(container)
         Validator.validateReaction(config)
+
+        configured = true
+        config.setup()
     }
 
     private fun registerCommands(): CommandsContainer {
