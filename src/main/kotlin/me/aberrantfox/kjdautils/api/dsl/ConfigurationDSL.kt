@@ -14,8 +14,8 @@ data class VisibilityContext(val command: Command, val user: User, val channel: 
 
 data class KConfiguration(
     var prefix: String = "+",
-    var reactToCommands: Boolean = true,
-    var deleteMode: PrefixDeleteMode = PrefixDeleteMode.Single,
+    var commandReaction: String? = "\uD83D\uDC40",
+    var deleteMode: PrefixDeleteMode = PrefixDeleteMode.None,
     var deleteErrors: Boolean = false,
     var allowPrivateMessages: Boolean = false,
     internal var mentionEmbed: ((GuildMessageReceivedEvent) -> MessageEmbed)? = null,

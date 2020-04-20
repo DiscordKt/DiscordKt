@@ -43,9 +43,13 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
         detectServices()
 
         val container = registerCommands()
-        val commandListener = registerListeners(container)
-        registerPreconditions(commandListener)
+        val preconditions = registerPreconditions().toMutableList()
+        registerListeners(container, preconditions)
+
         conversationService.registerConversations(globalPath)
+
+        Validator.validateCommandConsumption(container)
+        Validator.validateReaction(config)
     }
 
     private fun registerCommands(): CommandsContainer {
@@ -56,12 +60,11 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
         localContainer["Help"] ?: localContainer.join(helpService.produceHelpCommandContainer())
 
         CommandRecommender.addAll(localContainer.commands)
-        Validator.validateCommandConsumption(localContainer)
 
         return localContainer
     }
 
-    private fun registerListeners(container: CommandsContainer): CommandListener {
+    private fun registerListeners(container: CommandsContainer, preconditions: MutableList<PreconditionData>): CommandListener {
         val listeners = Reflections(globalPath, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
             .map { it.declaringClass }
             .distinct()
@@ -72,7 +75,7 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
         fun registerListener(listener: Any) = EventRegister.eventBus.register(listener)
 
         val conversationListener = ConversationListener(conversationService)
-        val commandListener = CommandListener(config, container, discord, CommandExecutor())
+        val commandListener = CommandListener(config, container, discord, CommandExecutor(), preconditions)
 
         registerListener(conversationListener)
         registerListener(commandListener)
@@ -81,7 +84,7 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
         return commandListener
     }
 
-    private fun registerPreconditions(commandListener: CommandListener) {
+    private fun registerPreconditions(): List<PreconditionData> {
         val preconditions = Reflections(globalPath, MethodAnnotationsScanner())
             .getMethodsAnnotatedWith(Precondition::class.java)
             .map {
@@ -93,7 +96,7 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
 
         InternalLogger.startup(preconditions.size.pluralize("Precondition"))
 
-        preconditions.forEach { commandListener.addPreconditions(it) }
+        return preconditions
     }
 
     private fun detectServices() {

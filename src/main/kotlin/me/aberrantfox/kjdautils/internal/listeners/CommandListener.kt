@@ -88,7 +88,8 @@ internal class CommandListener(val config: KConfiguration,
 
         executor.executeCommand(command, actualArgs, event)
 
-        if (!shouldDelete && config.reactToCommands) message.addReaction("\uD83D\uDC40").queue()
+        if (!shouldDelete && config.commandReaction != null)
+            message.addReaction(config.commandReaction!!).queue()
 
         if (shouldDelete) message.deleteIfExists()
     }
