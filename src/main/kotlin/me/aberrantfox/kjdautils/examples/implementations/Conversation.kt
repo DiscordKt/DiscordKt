@@ -6,6 +6,8 @@ import me.aberrantfox.kjdautils.api.dsl.conversation
 import me.aberrantfox.kjdautils.internal.arguments.*
 import me.aberrantfox.kjdautils.internal.services.ConversationService
 
+//Conversations are a way to collect several pieces of data from a user without creating an unwieldy command.
+
 private const val conversationName = "Conversation"
 
 @Convo

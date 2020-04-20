@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.api.dsl.command.commands
 import me.aberrantfox.kjdautils.extensions.jda.fullName
 import me.aberrantfox.kjdautils.internal.arguments.*
 
-//Commands are users will interact with your bot.
+//Commands are the main interface that will be used to interact with your bot.
 //This is a good sample of commands that accept arguments of different types.
 
 @CommandSet("Command Demo")

@@ -38,12 +38,17 @@ internal class CommandListener(val config: KConfiguration,
     fun privateMessageHandler(e: PrivateMessageReceivedEvent) =
             handleMessage(e.channel, e.message, e.author)
 
-    fun addPreconditions(vararg conditions: PreconditionData) = preconditions.addAll(conditions)
-
     private fun handleMessage(channel: MessageChannel, message: Message, author: User, guild: Guild? = null) {
-        if (!isUsableCommand(message)) return
+        if (!config.allowPrivateMessages && message.channelType == ChannelType.PRIVATE) return
 
-        val commandStruct = cleanCommandMessage(message.contentRaw, config)
+        val content = message.contentRaw
+
+        val commandStruct = when {
+            isPrefixInvocation(message) -> stripPrefixInvocation(content, config)
+            isMentionInvocation(content) -> stripMentionInvocation(content)
+            else -> return
+        }
+
         val (commandName, actualArgs, isDoubleInvocation) = commandStruct
         if (commandName.isEmpty())
             return
@@ -88,19 +93,21 @@ internal class CommandListener(val config: KConfiguration,
 
         executor.executeCommand(command, actualArgs, event)
 
-        if (!shouldDelete && config.reactToCommands) message.addReaction("\uD83D\uDC40").queue()
+        if (!shouldDelete && config.commandReaction != null)
+            message.addReaction(config.commandReaction!!).queue()
 
         if (shouldDelete) message.deleteIfExists()
     }
 
-    private fun isUsableCommand(message: Message): Boolean {
-        if (message.contentRaw.length > 1500) return false
+    private fun isPrefixInvocation(message: Message) = message.isCommandInvocation(config)
 
-        if (!message.isCommandInvocation(config)) return false
+    private fun isMentionInvocation(message: String): Boolean {
+        if (!config.allowMentionPrefix)
+            return false
 
-        if (!config.allowPrivateMessages && message.channelType == ChannelType.PRIVATE) return false
+        val id = discord.jda.selfUser.id
 
-        return true
+        return message.startsWith("<@!$id>") || message.startsWith("<@$id>")
     }
 
     private fun getPreconditionError(event: CommandEvent<*>): String? {
