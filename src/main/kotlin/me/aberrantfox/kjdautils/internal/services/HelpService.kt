@@ -29,7 +29,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
         embed {
             title = "Help menu"
             description = "Use `${config.prefix}help <command>` for more information."
-            color = Color.decode("#00E58D")
+            color = infoColor
 
             val categoryMap = fetchVisibleCommands(event).groupBy { it.category }
 
@@ -47,7 +47,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
     private fun generateCommandEmbed(command: Command, event: CommandEvent<*>, input: String) = embed {
         title = command.names.joinToString()
         description = command.description
-        color = Color.CYAN
+        color = infoColor
 
         val commandInvocation = "${config.prefix}$input"
         addField("Structure", "$commandInvocation ${generateStructure(command)}")

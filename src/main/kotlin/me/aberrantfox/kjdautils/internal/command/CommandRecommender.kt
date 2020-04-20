@@ -25,7 +25,7 @@ object CommandRecommender {
 
             title = "Unknown Command"
             description = "Closest Recommendation: $recommendation\n"
-            color = Color.RED
+            color = failureColor
         }
 
     fun addPossibility(item: Command) = possibilities.add(item)

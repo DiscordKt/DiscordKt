@@ -6,7 +6,7 @@ import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.api.dsl.command.commands
 import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.extensions.jda.fullName
-import me.aberrantfox.kjdautils.internal.arguments.SentenceArg
+import me.aberrantfox.kjdautils.internal.arguments.*
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import java.awt.Color
 
@@ -22,8 +22,13 @@ fun main(args: Array<String>) {
     startBot(token) {
         configure {
             prefix = "!"
-
             allowMentionPrefix = true
+
+            colors {
+                successColor = Color.GREEN
+                failureColor = Color.RED
+                infoColor = Color.BLUE
+            }
 
             mentionEmbed { event ->
                 val self = event.guild.jda.selfUser
