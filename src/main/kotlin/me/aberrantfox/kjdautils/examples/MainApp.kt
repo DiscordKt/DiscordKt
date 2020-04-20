@@ -23,6 +23,8 @@ fun main(args: Array<String>) {
         configure {
             prefix = "!"
 
+            allowMentionPrefix = true
+
             mentionEmbed { event ->
                 val self = event.guild.jda.selfUser
 

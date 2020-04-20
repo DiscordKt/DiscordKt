@@ -9,7 +9,7 @@ data class CommandStruct(val commandName: String,
                          val commandArgs: List<String> = listOf(),
                          val doubleInvocation: Boolean)
 
-fun cleanCommandMessage(message: String, config: KConfiguration): CommandStruct {
+fun stripPrefixInvocation(message: String, config: KConfiguration): CommandStruct {
     var trimmedMessage = message.substring(config.prefix.length)
     val doubleInvocation = trimmedMessage.startsWith(config.prefix)
 
@@ -17,12 +17,21 @@ fun cleanCommandMessage(message: String, config: KConfiguration): CommandStruct 
         trimmedMessage = trimmedMessage.substring(config.prefix.length)
     }
 
+    return produceCommandStruct(trimmedMessage, doubleInvocation)
+}
+
+fun stripMentionInvocation(message: String): CommandStruct {
+    val trimmedMessage = message.substringAfter(">").trimStart()
+    return produceCommandStruct(trimmedMessage)
+}
+
+private fun produceCommandStruct(message: String, doubleInvocation: Boolean = false): CommandStruct {
     if (!message.contains(" ")) {
-        return CommandStruct(trimmedMessage.toLowerCase(), listOf(), doubleInvocation)
+        return CommandStruct(message.toLowerCase(), listOf(), false)
     }
 
-    val commandName = trimmedMessage.substring(0, trimmedMessage.indexOf(" ")).toLowerCase()
-    val commandArgs = trimmedMessage.substring(trimmedMessage.indexOf(" ") + 1).split(" ")
+    val commandName = message.substring(0, message.indexOf(" ")).toLowerCase()
+    val commandArgs = message.substring(message.indexOf(" ") + 1).split(" ")
 
     return CommandStruct(commandName, commandArgs, doubleInvocation)
 }

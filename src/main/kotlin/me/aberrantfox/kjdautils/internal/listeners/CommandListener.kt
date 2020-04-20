@@ -38,12 +38,15 @@ internal class CommandListener(val config: KConfiguration,
     fun privateMessageHandler(e: PrivateMessageReceivedEvent) =
             handleMessage(e.channel, e.message, e.author)
 
-    fun addPreconditions(vararg conditions: PreconditionData) = preconditions.addAll(conditions)
-
     private fun handleMessage(channel: MessageChannel, message: Message, author: User, guild: Guild? = null) {
-        if (!isUsableCommand(message)) return
+        if (!config.allowPrivateMessages && message.channelType == ChannelType.PRIVATE) return
 
-        val commandStruct = cleanCommandMessage(message.contentRaw, config)
+        val commandStruct = when {
+            isPrefixInvocation(message) -> stripPrefixInvocation(message.contentRaw, config)
+            isMentionInvocation(message) -> stripMentionInvocation(message.contentRaw)
+            else -> return
+        }
+
         val (commandName, actualArgs, isDoubleInvocation) = commandStruct
         if (commandName.isEmpty())
             return
@@ -94,15 +97,8 @@ internal class CommandListener(val config: KConfiguration,
         if (shouldDelete) message.deleteIfExists()
     }
 
-    private fun isUsableCommand(message: Message): Boolean {
-        if (message.contentRaw.length > 1500) return false
-
-        if (!message.isCommandInvocation(config)) return false
-
-        if (!config.allowPrivateMessages && message.channelType == ChannelType.PRIVATE) return false
-
-        return true
-    }
+    private fun isPrefixInvocation(message: Message) = message.isCommandInvocation(config)
+    private fun isMentionInvocation(message: Message) = message.contentRaw.startsWith("<@!${discord.jda.selfUser.id}>") && config.allowMentionPrefix
 
     private fun getPreconditionError(event: CommandEvent<*>): String? {
         val sortedConditions = preconditions
