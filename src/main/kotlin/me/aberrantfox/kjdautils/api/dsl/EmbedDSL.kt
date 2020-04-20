@@ -31,7 +31,7 @@ class EmbedDSLHandle {
 
     var title: String? = null
     var description: String? = null
-    var color: Color? = infoColor
+    var color: Color? = null
     var thumbnail: String? = null
     var image: String? = null
     var timeStamp: TemporalAccessor? = null
