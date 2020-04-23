@@ -11,8 +11,9 @@ open class TextChannelArg(override val name : String = "TextChannel"): ArgumentT
     override val consumptionType = ConsumptionType.Single
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<TextChannel> {
-        val channel = event.discord.jda.getTextChannelById(arg.trimToID())
-            ?: return ArgumentResult.Error("Couldn't retrieve text channel: $arg")
+        val channel = tryRetrieveSnowflake(event.discord.jda) {
+            it.getTextChannelById(arg.trimToID())
+        } as TextChannel? ?: return ArgumentResult.Error("Couldn't retrieve text channel: $arg")
 
         return ArgumentResult.Success(channel)
     }
