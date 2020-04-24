@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.requests.RestAction
 
 val categoryMock = mockk<Category> {
     every { id } returns FakeIds.Category
+    every { name } returns FakeNames.Category_Single andThen FakeNames.Category_Multi
 }
 
 val messageMock = mockk<Message> {
@@ -20,6 +21,7 @@ val messageMock = mockk<Message> {
 
 val guildMock = mockk<Guild> {
     every { id } returns FakeIds.Guild
+    every { categories } returns listOf(categoryMock)
 }
 
 val restActionMessageMock = mockk<RestAction<Message>> {
@@ -45,7 +47,8 @@ val commandContainerMock = mockk<CommandsContainer> {
 }
 
 val commandEventMock = mockk<CommandEvent<*>> {
-    every { discord } returns discordMock
     every { container } returns commandContainerMock
+    every { discord } returns discordMock
+    every { guild } returns guildMock
     every { channel } returns channelMock
 }
