@@ -4,15 +4,27 @@ import io.mockk.*
 import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.Discord
 import net.dv8tion.jda.api.JDA
-import net.dv8tion.jda.api.entities.Category
-import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.requests.RestAction
 
-val categoryMock = mockk<Category> {
+val singleCategoryMock = mockk<Category> {
     every { id } returns FakeIds.Category
-    every { name } returns FakeNames.Category_Single andThen FakeNames.Category_Multi
+    every { name } returns FakeNames.Category_Single
+}
+
+val multiCategoryMock = mockk<Category> {
+    every { id } returns FakeIds.Category
+    every { name } returns FakeNames.Category_Multi
+}
+
+val singleRoleMock = mockk<Role> {
+    every { id } returns FakeIds.Role
+    every { name } returns FakeNames.Role_Single
+}
+
+val multiRoleMock = mockk<Role> {
+    every { id } returns FakeIds.Role
+    every { name } returns FakeNames.Role_Multi
 }
 
 val messageMock = mockk<Message> {
@@ -21,7 +33,8 @@ val messageMock = mockk<Message> {
 
 val guildMock = mockk<Guild> {
     every { id } returns FakeIds.Guild
-    every { categories } returns listOf(categoryMock)
+    every { categories } returns listOf(singleCategoryMock, multiCategoryMock)
+    every { roles } returns listOf(singleRoleMock, multiRoleMock)
 }
 
 val restActionMessageMock = mockk<RestAction<Message>> {
@@ -33,7 +46,10 @@ val channelMock = mockk<TextChannel> {
 }
 
 val jdaMock = mockk<JDA> {
-    every { getCategoryById(FakeIds.Category) } returns categoryMock
+    every { getCategoryById(FakeIds.Category) } returns singleCategoryMock
+    every { getCategoryById(FakeIds.Nothing) } returns null
+    every { getRoleById(FakeIds.Role) } returns singleRoleMock
+    every { getRoleById(FakeIds.Nothing) } returns null
     every { getTextChannelById(FakeIds.Channel) } returns channelMock
     every { getGuildById(FakeIds.Guild) } returns guildMock
 }

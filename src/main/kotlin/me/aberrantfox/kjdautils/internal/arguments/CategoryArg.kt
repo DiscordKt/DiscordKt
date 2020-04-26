@@ -12,11 +12,11 @@ open class CategoryArg(override val name: String = "Category", private val guild
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
         val guild = if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild
-        guild ?: return ArgumentResult.Error("Failed to resolve guild! Pass a valid guild id to CategoryArg.")
+        require(guild != null) { "CategoryArg failed to resolve guild!" }
 
         //If the arg is an ID, resolve it here, otherwise resolve by name
         if (arg.trimToID().isLong()) {
-            val category = event.discord.jda.getCategoryById(arg)
+            val category = event.discord.jda.getCategoryById(arg.trimToID())
                 ?: return ArgumentResult.Error("Could not resolve category by ID.")
 
             return ArgumentResult.Success(category)
