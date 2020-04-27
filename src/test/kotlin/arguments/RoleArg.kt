@@ -14,5 +14,5 @@ class RoleArgTest : SimpleArgTest {
         FakeNames.Role_Multi to multiRoleMock
     )
 
-    override val invalidArgs = listOf(FakeIds.Nothing, FakeNames.Nothing)
+    override val invalidArgs = listOf(FakeIds.Nothing, FakeNames.Nothing, FakeNames.Role_Single + "more")
 }

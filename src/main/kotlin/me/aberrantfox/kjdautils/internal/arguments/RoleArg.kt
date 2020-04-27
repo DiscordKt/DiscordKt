@@ -11,10 +11,6 @@ open class RoleArg(override val name : String = "Role", private val guildId: Str
     override val consumptionType = ConsumptionType.Multiple
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
-        val guild = if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild
-        require(guild != null) { "RoleArg failed to resolve guild!" }
-
-        //If the arg is an ID, resolve it here, otherwise resolve by name
         if (arg.trimToID().isLong()) {
             val role = event.discord.jda.getRoleById(arg.trimToID())
 
@@ -22,12 +18,15 @@ open class RoleArg(override val name : String = "Role", private val guildId: Str
                 return ArgumentResult.Success(role)
         }
 
+        val guild = if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild
+        guild ?: return ArgumentResult.Error("Cannot resolve a role by name from a DM. Please invoke in a guild or use an ID.")
+
         val argString = args.joinToString(" ").toLowerCase()
         val viableNames = guild.roles
             .filter { argString.startsWith(it.name.toLowerCase()) }
             .sortedBy { it.name.length }
 
-        val longestMatch = viableNames.lastOrNull()
+        val longestMatch = viableNames.lastOrNull()?.takeUnless { it.name.length < arg.length }
         val result = longestMatch?.let { viableNames.filter { it.name == longestMatch.name } } ?: emptyList()
 
         return when (result.size) {

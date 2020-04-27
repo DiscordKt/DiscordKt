@@ -14,5 +14,5 @@ class CategoryArgTest : SimpleArgTest {
         FakeNames.Category_Multi to multiCategoryMock
     )
 
-    override val invalidArgs = listOf(FakeIds.Nothing, FakeNames.Nothing)
+    override val invalidArgs = listOf(FakeIds.Nothing, FakeNames.Nothing, FakeNames.Category_Single + "more")
 }

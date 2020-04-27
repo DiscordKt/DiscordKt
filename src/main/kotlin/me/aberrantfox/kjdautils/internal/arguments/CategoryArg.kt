@@ -11,10 +11,6 @@ open class CategoryArg(override val name: String = "Category", private val guild
     override val consumptionType = ConsumptionType.Multiple
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
-        val guild = if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild
-        require(guild != null) { "CategoryArg failed to resolve guild!" }
-
-        //If the arg is an ID, resolve it here, otherwise resolve by name
         if (arg.trimToID().isLong()) {
             val category = event.discord.jda.getCategoryById(arg.trimToID())
 
@@ -22,12 +18,15 @@ open class CategoryArg(override val name: String = "Category", private val guild
                 return ArgumentResult.Success(category)
         }
 
+        val guild = if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild
+        guild ?: return ArgumentResult.Error("Cannot resolve a category by name from a DM. Please invoke in a guild or use an ID.")
+
         val argString = args.joinToString(" ").toLowerCase()
         val viableNames = guild.categories
             .filter { argString.startsWith(it.name.toLowerCase()) }
             .sortedBy { it.name.length }
 
-        val longestMatch = viableNames.lastOrNull()
+        val longestMatch = viableNames.lastOrNull()?.takeUnless { it.name.length < arg.length }
         val result = longestMatch?.let { viableNames.filter { it.name == longestMatch.name } } ?: emptyList()
 
         return when (result.size) {
