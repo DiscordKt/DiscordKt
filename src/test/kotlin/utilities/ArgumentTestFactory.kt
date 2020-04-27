@@ -4,7 +4,7 @@ import me.aberrantfox.kjdautils.internal.command.*
 import mock.commandEventMock
 import org.junit.jupiter.api.*
 
-interface SimpleArgTest {
+interface ArgumentTestFactory {
     val argumentType: ArgumentType<*>
     val validArgs: List<Pair<String, *>>
     val invalidArgs: List<String>

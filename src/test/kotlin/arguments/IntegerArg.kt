@@ -1,9 +1,9 @@
 package arguments
 
 import me.aberrantfox.kjdautils.internal.arguments.IntegerArg
-import utilities.SimpleArgTest
+import utilities.ArgumentTestFactory
 
-class IntegerArgTest : SimpleArgTest {
+class IntegerArgTest : ArgumentTestFactory {
     override val argumentType = IntegerArg
 
     override val validArgs = listOf(

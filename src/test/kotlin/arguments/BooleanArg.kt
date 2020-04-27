@@ -1,9 +1,9 @@
 package arguments
 
 import me.aberrantfox.kjdautils.internal.arguments.BooleanArg
-import utilities.SimpleArgTest
+import utilities.ArgumentTestFactory
 
-class BooleanArgTest : SimpleArgTest {
+class BooleanArgTest : ArgumentTestFactory {
     override val argumentType = BooleanArg
 
     override val validArgs = listOf(

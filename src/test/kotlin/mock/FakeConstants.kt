@@ -7,6 +7,8 @@ class FakeIds {
         const val Channel = "3"
         const val Guild = "4"
         const val Role = "5"
+        const val User = "6"
+        const val Bot = "7"
 
         const val Nothing = "-1"
     }

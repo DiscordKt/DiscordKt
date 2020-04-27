@@ -1,9 +1,9 @@
 package arguments
 
 import me.aberrantfox.kjdautils.internal.arguments.DoubleArg
-import utilities.SimpleArgTest
+import utilities.ArgumentTestFactory
 
-class DoubleArgTest : SimpleArgTest {
+class DoubleArgTest : ArgumentTestFactory {
     override val argumentType = DoubleArg
 
     override val validArgs = listOf(

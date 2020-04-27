@@ -2,9 +2,9 @@ package arguments
 
 import me.aberrantfox.kjdautils.internal.arguments.CategoryArg
 import mock.*
-import utilities.SimpleArgTest
+import utilities.ArgumentTestFactory
 
-class CategoryArgTest : SimpleArgTest {
+class CategoryArgTest : ArgumentTestFactory {
     override val argumentType = CategoryArg
 
     override val validArgs = listOf(

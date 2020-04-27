@@ -2,9 +2,9 @@ package arguments
 
 import me.aberrantfox.kjdautils.internal.arguments.RoleArg
 import mock.*
-import utilities.SimpleArgTest
+import utilities.ArgumentTestFactory
 
-class RoleArgTest : SimpleArgTest {
+class RoleArgTest : ArgumentTestFactory {
     override val argumentType = RoleArg
 
     override val validArgs = listOf(
