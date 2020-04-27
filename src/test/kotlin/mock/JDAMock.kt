@@ -27,6 +27,16 @@ val multiRoleMock = mockk<Role> {
     every { name } returns FakeNames.Role_Multi
 }
 
+val userMock = mockk<User> {
+    every { id } returns FakeIds.User
+    every { isBot } returns false
+}
+
+val botUserMock = mockk<User> {
+    every { id } returns FakeIds.Bot
+    every { isBot } returns true
+}
+
 val messageMock = mockk<Message> {
     every { id } returns FakeIds.Message
 }
@@ -50,6 +60,11 @@ val jdaMock = mockk<JDA> {
     every { getCategoryById(FakeIds.Nothing) } returns null
     every { getRoleById(FakeIds.Role) } returns singleRoleMock
     every { getRoleById(FakeIds.Nothing) } returns null
+
+    every { retrieveUserById(FakeIds.User).complete() } returns userMock
+    every { retrieveUserById(FakeIds.Bot).complete() } returns botUserMock
+    every { retrieveUserById(FakeIds.Nothing).complete() } returns null
+
     every { getTextChannelById(FakeIds.Channel) } returns channelMock
     every { getGuildById(FakeIds.Guild) } returns guildMock
 }
