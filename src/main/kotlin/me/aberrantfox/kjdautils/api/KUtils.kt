@@ -46,7 +46,7 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
         conversationService.registerConversations(globalPath)
 
         createDocumentation(container)
-        Validator.validateCommandConsumption(container)
+        Validator.validateCommandMeta(container)
         Validator.validateReaction(config)
 
         configured = true

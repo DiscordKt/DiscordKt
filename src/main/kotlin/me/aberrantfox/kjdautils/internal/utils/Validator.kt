@@ -2,13 +2,23 @@ package me.aberrantfox.kjdautils.internal.utils
 
 import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.command.CommandsContainer
+import me.aberrantfox.kjdautils.internal.arguments.EitherArg
 import me.aberrantfox.kjdautils.internal.command.ConsumptionType
 
 internal class Validator {
     companion object {
-        fun validateCommandConsumption(commandsContainer: CommandsContainer) {
+        fun validateCommandMeta(commandsContainer: CommandsContainer) {
             commandsContainer.commands.forEach { command ->
-                val consumptionTypes = command.expectedArgs.arguments.map { it.consumptionType }
+                val args = command.expectedArgs.arguments
+
+                args.filterIsInstance<EitherArg<*, *>>().forEach {
+                    if (it.left == it.right) {
+                        val arg = it.left::class.toString().substringAfterLast(".").substringBefore("$")
+                        InternalLogger.error("Detected EitherArg with identical args ($arg) in command: ${command.names.first()}")
+                    }
+                }
+
+                val consumptionTypes = args.map { it.consumptionType }
 
                 if (!consumptionTypes.contains(ConsumptionType.All))
                     return@forEach
