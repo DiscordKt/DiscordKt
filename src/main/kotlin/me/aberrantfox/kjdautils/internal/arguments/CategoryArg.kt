@@ -11,42 +11,33 @@ open class CategoryArg(override val name: String = "Category", private val guild
     override val consumptionType = ConsumptionType.Multiple
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
-        val guild = if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild
-        guild ?: return ArgumentResult.Error("Failed to resolve guild! Pass a valid guild id to CategoryArg.")
-
-        //If the arg is an ID, resolve it here, otherwise resolve by name
         if (arg.trimToID().isLong()) {
-            val category = event.discord.jda.getCategoryById(arg)
-                ?: return ArgumentResult.Error("Could not resolve category by ID.")
+            val category = event.discord.jda.getCategoryById(arg.trimToID())
 
-            return ArgumentResult.Success(category)
+            if (category != null)
+                return ArgumentResult.Success(category)
         }
 
-        var categories = guild.categories
-        val categoryBuilder = StringBuilder()
-        fun String.startsWithIgnoreCase(string: String) = this.toLowerCase().startsWith(string.toLowerCase())
+        val guild = if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild
+        guild ?: return ArgumentResult.Error("Cannot resolve a category by name from a DM. Please invoke in a guild or use an ID.")
 
-        //Consume arguments until only one category matches the filter
-        args.takeWhile {
-            val padding = if (categoryBuilder.isNotEmpty()) " " else ""
-            categoryBuilder.append("$padding$it")
-            categories = categories.filter { it.name.startsWithIgnoreCase(categoryBuilder.toString()) }
+        val argString = args.joinToString(" ").toLowerCase()
+        val viableNames = guild.categories
+            .filter { argString.startsWith(it.name.toLowerCase()) }
+            .sortedBy { it.name.length }
 
-            categories.size > 1
+        val longestMatch = viableNames.lastOrNull()?.takeUnless { it.name.length < arg.length }
+        val result = longestMatch?.let { viableNames.filter { it.name == longestMatch.name } } ?: emptyList()
+
+        return when (result.size) {
+            0 -> ArgumentResult.Error("Could not resolve any categories by name.")
+            1 -> {
+                val category = result.first()
+                val argList = args.take(category.name.split(" ").size)
+                ArgumentResult.Success(category, argList)
+            }
+            else -> ArgumentResult.Error("Resolving category by name returned multiple matches. Please use an ID.")
         }
-
-        //Get the single category that survived filtering
-        val resolvedCategory = categories.firstOrNull() ?: return ArgumentResult.Error("Couldn't retrieve category :: $categoryBuilder")
-        val resolvedName = resolvedCategory.name
-
-        //Determine how many args this category would consume
-        val lengthOfCategory = resolvedName.split(" ").size
-
-        //Check if the category that survived filtering matches the args given
-        val argList = args.take(lengthOfCategory)
-        val isValid = resolvedName.toLowerCase() == argList.joinToString(" ").toLowerCase()
-
-        return if (isValid) ArgumentResult.Success(resolvedCategory, argList) else ArgumentResult.Error("Couldn't retrieve category :: $categoryBuilder")
     }
 
     override fun generateExamples(event: CommandEvent<*>): MutableList<String> {

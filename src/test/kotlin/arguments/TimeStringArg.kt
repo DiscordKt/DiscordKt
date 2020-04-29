@@ -1,7 +1,7 @@
 package arguments
 
 import me.aberrantfox.kjdautils.internal.arguments.TimeStringArg
-import utilities.SimpleArgTest
+import utilities.ArgumentTestFactory
 
 private const val second = 1.0
 private const val minute = 60.0
@@ -9,7 +9,7 @@ private const val hour = 3600.0
 private const val day = 86400.0
 private const val week = 604800.0
 
-class TimeStringArgTest : SimpleArgTest {
+class TimeStringArgTest : ArgumentTestFactory {
     override val argumentType = TimeStringArg
 
     override val validArgs = listOf(
