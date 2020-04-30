@@ -1,46 +1,54 @@
 package me.aberrantfox.kjdautils.internal.services
 
 import kotlinx.coroutines.runBlocking
-import me.aberrantfox.kjdautils.api.annotation.Convo
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.stdlib.pluralize
 import net.dv8tion.jda.api.entities.*
 import org.reflections.Reflections
-import org.reflections.scanners.MethodAnnotationsScanner
 
-class ConversationService(private val discord: Discord, private val diService: DIService) {
-    private val availableConversations = mutableListOf<Conversation>()
-    private val activeConversations = mutableMapOf<String, Conversation>()
+class ConversationService(val discord: Discord) {
+    @PublishedApi
+    internal val availableConversations = mutableMapOf<Class<out ConversationBase>, ConversationBase>()
 
-    private fun getConversation(user: User) = activeConversations[user.id]
+    @PublishedApi
+    internal val activeConversations = mutableMapOf<String, ConversationBuilder>()
+
+    fun getConversation(user: User) = activeConversations[user.id]
     fun hasConversation(user: User) = getConversation(user) != null
 
     fun registerConversations(path: String) {
-        val conversations = Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Convo::class.java)
+        Reflections(path)
+            .getSubTypesOf(ConversationBase::class.java)
+            .forEach {
+                availableConversations[it as Class<out ConversationBase>] = it.constructors.first().newInstance() as ConversationBase
+            }
 
-        println(conversations.size.pluralize("Conversation"))
-
-        conversations.forEach {
-            availableConversations.add(diService.invokeReturningMethod(it) as Conversation)
-        }
+        println(availableConversations.size.pluralize("Conversation"))
     }
 
-    fun createConversation(user: User, guild: Guild, conversationName: String) {
+    inline fun <reified T : ConversationBase> startConversation(user: User, vararg arguments: Any): Boolean {
+        if (user.isBot)
+            return false
+
         if (hasConversation(user))
-            return
+            return false
 
-        if (!user.isBot) {
-            val conversation = availableConversations.firstOrNull { it.name == conversationName }
+        val conversationClass = availableConversations[T::class.java]
 
-            require(conversation != null) { "No conversation found with the name: $conversationName" }
+        require(conversationClass != null) { "No conversation found: ${T::class}" }
 
-            val state = ConversationStateContainer(user, guild, discord)
-            activeConversations[user.id] = conversation
-            conversation.start(state) {
-                activeConversations.remove(user.id)
-            }
+        val conversation = conversationClass.conversation()
+
+        activeConversations[user.id] = conversation
+
+        val state = ConversationStateContainer(user, discord)
+
+        conversation.start(state) {
+            activeConversations.remove(user.id)
         }
+
+        return true
     }
 
     fun handleResponse(message: Message) {

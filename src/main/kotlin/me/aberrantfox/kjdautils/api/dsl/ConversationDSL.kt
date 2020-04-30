@@ -11,13 +11,11 @@ import me.aberrantfox.kjdautils.extensions.jda.sendPrivateMessage
 import me.aberrantfox.kjdautils.internal.command.ArgumentResult
 import me.aberrantfox.kjdautils.internal.command.ArgumentType
 import me.aberrantfox.kjdautils.internal.command.CommandStruct
-import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
 
 data class ConversationStateContainer(val user: User,
-                                      val guild: Guild,
                                       val discord: Discord) {
 
     private val inputChannel = Channel<Message>()
@@ -82,16 +80,18 @@ data class ConversationStateContainer(val user: User,
     fun respond(embed: MessageEmbed) = user.sendPrivateMessage(embed)
 }
 
-class Conversation(val name: String, private val block: (ConversationStateContainer) -> Unit) {
+class ConversationBuilder(private val block: (ConversationStateContainer) -> Unit) {
     private lateinit var stateContainer: ConversationStateContainer
 
+    @PublishedApi
     internal fun start(conversationStateContainer: ConversationStateContainer, onEnd: () -> Unit) {
         stateContainer = conversationStateContainer
         block.invoke(conversationStateContainer)
         onEnd.invoke()
     }
 
+    @PublishedApi
     internal suspend fun acceptMessage(message: Message) = stateContainer.acceptMessage(message)
 }
 
-fun conversation(name: String, block: ConversationStateContainer.() -> Unit) = Conversation(name, block)
+fun conversation(block: ConversationStateContainer.() -> Unit) = ConversationBuilder(block)

@@ -24,7 +24,7 @@ private var configured = false
 
 class KUtils(private val config: KConfiguration, token: String, private val globalPath: String) {
     val discord = buildDiscordClient(config, token)
-    private val conversationService: ConversationService = ConversationService(discord, diService)
+    private val conversationService: ConversationService = ConversationService(discord)
 
     init {
         InternalLogger.startup("--------------- KUtils Startup ---------------")
