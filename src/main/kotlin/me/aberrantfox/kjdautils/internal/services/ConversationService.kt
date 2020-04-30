@@ -21,32 +21,32 @@ class ConversationService(val discord: Discord) {
     fun hasConversation(user: User) = activeConversations[user.id] != null
 
     internal fun registerConversations(path: String) {
+        val startFunctions = Reflections(path, MethodAnnotationsScanner())
+            .getMethodsAnnotatedWith(Conversation.Start::class.java)
+
         Reflections(path)
             .getSubTypesOf(Conversation::class.java)
-            .forEach {
-                val startFunctions = Reflections(it, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Conversation.Start::class.java)
-                val conversationName = it.name.substringAfterLast(".")
+            .forEach { conversationClass ->
+                val relevantStartFunctions = startFunctions.filter { it.declaringClass == conversationClass }
+                val conversationName = conversationClass.name.substringAfterLast(".")
 
-                val starter = startFunctions.firstOrNull()
-                val starterName = starter?.name ?: ""
-
-                when (startFunctions.size) {
+                val starter = when (relevantStartFunctions.size) {
                     0 -> {
                         InternalLogger.error("$conversationName has no method annotated with @Start. It cannot be registered.")
                         return@forEach
                     }
-                    1 -> Unit
                     else -> {
-                        InternalLogger.error("$conversationName has multiple methods annotated with @Start. Defaulting to first ($starterName).")
+                        if (relevantStartFunctions.size != 1)
+                            InternalLogger.error("$conversationName has multiple methods annotated with @Start. Searching for best fit.")
+
+                        relevantStartFunctions.firstOrNull { it.returnType == ConversationBuilder::class.java }
                     }
                 }
 
-                if (starter!!.returnType != ConversationBuilder::class.java) {
-                    InternalLogger.error("$conversationName @Start function ($starterName) does not build a conversation. It cannot be registered.")
-                    return@forEach
-                }
+                starter ?: return@forEach InternalLogger.error("$conversationName @Start function does not build a conversation. It cannot be registered.")
 
-                availableConversations[it as Class<out Conversation>] = (it.constructors.first().newInstance() as Conversation) to starter
+                val instance = conversationClass.constructors.first().newInstance() as Conversation
+                availableConversations[conversationClass as Class<out Conversation>] = instance to starter
             }
 
         println(availableConversations.size.pluralize("Conversation"))
