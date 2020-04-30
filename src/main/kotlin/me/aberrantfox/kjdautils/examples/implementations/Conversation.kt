@@ -8,8 +8,9 @@ import me.aberrantfox.kjdautils.internal.services.ConversationService
 
 //Conversations are a way to collect several pieces of data from a user without creating an unwieldy command.
 
-class DemoConversation : ConversationBase() {
-    override fun conversation() = conversation() {
+class DemoConversation : Conversation() {
+    @Start
+    fun conversation() = conversation {
         //This is a simple prompt that sends the user a message and waits for their response.
         //You will have access to the type-safe result immediately in this code for processing.
         //This will report an error if the argument parsing fails, and then send the prompt again.
@@ -36,7 +37,7 @@ fun conversationCommands(conversationService: ConversationService) = commands {
     command("Conversation") {
         description = "Start an example conversation."
         execute {
-            conversationService.startConversation<DemoConversation>(it.author, it.guild!!)
+            conversationService.startConversation<DemoConversation>(it.author)
         }
     }
 }
