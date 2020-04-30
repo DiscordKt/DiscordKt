@@ -14,6 +14,7 @@ import me.aberrantfox.kjdautils.internal.utils.InternalLogger
 import me.aberrantfox.kjdautils.internal.utils.Validator
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
+import org.slf4j.impl.SimpleLogger
 import kotlin.system.exitProcess
 
 @PublishedApi
@@ -122,6 +123,8 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
 }
 
 fun startBot(token: String, globalPath: String = defaultGlobalPath(Exception()), operate: KUtils.() -> Unit = {}): KUtils {
+    System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "WARN")
+
     val util = KUtils(KConfiguration(), token, globalPath)
     util.operate()
 
