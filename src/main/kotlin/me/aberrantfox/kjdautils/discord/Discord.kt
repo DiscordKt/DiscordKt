@@ -1,14 +1,19 @@
 package me.aberrantfox.kjdautils.discord
 
+import com.google.gson.Gson
 import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.internal.event.EventRegister
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.MessageEmbed
 
+data class KUtilsProperties(val version: String, val kotlinVersion: String, val jdaVersion: String, val repository: String)
+private val propFile = KUtilsProperties::class.java.getResource("/kutils-properties.json").readText()
+
 abstract class Discord {
     @Deprecated("To be removed")
     abstract val jda: JDA
     abstract val configuration: KConfiguration
+    val properties = Gson().fromJson(propFile, KUtilsProperties::class.java)
 
     abstract fun addEventListener(er: EventRegister)
 

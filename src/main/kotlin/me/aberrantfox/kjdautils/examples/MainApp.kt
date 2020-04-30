@@ -10,11 +10,6 @@ import me.aberrantfox.kjdautils.internal.arguments.*
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import java.awt.Color
 
-data class Properties(val version: String, val repository: String)
-
-private val propFile = Properties::class.java.getResource("/kutils-properties.json").readText()
-private val project = Gson().fromJson(propFile, Properties::class.java)
-
 fun main(args: Array<String>) {
     val token = args.firstOrNull()
         ?: throw IllegalArgumentException("No program arguments provided. Expected bot token.")
@@ -54,10 +49,11 @@ fun main(args: Array<String>) {
                 thumbnail = self.effectiveAvatarUrl
                 addInlineField("Prefix", prefix)
 
-                with(project) {
+                with(discord.properties) {
                     addField("Build Info", "```" +
-                        "Version: $version\n" +
-                        "Kotlin:  ${KotlinVersion.CURRENT}" +
+                        "KUtils: $version\n" +
+                        "Kotlin: $kotlinVersion\n" +
+                        "JDA:    $jdaVersion\n" +
                         "```")
 
                     addInlineField("Source", repository)
@@ -78,7 +74,7 @@ fun utilityCommands() = commands {
     command("Version", "V") {
         description = "Display the version."
         execute {
-            it.respond(project.version)
+            it.respond(it.discord.properties.version)
         }
     }
 }
