@@ -12,7 +12,7 @@ import java.awt.Color
 
 data class Properties(val version: String, val repository: String)
 
-private val propFile = Properties::class.java.getResource("/properties.json").readText()
+private val propFile = Properties::class.java.getResource("/kutils-properties.json").readText()
 private val project = Gson().fromJson(propFile, Properties::class.java)
 
 fun main(args: Array<String>) {
