@@ -8,37 +8,45 @@ import me.aberrantfox.kjdautils.internal.utils.InternalLogger
 import net.dv8tion.jda.api.entities.*
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
-import kotlin.reflect.jvm.kotlinFunction
+import java.lang.reflect.Method
 
 class ConversationService(val discord: Discord) {
     @PublishedApi
-    internal val availableConversations = mutableMapOf<Class<out Conversation>, Conversation>()
+    internal val availableConversations = mutableMapOf<Class<out Conversation>, Pair<Conversation, Method>>()
 
     @PublishedApi
     internal val activeConversations = mutableMapOf<String, ConversationBuilder>()
 
-    fun getConversation(user: User) = activeConversations[user.id]
-    fun hasConversation(user: User) = getConversation(user) != null
+    private fun getConversation(user: User) = activeConversations[user.id]
+    fun hasConversation(user: User) = activeConversations[user.id] != null
 
-    fun registerConversations(path: String) {
+    internal fun registerConversations(path: String) {
         Reflections(path)
             .getSubTypesOf(Conversation::class.java)
             .forEach {
                 val startFunctions = Reflections(it, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Conversation.Start::class.java)
-                val conversationName = it.name
+                val conversationName = it.name.substringAfterLast(".")
 
-                when(startFunctions.size) {
+                val starter = startFunctions.firstOrNull()
+                val starterName = starter?.name ?: ""
+
+                when (startFunctions.size) {
                     0 -> {
-                        InternalLogger.error("Conversation $conversationName has no method annotated with @Start")
+                        InternalLogger.error("$conversationName has no method annotated with @Start. It cannot be registered.")
                         return@forEach
                     }
-                    1 -> { }
+                    1 -> Unit
                     else -> {
-                        InternalLogger.error("Conversation $conversationName has multiple methods annotated with @Start. Using first.")
+                        InternalLogger.error("$conversationName has multiple methods annotated with @Start. Defaulting to first ($starterName).")
                     }
                 }
 
-                availableConversations[it as Class<out Conversation>] = it.constructors.first().newInstance() as Conversation
+                if (starter!!.returnType != ConversationBuilder::class.java) {
+                    InternalLogger.error("$conversationName @Start function ($starterName) does not build a conversation. It cannot be registered.")
+                    return@forEach
+                }
+
+                availableConversations[it as Class<out Conversation>] = (it.constructors.first().newInstance() as Conversation) to starter
             }
 
         println(availableConversations.size.pluralize("Conversation"))
@@ -51,15 +59,8 @@ class ConversationService(val discord: Discord) {
         if (hasConversation(user))
             return false
 
-        val conversationClass = availableConversations[T::class.java]
-
-        require(conversationClass != null) { "No conversation found: ${T::class}" }
-
-        val starter = Reflections(T::class.java, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Conversation.Start::class.java).first()
-
-        require(starter.returnType == ConversationBuilder::class.java) { "Conversation @Start function must build a conversation." }
-
-        val conversation = starter.invoke(conversationClass, *arguments) as ConversationBuilder
+        val (instance, function) = availableConversations[T::class.java]!!
+        val conversation = function.invoke(instance, *arguments) as ConversationBuilder
 
         activeConversations[user.id] = conversation
 
@@ -72,7 +73,7 @@ class ConversationService(val discord: Discord) {
         return true
     }
 
-    fun handleResponse(message: Message) {
+    internal fun handleResponse(message: Message) {
         runBlocking {
             val conversation = getConversation(message.author) ?: return@runBlocking
             conversation.acceptMessage(message)
