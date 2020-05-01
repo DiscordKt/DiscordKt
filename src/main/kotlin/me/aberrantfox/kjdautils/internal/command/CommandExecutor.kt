@@ -14,11 +14,9 @@ internal class CommandExecutor {
     }
 
     private fun invokeCommand(command: Command, actualArgs: List<String>, event: CommandEvent<ArgumentContainer>) {
-        val channel = event.channel
-
         getArgCountError(actualArgs, command)?.let {
-            if(event.discord.configuration.deleteErrors) channel.messageTimed(it)
-            else channel.message(it)
+            if(event.discord.configuration.deleteErrors) event.respondTimed(it)
+            else event.respond(it)
             return
         }
 

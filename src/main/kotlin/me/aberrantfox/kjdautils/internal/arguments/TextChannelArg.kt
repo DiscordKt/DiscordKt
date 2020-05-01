@@ -8,12 +8,15 @@ import net.dv8tion.jda.api.entities.TextChannel
 open class TextChannelArg(override val name : String = "TextChannel"): ArgumentType<TextChannel>() {
     companion object : TextChannelArg()
 
-    override val examples = arrayListOf("#chat", "4421069003953932345", "#test-channel", "292106900395393024")
     override val consumptionType = ConsumptionType.Single
+
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<TextChannel> {
-        val channel = event.discord.jda.getTextChannelById(arg.trimToID())
-            ?: return ArgumentResult.Error("Couldn't retrieve text channel: $arg")
+        val channel = tryRetrieveSnowflake(event.discord.jda) {
+            it.getTextChannelById(arg.trimToID())
+        } as TextChannel? ?: return ArgumentResult.Error("Couldn't retrieve text channel: $arg")
 
         return ArgumentResult.Success(channel)
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(event.channel.id)
 }

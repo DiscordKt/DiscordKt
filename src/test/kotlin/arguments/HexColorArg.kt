@@ -1,10 +1,10 @@
 package arguments
 
 import me.aberrantfox.kjdautils.internal.arguments.HexColorArg
-import utilities.SimpleArgTest
+import utilities.ArgumentTestFactory
 import java.awt.Color
 
-class HexColorArgTest : SimpleArgTest {
+class HexColorArgTest : ArgumentTestFactory {
     override val argumentType = HexColorArg
 
     override val validArgs = listOf(

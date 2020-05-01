@@ -1,9 +1,9 @@
 package arguments
 
 import me.aberrantfox.kjdautils.internal.arguments.WordArg
-import utilities.SimpleArgTest
+import utilities.ArgumentTestFactory
 
-class WordArgTest : SimpleArgTest {
+class WordArgTest : ArgumentTestFactory {
     override val argumentType = WordArg
 
     override val validArgs = listOf(

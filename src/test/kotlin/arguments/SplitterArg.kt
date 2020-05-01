@@ -1,9 +1,9 @@
 package arguments
 
 import me.aberrantfox.kjdautils.internal.arguments.SplitterArg
-import utilities.SimpleArgTest
+import utilities.ArgumentTestFactory
 
-class SplitterArgTest : SimpleArgTest {
+class SplitterArgTest : ArgumentTestFactory {
     override val argumentType = SplitterArg
 
     override val validArgs = listOf(

@@ -1,9 +1,9 @@
 package arguments
 
 import me.aberrantfox.kjdautils.internal.arguments.ChoiceArg
-import utilities.SimpleArgTest
+import utilities.ArgumentTestFactory
 
-class ChoiceArgTest : SimpleArgTest {
+class ChoiceArgTest : ArgumentTestFactory {
     override val argumentType = ChoiceArg("Choices", "a", "b", "c")
 
     override val validArgs = listOf(

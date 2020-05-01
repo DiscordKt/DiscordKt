@@ -8,8 +8,8 @@ import net.dv8tion.jda.api.entities.User
 open class UserArg(override val name: String = "User", private val allowsBot: Boolean = false): ArgumentType<User>() {
     companion object : UserArg()
 
-    override val examples = arrayListOf("@Bob", "268856125007331328", "275544730887127040")
     override val consumptionType = ConsumptionType.Single
+
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {
         val user = tryRetrieveSnowflake(event.discord.jda) {
             it.retrieveUserById(arg.trimToID()).complete()
@@ -20,4 +20,6 @@ open class UserArg(override val name: String = "User", private val allowsBot: Bo
 
         return ArgumentResult.Success(user)
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(event.author.id)
 }

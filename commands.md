@@ -5,33 +5,43 @@
 | ---------- | -------------------------- |
 | (Argument) | This argument is optional. |
 
-## Data
-| Commands | Arguments | Description                                                                           |
-| -------- | --------- | ------------------------------------------------------------------------------------- |
-| DataSave | <none>    | This command lets you modify a Data object's contents.                                |
-| DataSee  | <none>    | This command demonstrates loading and injecting Data objects by viewing its contents. |
+## Command Demo
+| Commands     | Arguments          | Description                        |
+| ------------ | ------------------ | ---------------------------------- |
+| Add          | Integer, Integer   | Add two numbers together.          |
+| Echo         | Text               | Echo some text back.               |
+| File         | File               | Input a file and display its name. |
+| Hello        | <none>             | Display a simple message.          |
+| NumberOrWord | Integer \| Word    | Enter a number or a word.          |
+| OptionalAdd  | Integer, (Integer) | Add two numbers together.          |
+| Sum          | (Integer...)       | Add a list of numbers together.    |
+| User         | (User)             | Display a user's full name.        |
 
-## ServicesDemo
-| Commands     | Arguments | Description              |
-| ------------ | --------- | ------------------------ |
-| DependsOnAll | <none>    | I depend on all services |
+## Conversation Demo
+| Commands     | Arguments | Description                    |
+| ------------ | --------- | ------------------------------ |
+| Conversation | <none>    | Start an example conversation. |
 
-## Misc
-| Commands    | Arguments | Description             |
-| ----------- | --------- | ----------------------- |
-| SomeCommand | <none>    | No Description Provider |
+## DSL Demo
+| Commands | Arguments | Description               |
+| -------- | --------- | ------------------------- |
+| Embed    | <none>    | Display an example embed. |
+| Menu     | <none>    | Display an example menu.  |
+
+## Data Demo
+| Commands | Arguments | Description                                            |
+| -------- | --------- | ------------------------------------------------------ |
+| DataSave | <none>    | This command lets you modify a Data object's contents. |
+| DataSee  | <none>    | This command lets you view a Data object's contents.   |
+
+## Services Demo
+| Commands  | Arguments | Description              |
+| --------- | --------- | ------------------------ |
+| Injection | <none>    | I depend on all services |
 
 ## Utility
-| Commands     | Arguments          | Description                                    |
-| ------------ | ------------------ | ---------------------------------------------- |
-| Add          | Integer, Integer   | Add two numbers together                       |
-| Conversation | <none>             | Test the implementation of the ConversationDSL |
-| Echo         | Text               | No Description Provider                        |
-| Embed        | <none>             | Display an example embed.                      |
-| File         | File               | Input a file and display its name.             |
-| Help         | (Command)          | Display a help menu.                           |
-| Menu         | <none>             | Display an example menu.                       |
-| NumberOrWord | Integer \| Word    | Enter a word or a number                       |
-| OptionalAdd  | Integer, (Integer) | Add two numbers together                       |
-| Version, V   | <none>             | A command which will show the version.         |
+| Commands   | Arguments | Description          |
+| ---------- | --------- | -------------------- |
+| Help       | (Command) | Display a help menu. |
+| Version, V | <none>    | Display the version. |
 

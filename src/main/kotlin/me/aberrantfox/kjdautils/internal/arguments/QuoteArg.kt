@@ -6,8 +6,8 @@ import me.aberrantfox.kjdautils.internal.command.*
 open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>() {
     companion object : QuoteArg()
 
-    override val examples = arrayListOf("\"A sample\"")
     override val consumptionType = ConsumptionType.Multiple
+
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
 
         val quotationMark = '"'
@@ -16,19 +16,11 @@ open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>(
             return ArgumentResult.Error("Expected an opening quotation mark, found: $arg")
         }
 
-        println("Arg : $arg")
-        println("Args: $args")
-
         val rawQuote = if (arg.endsWith(quotationMark)) {
-            println("<Single word mode>")
             arg
         } else {
-            println("<Multi word mode>")
-
             args.takeUntil { !it.endsWith(quotationMark) }.joinToString(" ")
         }
-
-        println("Resolved: $rawQuote")
 
         if (!rawQuote.endsWith(quotationMark)) {
             return ArgumentResult.Error("Missing closing quotation mark.")
@@ -38,10 +30,10 @@ open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>(
         val consumedCount = quote.split(" ").size
         val consumed = args.take(consumedCount)
 
-        println("Consumed: $consumed")
-
         return ArgumentResult.Success(quote, consumed)
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf("\"A Quote\"")
 }
 
 private fun List<String>.takeUntil(predicate: (String) -> Boolean): List<String> {

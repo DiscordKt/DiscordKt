@@ -3,7 +3,6 @@ package me.aberrantfox.kjdautils.discord
 import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.extensions.jda.sendPrivateMessage
 import me.aberrantfox.kjdautils.internal.event.EventRegister
-import me.aberrantfox.kjdautils.internal.logging.BotLogger
 import net.dv8tion.jda.api.AccountType
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
@@ -41,12 +40,12 @@ fun JDAUser.fromJDA(): User {
 class KJDAUser(private val jdaUser: JDAUser) : User {
     override val isBot = jdaUser.isBot
 
-    override fun sendPrivateMessage(msg: String, log: BotLogger) {
-        jdaUser.sendPrivateMessage(msg, log)
+    override fun sendPrivateMessage(msg: String) {
+        jdaUser.sendPrivateMessage(msg)
     }
 
-    override fun sendPrivateMessage(msg: MessageEmbed, log: BotLogger) {
-        jdaUser.sendPrivateMessage(msg, log)
+    override fun sendPrivateMessage(msg: MessageEmbed) {
+        jdaUser.sendPrivateMessage(msg)
     }
 }
 

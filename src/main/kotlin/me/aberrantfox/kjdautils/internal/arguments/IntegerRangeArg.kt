@@ -6,8 +6,8 @@ import me.aberrantfox.kjdautils.internal.command.*
 open class IntegerRangeArg(val min: Int = 0, val max: Int, override val name: String = "Integer ($min-$max)"): ArgumentType<Int>() {
     companion object : IntegerRangeArg(min = 0, max = 10)
 
-    override val examples = arrayListOf((min..max).random().toString())
     override val consumptionType = ConsumptionType.Single
+
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Int> {
 
         val integerArg = arg.toIntOrNull() ?: return ArgumentResult.Error("Argument must be an integer.")
@@ -16,4 +16,6 @@ open class IntegerRangeArg(val min: Int = 0, val max: Int, override val name: St
 
         return ArgumentResult.Success(integerArg)
     }
+
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf((min..max).random().toString())
 }

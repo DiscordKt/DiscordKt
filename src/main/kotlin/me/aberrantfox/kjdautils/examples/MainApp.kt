@@ -1,256 +1,80 @@
 package me.aberrantfox.kjdautils.examples
 
-
-import com.google.common.eventbus.Subscribe
-import me.aberrantfox.kjdautils.api.annotation.*
+import com.google.gson.Gson
+import me.aberrantfox.kjdautils.api.annotation.CommandSet
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.api.dsl.command.commands
 import me.aberrantfox.kjdautils.api.startBot
 import me.aberrantfox.kjdautils.extensions.jda.fullName
 import me.aberrantfox.kjdautils.internal.arguments.*
-import me.aberrantfox.kjdautils.internal.command.*
-import me.aberrantfox.kjdautils.internal.di.PersistenceService
-import me.aberrantfox.kjdautils.internal.services.ConversationService
-import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import java.awt.Color
 
-data class MyCustomBotConfiguration(val version: String, val token: String)
-
-data class MyCustomLogger(val prefix: String) {
-    fun log(data: String) = println(data)
-}
-
 fun main(args: Array<String>) {
-    val token = args.component1()
+    val token = args.firstOrNull()
+        ?: throw IllegalArgumentException("No program arguments provided. Expected bot token.")
 
     startBot(token) {
-        val myConfig = MyCustomBotConfiguration("0.1.0", token)
-        val myLog = MyCustomLogger(":: BOT ::")
-
-        registerInjectionObject(myConfig, myLog)
-
         configure {
+            //The prefix for commands that your bot will respond to
             prefix = "!"
-            documentationSortOrder = listOf("Data", "ServicesDemo", "Misc", "Utility")
-            mentionEmbed = { event ->
-                embed {
-                    val name = event.guild.name
 
-                    title = "Hello World!"
-                    description = "I was mentioned in $name"
+            //Whether or not mentioning the bot can be used as a prefix
+            allowMentionPrefix = false
+
+            //The emoji that the bot will react on invocations; null for none
+            commandReaction = "\uD83D\uDC40"
+
+            //Which invocations should be deleted (by number of prefixes)
+            deleteMode = PrefixDeleteMode.None
+
+            //Whether or not error messages should be deleted after sending
+            deleteErrors = false
+
+            //Whether or not commands in direct messages are valid
+            allowPrivateMessages = false
+
+            //Color configuration for embeds within KUtils
+            colors {
+                successColor = Color.GREEN
+                failureColor = Color.RED
+                infoColor = Color.BLUE
+            }
+
+            //An embed produced when the bot is mentioned
+            mentionEmbed { event ->
+                val self = event.guild.jda.selfUser
+
+                color = Color(0x00bfff)
+                thumbnail = self.effectiveAvatarUrl
+                addInlineField("Prefix", prefix)
+
+                with(discord.properties) {
+                    addField("Build Info", "```" +
+                        "KUtils: $version\n" +
+                        "Kotlin: $kotlinVersion\n" +
+                        "JDA:    $jdaVersion\n" +
+                        "```")
+
+                    addInlineField("Source", repository)
                 }
             }
-        }
 
-        registerCommandPreconditions({
-            if (it.channel.name != "ignored") {
-                Pass
-            } else {
-                Fail()
+            //A predicate to determine if a command is visible in this context
+            visibilityPredicate {
+                it.command.names.first().length < 50
             }
-        })
-    }
-}
-
-class MessageLogger(val myConfig: MyCustomBotConfiguration) {
-    @Subscribe
-    fun onMessage(event: GuildMessageReceivedEvent) {
-        println("ExampleBot :: V${myConfig.version} :: ${event.message.contentRaw}")
+        }
     }
 }
 
 @CommandSet("Utility")
-fun commandSet(myConfig: MyCustomBotConfiguration, log: MyCustomLogger, conversationService: ConversationService) = commands {
-
+fun utilityCommands() = commands {
     //Command with no args and multiple names
     command("Version", "V") {
-        description = "A command which will show the version."
+        description = "Display the version."
         execute {
-            it.respond(myConfig.version)
-            log.log("Version logged!")
-        }
-    }
-
-    //Command with 1 arg
-    command("Echo") {
-        execute(SentenceArg) {
-            val response = it.args.component1()
-            it.respond(response)
-        }
-    }
-
-    //Command with 2 args
-    command("Add") {
-        description = "Add two numbers together"
-        execute(IntegerArg, IntegerArg) {
-            val (first, second) = it.args
-            it.respond("${first + second}")
-        }
-    }
-
-    //Command with an optional arg
-    command("OptionalAdd") {
-        description = "Add two numbers together"
-        execute(IntegerArg, IntegerArg.makeOptional(5)) {
-            val (first, second) = it.args
-            it.respond("${first + second}")
-        }
-    }
-
-    //Command with a FileArg
-    command("File") {
-        description = "Input a file and display its name."
-        execute(FileArg) {
-            val file = it.args.first
-            it.respond(file.name)
-        }
-    }
-
-    //Command with an EitherArg
-    command("NumberOrWord") {
-        description = "Enter a word or a number"
-        execute(IntegerArg or WordArg) {
-            when (val input = it.args.first) {
-                is Either.Left -> it.respond("You input the number: ${input.left}")
-                is Either.Right -> it.respond("You input the word: ${input.right}")
-            }
-        }
-    }
-
-    //Command that starts a conversation
-    command("Conversation") {
-        description = "Test the implementation of the ConversationDSL"
-        requiresGuild = true
-        execute {
-            conversationService.createConversation(it.author, it.guild!!, "test-conversation")
-        }
-    }
-
-    //Command that displays an embed
-    command("Embed") {
-        description = "Display an example embed."
-        execute {
-            it.respond(
-                embed {
-                    title = "This is the title."
-                    description = "This is the description."
-
-                    author {
-                        name = it.author.fullName()
-                        iconUrl = it.author.effectiveAvatarUrl
-                    }
-
-                    field {
-                        name = "This is a field."
-                        value = "Fields can have titles and descriptions."
-                    }
-
-                    footer {
-                        iconUrl = it.discord.jda.selfUser.effectiveAvatarUrl
-                        text = "This is some footer text."
-                    }
-                }
-            )
-        }
-    }
-
-    //Command that displays a menu
-    command("Menu") {
-        description = "Display an example menu."
-        execute {
-            it.respond(
-                menu {
-                    embed {
-                        title = "Page 1"
-                    }
-
-                    embed {
-                        title = "Page 2"
-                    }
-
-                    reaction("\uD83C\uDF08") { currentEmbed: EmbedBuilder ->
-                        val randomColor = Color((0..255).random(), (0..255).random(), (0..255).random())
-                        currentEmbed.setColor(randomColor)
-                    }
-                }
-            )
-        }
-    }
-}
-
-@CommandSet("Misc")
-fun defineOther(log: MyCustomLogger) = commands {
-    command("SomeCommand") {
-        execute { log.log("Hello, World!") }
-    }
-}
-
-@Precondition
-fun nameBeginsWithLetter() = precondition {
-    if(it.author.name.toLowerCase().first() in 'a'..'z') {
-        return@precondition Pass
-    } else {
-        return@precondition Fail("Your name must start with a letter!")
-    }
-}
-
-@Precondition(priority = 3)
-fun userWithDiscriminator() = precondition {
-    return@precondition if(it.author.discriminator == "5822") {
-        Fail("Ignoring users with your discriminator.")
-    } else {
-        Pass
-    }
-}
-
-@Precondition(priority = 1)
-fun userWithID() = precondition {
-    return@precondition if (it.author.id == "140816962581299200") {
-        Fail()
-    } else {
-        Pass
-    }
-}
-
-@Service
-class NoDependencies
-
-@Service
-class SingleDependency(noDependencies: NoDependencies)
-
-@Service
-class DoubleDependency(noDependencies: NoDependencies, singleDependency: SingleDependency)
-
-@CommandSet("ServicesDemo")
-fun dependsOnAllServices(none: NoDependencies, single: SingleDependency, double: DoubleDependency) = commands {
-    command("DependsOnAll") {
-        description = "I depend on all services"
-        execute {
-            it.respond("This command is only available if all dependencies were correctly piped to the wrapping function")
-        }
-    }
-}
-
-
-@Data("config.json")
-data class ConfigurationObject(var prefix: String = "!")
-
-@CommandSet("Data")
-fun dependsOnAboveDataObject(config: ConfigurationObject, persistenceService: PersistenceService) = commands {
-    //This command depends on the data object above, which is automatically loaded from the designated path.
-    //If the file does not exist at the designated path, it is created using the default arguments.
-    command("DataSee") {
-        description = "This command demonstrates loading and injecting Data objects by viewing its contents."
-        execute {
-            it.respond(config.prefix)
-        }
-    }
-    command("DataSave") {
-        description = "This command lets you modify a Data object's contents."
-        execute {
-            config.prefix = "different"
-            persistenceService.save(config)
+            it.respond(it.discord.properties.version)
         }
     }
 }

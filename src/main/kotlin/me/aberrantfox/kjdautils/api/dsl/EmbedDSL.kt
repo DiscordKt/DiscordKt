@@ -8,14 +8,31 @@ import java.time.temporal.TemporalAccessor
 private typealias EmbedField = MessageEmbed.Field
 
 class EmbedDSLHandle {
-    private val mutableFields : MutableList<EmbedField> = mutableListOf()
+    companion object {
+        private val defaultColors = ColorConfiguration()
+
+        var successColor: Color = defaultColors.successColor
+        var failureColor: Color = defaultColors.failureColor
+        var infoColor: Color = defaultColors.infoColor
+    }
+
+    val successColor: Color
+        get() = EmbedDSLHandle.successColor
+
+    val failureColor: Color
+        get() = EmbedDSLHandle.failureColor
+
+    val infoColor: Color
+        get() = EmbedDSLHandle.infoColor
+
+    private val mutableFields: MutableList<EmbedField> = mutableListOf()
     private var author: MessageEmbed.AuthorInfo? = null
     private var footer: MessageEmbed.Footer? = null
 
-    var title : String? = null
-    var description : String? = null
-    var color : Color? = null
-    var thumbnail : String? = null
+    var title: String? = null
+    var description: String? = null
+    var color: Color? = null
+    var thumbnail: String? = null
     var image: String? = null
     var timeStamp: TemporalAccessor? = null
 
