@@ -3,18 +3,35 @@ package me.aberrantfox.kjdautils.internal.arguments
 import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
 import me.aberrantfox.kjdautils.internal.command.*
-import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.*
 
-open class MessageArg(override val name: String = "MessageID"): ArgumentType<Message>() {
+open class MessageArg(override val name: String = "Message"): ArgumentType<Message>() {
     companion object : MessageArg()
 
     override val consumptionType = ConsumptionType.Single
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Message> {
-        val retrieved = event.channel.retrieveMessageById(arg.trimToID()).complete()
-            ?: return ArgumentResult.Error("Couldn't retrieve a message with the id given from this channel.")
+        val regex = "https:\\/\\/discordapp.com\\/channels\\/\\d+\\/\\d+\\/\\d+".toRegex()
+        val isLink = regex.matches(arg)
 
-        return ArgumentResult.Success(retrieved)
+        val message = if (isLink) {
+            val (guildId, channelId, messageId) = arg.split("/").takeLast(3)
+
+            val guild = event.discord.jda.guilds.firstOrNull { it.id == guildId }
+                ?: return ArgumentResult.Error("No mutual guilds with the message link provided.")
+
+            val channel = guild.channels.filterIsInstance<TextChannel>().firstOrNull { it.id == channelId }
+                ?: return ArgumentResult.Error("Could not find the channel from the message link provided.")
+
+            channel.retrieveMessageById(messageId).complete()
+                ?: return ArgumentResult.Error("Could not find the message from the message link provided.")
+        } else {
+            tryRetrieveSnowflake(event.discord.jda) {
+                event.channel.retrieveMessageById(arg.trimToID()).complete()
+            } as Message? ?: return ArgumentResult.Error("Couldn't retrieve message by ID.")
+        }
+
+        return ArgumentResult.Success(message)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = mutableListOf(event.message.id)
