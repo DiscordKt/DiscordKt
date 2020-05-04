@@ -53,7 +53,9 @@ private fun convertArgs(actual: List<String>, expected: ArgumentCollection<*>, e
             when (result) {
                 is ArgumentResult.Success -> {
                     if (result.consumed.isNotEmpty())
-                        remaining.removeAll(result.consumed)
+                        result.consumed.forEach {
+                            remaining.remove(it)
+                        }
                     else
                         if (expectedArg.consumptionType != ConsumptionType.None)
                             remaining.remove(actualArg)
