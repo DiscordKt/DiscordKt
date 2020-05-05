@@ -3,9 +3,9 @@ package me.aberrantfox.kjdautils.internal.arguments
 import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.extensions.stdlib.*
 import me.aberrantfox.kjdautils.internal.command.*
-import net.dv8tion.jda.api.entities.*
+import net.dv8tion.jda.api.entities.Role
 
-open class RoleArg(override val name : String = "Role", private val guildId: String = ""): ArgumentType<Role>() {
+open class RoleArg(override val name: String = "Role", private val guildId: String = "") : ArgumentType<Role>() {
     companion object : RoleArg()
 
     override val consumptionType = ConsumptionType.Multiple
@@ -19,7 +19,8 @@ open class RoleArg(override val name : String = "Role", private val guildId: Str
         }
 
         val guild = if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild
-        guild ?: return ArgumentResult.Error("Cannot resolve a role by name from a DM. Please invoke in a guild or use an ID.")
+        guild
+            ?: return ArgumentResult.Error("Cannot resolve a role by name from a DM. Please invoke in a guild or use an ID.")
 
         val argString = args.joinToString(" ").toLowerCase()
         val viableNames = guild.roles
@@ -41,5 +42,5 @@ open class RoleArg(override val name : String = "Role", private val guildId: Str
     }
 
     override fun generateExamples(event: CommandEvent<*>) =
-        event.guild?.roles?.map { it.name }?.toMutableList().takeIf { !it.isNullOrEmpty() } ?: mutableListOf("Staff")
+        event.guild?.roles?.map { it.name }?.takeIf { !it.isNullOrEmpty() } ?: listOf("Staff")
 }

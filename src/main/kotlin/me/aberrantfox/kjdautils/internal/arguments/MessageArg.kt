@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
 import me.aberrantfox.kjdautils.internal.command.*
 import net.dv8tion.jda.api.entities.*
 
-open class MessageArg(override val name: String = "Message"): ArgumentType<Message>() {
+open class MessageArg(override val name: String = "Message") : ArgumentType<Message>() {
     companion object : MessageArg()
 
     override val consumptionType = ConsumptionType.Single
@@ -34,5 +34,5 @@ open class MessageArg(override val name: String = "Message"): ArgumentType<Messa
         return ArgumentResult.Success(message)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(event.message.id)
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.message.id)
 }

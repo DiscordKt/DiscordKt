@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
 import me.aberrantfox.kjdautils.internal.command.*
 import net.dv8tion.jda.api.entities.User
 
-open class UserArg(override val name: String = "User", private val allowsBot: Boolean = false): ArgumentType<User>() {
+open class UserArg(override val name: String = "User", private val allowsBot: Boolean = false) : ArgumentType<User>() {
     companion object : UserArg()
 
     override val consumptionType = ConsumptionType.Single
@@ -21,5 +21,5 @@ open class UserArg(override val name: String = "User", private val allowsBot: Bo
         return ArgumentResult.Success(user)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(event.author.id)
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.id)
 }

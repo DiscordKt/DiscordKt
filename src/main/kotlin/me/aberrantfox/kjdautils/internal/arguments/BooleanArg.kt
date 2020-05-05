@@ -3,7 +3,7 @@ package me.aberrantfox.kjdautils.internal.arguments
 import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.*
 
-open class BooleanArg(override val name: String = "Boolean", val truthValue: String = "true", val falseValue: String = "false"): ArgumentType<Boolean>() {
+open class BooleanArg(override val name: String = "Boolean", val truthValue: String = "true", val falseValue: String = "false") : ArgumentType<Boolean>() {
     companion object : BooleanArg()
 
     override val consumptionType = ConsumptionType.Single
@@ -21,5 +21,5 @@ open class BooleanArg(override val name: String = "Boolean", val truthValue: Str
         }
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(truthValue, falseValue)
+    override fun generateExamples(event: CommandEvent<*>) = listOf(truthValue, falseValue)
 }

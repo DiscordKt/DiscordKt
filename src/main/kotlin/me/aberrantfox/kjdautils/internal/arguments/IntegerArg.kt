@@ -4,7 +4,7 @@ import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.*
 import kotlin.random.Random
 
-open class IntegerArg(override val name: String = "Integer"): ArgumentType<Int>() {
+open class IntegerArg(override val name: String = "Integer") : ArgumentType<Int>() {
     companion object : IntegerArg()
 
     override val consumptionType = ConsumptionType.Single
@@ -14,5 +14,5 @@ open class IntegerArg(override val name: String = "Integer"): ArgumentType<Int>(
         return ArgumentResult.Success(int)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(Random.nextInt(0, 100).toString())
+    override fun generateExamples(event: CommandEvent<*>) = listOf(Random.nextInt(0, 10).toString())
 }

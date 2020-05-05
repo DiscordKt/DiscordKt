@@ -16,7 +16,7 @@ open class DoubleArg(override val name: String = "Decimal") : ArgumentType<Doubl
         return ArgumentResult.Success(double)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(
+    override fun generateExamples(event: CommandEvent<*>) = listOf(
         "%.2f".format(Random.nextDouble(0.00, 9.99))
     )
 }

@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.extensions.stdlib.*
 import me.aberrantfox.kjdautils.internal.command.*
 import net.dv8tion.jda.api.entities.Category
 
-open class CategoryArg(override val name: String = "Category", private val guildId: String = ""): ArgumentType<Category>() {
+open class CategoryArg(override val name: String = "Category", private val guildId: String = "") : ArgumentType<Category>() {
     companion object : CategoryArg()
 
     override val consumptionType = ConsumptionType.Multiple
@@ -18,8 +18,8 @@ open class CategoryArg(override val name: String = "Category", private val guild
                 return ArgumentResult.Success(category)
         }
 
-        val guild = if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild
-        guild ?: return ArgumentResult.Error("Cannot resolve a category by name from a DM. Please invoke in a guild or use an ID.")
+        val guild = (if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild)
+            ?: return ArgumentResult.Error("Cannot resolve a category by name from a DM. Please invoke in a guild or use an ID.")
 
         val argString = args.joinToString(" ").toLowerCase()
         val viableNames = guild.categories
@@ -40,7 +40,6 @@ open class CategoryArg(override val name: String = "Category", private val guild
         }
     }
 
-    override fun generateExamples(event: CommandEvent<*>): MutableList<String> {
-        return event.guild?.categories?.map { it.id }?.toMutableList() ?: mutableListOf("Chat Channels")
-    }
+    override fun generateExamples(event: CommandEvent<*>) = event.guild?.categories?.map { it.id }
+        ?: listOf("Chat Channels")
 }

@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
 import me.aberrantfox.kjdautils.internal.command.*
 import net.dv8tion.jda.api.entities.TextChannel
 
-open class TextChannelArg(override val name : String = "TextChannel"): ArgumentType<TextChannel>() {
+open class TextChannelArg(override val name: String = "TextChannel") : ArgumentType<TextChannel>() {
     companion object : TextChannelArg()
 
     override val consumptionType = ConsumptionType.Single
@@ -18,5 +18,5 @@ open class TextChannelArg(override val name : String = "TextChannel"): ArgumentT
         return ArgumentResult.Success(channel)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(event.channel.id)
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id)
 }

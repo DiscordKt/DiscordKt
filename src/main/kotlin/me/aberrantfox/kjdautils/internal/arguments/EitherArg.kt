@@ -24,11 +24,11 @@ class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, nam
         }
     }
 
-    override fun generateExamples(event: CommandEvent<*>): MutableList<String> {
+    override fun generateExamples(event: CommandEvent<*>): List<String> {
         val leftExample = left.generateExamples(event).takeIf { it.isNotEmpty() }?.random() ?: "<Example>"
         val rightExample = right.generateExamples(event).takeIf { it.isNotEmpty() }?.random() ?: "<Example>"
 
-        return mutableListOf("$leftExample | $rightExample")
+        return listOf("$leftExample | $rightExample")
     }
 }
 

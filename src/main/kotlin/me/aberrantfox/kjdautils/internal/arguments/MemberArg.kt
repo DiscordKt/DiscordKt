@@ -6,7 +6,7 @@ import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
 import me.aberrantfox.kjdautils.internal.command.*
 import net.dv8tion.jda.api.entities.Member
 
-open class MemberArg(override val name: String = "Member"): ArgumentType<Member>() {
+open class MemberArg(override val name: String = "Member") : ArgumentType<Member>() {
     companion object : MemberArg()
 
     override val consumptionType = ConsumptionType.Single
@@ -23,5 +23,5 @@ open class MemberArg(override val name: String = "Member"): ArgumentType<Member>
         return ArgumentResult.Success(member)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(event.author.id)
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.id)
 }

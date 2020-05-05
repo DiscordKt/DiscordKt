@@ -7,7 +7,7 @@ import me.aberrantfox.kjdautils.internal.command.*
  * ChoiceArg takes in any number of arbitrary objects and maps arguments that match it's toString() string
  * Example: the companion object allows two choices "true" or "false" and will automatically convert to Boolean
  */
-open class ChoiceArg(override val name: String, vararg choices: Any): ArgumentType<String>() {
+open class ChoiceArg(override val name: String, vararg choices: Any) : ArgumentType<String>() {
     companion object BinaryChoiceArg : ChoiceArg("Choice", true, false)
 
     override val consumptionType = ConsumptionType.Single
@@ -21,5 +21,5 @@ open class ChoiceArg(override val name: String, vararg choices: Any): ArgumentTy
         return ArgumentResult.Success(selection)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = enumerations.keys.toMutableList()
+    override fun generateExamples(event: CommandEvent<*>) = enumerations.keys.toList()
 }

@@ -3,7 +3,7 @@ package me.aberrantfox.kjdautils.internal.arguments
 import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.*
 
-class MultipleArg<T>(val base: ArgumentType<T>, name: String = ""): ArgumentType<List<T>>() {
+class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentType<List<T>>() {
     override val name = if (name.isNotBlank()) name else "${base.name}..."
     override val consumptionType = ConsumptionType.Multiple
 
@@ -36,5 +36,5 @@ class MultipleArg<T>(val base: ArgumentType<T>, name: String = ""): ArgumentType
     }
 
     override fun generateExamples(event: CommandEvent<*>) =
-        base.generateExamples(event).chunked(2).map { it.joinToString(" ") }.toMutableList()
+        base.generateExamples(event).chunked(2).map { it.joinToString(" ") }
 }
