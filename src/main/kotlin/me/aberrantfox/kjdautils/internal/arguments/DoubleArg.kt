@@ -4,7 +4,7 @@ import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.*
 import kotlin.random.Random
 
-open class DoubleArg(override val name: String = "Decimal"): ArgumentType<Double>() {
+open class DoubleArg(override val name: String = "Decimal") : ArgumentType<Double>() {
     companion object : DoubleArg()
 
     override val consumptionType = ConsumptionType.Single
@@ -16,5 +16,7 @@ open class DoubleArg(override val name: String = "Decimal"): ArgumentType<Double
         return ArgumentResult.Success(double)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(Random.nextDouble(0.0, 100.0).toString())
+    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(
+        "%.2f".format(Random.nextDouble(0.00, 9.99))
+    )
 }
