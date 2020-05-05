@@ -1,6 +1,7 @@
 package me.aberrantfox.kjdautils.internal.services
 
 import kotlinx.coroutines.runBlocking
+import me.aberrantfox.kjdautils.api.diService
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.stdlib.pluralize
@@ -45,7 +46,7 @@ class ConversationService(val discord: Discord) {
 
                 starter ?: return@forEach InternalLogger.error("$conversationName @Start function does not build a conversation. It cannot be registered.")
 
-                val instance = conversationClass.constructors.first().newInstance() as Conversation
+                val instance = diService.invokeConstructor(conversationClass) as Conversation
                 availableConversations[conversationClass as Class<out Conversation>] = instance to starter
             }
 
