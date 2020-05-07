@@ -29,7 +29,7 @@ fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
     if (hasMissingQuantifier)
         return ArgumentResult.Error("At least one quantity is missing a quantifier.")
 
-    val timeInSeconds = timeElements
+    val timePairs = timeElements
         .mapIndexedNotNull { index, element ->
             when (element) {
                 is Pair<*, *> -> element as Pair<Quantity, Quantifier>
@@ -37,27 +37,19 @@ fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
                 else -> null
             }
         }
+
+    if (timePairs.any { it.first < 0.0 })
+        return ArgumentResult.Error("Time argument cannot be negative.")
+
+    val timeInSeconds = timePairs
         .map { (quantity, quantifier) -> quantity * timeStringToSeconds.getValue(quantifier) }
         .reduce { a, b -> a + b }
 
     return ArgumentResult.Success(timeInSeconds, consumed)
 }
 
-private fun toTimeElement(element: String): Any? {
-    val both = toBoth(element)
-    if (both != null) return both
-
-    val quantifier = toQuantifier(element)
-    if (quantifier != null) return quantifier
-
-    val quantity = toQuantity(element)
-    if (quantity != null) return quantity
-
-    return null
-}
-
-private fun toQuantifier(element: String) = element.takeIf { it in timeStringToSeconds }
-
+private fun toTimeElement(element: String): Any? = toBoth(element) ?: toQuantifier(element) ?: toQuantity(element)
+private fun toQuantifier(element: String) = element.takeIf { it.toLowerCase() in timeStringToSeconds }
 private fun toQuantity(element: String) = element.toDoubleOrNull()
 
 private fun toBoth(element: String): Pair<Double, String>? {
@@ -97,9 +89,9 @@ private val timeStringToSeconds = mapOf(
     "month" to 2592000,
     "months" to 2592000,
 
-    "y" to 31104000,
-    "yr" to 31104000,
-    "yrs" to 31104000,
-    "year" to 31104000,
-    "years" to 31104000
+    "y" to 31536000,
+    "yr" to 31536000,
+    "yrs" to 31536000,
+    "year" to 31536000,
+    "years" to 31536000
 )
