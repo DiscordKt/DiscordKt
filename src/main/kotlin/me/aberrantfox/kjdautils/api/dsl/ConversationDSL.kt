@@ -15,8 +15,11 @@ import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
 
+private class ExitException() : Exception("Conversation exited early.")
+
 data class ConversationStateContainer(val user: User,
-                                      val discord: Discord) {
+                                      val discord: Discord,
+                                      var exitString: String? = null) {
 
     private val inputChannel = Channel<Message>()
 
@@ -44,13 +47,18 @@ data class ConversationStateContainer(val user: User,
         return retrieveValidResponse(argumentType, promptValue)
     }
 
+    @Throws(ExitException::class)
     private fun <T> retrieveValidResponse(argumentType: ArgumentType<*>, prompt: Any): T = runBlocking<T> {
         sendPrompt(prompt)
         retrieveResponse(argumentType) ?: retrieveValidResponse(argumentType, prompt)
     }
 
+    @Throws(ExitException::class)
     private suspend fun <T> retrieveResponse(argumentType: ArgumentType<*>) = select<T?> {
         inputChannel.onReceive { input ->
+            if (input.contentStripped == exitString)
+                throw ExitException()
+
             when (val result = parseResponse(argumentType, input)) {
                 is ArgumentResult.Success -> result.result as T
                 is ArgumentResult.Error -> {
@@ -80,18 +88,28 @@ data class ConversationStateContainer(val user: User,
     fun respond(embed: MessageEmbed) = user.sendPrivateMessage(embed)
 }
 
-class ConversationBuilder(private val block: (ConversationStateContainer) -> Unit) {
+class ConversationBuilder(private val exitString: String?, private val block: (ConversationStateContainer) -> Unit) {
     private lateinit var stateContainer: ConversationStateContainer
 
     @PublishedApi
-    internal fun start(conversationStateContainer: ConversationStateContainer, onEnd: () -> Unit) {
+    internal fun start(conversationStateContainer: ConversationStateContainer, onEnd: () -> Unit): Boolean {
+        conversationStateContainer.exitString = exitString
         stateContainer = conversationStateContainer
-        block.invoke(conversationStateContainer)
+
+        try {
+            block.invoke(conversationStateContainer)
+        }
+        catch (e: ExitException) {
+            onEnd.invoke()
+            return false
+        }
+
         onEnd.invoke()
+        return true
     }
 
     @PublishedApi
     internal suspend fun acceptMessage(message: Message) = stateContainer.acceptMessage(message)
 }
 
-fun conversation(block: ConversationStateContainer.() -> Unit) = ConversationBuilder(block)
+fun conversation(exitString: String? = null, block: ConversationStateContainer.() -> Unit) = ConversationBuilder(exitString, block)

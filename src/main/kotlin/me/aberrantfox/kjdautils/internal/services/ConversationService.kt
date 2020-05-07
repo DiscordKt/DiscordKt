@@ -11,6 +11,13 @@ import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 import java.lang.reflect.Method
 
+enum class ConversationResult {
+    INVALID_USER,
+    HAS_CONVO,
+    COMPLETE,
+    EXITED
+}
+
 class ConversationService(val discord: Discord) {
     @PublishedApi
     internal val availableConversations = mutableMapOf<Class<out Conversation>, Pair<Conversation, Method>>()
@@ -53,12 +60,12 @@ class ConversationService(val discord: Discord) {
         println(availableConversations.size.pluralize("Conversation"))
     }
 
-    inline fun <reified T : Conversation> startConversation(user: User, vararg arguments: Any): Boolean {
-        if (user.isBot)
-            return false
+    inline fun <reified T : Conversation> startConversation(user: User, vararg arguments: Any): ConversationResult {
+        if (user.mutualGuilds.isEmpty() || user.isBot)
+            return ConversationResult.INVALID_USER
 
         if (hasConversation(user))
-            return false
+            return ConversationResult.HAS_CONVO
 
         val (instance, function) = availableConversations[T::class.java]!!
         val conversation = function.invoke(instance, *arguments) as ConversationBuilder
@@ -67,11 +74,11 @@ class ConversationService(val discord: Discord) {
 
         val state = ConversationStateContainer(user, discord)
 
-        conversation.start(state) {
+        val wasCompleted = conversation.start(state) {
             activeConversations.remove(user.id)
         }
 
-        return true
+        return if (wasCompleted) ConversationResult.COMPLETE else ConversationResult.EXITED
     }
 
     internal fun handleResponse(message: Message) {
