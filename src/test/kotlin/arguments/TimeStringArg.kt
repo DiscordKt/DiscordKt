@@ -9,7 +9,7 @@ private const val hour = 3600.0
 private const val day = 86400.0
 private const val week = 604800.0
 private const val month = 2592000.0
-private const val year = 31104000.0
+private const val year = 31536000.0
 
 class TimeStringArgTest : ArgumentTestFactory {
     override val argumentType = TimeStringArg
@@ -53,8 +53,12 @@ class TimeStringArgTest : ArgumentTestFactory {
         "5.5h" to hour * 5.5,
         "10 minutes 8 seconds" to (10 * minute) + (8 * second),
         "1h 2m 10 seconds" to (hour) + (2 * minute) + (10 * second),
-        "1y 1 month 1w 1d 1hr 1minutes 1s" to year + month + week + day + hour + minute + second
+        "1y 1 month 1w 1d 1hr 1minutes 1s" to year + month + week + day + hour + minute + second,
+
+        "1SeCoNd" to second,
+        "1 DAY" to day,
+        "0.5s" to 0.5
     )
 
-    override val invalidArgs = listOf("5", "-5m", "hour", "1m1s", "")
+    override val invalidArgs = listOf("5", "-5m", "-5 m", "5n", "hour", "1m1s")
 }

@@ -9,7 +9,6 @@ class RoleArgTest : ArgumentTestFactory {
 
     override val validArgs = listOf(
         FakeIds.Role to singleRoleMock,
-        FakeIds.Role to multiRoleMock,
         FakeNames.Role_Single to singleRoleMock,
         FakeNames.Role_Multi to multiRoleMock
     )
