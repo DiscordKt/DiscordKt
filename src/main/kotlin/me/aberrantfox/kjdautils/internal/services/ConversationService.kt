@@ -13,6 +13,7 @@ import java.lang.reflect.Method
 
 enum class ConversationResult {
     INVALID_USER,
+    CANNOT_DM,
     HAS_CONVO,
     COMPLETE,
     EXITED
@@ -74,11 +75,9 @@ class ConversationService(val discord: Discord) {
 
         val state = ConversationStateContainer(user, discord)
 
-        val wasCompleted = conversation.start(state) {
+        return conversation.start(state) {
             activeConversations.remove(user.id)
         }
-
-        return if (wasCompleted) ConversationResult.COMPLETE else ConversationResult.EXITED
     }
 
     internal fun handleResponse(message: Message) {

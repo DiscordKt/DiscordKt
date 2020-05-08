@@ -35,14 +35,15 @@ class DemoConversation : Conversation() {
 fun conversationCommands(conversationService: ConversationService) = commands {
     //This command starts the above conversation
     command("Conversation") {
-        description = "Start an example conversation."
-        execute {
-            val result = conversationService.startConversation<DemoConversation>(it.author)
+        description = "Start a conversation with a user."
+        execute(UserArg(allowsBot = true).makeOptional { it.author }) {
+            val result = conversationService.startConversation<DemoConversation>(it.args.first)
 
             val response = when (result) {
                 ConversationResult.COMPLETE -> "Conversation Completed!"
                 ConversationResult.EXITED -> "The conversation was exited by the user."
-                ConversationResult.INVALID_USER -> "Cannot start a conversation with this user."
+                ConversationResult.INVALID_USER -> "User must share a guild and cannot be a bot."
+                ConversationResult.CANNOT_DM -> "User has DM's off or has blocked the bot."
                 ConversationResult.HAS_CONVO -> "This user already has a conversation."
             }
 
