@@ -6,7 +6,7 @@
 
     <groupId>me.aberrantfox</groupId>
     <artifactId>KUtils</artifactId>
-    <version>0.15.0</version>
+    <version>0.15.1</version>
 
     <properties>
         <!-- Meta -->
