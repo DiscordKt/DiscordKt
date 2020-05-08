@@ -3,7 +3,7 @@ package me.aberrantfox.kjdautils.internal.arguments
 import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.*
 
-open class CharArg(override val name : String = "Character"): ArgumentType<Char>() {
+open class CharArg(override val name: String = "Character") : ArgumentType<Char>() {
     companion object : CharArg()
 
     override val consumptionType = ConsumptionType.Single
@@ -15,5 +15,5 @@ open class CharArg(override val name : String = "Character"): ArgumentType<Char>
             ArgumentResult.Error("Invalid character argument.")
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = ('a'..'z').map { it.toString() }.toMutableList()
+    override fun generateExamples(event: CommandEvent<*>) = ('a'..'z').map { it.toString() }
 }

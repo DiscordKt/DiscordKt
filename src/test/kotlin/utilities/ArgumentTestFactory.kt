@@ -14,7 +14,7 @@ interface ArgumentTestFactory {
         when (val conversionResult = argumentType.attemptConvert(input)) {
             is ArgumentResult.Success -> {
                 DynamicTest.dynamicTest("\"$input\" -> $expected") {
-                    Assertions.assertTrue(true)
+                    Assertions.assertEquals(conversionResult.result, expected)
                 }
             }
             is ArgumentResult.Error -> {

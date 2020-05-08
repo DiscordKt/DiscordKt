@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
 import me.aberrantfox.kjdautils.internal.command.*
 import net.dv8tion.jda.api.entities.Guild
 
-open class GuildArg(override val name: String = "Guild"): ArgumentType<Guild>() {
+open class GuildArg(override val name: String = "Guild") : ArgumentType<Guild>() {
     companion object : GuildArg()
 
     override val consumptionType = ConsumptionType.Single
@@ -17,5 +17,5 @@ open class GuildArg(override val name: String = "Guild"): ArgumentType<Guild>() 
         return ArgumentResult.Success(guild)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = mutableListOf(event.guild?.id ?: "244230771232079873")
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.guild?.id ?: "244230771232079873")
 }

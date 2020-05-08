@@ -1,6 +1,7 @@
 package me.aberrantfox.kjdautils.internal.services
 
 import kotlinx.coroutines.runBlocking
+import me.aberrantfox.kjdautils.api.diService
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.stdlib.pluralize
@@ -9,6 +10,14 @@ import net.dv8tion.jda.api.entities.*
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 import java.lang.reflect.Method
+
+enum class ConversationResult {
+    INVALID_USER,
+    CANNOT_DM,
+    HAS_CONVO,
+    COMPLETE,
+    EXITED
+}
 
 class ConversationService(val discord: Discord) {
     @PublishedApi
@@ -45,19 +54,19 @@ class ConversationService(val discord: Discord) {
 
                 starter ?: return@forEach InternalLogger.error("$conversationName @Start function does not build a conversation. It cannot be registered.")
 
-                val instance = conversationClass.constructors.first().newInstance() as Conversation
+                val instance = diService.invokeConstructor(conversationClass) as Conversation
                 availableConversations[conversationClass as Class<out Conversation>] = instance to starter
             }
 
         println(availableConversations.size.pluralize("Conversation"))
     }
 
-    inline fun <reified T : Conversation> startConversation(user: User, vararg arguments: Any): Boolean {
-        if (user.isBot)
-            return false
+    inline fun <reified T : Conversation> startConversation(user: User, vararg arguments: Any): ConversationResult {
+        if (user.mutualGuilds.isEmpty() || user.isBot)
+            return ConversationResult.INVALID_USER
 
         if (hasConversation(user))
-            return false
+            return ConversationResult.HAS_CONVO
 
         val (instance, function) = availableConversations[T::class.java]!!
         val conversation = function.invoke(instance, *arguments) as ConversationBuilder
@@ -66,11 +75,9 @@ class ConversationService(val discord: Discord) {
 
         val state = ConversationStateContainer(user, discord)
 
-        conversation.start(state) {
+        return conversation.start(state) {
             activeConversations.remove(user.id)
         }
-
-        return true
     }
 
     internal fun handleResponse(message: Message) {

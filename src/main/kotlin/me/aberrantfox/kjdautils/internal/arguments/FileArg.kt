@@ -4,7 +4,7 @@ import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.*
 import java.io.File
 
-open class FileArg(override val name: String = "File"): ArgumentType<File>() {
+open class FileArg(override val name: String = "File") : ArgumentType<File>() {
     companion object : FileArg()
 
     override val consumptionType = ConsumptionType.None
@@ -20,5 +20,5 @@ open class FileArg(override val name: String = "File"): ArgumentType<File>() {
         return ArgumentResult.Success(file)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = mutableListOf("File")
+    override fun generateExamples(event: CommandEvent<*>) = listOf("File")
 }

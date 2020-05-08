@@ -4,7 +4,7 @@ import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.extensions.stdlib.containsURl
 import me.aberrantfox.kjdautils.internal.command.*
 
-open class UrlArg(override val name : String = "URL"): ArgumentType<String>() {
+open class UrlArg(override val name: String = "URL") : ArgumentType<String>() {
     companion object : UrlArg()
 
     override val consumptionType = ConsumptionType.Single
@@ -16,5 +16,5 @@ open class UrlArg(override val name : String = "URL"): ArgumentType<String>() {
             ArgumentResult.Error("Expected a URL, got $arg")
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = mutableListOf("http://www.google.com")
+    override fun generateExamples(event: CommandEvent<*>) = listOf("http://www.google.com")
 }

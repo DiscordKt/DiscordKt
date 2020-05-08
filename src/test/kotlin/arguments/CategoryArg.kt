@@ -9,7 +9,6 @@ class CategoryArgTest : ArgumentTestFactory {
 
     override val validArgs = listOf(
         FakeIds.Category to singleCategoryMock,
-        FakeIds.Category to multiCategoryMock,
         FakeNames.Category_Single to singleCategoryMock,
         FakeNames.Category_Multi to multiCategoryMock
     )

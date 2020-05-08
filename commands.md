@@ -18,9 +18,9 @@
 | User         | (User)             | Display a user's full name.        |
 
 ## Conversation Demo
-| Commands     | Arguments | Description                    |
-| ------------ | --------- | ------------------------------ |
-| Conversation | <none>    | Start an example conversation. |
+| Commands     | Arguments | Description                       |
+| ------------ | --------- | --------------------------------- |
+| Conversation | (User)    | Start a conversation with a user. |
 
 ## DSL Demo
 | Commands | Arguments | Description               |

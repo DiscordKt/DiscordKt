@@ -3,7 +3,7 @@ package me.aberrantfox.kjdautils.internal.arguments
 import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.internal.command.*
 
-open class CommandArg(override val name: String = "Command"): ArgumentType<Command>() {
+open class CommandArg(override val name: String = "Command") : ArgumentType<Command>() {
     companion object : CommandArg()
 
     override val consumptionType = ConsumptionType.Single
@@ -15,7 +15,5 @@ open class CommandArg(override val name: String = "Command"): ArgumentType<Comma
         return ArgumentResult.Success(command)
     }
 
-    override fun generateExamples(event: CommandEvent<*>): MutableList<String> {
-        return event.container.commands.mapNotNull { it.names.firstOrNull() }.toMutableList()
-    }
+    override fun generateExamples(event: CommandEvent<*>) = event.container.commands.mapNotNull { it.names.firstOrNull() }
 }

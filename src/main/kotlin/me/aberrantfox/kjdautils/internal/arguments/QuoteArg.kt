@@ -33,7 +33,7 @@ open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>(
         return ArgumentResult.Success(quote, consumed)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = mutableListOf("\"A Quote\"")
+    override fun generateExamples(event: CommandEvent<*>) = listOf("\"A Quote\"")
 }
 
 private fun List<String>.takeUntil(predicate: (String) -> Boolean): List<String> {

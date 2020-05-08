@@ -5,7 +5,7 @@ import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
 import me.aberrantfox.kjdautils.internal.command.*
 import net.dv8tion.jda.api.entities.*
 
-open class VoiceChannelArg(override val name : String = "The ID of any valid voice channel.") : ArgumentType<VoiceChannel>() {
+open class VoiceChannelArg(override val name: String = "The ID of any valid voice channel.") : ArgumentType<VoiceChannel>() {
     companion object : VoiceChannelArg()
 
     override val consumptionType = ConsumptionType.Single
@@ -17,8 +17,8 @@ open class VoiceChannelArg(override val name : String = "The ID of any valid voi
         return ArgumentResult.Success(channel)
     }
 
-    override fun generateExamples(event: CommandEvent<*>): MutableList<String> {
+    override fun generateExamples(event: CommandEvent<*>): List<String> {
         val channel = event.guild?.channels?.firstOrNull { it.type == ChannelType.VOICE } as? VoiceChannel
-        return mutableListOf(channel?.id ?: "582168201979494421")
+        return listOf(channel?.id ?: "582168201979494421")
     }
 }

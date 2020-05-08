@@ -3,7 +3,7 @@ package me.aberrantfox.kjdautils.internal.arguments
 import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.*
 
-open class SplitterArg(override val name : String = "(Separated|Text)"): ArgumentType<List<String>>() {
+open class SplitterArg(override val name: String = "(Separated|Text)") : ArgumentType<List<String>>() {
     companion object : SplitterArg()
 
     override val consumptionType = ConsumptionType.All
@@ -16,5 +16,5 @@ open class SplitterArg(override val name : String = "(Separated|Text)"): Argumen
         return ArgumentResult.Success(joined.split(separatorCharacter).toList(), args)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = mutableListOf("one | two | three")
+    override fun generateExamples(event: CommandEvent<*>) = listOf("one | two | three")
 }

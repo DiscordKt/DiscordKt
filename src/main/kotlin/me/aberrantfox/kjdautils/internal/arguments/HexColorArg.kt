@@ -4,7 +4,7 @@ import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.*
 import java.awt.Color
 
-open class HexColorArg(override val name : String = "Hex Color"): ArgumentType<Color>() {
+open class HexColorArg(override val name: String = "Hex Color") : ArgumentType<Color>() {
     companion object : HexColorArg()
 
     override val consumptionType = ConsumptionType.Single
@@ -23,5 +23,5 @@ open class HexColorArg(override val name : String = "Hex Color"): ArgumentType<C
         return ArgumentResult.Success(Color(int))
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = mutableListOf("#000000", "ffffff")
+    override fun generateExamples(event: CommandEvent<*>) = listOf("#000000", "ffffff")
 }
