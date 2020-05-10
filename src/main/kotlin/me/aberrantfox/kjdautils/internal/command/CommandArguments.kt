@@ -60,6 +60,8 @@ abstract class ArgumentType<T>: Cloneable {
 
     abstract fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
     abstract fun generateExamples(event: CommandEvent<*>): List<String>
+
+    override fun toString() = this::class.toString().substringAfterLast(".").substringBefore("$")
 }
 
 fun tryRetrieveSnowflake(jda: JDA, action: (JDA) -> Any?): Any? =
