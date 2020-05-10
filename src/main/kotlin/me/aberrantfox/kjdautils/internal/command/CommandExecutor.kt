@@ -2,7 +2,7 @@ package me.aberrantfox.kjdautils.internal.command
 
 import kotlinx.coroutines.*
 import me.aberrantfox.kjdautils.api.dsl.command.*
-import me.aberrantfox.kjdautils.internal.command.Result.Error
+import me.aberrantfox.kjdautils.internal.utils.InternalLogger
 import java.util.ArrayList
 
 internal class CommandExecutor {
@@ -16,69 +16,75 @@ internal class CommandExecutor {
         val shouldDeleteErrors = event.discord.configuration.deleteErrors
 
         getArgCountError(actualArgs, command)?.let {
-            return if(shouldDeleteErrors) event.respondTimed(it) else event.respond(it)
+            return if (shouldDeleteErrors) event.respondTimed(it) else event.respond(it)
         }
 
         val expected = command.expectedArgs.arguments
         val initialConversion = convertArguments(actualArgs, expected, event)
 
-        if (initialConversion is Error) {
-            val error = initialConversion.error
-
-            if (!command.isFlexible || expected.size < 2) {
-                return if(shouldDeleteErrors) event.respondTimed(error) else event.respond(error)
-            }
-
-            val permutations = generateAllPermutations(expected.toMutableList())
-
-            val success = permutations
-                .mapNotNull {
-                    val conversion = convertArguments(actualArgs, it, event)
-
-                    if (conversion is Result.Success)
-                        it to conversion.results
-                    else
-                        null
-                }
-                .map { (argumentTypes, results) ->
-                    argumentTypes.zip(results)
-                }
-                .firstOrNull()
-                ?: return if(shouldDeleteErrors) event.respondTimed(error) else event.respond(error)
-
-            val orderedResult = expected.map { sortKey ->
-                success.first {
-                    it.first == sortKey
-                }.second
-            }
-
-            val bundle = command.expectedArgs.bundle(orderedResult)
-            command.invoke(bundle, event)
-
-            return
+        if (initialConversion is Result.Success) {
+            val bundle = command.expectedArgs.bundle(initialConversion.results)
+            return command.invoke(bundle, event)
         }
 
-        val args = initialConversion as Result.Success
-        val bundle = command.expectedArgs.bundle(args.results)
+        val error = (initialConversion as Result.Error).error
 
+        if (!command.isFlexible || expected.size < 2)
+            return if (shouldDeleteErrors) event.respondTimed(error) else event.respond(error)
+
+        val successList = expected.toMutableList().generateAllPermutations()
+            .mapNotNull {
+                val conversion = convertArguments(actualArgs, it, event)
+
+                if (conversion is Result.Success)
+                    it to conversion.results
+                else
+                    null
+            }
+            .map { (argumentTypes, results) ->
+                argumentTypes.zip(results)
+            }
+
+        if (successList.isEmpty())
+            return if (shouldDeleteErrors) event.respondTimed(error) else event.respond(error)
+
+        if (successList.size > 1) {
+            InternalLogger.error(
+                """
+                    Flexible command resolved ambiguously.
+                    ${command.names.first()}(${expected.joinToString()})
+                    Input: ${actualArgs.joinToString(" ")}
+                """.trimIndent()
+            )
+
+            return if (shouldDeleteErrors) event.respondTimed(error) else event.respond(error)
+        }
+
+        val success = successList.first()
+
+        val orderedResult = expected.map { sortKey ->
+            success.first {
+                it.first == sortKey
+            }.second
+        }
+
+        val bundle = command.expectedArgs.bundle(orderedResult)
         command.invoke(bundle, event)
     }
 
-    private fun <E> generateAllPermutations(original: MutableList<E>): List<List<E>> {
-        if (original.isEmpty()) {
+    private fun <E> MutableList<E>.generateAllPermutations(): List<List<E>> {
+        if (isEmpty()) {
             val result: MutableList<List<E>> = ArrayList()
             result.add(ArrayList())
             return result
         }
-        val firstElement: E = original.removeAt(0)
+        val firstElement = removeAt(0)
         val returnValue: MutableList<List<E>> = ArrayList()
-        val permutations = generateAllPermutations(original)
-        for (smallerPermutated in permutations) {
-            for (index in 0..smallerPermutated.size) {
-                val temp = ArrayList(smallerPermutated)
-                temp.add(index, firstElement)
-                returnValue.add(temp)
-            }
+
+        generateAllPermutations().forEachIndexed { index, list ->
+            val temp = ArrayList(list)
+            temp.add(index, firstElement)
+            returnValue.add(temp)
         }
 
         return returnValue
