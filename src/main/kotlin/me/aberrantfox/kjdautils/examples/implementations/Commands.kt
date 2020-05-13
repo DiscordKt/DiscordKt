@@ -67,10 +67,14 @@ fun demoCommands() = commands {
     command("NumberOrWord") {
         description = "Enter a number or a word."
         execute(IntegerArg or WordArg) {
-            when (val input = it.args.first) {
-                is Either.Left -> it.respond("You input the number: ${input.left}")
-                is Either.Right -> it.respond("You input the word: ${input.right}")
-            }
+            val input = it.args.first
+
+            val result = input.getData(
+                { "You input the number: $it" },
+                { "You input the word: $it" }
+            )
+
+            it.respond(result)
         }
     }
 
