@@ -14,7 +14,7 @@ class DemoConversation : Conversation() {
         //This is a simple prompt that sends the user a message and waits for their response.
         //You will have access to the type-safe result immediately in this code for processing.
         //This will report an error if the argument parsing fails, and then send the prompt again.
-        val name = blockingPrompt(WordArg) {
+        val name = blockingPrompt(AnyArg) {
             "Please enter your name."
         }
 

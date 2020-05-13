@@ -12,7 +12,7 @@
 | Echo         | Text               | Echo some text back.               |
 | File         | File               | Input a file and display its name. |
 | Hello        | <none>             | Display a simple message.          |
-| NumberOrWord | Integer \| Word    | Enter a number or a word.          |
+| NumberOrWord | Integer \| Any     | Enter a number or a word.          |
 | OptionalAdd  | Integer, (Integer) | Add two numbers together.          |
 | Sum          | (Integer...)       | Add a list of numbers together.    |
 | User         | (User)             | Display a user's full name.        |

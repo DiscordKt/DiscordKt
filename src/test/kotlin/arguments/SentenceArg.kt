@@ -1,10 +1,10 @@
 package arguments
 
-import me.aberrantfox.kjdautils.internal.arguments.SentenceArg
+import me.aberrantfox.kjdautils.internal.arguments.EveryArg
 import utilities.ArgumentTestFactory
 
-class SentenceArgTest : ArgumentTestFactory {
-    override val argumentType = SentenceArg
+class EveryArgTest : ArgumentTestFactory {
+    override val argumentType = EveryArg
 
     override val validArgs = listOf(
         "HELLO" to "HELLO",

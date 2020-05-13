@@ -2,16 +2,15 @@ package me.aberrantfox.kjdautils.internal.services
 
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.api.dsl.command.*
-import me.aberrantfox.kjdautils.internal.arguments.WordArg
+import me.aberrantfox.kjdautils.internal.arguments.AnyArg
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
-import java.awt.Color
 
 class HelpService(private val container: CommandsContainer, private val config: KConfiguration) {
     fun produceHelpCommandContainer() = commands {
         command("Help") {
             description = "Display a help menu."
             category = "Utility"
-            execute(WordArg("Command").makeOptional("")) {
+            execute(AnyArg("Command").makeOptional("")) {
                 val query = it.args.component1()
 
                 val responseEmbed = when {

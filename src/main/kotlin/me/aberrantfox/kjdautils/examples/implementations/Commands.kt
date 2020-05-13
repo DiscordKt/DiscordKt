@@ -21,7 +21,7 @@ fun demoCommands() = commands {
     //This command accepts some text of any length and sends it back
     command("Echo") {
         description = "Echo some text back."
-        execute(SentenceArg) {
+        execute(EveryArg) {
             val response = it.args.first
             it.respond(response)
         }
@@ -66,7 +66,7 @@ fun demoCommands() = commands {
     //This command accepts EITHER a number or a word
     command("NumberOrWord") {
         description = "Enter a number or a word."
-        execute(IntegerArg or WordArg) {
+        execute(IntegerArg or AnyArg) {
             val input = it.args.first
 
             val result = input.getData(
