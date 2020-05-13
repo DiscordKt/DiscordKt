@@ -60,6 +60,7 @@ data class CommandEvent<T: ArgumentContainer>(
     val message = discordContext.message
     val channel = discordContext.channel
     val guild = discordContext.guild
+    val command = container[commandStruct.commandName]
 
     var args: T = NoArg() as T
 

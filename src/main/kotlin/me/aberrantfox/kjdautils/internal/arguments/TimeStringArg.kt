@@ -6,8 +6,6 @@ import me.aberrantfox.kjdautils.internal.command.*
 open class TimeStringArg(override val name: String = "Time") : ArgumentType<Double>() {
     companion object : TimeStringArg()
 
-    override val consumptionType = ConsumptionType.Multiple
-
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>) = convertTimeString(args)
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("5 seconds", "5s")

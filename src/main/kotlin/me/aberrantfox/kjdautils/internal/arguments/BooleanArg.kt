@@ -6,8 +6,6 @@ import me.aberrantfox.kjdautils.internal.command.*
 open class BooleanArg(override val name: String = "Boolean", val truthValue: String = "true", val falseValue: String = "false") : ArgumentType<Boolean>() {
     companion object : BooleanArg()
 
-    override val consumptionType = ConsumptionType.Single
-
     init {
         require(truthValue.isNotEmpty() && falseValue.isNotEmpty()) { "Custom BooleanArg options cannot be empty!" }
         require(truthValue.toLowerCase() != falseValue.toLowerCase()) { "Custom BooleanArg options cannot be the same!" }

@@ -14,11 +14,6 @@ internal class CommandExecutor {
 
     private fun invokeCommand(command: Command, actualArgs: List<String>, event: CommandEvent<ArgumentContainer>) {
         val shouldDeleteErrors = event.discord.configuration.deleteErrors
-
-        getArgCountError(actualArgs, command)?.let {
-            return if (shouldDeleteErrors) event.respondTimed(it) else event.respond(it)
-        }
-
         val expected = command.expectedArgs.arguments
         val initialConversion = convertArguments(actualArgs, expected, event)
 

@@ -11,7 +11,6 @@ sealed class Either<out L, out R> {
 // Either accept the left argument or the right argument type. Left is tried first.
 class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, name: String = "") : ArgumentType<Either<L, R>>() {
     override val name = if (name.isNotBlank()) name else "${left.name} | ${right.name}"
-    override val consumptionType = ConsumptionType.Multiple
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Either<L, R>> {
         val leftResult = left.convert(arg, args, event)
