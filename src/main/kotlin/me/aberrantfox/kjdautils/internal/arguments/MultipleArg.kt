@@ -5,29 +5,32 @@ import me.aberrantfox.kjdautils.internal.command.*
 
 class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentType<List<T>>() {
     override val name = if (name.isNotBlank()) name else "${base.name}..."
-    override val consumptionType = ConsumptionType.Multiple
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<T>> {
         val totalResult = mutableListOf<T>()
-        val totalConsumed = mutableListOf<String>()
+        var totalConsumed = 0
+        val remainingArgs = args.toMutableList()
 
-        args.forEach {
-            with(base.convert(it, args, event)) {
-                when (this) {
-                    is ArgumentResult.Success -> {
-                        totalResult.add(result)
+        complete@ while (remainingArgs.isNotEmpty()) {
+            val currentArg = remainingArgs.first()
+            val conversion = base.convert(currentArg, remainingArgs, event)
 
-                        if (consumed.isNotEmpty())
-                            totalConsumed.addAll(consumed)
-                        else
-                            totalConsumed.add(it)
+            when (conversion) {
+                is ArgumentResult.Success -> {
+                    totalResult.add(conversion.result)
+
+                    val consumed = conversion.consumed
+                    totalConsumed += consumed
+                    val argsConsumed = remainingArgs.subList(0, consumed)
+                    argsConsumed.forEach {
+                        remainingArgs.remove(it)
                     }
-                    is ArgumentResult.Error -> {
-                        if (totalResult.isEmpty())
-                            return ArgumentResult.Error(this.error)
-                        else
-                            return@forEach
-                    }
+                }
+                is ArgumentResult.Error -> {
+                    if (totalResult.isEmpty())
+                        return ArgumentResult.Error(conversion.error)
+
+                    break@complete
                 }
             }
         }

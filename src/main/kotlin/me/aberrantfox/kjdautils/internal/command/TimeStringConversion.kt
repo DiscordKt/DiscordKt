@@ -45,7 +45,7 @@ fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
         .map { (quantity, quantifier) -> quantity * timeStringToSeconds.getValue(quantifier) }
         .reduce { a, b -> a + b }
 
-    return ArgumentResult.Success(timeInSeconds, consumed)
+    return ArgumentResult.Success(timeInSeconds, consumed.size)
 }
 
 private fun toTimeElement(element: String): Any? = toBoth(element) ?: toQuantifier(element) ?: toQuantity(element)

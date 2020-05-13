@@ -8,8 +8,6 @@ import net.dv8tion.jda.api.entities.*
 open class MessageArg(override val name: String = "Message") : ArgumentType<Message>() {
     companion object : MessageArg()
 
-    override val consumptionType = ConsumptionType.Single
-
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Message> {
         val regex = "https:\\/\\/discordapp.com\\/channels\\/\\d+\\/\\d+\\/\\d+".toRegex()
         val isLink = regex.matches(arg)
