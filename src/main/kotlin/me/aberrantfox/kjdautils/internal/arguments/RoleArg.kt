@@ -8,8 +8,6 @@ import net.dv8tion.jda.api.entities.Role
 open class RoleArg(override val name: String = "Role", private val guildId: String = "") : ArgumentType<Role>() {
     companion object : RoleArg()
 
-    override val consumptionType = ConsumptionType.Multiple
-
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
         if (arg.trimToID().isLong()) {
             val role = event.discord.jda.getRoleById(arg.trimToID())
@@ -35,7 +33,7 @@ open class RoleArg(override val name: String = "Role", private val guildId: Stri
             1 -> {
                 val role = result.first()
                 val argList = args.take(role.name.split(" ").size)
-                ArgumentResult.Success(role, argList)
+                ArgumentResult.Success(role, argList.size)
             }
             else -> ArgumentResult.Error("Resolving role by name returned multiple matches. Please use an ID.")
         }

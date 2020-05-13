@@ -8,8 +8,6 @@ import net.dv8tion.jda.api.entities.Category
 open class CategoryArg(override val name: String = "Category", private val guildId: String = "") : ArgumentType<Category>() {
     companion object : CategoryArg()
 
-    override val consumptionType = ConsumptionType.Multiple
-
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
         if (arg.trimToID().isLong()) {
             val category = event.discord.jda.getCategoryById(arg.trimToID())
@@ -34,7 +32,7 @@ open class CategoryArg(override val name: String = "Category", private val guild
             1 -> {
                 val category = result.first()
                 val argList = args.take(category.name.split(" ").size)
-                ArgumentResult.Success(category, argList)
+                ArgumentResult.Success(category, argList.size)
             }
             else -> ArgumentResult.Error("Resolving category by name returned multiple matches. Please use an ID.")
         }

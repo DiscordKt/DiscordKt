@@ -7,8 +7,6 @@ import me.aberrantfox.kjdautils.internal.command.*
 open class UrlArg(override val name: String = "URL") : ArgumentType<String>() {
     companion object : UrlArg()
 
-    override val consumptionType = ConsumptionType.Single
-
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         return if (arg.containsURl())
             ArgumentResult.Success(arg)

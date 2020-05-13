@@ -8,7 +8,8 @@ class Command(val names: List<String>,
               var expectedArgs: ArgumentCollection<*> = args(),
               private var execute: (CommandEvent<*>) -> Unit = {},
               var requiresGuild: Boolean = false,
-              var description: String = "No Description Provider") {
+              var description: String = "No Description Provider",
+              var isFlexible: Boolean = false) {
 
     val parameterCount: Int
         get() = this.expectedArgs.size

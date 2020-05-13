@@ -7,8 +7,6 @@ import java.awt.Color
 open class HexColorArg(override val name: String = "Hex Color") : ArgumentType<Color>() {
     companion object : HexColorArg()
 
-    override val consumptionType = ConsumptionType.Single
-
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Color> {
         if (arg.length !in 6..7) return ArgumentResult.Error("Invalid format. Hex colors are 6 digits in length.")
 

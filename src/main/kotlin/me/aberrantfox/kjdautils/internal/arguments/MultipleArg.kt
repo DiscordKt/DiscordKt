@@ -5,11 +5,10 @@ import me.aberrantfox.kjdautils.internal.command.*
 
 class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentType<List<T>>() {
     override val name = if (name.isNotBlank()) name else "${base.name}..."
-    override val consumptionType = ConsumptionType.Multiple
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<T>> {
         val totalResult = mutableListOf<T>()
-        val totalConsumed = mutableListOf<String>()
+        var totalConsumed = 0
         val remainingArgs = args.toMutableList()
 
         complete@ while (remainingArgs.isNotEmpty()) {
@@ -19,10 +18,13 @@ class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentTyp
             when (conversion) {
                 is ArgumentResult.Success -> {
                     totalResult.add(conversion.result)
+                    val consumed = conversion.consumed
+                    totalConsumed += consumed
+                    val argsConsumed = remainingArgs.subList(0, consumed)
 
-                    val consumed = conversion.consumed.takeIf { it.isNotEmpty() } ?: listOf(currentArg)
-                    totalConsumed.addAll(consumed)
-                    consumed.forEach { remainingArgs.remove(it) }
+                    argsConsumed.forEach {
+                        remainingArgs.remove(it)
+                    }
                 }
                 is ArgumentResult.Error -> {
                     if (totalResult.isEmpty())

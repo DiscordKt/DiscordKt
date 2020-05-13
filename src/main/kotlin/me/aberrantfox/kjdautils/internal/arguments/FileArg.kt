@@ -7,8 +7,6 @@ import java.io.File
 open class FileArg(override val name: String = "File") : ArgumentType<File>() {
     companion object : FileArg()
 
-    override val consumptionType = ConsumptionType.None
-
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<File> {
         val attachments = event.message.attachments
 
@@ -17,7 +15,7 @@ open class FileArg(override val name: String = "File") : ArgumentType<File>() {
 
         val file = attachments.first().downloadToFile().get()
 
-        return ArgumentResult.Success(file)
+        return ArgumentResult.Success(file, 0)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("File")

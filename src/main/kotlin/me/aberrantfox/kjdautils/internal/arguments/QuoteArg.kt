@@ -6,8 +6,6 @@ import me.aberrantfox.kjdautils.internal.command.*
 open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>() {
     companion object : QuoteArg()
 
-    override val consumptionType = ConsumptionType.Multiple
-
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
 
         val quotationMark = '"'
@@ -28,9 +26,8 @@ open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>(
 
         val quote = rawQuote.trim(quotationMark)
         val consumedCount = quote.split(" ").size
-        val consumed = args.take(consumedCount)
 
-        return ArgumentResult.Success(quote, consumed)
+        return ArgumentResult.Success(quote, consumedCount)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("\"A Quote\"")

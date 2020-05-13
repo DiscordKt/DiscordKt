@@ -6,8 +6,6 @@ import me.aberrantfox.kjdautils.internal.command.*
 open class CharArg(override val name: String = "Character") : ArgumentType<Char>() {
     companion object : CharArg()
 
-    override val consumptionType = ConsumptionType.Single
-
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Char> {
         return if (arg.length == 1)
             ArgumentResult.Success(arg[0])

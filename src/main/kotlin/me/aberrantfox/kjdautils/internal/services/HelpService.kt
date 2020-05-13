@@ -59,12 +59,6 @@ class HelpService(private val container: CommandsContainer, private val config: 
     private fun generateRecommendationEmbed(query: String, event: CommandEvent<*>) =
         CommandRecommender.buildRecommendationEmbed(query) { it.isVisible(event) }
 
-    private fun generateStructure(command: Command) =
-        command.expectedArgs.arguments.joinToString(" ") {
-            val type = it.name
-            if (it.isOptional) "($type)" else "[$type]"
-        }
-
     private fun generateExample(command: Command, event: CommandEvent<*>) =
         command.expectedArgs.arguments.joinToString(" ") {
             val examples = it.generateExamples(event)
@@ -83,3 +77,9 @@ class HelpService(private val container: CommandsContainer, private val config: 
     private fun Command.isVisible(event: CommandEvent<*>) =
         config.visibilityPredicate(this, event.author, event.channel, event.guild)
 }
+
+internal fun generateStructure(command: Command) =
+    command.expectedArgs.arguments.joinToString(" ") {
+        val type = it.name
+        if (it.isOptional) "($type)" else "[$type]"
+    }

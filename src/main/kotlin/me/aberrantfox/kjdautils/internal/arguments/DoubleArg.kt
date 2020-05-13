@@ -7,8 +7,6 @@ import kotlin.random.Random
 open class DoubleArg(override val name: String = "Decimal") : ArgumentType<Double>() {
     companion object : DoubleArg()
 
-    override val consumptionType = ConsumptionType.Single
-
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Double> {
         val double = arg.toDoubleOrNull()
             ?: return ArgumentResult.Error("Expected a decimal number, got $arg")

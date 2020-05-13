@@ -8,8 +8,6 @@ import net.dv8tion.jda.api.entities.*
 open class VoiceChannelArg(override val name: String = "The ID of any valid voice channel.") : ArgumentType<VoiceChannel>() {
     companion object : VoiceChannelArg()
 
-    override val consumptionType = ConsumptionType.Single
-
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<VoiceChannel> {
         val channel = event.discord.jda.getVoiceChannelById(arg.trimToID())
             ?: return ArgumentResult.Error("Couldn't retrieve voice channel: $arg")

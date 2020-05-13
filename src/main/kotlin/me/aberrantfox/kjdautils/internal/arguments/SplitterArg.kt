@@ -6,14 +6,12 @@ import me.aberrantfox.kjdautils.internal.command.*
 open class SplitterArg(override val name: String = "(Separated|Text)") : ArgumentType<List<String>>() {
     companion object : SplitterArg()
 
-    override val consumptionType = ConsumptionType.All
-
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<String>> {
         val joined = args.joinToString(" ")
 
-        if (!joined.contains(separatorCharacter)) return ArgumentResult.Success(listOf(joined), args)
+        if (!joined.contains(separatorCharacter)) return ArgumentResult.Success(listOf(joined), args.size)
 
-        return ArgumentResult.Success(joined.split(separatorCharacter).toList(), args)
+        return ArgumentResult.Success(joined.split(separatorCharacter).toList(), args.size)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("one | two | three")

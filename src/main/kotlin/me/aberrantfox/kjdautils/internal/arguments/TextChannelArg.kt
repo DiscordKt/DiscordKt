@@ -8,8 +8,6 @@ import net.dv8tion.jda.api.entities.TextChannel
 open class TextChannelArg(override val name: String = "TextChannel") : ArgumentType<TextChannel>() {
     companion object : TextChannelArg()
 
-    override val consumptionType = ConsumptionType.Single
-
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<TextChannel> {
         val channel = tryRetrieveSnowflake(event.discord.jda) {
             it.getTextChannelById(arg.trimToID())
