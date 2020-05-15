@@ -5,13 +5,16 @@ import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
 import me.aberrantfox.kjdautils.internal.command.*
 import net.dv8tion.jda.api.entities.TextChannel
 
-open class TextChannelArg(override val name: String = "TextChannel") : ArgumentType<TextChannel>() {
+open class TextChannelArg(override val name: String = "TextChannel", private val allowsGlobal: Boolean = false) : ArgumentType<TextChannel>() {
     companion object : TextChannelArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<TextChannel> {
         val channel = tryRetrieveSnowflake(event.discord.jda) {
             it.getTextChannelById(arg.trimToID())
         } as TextChannel? ?: return ArgumentResult.Error("Couldn't retrieve text channel: $arg")
+
+        if (!allowsGlobal && channel.guild.id != event.guild?.id)
+            return ArgumentResult.Error("Text channel must be from this guild.")
 
         return ArgumentResult.Success(channel)
     }

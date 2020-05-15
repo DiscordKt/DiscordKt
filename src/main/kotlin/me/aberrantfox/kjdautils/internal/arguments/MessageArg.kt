@@ -5,15 +5,18 @@ import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
 import me.aberrantfox.kjdautils.internal.command.*
 import net.dv8tion.jda.api.entities.*
 
-open class MessageArg(override val name: String = "Message") : ArgumentType<Message>() {
+open class MessageArg(override val name: String = "Message", private val allowsGlobal: Boolean = false) : ArgumentType<Message>() {
     companion object : MessageArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Message> {
-        val regex = "https:\\/\\/discordapp.com\\/channels\\/\\d+\\/\\d+\\/\\d+".toRegex()
+        val regex = "https://discordapp.com/channels/\\d+/\\d+/\\d+".toRegex()
         val isLink = regex.matches(arg)
 
         val message = if (isLink) {
             val (guildId, channelId, messageId) = arg.split("/").takeLast(3)
+
+            if (!allowsGlobal && guildId != event.guild?.id)
+                return ArgumentResult.Error("Message links must be from this guild.")
 
             val guild = event.discord.jda.guilds.firstOrNull { it.id == guildId }
                 ?: return ArgumentResult.Error("No mutual guilds with the message link provided.")

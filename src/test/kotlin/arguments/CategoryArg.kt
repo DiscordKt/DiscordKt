@@ -5,7 +5,7 @@ import mock.*
 import utilities.ArgumentTestFactory
 
 class CategoryArgTest : ArgumentTestFactory {
-    override val argumentType = CategoryArg
+    override val argumentType = CategoryArg(guildId = FakeIds.Guild)
 
     override val validArgs = listOf(
         FakeIds.Category to singleCategoryMock,

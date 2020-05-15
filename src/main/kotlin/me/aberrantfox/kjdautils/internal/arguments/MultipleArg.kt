@@ -20,11 +20,8 @@ class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentTyp
                     totalResult.add(conversion.result)
                     val consumed = conversion.consumed
                     totalConsumed += consumed
-                    val argsConsumed = remainingArgs.subList(0, consumed)
 
-                    argsConsumed.forEach {
-                        remainingArgs.remove(it)
-                    }
+                    remainingArgs.subList(0, consumed).toList().forEach { remainingArgs.remove(it) }
                 }
                 is ArgumentResult.Error -> {
                     if (totalResult.isEmpty())

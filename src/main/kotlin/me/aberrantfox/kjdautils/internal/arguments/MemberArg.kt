@@ -1,22 +1,22 @@
 package me.aberrantfox.kjdautils.internal.arguments
 
 import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
-import me.aberrantfox.kjdautils.extensions.jda.toMember
 import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
 import me.aberrantfox.kjdautils.internal.command.*
 import net.dv8tion.jda.api.entities.Member
 
-open class MemberArg(override val name: String = "Member") : ArgumentType<Member>() {
+open class MemberArg(override val name: String = "Member", private val allowsBot: Boolean = false) : ArgumentType<Member>() {
     companion object : MemberArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Member> {
-        val user = event.discord.jda.getUserById(arg.trimToID())
-            ?: return ArgumentResult.Error("$arg does not share a common guild.")
+        val guild = event.guild ?: return ArgumentResult.Error("Member's can only belong to guilds.")
+        val id = arg.trimToID()
 
-        if (user.isBot) return ArgumentResult.Error("The target user cannot be a bot.")
+        val member = guild.getMemberById(id)
+            ?: return ArgumentResult.Error("Could not find a member in this guild with ID $id")
 
-        val member = user.toMember(event.guild!!)
-            ?: return ArgumentResult.Error("The target user is not in this guild.")
+        if (!allowsBot && member.user.isBot)
+            return ArgumentResult.Error("A bot is not a valid member arg.")
 
         return ArgumentResult.Success(member)
     }

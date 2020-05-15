@@ -5,19 +5,21 @@ import me.aberrantfox.kjdautils.extensions.stdlib.*
 import me.aberrantfox.kjdautils.internal.command.*
 import net.dv8tion.jda.api.entities.Role
 
-open class RoleArg(override val name: String = "Role", private val guildId: String = "") : ArgumentType<Role>() {
+open class RoleArg(override val name: String = "Role", private val guildId: String = "", private val allowsGlobal: Boolean = false) : ArgumentType<Role>() {
     companion object : RoleArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
         if (arg.trimToID().isLong()) {
             val role = event.discord.jda.getRoleById(arg.trimToID())
 
+            if (!allowsGlobal && guildId != event.guild?.id)
+                return ArgumentResult.Error("Roles must be from this guild.")
+
             if (role != null)
                 return ArgumentResult.Success(role)
         }
 
-        val guild = if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild
-        guild
+        val guild = (if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild)
             ?: return ArgumentResult.Error("Cannot resolve a role by name from a DM. Please invoke in a guild or use an ID.")
 
         val argString = args.joinToString(" ").toLowerCase()

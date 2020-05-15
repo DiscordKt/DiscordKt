@@ -14,31 +14,48 @@ sealed class Result {
 private fun convertOptional(arg: ArgumentType<*>, event: CommandEvent<*>) = arg.defaultValue?.invoke(event)
 
 internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<*>>, event: CommandEvent<*>): Result {
-    val remaining = actual.toMutableList().filter { it.isNotBlank() }.toMutableList()
+    val remainingArgs = actual.toMutableList().filter { it.isNotBlank() }.toMutableList()
+    val expectation = "Expected: `${generateStructure(event.command!!)}`"
 
     val converted = expected.map { expectedArg ->
-        val firstArg = remaining.firstOrNull() ?: ""
-        val result = expectedArg.convert(firstArg, remaining, event)
+        if (remainingArgs.isEmpty()) {
+            if (expectedArg.isOptional)
+                convertOptional(expectedArg, event)
+            else {
+                val conversion = expectedArg.convert("", emptyList(), event)
+                    .takeIf { it is ArgumentResult.Success && it.consumed == 0 }
+                    ?: return Error("Received less arguments than expected. $expectation")
 
-        when (result) {
-            is ArgumentResult.Success -> {
-                if (result.consumed > remaining.size)
-                    return Error("Ran out of arguments. Expected: `${generateStructure(event.command!!)}`")
-
-                remaining.subList(0, result.consumed).toList().forEach { remaining.remove(it) }
-                result.result
+                (conversion as ArgumentResult.Success).result
             }
-            is ArgumentResult.Error -> {
-                if (expectedArg.isOptional)
-                    convertOptional(expectedArg, event)
-                else
-                    return Error(result.error)
+        }
+        else {
+            val firstArg = remainingArgs.first()
+            val result = expectedArg.convert(firstArg, remainingArgs, event)
+
+            when (result) {
+                is ArgumentResult.Success -> {
+                    if (result.consumed > remainingArgs.size) {
+                        if (!expectedArg.isOptional)
+                            return Error("Received less arguments than expected. $expectation")
+                    }
+                    else
+                        remainingArgs.subList(0, result.consumed).toList().forEach { remainingArgs.remove(it) }
+
+                    result.result
+                }
+                is ArgumentResult.Error -> {
+                    if (expectedArg.isOptional)
+                        convertOptional(expectedArg, event)
+                    else
+                        return Error(result.error)
+                }
             }
         }
     }
 
-    if (remaining.isNotEmpty())
-        return Error("Received more arguments than expected. Try using `help`")
+    if (remainingArgs.isNotEmpty())
+        return Error("Received more arguments than expected. $expectation")
 
     return Success(converted as List<Any>)
 }
