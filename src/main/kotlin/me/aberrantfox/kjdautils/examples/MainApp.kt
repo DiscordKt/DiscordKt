@@ -1,13 +1,7 @@
 package me.aberrantfox.kjdautils.examples
 
-import com.google.gson.Gson
-import me.aberrantfox.kjdautils.api.annotation.CommandSet
-import me.aberrantfox.kjdautils.api.dsl.*
-import me.aberrantfox.kjdautils.api.dsl.command.commands
+import me.aberrantfox.kjdautils.api.dsl.PrefixDeleteMode
 import me.aberrantfox.kjdautils.api.startBot
-import me.aberrantfox.kjdautils.extensions.jda.fullName
-import me.aberrantfox.kjdautils.internal.arguments.*
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import java.awt.Color
 
 fun main(args: Array<String>) {
@@ -64,17 +58,6 @@ fun main(args: Array<String>) {
             visibilityPredicate {
                 it.command.names.first().length < 50
             }
-        }
-    }
-}
-
-@CommandSet("Utility")
-fun utilityCommands() = commands {
-    //Command with no args and multiple names
-    command("Version", "V") {
-        description = "Display the version."
-        execute {
-            it.respond(it.discord.properties.version)
         }
     }
 }
