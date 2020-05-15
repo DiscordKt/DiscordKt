@@ -9,11 +9,24 @@ internal class Validator {
         fun validateCommandMeta(commandsContainer: CommandsContainer) {
             commandsContainer.commands.forEach { command ->
                 val args = command.expectedArgs.arguments
+                val commandName = command.names.first()
 
                 args.filterIsInstance<EitherArg<*, *>>().forEach {
                     if (it.left == it.right) {
                         val arg = it.left::class.toString().substringAfterLast(".").substringBefore("$")
-                        InternalLogger.error("Detected EitherArg with identical args ($arg) in command: ${command.names.first()}")
+                        InternalLogger.error("Detected EitherArg with identical args ($arg) in command: $commandName")
+                    }
+                }
+
+                if (command.isFlexible) {
+                    if (args.size < 2)
+                        InternalLogger.error("Flexible commands must accept at least 2 arguments ($commandName)")
+                    else {
+                        val actualCount = args.size
+                        val distinctCount = args.distinct().size
+
+                        if (distinctCount != actualCount)
+                            InternalLogger.error("Flexible commands must accept distinct arguments ($commandName)")
                     }
                 }
             }
