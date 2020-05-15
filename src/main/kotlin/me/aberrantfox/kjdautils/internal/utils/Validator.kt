@@ -7,9 +7,31 @@ import me.aberrantfox.kjdautils.internal.arguments.EitherArg
 internal class Validator {
     companion object {
         fun validateCommandMeta(commandsContainer: CommandsContainer) {
-            commandsContainer.commands.forEach { command ->
+            val commands = commandsContainer.commands
+
+            val duplicates = commands
+                .flatMap { it.names }
+                .groupingBy { it }
+                .eachCount()
+                .filter { it.value > 1 }
+                .map { it.key }
+                .joinToString { "\"$it\"" }
+
+            if (duplicates.isNotEmpty())
+                InternalLogger.error("Found commands with duplicate names: $duplicates")
+
+            commands.forEach { command ->
                 val args = command.expectedArgs.arguments
                 val commandName = command.names.first()
+
+                if (command.names.any { it.isBlank() })
+                    InternalLogger.error("Found command with blank name in CommandSet ${command.category}")
+                else {
+                    val spaces = command.names.filter { " " in it }
+
+                    if (spaces.isNotEmpty())
+                        InternalLogger.error("Found command name with spaces: ${spaces.joinToString { "\"$it\"" }}")
+                }
 
                 args.filterIsInstance<EitherArg<*, *>>().forEach {
                     if (it.left == it.right) {
