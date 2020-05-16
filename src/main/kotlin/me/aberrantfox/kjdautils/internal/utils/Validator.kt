@@ -4,6 +4,8 @@ import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.command.CommandsContainer
 import me.aberrantfox.kjdautils.internal.arguments.EitherArg
 
+internal val emojiRegex = "[^\\x00-\\x7F]+ *(?:[^\\x00-\\x7F]| )*".toRegex()
+
 internal class Validator {
     companion object {
         fun validateCommandMeta(commandsContainer: CommandsContainer) {
@@ -56,7 +58,6 @@ internal class Validator {
 
         fun validateReaction(config: KConfiguration) {
             val currentReaction = config.commandReaction ?: return
-            val emojiRegex = "[^\\x00-\\x7F]+ *(?:[^\\x00-\\x7F]| )*".toRegex()
             val isValid = emojiRegex.matches(currentReaction)
 
             if (!isValid) {
