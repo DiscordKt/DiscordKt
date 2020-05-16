@@ -1,33 +1,32 @@
 package me.aberrantfox.kjdautils.internal.command
 
-import me.aberrantfox.kjdautils.api.dsl.KConfiguration
-import me.aberrantfox.kjdautils.api.dsl.command.Command
-import me.aberrantfox.kjdautils.internal.arguments.Manual
+data class RawInputs(
+    val rawMessageContent: String,
+    val commandName: String,
+    val commandArgs: List<String> = listOf(),
+    val prefixCount: Int)
 
-data class CommandStruct(val commandName: String,
-                         val commandArgs: List<String> = listOf(),
-                         val doubleInvocation: Boolean)
+fun stripPrefixInvocation(message: String, prefix: String): RawInputs {
+    val prefixSeq = generateSequence(prefix) { it + prefix }
+    val prefixBlock = prefixSeq.takeWhile { message.startsWith(it) }.last()
+    val trimmed = message.removePrefix(prefixBlock)
+    val invocationCount = (message.length - trimmed.length) / prefix.length
 
-fun stripPrefixInvocation(message: String, config: KConfiguration): CommandStruct {
-    val doubleInvocation = message.startsWith(config.prefix + config.prefix)
-    val prefix = if (doubleInvocation) config.prefix + config.prefix else config.prefix
-    val trimmedMessage = message.substringAfter(prefix)
-
-    return produceCommandStruct(trimmedMessage, doubleInvocation)
+    return produceCommandStruct(message, trimmed, invocationCount)
 }
 
-fun stripMentionInvocation(message: String): CommandStruct {
+fun stripMentionInvocation(message: String): RawInputs {
     val trimmedMessage = message.substringAfter(">").trimStart()
-    return produceCommandStruct(trimmedMessage)
+    return produceCommandStruct(message, trimmedMessage)
 }
 
-private fun produceCommandStruct(message: String, doubleInvocation: Boolean = false): CommandStruct {
+private fun produceCommandStruct(raw: String, message: String, invocationCount: Int = 1): RawInputs {
     if (!message.contains(" ")) {
-        return CommandStruct(message.toLowerCase(), listOf(), doubleInvocation)
+        return RawInputs(raw, message.toLowerCase(), listOf(), invocationCount)
     }
 
     val commandName = message.substring(0, message.indexOf(" ")).toLowerCase()
     val commandArgs = message.substring(message.indexOf(" ") + 1).split(" ")
 
-    return CommandStruct(commandName, commandArgs, doubleInvocation)
+    return RawInputs(raw, commandName, commandArgs, invocationCount)
 }

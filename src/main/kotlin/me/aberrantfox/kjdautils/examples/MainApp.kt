@@ -1,6 +1,5 @@
 package me.aberrantfox.kjdautils.examples
 
-import me.aberrantfox.kjdautils.api.dsl.PrefixDeleteMode
 import me.aberrantfox.kjdautils.api.startBot
 import java.awt.Color
 
@@ -11,16 +10,15 @@ fun main(args: Array<String>) {
     startBot(token) {
         configure {
             //The prefix for commands that your bot will respond to
-            prefix = "!"
+            prefix {
+                "+"
+            }
 
             //Whether or not mentioning the bot can be used as a prefix
             allowMentionPrefix = false
 
             //The emoji that the bot will react on invocations; null for none
             commandReaction = "\uD83D\uDC40"
-
-            //Which invocations should be deleted (by number of prefixes)
-            deleteMode = PrefixDeleteMode.None
 
             //Whether or not error messages should be deleted after sending
             deleteErrors = false
@@ -37,11 +35,11 @@ fun main(args: Array<String>) {
 
             //An embed produced when the bot is mentioned
             mentionEmbed { event ->
-                val self = event.guild.jda.selfUser
+                val self = event.discord.jda.selfUser
 
                 color = Color(0x00bfff)
                 thumbnail = self.effectiveAvatarUrl
-                addInlineField("Prefix", prefix)
+                addInlineField("Prefix", event.relevantPrefix)
 
                 with(discord.properties) {
                     addField("Build Info", "```" +

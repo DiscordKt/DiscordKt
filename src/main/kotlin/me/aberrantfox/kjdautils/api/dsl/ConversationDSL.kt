@@ -3,20 +3,11 @@ package me.aberrantfox.kjdautils.api.dsl
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
-import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
-import me.aberrantfox.kjdautils.api.dsl.command.CommandsContainer
-import me.aberrantfox.kjdautils.api.dsl.command.DiscordContext
+import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.Discord
-import me.aberrantfox.kjdautils.extensions.jda.sendPrivateMessage
-import me.aberrantfox.kjdautils.internal.command.ArgumentResult
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
-import me.aberrantfox.kjdautils.internal.command.CommandStruct
+import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.services.ConversationResult
-import me.aberrantfox.kjdautils.internal.utils.InternalLogger
-import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.MessageEmbed
-import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.exceptions.ErrorResponseException
+import net.dv8tion.jda.api.entities.*
 
 private class ExitException : Exception("Conversation exited early.")
 private class DmException : Exception("Message failed to deliver.")
@@ -74,10 +65,9 @@ data class ConversationStateContainer(val user: User,
     }
 
     private fun parseResponse(argumentType: ArgumentType<*>, message: Message): ArgumentResult<*> {
-        val commandStruct = CommandStruct("", message.contentStripped.split(" "), false)
-        val discordContext = DiscordContext(false, discord, message)
-        val commandEvent = CommandEvent<Nothing>(commandStruct, CommandsContainer(), discordContext)
-        return argumentType.convert(message.contentStripped, commandEvent.commandStruct.commandArgs, commandEvent)
+        val rawInputs = RawInputs(message.contentRaw, "", message.contentStripped.split(" "), 0)
+        val commandEvent = CommandEvent<Nothing>(rawInputs, CommandsContainer(), DiscordContext(discord, message))
+        return argumentType.convert(message.contentStripped, commandEvent.rawInputs.commandArgs, commandEvent)
     }
 
     private fun sendPrompt(prompt: Any) {
