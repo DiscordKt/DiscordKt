@@ -35,7 +35,7 @@ fun specialCommands() = commands {
     //This command accepts no text arguments but will check the message for a file attachment
     command("File") {
         description = "Input a file and display its name."
-        execute(FileArg, IntegerArg) {
+        execute(FileArg) {
             val file = it.args.first
             it.respond(file.name)
         }

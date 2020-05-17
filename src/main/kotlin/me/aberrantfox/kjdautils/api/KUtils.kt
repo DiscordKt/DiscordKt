@@ -59,7 +59,7 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
 
         //Add KUtils help command if a command named "Help" is not already provided
         val helpService = HelpService(localContainer, config)
-        localContainer["Help"] ?: localContainer.join(helpService.produceHelpCommandContainer())
+        localContainer["Help"] ?: localContainer + helpService.produceHelpCommandContainer()
 
         CommandRecommender.addAll(localContainer.commands)
 

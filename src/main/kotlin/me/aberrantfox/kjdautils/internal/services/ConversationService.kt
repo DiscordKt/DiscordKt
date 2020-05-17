@@ -73,7 +73,8 @@ class ConversationService(val discord: Discord) {
 
         activeConversations[user.id] = conversation
 
-        val state = ConversationStateContainer(user, discord)
+        val channel = user.openPrivateChannel().complete()
+        val state = ConversationStateContainer(user, discord, channel)
 
         return conversation.start(state) {
             activeConversations.remove(user.id)

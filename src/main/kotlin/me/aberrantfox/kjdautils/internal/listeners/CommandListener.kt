@@ -41,7 +41,7 @@ internal class CommandListener(private val config: KConfiguration,
         if (!config.allowPrivateMessages && message.channelType == ChannelType.PRIVATE) return
 
         val content = message.contentRaw
-        val discordContext = DiscordContext(discord, message, author, channel, guild)
+        val discordContext = DiscordContext(discord, message)
         val prefix = config.prefix.invoke(discordContext)
 
         val rawInputs = when {

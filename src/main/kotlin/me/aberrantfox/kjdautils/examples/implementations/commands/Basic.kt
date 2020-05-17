@@ -21,7 +21,7 @@ fun basicCommands() = commands {
     command("Version", "V") {
         description = "Display the version."
         execute {
-            it.respond(it.discord.properties.version)
+            it.respond(it.discord.properties.kutilsVersion)
         }
     }
 

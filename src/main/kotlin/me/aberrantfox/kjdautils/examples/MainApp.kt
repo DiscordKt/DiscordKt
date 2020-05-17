@@ -11,7 +11,7 @@ fun main(args: Array<String>) {
         configure {
             //The prefix for commands that your bot will respond to
             prefix {
-                "+"
+                "!"
             }
 
             //Whether or not mentioning the bot can be used as a prefix
@@ -43,7 +43,7 @@ fun main(args: Array<String>) {
 
                 with(discord.properties) {
                     addField("Build Info", "```" +
-                        "KUtils: $version\n" +
+                        "KUtils: $kutilsVersion\n" +
                         "Kotlin: $kotlinVersion\n" +
                         "JDA:    $jdaVersion\n" +
                         "```")

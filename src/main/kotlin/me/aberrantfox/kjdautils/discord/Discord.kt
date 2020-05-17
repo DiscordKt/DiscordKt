@@ -6,7 +6,7 @@ import me.aberrantfox.kjdautils.internal.event.EventRegister
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.MessageEmbed
 
-data class KUtilsProperties(val version: String, val kotlinVersion: String, val jdaVersion: String, val repository: String)
+data class KUtilsProperties(val kutilsVersion: String, val kotlinVersion: String, val jdaVersion: String, val repository: String)
 private val propFile = KUtilsProperties::class.java.getResource("/kutils-properties.json").readText()
 
 abstract class Discord {

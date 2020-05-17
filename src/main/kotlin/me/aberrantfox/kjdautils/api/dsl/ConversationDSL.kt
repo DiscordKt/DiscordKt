@@ -7,6 +7,7 @@ import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.internal.command.*
 import me.aberrantfox.kjdautils.internal.services.ConversationResult
+import me.aberrantfox.kjdautils.internal.utils.Responder
 import net.dv8tion.jda.api.entities.*
 
 private class ExitException : Exception("Conversation exited early.")
@@ -14,7 +15,8 @@ private class DmException : Exception("Message failed to deliver.")
 
 data class ConversationStateContainer(val user: User,
                                       val discord: Discord,
-                                      var exitString: String? = null) {
+                                      override val channel: MessageChannel,
+                                      var exitString: String? = null) : Responder {
 
     private val inputChannel = Channel<Message>()
 
@@ -77,14 +79,6 @@ data class ConversationStateContainer(val user: User,
             else -> throw IllegalArgumentException("Prompt must be a String or a MessageEmbed")
         }
     }
-
-    @Throws(DmException::class)
-    fun respond(message: String) = try { user.openPrivateChannel().complete().sendMessage(message).complete() }
-    catch (e: Exception) { throw DmException() }
-
-    @Throws(DmException::class)
-    fun respond(embed: MessageEmbed) = try { user.openPrivateChannel().complete().sendMessage(embed).complete() }
-    catch (e: Exception) { throw DmException() }
 }
 
 class ConversationBuilder(private val exitString: String?, private val block: (ConversationStateContainer) -> Unit) {
