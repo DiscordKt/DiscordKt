@@ -19,15 +19,14 @@ enum class ConversationResult {
     EXITED
 }
 
+data class ConversationContext(val userId: String, val channelId: String)
+
 class ConversationService(val discord: Discord) {
     @PublishedApi
     internal val availableConversations = mutableMapOf<Class<out Conversation>, Pair<Conversation, Method>>()
 
     @PublishedApi
-    internal val activeConversations = mutableMapOf<String, ConversationBuilder>()
-
-    private fun getConversation(user: User) = activeConversations[user.id]
-    fun hasConversation(user: User) = activeConversations[user.id] != null
+    internal val activeConversations = mutableMapOf<ConversationContext, ConversationBuilder>()
 
     internal fun registerConversations(path: String) {
         val startFunctions = Reflections(path, MethodAnnotationsScanner())
@@ -61,29 +60,52 @@ class ConversationService(val discord: Discord) {
         println(availableConversations.size.pluralize("Conversation"))
     }
 
-    inline fun <reified T : Conversation> startConversation(user: User, vararg arguments: Any): ConversationResult {
-        if (user.mutualGuilds.isEmpty() || user.isBot)
-            return ConversationResult.INVALID_USER
+    private fun getConversation(user: User, channel: MessageChannel) = activeConversations[ConversationContext(user.id, channel.id)]
+    fun hasConversation(user: User, channel: MessageChannel) = getConversation(user, channel) != null
 
-        if (hasConversation(user))
-            return ConversationResult.HAS_CONVO
+    inline fun <reified T: Conversation> startConversation(stateContainer: ConversationStateContainer, vararg arguments: Any): ConversationResult {
+        val (_, user, channel) = stateContainer
+        val context = ConversationContext(user.id, channel.id)
 
         val (instance, function) = availableConversations[T::class.java]!!
         val conversation = function.invoke(instance, *arguments) as ConversationBuilder
 
-        activeConversations[user.id] = conversation
+        activeConversations[context] = conversation
+
+        return conversation.start(stateContainer) {
+            activeConversations.remove(context)
+        }
+    }
+
+    inline fun <reified T : Conversation> startPrivateConversation(user: User, vararg arguments: Any): ConversationResult {
+        if (user.mutualGuilds.isEmpty() || user.isBot)
+            return ConversationResult.INVALID_USER
 
         val channel = user.openPrivateChannel().complete()
-        val state = ConversationStateContainer(user, discord, channel)
 
-        return conversation.start(state) {
-            activeConversations.remove(user.id)
-        }
+        if (hasConversation(user, channel))
+            return ConversationResult.HAS_CONVO
+
+        val state = ConversationStateContainer(discord, user, channel)
+
+        return startConversation<T>(state, *arguments)
+    }
+
+    inline fun <reified T : Conversation> startPublicConversation(user: User, channel: MessageChannel, vararg arguments: Any): ConversationResult {
+        if (user.mutualGuilds.isEmpty() || user.isBot)
+            return ConversationResult.INVALID_USER
+
+        if (hasConversation(user, channel))
+            return ConversationResult.HAS_CONVO
+
+        val state = ConversationStateContainer(discord, user, channel)
+
+        return startConversation<T>(state, *arguments)
     }
 
     internal fun handleResponse(message: Message) {
         runBlocking {
-            val conversation = getConversation(message.author) ?: return@runBlocking
+            val conversation = getConversation(message.author, message.channel) ?: return@runBlocking
             conversation.acceptMessage(message)
         }
     }

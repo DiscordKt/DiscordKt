@@ -13,8 +13,8 @@ import net.dv8tion.jda.api.entities.*
 private class ExitException : Exception("Conversation exited early.")
 private class DmException : Exception("Message failed to deliver.")
 
-data class ConversationStateContainer(val user: User,
-                                      val discord: Discord,
+data class ConversationStateContainer(val discord: Discord,
+                                      val user: User,
                                       override val channel: MessageChannel,
                                       var exitString: String? = null) : Responder {
 

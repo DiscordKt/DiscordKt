@@ -6,21 +6,24 @@ import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
 import me.aberrantfox.kjdautils.internal.command.*
+import me.aberrantfox.kjdautils.internal.services.ConversationService
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 
-internal class CommandListener(private val config: KConfiguration,
-                               private val container: CommandsContainer,
+internal class CommandListener(private val container: CommandsContainer,
                                private val discord: Discord,
-                               private val executor: CommandExecutor,
+                               private val conversationService: ConversationService,
                                private val preconditions: MutableList<PreconditionData> = mutableListOf()) {
 
+    private val config = discord.configuration
+    private val executor = CommandExecutor()
+
     @Subscribe
-    fun guildMessageHandler(event: GuildMessageReceivedEvent) {
-        val author = event.author
-        val channel = event.channel
-        val message = event.message
+    fun guildMessageHandler(e: GuildMessageReceivedEvent) {
+        val author = e.author
+        val channel = e.channel
+        val message = e.message
 
         if (author.isBot) return
 
@@ -30,7 +33,7 @@ internal class CommandListener(private val config: KConfiguration,
             return
         }
 
-        handleMessage(channel, message, author, event.guild)
+        handleMessage(channel, message, author, e.guild)
     }
 
     @Subscribe
@@ -38,8 +41,6 @@ internal class CommandListener(private val config: KConfiguration,
             handleMessage(e.channel, e.message, e.author)
 
     private fun handleMessage(channel: MessageChannel, message: Message, author: User, guild: Guild? = null) {
-        if (!config.allowPrivateMessages && message.channelType == ChannelType.PRIVATE) return
-
         val content = message.contentRaw
         val discordContext = DiscordContext(discord, message)
         val prefix = config.prefix.invoke(discordContext)
@@ -47,10 +48,12 @@ internal class CommandListener(private val config: KConfiguration,
         val rawInputs = when {
             isPrefixInvocation(content, prefix) -> stripPrefixInvocation(content, prefix)
             isMentionInvocation(content) -> stripMentionInvocation(content)
-            else -> return
-        }
+            else -> null
+        } ?: return conversationService.handleResponse(message)
 
         val (_, commandName, actualArgs, _) = rawInputs
+
+        if (!config.allowPrivateMessages && message.channelType == ChannelType.PRIVATE) return
 
         if (commandName.isEmpty())
             return

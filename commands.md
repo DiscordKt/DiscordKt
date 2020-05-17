@@ -14,9 +14,10 @@
 | Version, V | <none>           | Display the version.      |
 
 ## Conversation Demo
-| Commands     | Arguments | Description                       |
-| ------------ | --------- | --------------------------------- |
-| Conversation | (User)    | Start a conversation with a user. |
+| Commands | Arguments | Description                                         |
+| -------- | --------- | --------------------------------------------------- |
+| Private  | (User)    | Start a conversation with the user in DM's.         |
+| Public   | (User)    | Start a conversation with the user in this channel. |
 
 ## DSL Demo
 | Commands | Arguments | Description               |

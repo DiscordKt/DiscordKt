@@ -76,10 +76,8 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
 
         fun registerListener(listener: Any) = EventRegister.eventBus.register(listener)
 
-        val conversationListener = ConversationListener(conversationService)
-        val commandListener = CommandListener(config, container, discord, CommandExecutor(), preconditions)
+        val commandListener = CommandListener(container, discord, conversationService, preconditions)
 
-        registerListener(conversationListener)
         registerListener(commandListener)
         listeners.forEach { registerListener(it) }
 

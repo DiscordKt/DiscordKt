@@ -31,23 +31,33 @@ class DemoConversation : Conversation() {
     }
 }
 
+//The following commands start the above conversations in different contexts.
 @CommandSet("Conversation Demo")
 fun conversationCommands(conversationService: ConversationService) = commands {
-    //This command starts the above conversation
-    command("Conversation") {
-        description = "Start a conversation with a user."
-        execute(UserArg(allowsBot = true).makeOptional { it.author }) {
-            val result = conversationService.startConversation<DemoConversation>(it.args.first)
+    command("Private") {
+        description = "Start a conversation with the user in DM's."
+        execute(UserArg.makeOptional { it.author }) {
+            val result = conversationService.startPrivateConversation<DemoConversation>(it.args.first)
+            val response = evaluateConversationResult(result)
+            it.respond(response)
+        }
+    }
 
-            val response = when (result) {
-                ConversationResult.COMPLETE -> "Conversation Completed!"
-                ConversationResult.EXITED -> "The conversation was exited by the user."
-                ConversationResult.INVALID_USER -> "User must share a guild and cannot be a bot."
-                ConversationResult.CANNOT_DM -> "User has DM's off or has blocked the bot."
-                ConversationResult.HAS_CONVO -> "This user already has a conversation."
-            }
-
+    command("Public") {
+        description = "Start a conversation with the user in this channel."
+        execute(UserArg.makeOptional { it.author }) {
+            val result = conversationService.startPublicConversation<DemoConversation>(it.args.first, it.channel)
+            val response = evaluateConversationResult(result)
             it.respond(response)
         }
     }
 }
+
+private fun evaluateConversationResult(conversationResult: ConversationResult) =
+    when (conversationResult) {
+        ConversationResult.COMPLETE -> "Conversation Completed!"
+        ConversationResult.EXITED -> "The conversation was exited by the user."
+        ConversationResult.INVALID_USER -> "User must share a guild and cannot be a bot."
+        ConversationResult.CANNOT_DM -> "User has DM's off or has blocked the bot."
+        ConversationResult.HAS_CONVO -> "This user already has a conversation."
+    }
