@@ -1,7 +1,6 @@
 package me.aberrantfox.kjdautils.internal.listeners
 
 import com.google.common.eventbus.Subscribe
-import me.aberrantfox.kjdautils.api.dsl.KConfiguration
 import me.aberrantfox.kjdautils.api.dsl.command.*
 import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
@@ -48,8 +47,8 @@ internal class CommandListener(private val container: CommandsContainer,
         val rawInputs = when {
             isPrefixInvocation(content, prefix) -> stripPrefixInvocation(content, prefix)
             isMentionInvocation(content) -> stripMentionInvocation(content)
-            else -> null
-        } ?: return conversationService.handleResponse(message)
+            else -> return conversationService.handleResponse(message)
+        }
 
         val (_, commandName, actualArgs, _) = rawInputs
 
@@ -58,7 +57,7 @@ internal class CommandListener(private val container: CommandsContainer,
         if (commandName.isEmpty())
             return
 
-        val event = CommandEvent<ArgumentContainer>(rawInputs, container, discordContext)
+        val event = CommandEvent<GenericContainer>(rawInputs, container, discordContext)
 
         getPreconditionError(event)?.let {
             if (it != "") {

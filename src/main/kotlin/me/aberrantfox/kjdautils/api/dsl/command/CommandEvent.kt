@@ -13,9 +13,9 @@ data class DiscordContext(val discord: Discord,
     val relevantPrefix: String = discord.configuration.prefix.invoke(this)
 }
 
-data class CommandEvent<T : ArgumentContainer>(val rawInputs: RawInputs,
-                                               val container: CommandsContainer,
-                                               private val discordContext: DiscordContext) : Responder {
+data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
+                                              val container: CommandsContainer,
+                                              private val discordContext: DiscordContext) : Responder {
     val discord = discordContext.discord
     val author = discordContext.author
     val message = discordContext.message
@@ -24,5 +24,5 @@ data class CommandEvent<T : ArgumentContainer>(val rawInputs: RawInputs,
     val command = container[rawInputs.commandName]
     val relevantPrefix = discordContext.relevantPrefix
 
-    var args: T = NoArg() as T
+    var args: T = NoArgs() as T
 }
