@@ -1,10 +1,8 @@
 package me.aberrantfox.kjdautils.internal.command
 
-import me.aberrantfox.kjdautils.api.dsl.command.*
+import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.Result.*
 import me.aberrantfox.kjdautils.internal.services.generateStructure
-
-const val separatorCharacter = "|"
 
 sealed class Result {
     data class Success(val results: List<Any>) : Result()

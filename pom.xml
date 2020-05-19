@@ -6,7 +6,7 @@
 
     <groupId>me.aberrantfox</groupId>
     <artifactId>KUtils</artifactId>
-    <version>0.16.0-SNAPSHOT</version>
+    <version>0.16.0</version>
 
     <properties>
         <!-- Meta -->
@@ -197,10 +197,8 @@
                 <configuration>
                     <groupId>com.gitlab.aberrantfox</groupId>
                     <artifactId>${project.artifactId}</artifactId>
-                    <version>${project.version}</version>
-                    <packaging>pom</packaging>
-                    <file>pom.xml</file>
-                    <localRepositoryPath>${settings.localRepository}</localRepositoryPath>
+                    <version>${project.version}-SNAPSHOT</version>
+                    <file>target/${project.artifactId}-${project.version}.jar</file>
                 </configuration>
             </plugin>
         </plugins>

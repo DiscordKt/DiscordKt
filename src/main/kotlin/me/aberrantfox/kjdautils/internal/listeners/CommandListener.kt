@@ -19,33 +19,28 @@ internal class CommandListener(private val container: CommandsContainer,
     private val executor = CommandExecutor()
 
     @Subscribe
-    fun guildMessageHandler(e: GuildMessageReceivedEvent) {
-        val author = e.author
-        val channel = e.channel
-        val message = e.message
+    fun guildMessageHandler(e: GuildMessageReceivedEvent) = handleMessage(e.message)
+
+    @Subscribe
+    fun privateMessageHandler(e: PrivateMessageReceivedEvent) = handleMessage(e.message)
+
+    private fun handleMessage(message: Message) {
+        val author = message.author
+        val channel = message.channel
+        val guild = if (message.isFromGuild) message.guild else null
 
         if (author.isBot) return
 
-        if (message.contentRaw.trimToID() == channel.jda.selfUser.id) {
-            val mentionEmbed = discord.configuration.mentionEmbed?.invoke(DiscordContext(discord, message)) ?: return
-            channel.sendMessage(mentionEmbed).queue()
-            return
-        }
-
-        handleMessage(channel, message, author, e.guild)
-    }
-
-    @Subscribe
-    fun privateMessageHandler(e: PrivateMessageReceivedEvent) =
-            handleMessage(e.channel, e.message, e.author)
-
-    private fun handleMessage(channel: MessageChannel, message: Message, author: User, guild: Guild? = null) {
         val content = message.contentRaw
         val discordContext = DiscordContext(discord, message)
         val prefix = config.prefix.invoke(discordContext)
 
         val rawInputs = when {
             isPrefixInvocation(content, prefix) -> stripPrefixInvocation(content, prefix)
+            content.trimToID() == channel.jda.selfUser.id -> {
+                val embed = config.mentionEmbed?.invoke(discordContext) ?: return
+                return channel.sendMessage(embed).queue()
+            }
             isMentionInvocation(content) -> stripMentionInvocation(content)
             else -> return conversationService.handleResponse(message)
         }
@@ -54,8 +49,7 @@ internal class CommandListener(private val container: CommandsContainer,
 
         if (!config.allowPrivateMessages && message.channelType == ChannelType.PRIVATE) return
 
-        if (commandName.isEmpty())
-            return
+        if (commandName.isEmpty()) return
 
         val event = CommandEvent<GenericContainer>(rawInputs, container, discordContext)
 
@@ -74,15 +68,15 @@ internal class CommandListener(private val container: CommandsContainer,
                 config.visibilityPredicate(it, author, channel, guild)
             }
 
-            if(config.deleteErrors) event.respondTimed(errorEmbed)
+            if (config.deleteErrors) event.respondTimed(errorEmbed)
             else event.respond(errorEmbed)
             return
         }
 
-        executor.executeCommand(command, actualArgs, event)
-
         if (config.commandReaction != null)
             message.addReaction(config.commandReaction!!).queue()
+
+        executor.executeCommand(command, actualArgs, event)
     }
 
     private fun isPrefixInvocation(message: String, prefix: String) = message.startsWith(prefix)
@@ -98,10 +92,10 @@ internal class CommandListener(private val container: CommandsContainer,
 
     private fun getPreconditionError(event: CommandEvent<*>): String? {
         val sortedConditions = preconditions
-                .groupBy({ it.priority }, { it.condition })
-                .toList()
-                .sortedBy { (priority, conditions) -> priority }
-                .map { (priority, conditions) -> conditions }
+            .groupBy({ it.priority }, { it.condition })
+            .toList()
+            .sortedBy { (priority, _) -> priority }
+            .map { (_, conditions) -> conditions }
 
         // Lazy sequence allows lower priorities to assume higher priorities are already verified
         val failedResults = sortedConditions.asSequence()
