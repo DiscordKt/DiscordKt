@@ -31,7 +31,7 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
         InternalLogger.startup("--------------- KUtils Startup ---------------")
         InternalLogger.startup("GlobalPath: $globalPath")
         discord.addEventListener(EventRegister)
-        registerInjectionObjects(discord, conversationService)
+        registerInjectionObjects(discord, ScriptEngineService(discord), conversationService)
     }
 
     fun registerInjectionObjects(vararg obj: Any) = obj.forEach { diService.addElement(it) }
@@ -76,7 +76,7 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
 
         fun registerListener(listener: Any) = EventRegister.eventBus.register(listener)
 
-        val commandListener = CommandListener(container, discord, conversationService, preconditions)
+        val commandListener = CommandListener(container, discord, preconditions)
 
         registerListener(commandListener)
         listeners.forEach { registerListener(it) }
@@ -136,5 +136,6 @@ fun startBot(token: String, globalPath: String = defaultGlobalPath(Exception()),
 
 private fun defaultGlobalPath(exception: Exception): String {
     val full = exception.stackTrace[1].className
-    return full.substring(0, full.lastIndexOf("."))
+    val lastIndex = full.lastIndexOf(".").takeIf { it != -1 } ?: full.lastIndex
+    return full.substring(0, lastIndex)
 }

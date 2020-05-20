@@ -2,6 +2,7 @@ package me.aberrantfox.kjdautils.internal.listeners
 
 import com.google.common.eventbus.Subscribe
 import me.aberrantfox.kjdautils.api.dsl.command.*
+import me.aberrantfox.kjdautils.api.getInjectionObject
 import me.aberrantfox.kjdautils.discord.Discord
 import me.aberrantfox.kjdautils.extensions.stdlib.trimToID
 import me.aberrantfox.kjdautils.internal.command.*
@@ -12,7 +13,6 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 
 internal class CommandListener(private val container: CommandsContainer,
                                private val discord: Discord,
-                               private val conversationService: ConversationService,
                                private val preconditions: MutableList<PreconditionData> = mutableListOf()) {
 
     private val config = discord.configuration
@@ -34,6 +34,8 @@ internal class CommandListener(private val container: CommandsContainer,
         val content = message.contentRaw
         val discordContext = DiscordContext(discord, message)
         val prefix = config.prefix.invoke(discordContext)
+
+        val conversationService = discord.getInjectionObject<ConversationService>()!!
 
         val rawInputs = when {
             isPrefixInvocation(content, prefix) -> stripPrefixInvocation(content, prefix)
