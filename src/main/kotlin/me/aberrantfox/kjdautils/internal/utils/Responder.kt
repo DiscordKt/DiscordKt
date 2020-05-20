@@ -12,6 +12,7 @@ interface Responder {
     fun respond(message: String) = unsafeRespond(message.sanitiseMentions())
     fun respond(embed: MessageEmbed) = channel.sendMessage(embed).queue()
     fun respond(construct: EmbedDSLHandle.() -> Unit) = respond(embed(construct))
+    fun respond(message: String, construct: EmbedDSLHandle.() -> Unit) = channel.sendMessage(message).embed(embed(construct)).queue()
 
     fun respondTimed(message: String, millis: Long = 5000) {
         require(millis >= 0) { "RespondTimed: Delay cannot be negative." }
