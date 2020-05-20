@@ -23,7 +23,7 @@ inline fun <reified T> Discord.getInjectionObject() = diService.getElement(T::cl
 
 private var configured = false
 
-class KUtils(private val config: KConfiguration, token: String, private val globalPath: String) {
+class KUtils(private val config: KConfiguration, token: String, private val globalPath: String, enableScriptEngine: Boolean) {
     val discord = buildDiscordClient(config, token)
     private val conversationService: ConversationService = ConversationService(discord)
 
@@ -31,7 +31,11 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
         InternalLogger.startup("--------------- KUtils Startup ---------------")
         InternalLogger.startup("GlobalPath: $globalPath")
         discord.addEventListener(EventRegister)
-        registerInjectionObjects(discord, ScriptEngineService(discord), conversationService)
+
+        registerInjectionObjects(discord, conversationService)
+
+        if (enableScriptEngine)
+            registerInjectionObjects(ScriptEngineService(discord))
     }
 
     fun registerInjectionObjects(vararg obj: Any) = obj.forEach { diService.addElement(it) }
@@ -120,10 +124,10 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
     }
 }
 
-fun startBot(token: String, globalPath: String = defaultGlobalPath(Exception()), operate: KUtils.() -> Unit = {}): KUtils {
+fun startBot(token: String, enableScriptEngine: Boolean = false, globalPath: String = defaultGlobalPath(Exception()), operate: KUtils.() -> Unit = {}): KUtils {
     System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "WARN")
 
-    val util = KUtils(KConfiguration(), token, globalPath)
+    val util = KUtils(KConfiguration(), token, globalPath, enableScriptEngine)
     util.operate()
 
     if(!configured) {
