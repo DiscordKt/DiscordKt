@@ -1,7 +1,5 @@
 package me.aberrantfox.kjdautils.api.dsl.command
 
-import me.aberrantfox.kjdautils.internal.command.ArgumentType
-
 open class GenericContainer
 class NoArgs : GenericContainer()
 data class Args1<T>(val first: T) : GenericContainer()
@@ -20,10 +18,3 @@ internal fun bundleToArgContainer(arguments: List<Any>) =
         5 -> Args5(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4])
         else -> throw IllegalArgumentException("Cannot handle (${arguments.size}) arguments.")
     }
-
-class ArgumentCollection(vararg arguments: ArgumentType<*>) {
-    val arguments = arguments.toList()
-
-    val size: Int
-        get() = arguments.size
-}

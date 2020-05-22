@@ -37,7 +37,12 @@ class HelpService(private val container: CommandsContainer, private val config: 
                 .map { (category, commands) ->
                     field {
                         name = category
-                        value = commands.sortedBy { it.names.joinToString() }.joinToString("\n") { it.names.joinToString() }
+                        value = "```css\n" +
+                            commands
+                                .sortedBy { it.names.joinToString() }
+                                .joinToString("\n")
+                                { it.names.joinToString() } +
+                            "\n```"
                         inline = true
                     }
             }
@@ -59,7 +64,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
         CommandRecommender.buildRecommendationEmbed(query) { it.isVisible(event) }
 
     private fun generateExample(command: Command, event: CommandEvent<*>) =
-        command.expectedArgs.arguments.joinToString(" ") {
+        command.arguments.joinToString(" ") {
             val examples = it.generateExamples(event)
             val example = if (examples.isNotEmpty()) examples.random() else "<Example>"
 
@@ -78,7 +83,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
 }
 
 internal fun generateStructure(command: Command) =
-    command.expectedArgs.arguments.joinToString(" ") {
+    command.arguments.joinToString(" ") {
         val type = it.name
         if (it.isOptional) "($type)" else "[$type]"
     }
