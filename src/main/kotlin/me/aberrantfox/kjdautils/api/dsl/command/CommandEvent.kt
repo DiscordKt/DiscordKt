@@ -24,5 +24,6 @@ data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
     val command = container[rawInputs.commandName]
     val relevantPrefix = discordContext.relevantPrefix
 
-    var args: T = NoArgs() as T
+    lateinit var args: T
 }
+
