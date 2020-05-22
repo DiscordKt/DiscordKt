@@ -27,6 +27,11 @@ class DemoConversation : Conversation() {
             errorMessage = { "Age must be positive!" }
         )
 
+        //If you need access to previous messages, all ID's are stored in a list as the conversation progresses.
+        println("Bot Messages: $botMessageIds -> $previousBotMessageId")
+        println("User Messages: $userMessageIds -> $previousUserMessageId")
+
+        //Conversations have access to every respond method, whether you're in a DM or a public channel
         respond("Nice to meet you $name! $age is a great age.")
     }
 }

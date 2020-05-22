@@ -19,6 +19,14 @@ data class ConversationStateContainer(val discord: Discord,
                                       var exitString: String? = null) : Responder {
 
     private val inputChannel = Channel<Message>()
+    val botMessageIds = mutableListOf<String>()
+    val userMessageIds = mutableListOf<String>()
+
+    val previousBotMessageId
+        get() = botMessageIds.last()
+
+    val previousUserMessageId
+        get() = userMessageIds.last()
 
     internal suspend fun acceptMessage(message: Message) {
         inputChannel.send(message)
@@ -53,6 +61,8 @@ data class ConversationStateContainer(val discord: Discord,
 
     private suspend fun <T> retrieveResponse(argumentType: ArgumentType<*>) = select<T?> {
         inputChannel.onReceive { input ->
+            userMessageIds.add(input.id)
+
             if (input.contentStripped == exitString)
                 throw ExitException()
 
@@ -74,8 +84,8 @@ data class ConversationStateContainer(val discord: Discord,
 
     private fun sendPrompt(prompt: Any) {
         when (prompt) {
-            is String -> respond(prompt)
-            is MessageEmbed -> respond(prompt)
+            is String -> channel.sendMessage(prompt).queue { botMessageIds.add(it.id) }
+            is MessageEmbed -> channel.sendMessage(prompt).queue { botMessageIds.add(it.id) }
             else -> throw IllegalArgumentException("Prompt must be a String or a MessageEmbed")
         }
     }
