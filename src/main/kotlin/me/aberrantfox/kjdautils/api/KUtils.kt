@@ -93,7 +93,7 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
             .getMethodsAnnotatedWith(Precondition::class.java)
             .map {
                 val annotation = it.annotations.first { it.annotationClass == Precondition::class } as Precondition
-                val condition = diService.invokeReturningMethod(it) as ((CommandEvent<*>) -> PreconditionResult)
+                val condition = diService.invokeReturningMethod<(CommandEvent<*>) -> PreconditionResult>(it)
 
                 PreconditionData(condition, annotation.priority)
             }

@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.cli.common.environment.setIdeaIoUseFallback
 import org.jetbrains.kotlin.script.jsr223.KotlinJsr223JvmLocalScriptEngineFactory
 
 class ScriptEngineService(discord: Discord) {
-    private val engine = KotlinJsr223JvmLocalScriptEngineFactory().scriptEngine
+    val engine = KotlinJsr223JvmLocalScriptEngineFactory().scriptEngine
 
     init {
         setIdeaIoUseFallback()

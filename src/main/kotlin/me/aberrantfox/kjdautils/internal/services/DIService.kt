@@ -1,10 +1,11 @@
 package me.aberrantfox.kjdautils.internal.services
 
 import com.google.gson.GsonBuilder
-import me.aberrantfox.kjdautils.api.annotation.Data
+import me.aberrantfox.kjdautils.api.annotation.*
+import me.aberrantfox.kjdautils.internal.utils.InternalLogger
 import java.io.File
-import java.lang.IllegalArgumentException
 import java.lang.reflect.Method
+import kotlin.system.exitProcess
 
 class DIService {
     private val elementMap = HashMap<Class<*>, Any>()
@@ -18,14 +19,17 @@ class DIService {
 
     fun getElement(serviceClass: Class<*>) = elementMap[serviceClass]
 
-    fun invokeReturningMethod(method: Method): Any {
+    internal inline fun <reified T> invokeReturningMethod(method: Method): T {
         val arguments: Array<out Class<*>> = method.parameterTypes
+        val objects = if (arguments.isNotEmpty()) determineArguments(arguments) else emptyArray()
+        val result = method.invoke(null, *objects) as? T
 
-        if (arguments.isEmpty())
-            return method.invoke(null) ?: throw nullReturnException
+        if (result == null) {
+            badInjectionExit(method)
+            exitProcess(-1)
+        }
 
-        val objects = determineArguments(arguments)
-        return method.invoke(null, *objects) ?: throw nullReturnException
+        return result
     }
 
     fun invokeConstructor(clazz: Class<*>): Any {
@@ -56,18 +60,18 @@ class DIService {
         }
 
         val sortedFailedDependencies = failed
-                .sortedBy { it.constructors.first().parameterCount }
-                .map { Pair(it.simpleName,it.constructors.first().parameterCount)  }
+            .sortedBy { it.constructors.first().parameterCount }
+            .map { Pair(it.simpleName, it.constructors.first().parameterCount) }
 
         val failedDependencies = sortedFailedDependencies
-                .groupBy({ it.second }) { it.first }
-                .entries.joinToString("\n") { "Dependencies with ${it.key} parameters: ${it.value.joinToString(", ")}" }
+            .groupBy({ it.second }) { it.first }
+            .entries.joinToString("\n") { "Dependencies with ${it.key} parameters: ${it.value.joinToString(", ")}" }
 
         check(failed.size != last) {
             "Attempted to reflectively build up dependencies, however an infinite loop was detected." +
-            " Are all dependencies properly marked and available? You can see a list of failed dependencies" +
-            "here sorted by how many parameters their constructors have. Double check ones with the lowest params first" +
-            "that is where the error is.:\n$failedDependencies"
+                " Are all dependencies properly marked and available? You can see a list of failed dependencies" +
+                "here sorted by how many parameters their constructors have. Double check ones with the lowest params first" +
+                "that is where the error is.:\n$failedDependencies"
         }
 
         invokeDestructiveList(failed, failed.size)
@@ -119,20 +123,39 @@ class DIService {
     }
 
     private fun determineArguments(arguments: Array<out Class<*>>) =
-            arguments.map { arg ->
-                elementMap.entries
-                        .find { arg.isAssignableFrom(it.key) }
-                        ?.value
-                        ?: throw IllegalStateException("Couldn't inject $arg from registered objects")
-            }.toTypedArray()
+        arguments.map { arg ->
+            val instance = elementMap.entries
+                .find { arg.isAssignableFrom(it.key) }
+                ?.value
+                ?: if (arg == ScriptEngineService::class.java)
+                    throw IllegalStateException("ScriptEngineService must be enabled in startBot() before using.")
+                else
+                    throw IllegalStateException("Couldn't inject of type '$arg' from registered objects.")
 
-    private val nullReturnException = IllegalArgumentException(
-            "A commands container, conversation, or precondition function hasn't returned properly.\n" +
-                    "Check that your '@CommandSet', '@Precondition', or '@Convo' functions properly return the 'commands { ... }', 'precondition { ... }', or 'conversation { ... }' calls.\n" +
-                    "e.g. Make sure that the '=' is used in '@CommandSet fun commandSet(...) = commands { ... }'\n" +
-                    " or '@Precondition fun preconditionFunc() = precondition { ... }'\n" +
-                    " or '@Convo fun testConversation(...) = conversation { ... }'"
-    )
+            instance
+        }.toTypedArray()
+
+    private fun badInjectionExit(method: Method) {
+        val signatureBase = with(method) {
+            "$name(${parameterTypes.joinToString(",") { it.name }}) = "
+        }
+
+        val annotation = method.annotations.firstOrNull()
+        val annotationName = "@${annotation?.annotationClass?.simpleName}"
+
+        val (invocationInfo, expectedReturn) = when (annotation) {
+            is CommandSet -> "$annotationName(\"${annotation.category}\") fun $signatureBase" to "commands { ... }"
+            is Precondition -> "$annotationName(${annotation.priority}) fun $signatureBase" to "precondition { ... }"
+            else -> annotationName to "<Unknown>"
+        }
+
+        val currentSignature = invocationInfo + method.returnType
+        val suggestedSignature = invocationInfo + expectedReturn
+
+        InternalLogger.error("An annotated function didn't return the correct type.\n" +
+            "Signature: $currentSignature\n" +
+            "Suggested: $suggestedSignature")
+    }
 }
 
 class PersistenceService(private val diService: DIService) {

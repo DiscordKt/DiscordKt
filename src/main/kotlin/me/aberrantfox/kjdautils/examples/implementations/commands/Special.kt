@@ -1,13 +1,14 @@
 package me.aberrantfox.kjdautils.examples.implementations.commands
 
-import me.aberrantfox.kjdautils.api.annotation.CommandSet
+import me.aberrantfox.kjdautils.api.annotation.*
 import me.aberrantfox.kjdautils.api.dsl.command.commands
 import me.aberrantfox.kjdautils.internal.arguments.*
+import me.aberrantfox.kjdautils.internal.services.ScriptEngineService
 
 //These commands showcase some of the more complicated ArgumentTypes and how to use them.
 
 @CommandSet("Special")
-fun specialCommands() = commands {
+fun specialCommands(scriptingEngine: ScriptEngineService) = commands {
     //This command accepts any number of integers and replies with their sum
     command("Sum") {
         description = "Add a list of numbers together."
@@ -38,6 +39,15 @@ fun specialCommands() = commands {
         execute(FileArg) {
             val file = it.args.first
             it.respond(file.name)
+        }
+    }
+
+    command("Eval") {
+        description = "Evaluate a Kotlin expression."
+        execute(EveryArg("Script")) {
+            val input = it.args.first
+            val evalResult = scriptingEngine.evaluateScript(input)
+            it.respond(evalResult.toString())
         }
     }
 }

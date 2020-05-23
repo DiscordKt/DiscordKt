@@ -47,6 +47,7 @@
 ## Special
 | Commands     | Arguments      | Description                        |
 | ------------ | -------------- | ---------------------------------- |
+| Eval         | Text           | Evaluate a Kotlin expression.      |
 | File         | File           | Input a file and display its name. |
 | NumberOrWord | Integer \| Any | Enter a number or a word.          |
 | Sum          | Integer...     | Add a list of numbers together.    |

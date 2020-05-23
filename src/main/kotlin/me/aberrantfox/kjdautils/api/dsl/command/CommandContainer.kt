@@ -41,7 +41,7 @@ fun produceContainer(path: String, diService: DIService): CommandsContainer {
 
     val container = commandSets
         .map { (method, cmdSetCategory) ->
-            (diService.invokeReturningMethod(method) as CommandsContainer) to cmdSetCategory
+            diService.invokeReturningMethod<CommandsContainer>(method) to cmdSetCategory
         }
         .map { (container, cmdSetCategory) ->
             container.also {
