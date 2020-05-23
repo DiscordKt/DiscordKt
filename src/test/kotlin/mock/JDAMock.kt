@@ -10,21 +10,25 @@ import net.dv8tion.jda.api.requests.RestAction
 val singleCategoryMock = mockk<Category> {
     every { id } returns FakeIds.Category
     every { name } returns FakeNames.Category_Single
+    every { guild.id } returns FakeIds.Guild
 }
 
 val multiCategoryMock = mockk<Category> {
     every { id } returns FakeIds.Category
     every { name } returns FakeNames.Category_Multi
+    every { guild.id } returns FakeIds.Guild
 }
 
 val singleRoleMock = mockk<Role> {
     every { id } returns FakeIds.Role
     every { name } returns FakeNames.Role_Single
+    every { guild.id } returns FakeIds.Guild
 }
 
 val multiRoleMock = mockk<Role> {
     every { id } returns FakeIds.Role
     every { name } returns FakeNames.Role_Multi
+    every { guild.id } returns FakeIds.Guild
 }
 
 val userMock = mockk<User> {

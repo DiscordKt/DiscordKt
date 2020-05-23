@@ -12,7 +12,7 @@ open class CategoryArg(override val name: String = "Category", private val guild
         if (arg.trimToID().isLong()) {
             val category = event.discord.jda.getCategoryById(arg.trimToID())
 
-            if (!allowsGlobal && guildId != category?.id)
+            if (!allowsGlobal && guildId != category?.guild?.id)
                 return ArgumentResult.Error("Category must be from this guild.")
 
             if (category != null)
