@@ -18,9 +18,9 @@ fun specialCommands(scriptingEngine: ScriptEngineService) = commands {
         }
     }
 
-    //This command accepts EITHER a number or a word
-    command("NumberOrWord") {
-        description = "Enter a number or a word."
+    //This command accepts EITHER a number or any input
+    command("Either") {
+        description = "Enter a number or any input."
         execute(IntegerArg or AnyArg) {
             val input = it.args.first
 

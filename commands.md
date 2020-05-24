@@ -45,12 +45,12 @@
 | Injection | <none>    | I depend on all services |
 
 ## Special
-| Commands     | Arguments      | Description                        |
-| ------------ | -------------- | ---------------------------------- |
-| Eval         | Script         | Evaluate a Kotlin expression.      |
-| File         | File           | Input a file and display its name. |
-| NumberOrWord | Integer \| Any | Enter a number or a word.          |
-| Sum          | Integer...     | Add a list of numbers together.    |
+| Commands | Arguments      | Description                        |
+| -------- | -------------- | ---------------------------------- |
+| Either   | Integer \| Any | Enter a number or any input.       |
+| Eval     | Script         | Evaluate a Kotlin expression.      |
+| File     | File           | Input a file and display its name. |
+| Sum      | Integer...     | Add a list of numbers together.    |
 
 ## Utility
 | Commands | Arguments | Description          |

@@ -17,7 +17,7 @@ fun basicCommands() = commands {
         }
     }
 
-    //Commands can also have multiple names and be reference by any of the,
+    //Commands can also have multiple names and be reference by any of them
     command("Version", "V") {
         description = "Display the version."
         execute {
