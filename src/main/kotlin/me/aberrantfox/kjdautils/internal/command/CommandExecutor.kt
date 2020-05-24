@@ -6,19 +6,19 @@ import me.aberrantfox.kjdautils.internal.utils.InternalLogger
 import java.util.ArrayList
 
 internal class CommandExecutor {
-    fun executeCommand(command: Command, args: List<String>, event: CommandEvent<ArgumentContainer>) = runBlocking {
+    fun executeCommand(command: Command, args: List<String>, event: CommandEvent<GenericContainer>) = runBlocking {
         GlobalScope.launch {
             invokeCommand(command, args, event)
         }
     }
 
-    private fun invokeCommand(command: Command, actualArgs: List<String>, event: CommandEvent<ArgumentContainer>) {
+    private fun invokeCommand(command: Command, actualArgs: List<String>, event: CommandEvent<GenericContainer>) {
         val shouldDeleteErrors = event.discord.configuration.deleteErrors
-        val expected = command.expectedArgs.arguments
+        val expected = command.arguments
         val initialConversion = convertArguments(actualArgs, expected, event)
 
         if (initialConversion is Result.Success) {
-            val bundle = command.expectedArgs.bundle(initialConversion.results)
+            val bundle = bundleToArgContainer(initialConversion.results)
             return command.invoke(bundle, event)
         }
 
@@ -63,7 +63,7 @@ internal class CommandExecutor {
             }.second
         }
 
-        val bundle = command.expectedArgs.bundle(orderedResult)
+        val bundle = bundleToArgContainer(orderedResult)
         command.invoke(bundle, event)
     }
 

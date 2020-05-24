@@ -5,12 +5,15 @@ import me.aberrantfox.kjdautils.extensions.stdlib.*
 import me.aberrantfox.kjdautils.internal.command.*
 import net.dv8tion.jda.api.entities.Category
 
-open class CategoryArg(override val name: String = "Category", private val guildId: String = "") : ArgumentType<Category>() {
+open class CategoryArg(override val name: String = "Category", private val guildId: String = "", private val allowsGlobal: Boolean = false) : ArgumentType<Category>() {
     companion object : CategoryArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
         if (arg.trimToID().isLong()) {
             val category = event.discord.jda.getCategoryById(arg.trimToID())
+
+            if (!allowsGlobal && guildId != category?.guild?.id)
+                return ArgumentResult.Error("Category must be from this guild.")
 
             if (category != null)
                 return ArgumentResult.Success(category)

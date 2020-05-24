@@ -3,9 +3,15 @@ package me.aberrantfox.kjdautils.internal.arguments
 import me.aberrantfox.kjdautils.api.dsl.command.CommandEvent
 import me.aberrantfox.kjdautils.internal.command.*
 
+internal data class Left<out L>(val data: L) : Either<L, Nothing>()
+internal data class Right<out R>(val data: R) : Either<Nothing, R>()
+
 sealed class Either<out L, out R> {
-    data class Left<out L>(val left: L) : Either<L, Nothing>()
-    data class Right<out R>(val right: R) : Either<Nothing, R>()
+    fun <T> getData(left: (L) -> T, right: (R) -> T) =
+        when (this) {
+            is Left -> left.invoke(data)
+            is Right -> right.invoke(data)
+        }
 }
 
 // Either accept the left argument or the right argument type. Left is tried first.
@@ -17,8 +23,8 @@ class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, nam
         val rightResult = right.convert(arg, args, event)
 
         return when {
-            leftResult is ArgumentResult.Success -> ArgumentResult.Success(Either.Left(leftResult.result), leftResult.consumed)
-            rightResult is ArgumentResult.Success -> ArgumentResult.Success(Either.Right(rightResult.result), rightResult.consumed)
+            leftResult is ArgumentResult.Success -> ArgumentResult.Success(Left(leftResult.result), leftResult.consumed)
+            rightResult is ArgumentResult.Success -> ArgumentResult.Success(Right(rightResult.result), rightResult.consumed)
             else -> ArgumentResult.Error("Could not match input with either expected argument.")
         }
     }

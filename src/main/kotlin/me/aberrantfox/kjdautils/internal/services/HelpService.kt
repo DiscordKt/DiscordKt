@@ -2,16 +2,15 @@ package me.aberrantfox.kjdautils.internal.services
 
 import me.aberrantfox.kjdautils.api.dsl.*
 import me.aberrantfox.kjdautils.api.dsl.command.*
-import me.aberrantfox.kjdautils.internal.arguments.WordArg
+import me.aberrantfox.kjdautils.internal.arguments.AnyArg
 import me.aberrantfox.kjdautils.internal.command.CommandRecommender
-import java.awt.Color
 
 class HelpService(private val container: CommandsContainer, private val config: KConfiguration) {
     fun produceHelpCommandContainer() = commands {
         command("Help") {
             description = "Display a help menu."
             category = "Utility"
-            execute(WordArg("Command").makeOptional("")) {
+            execute(AnyArg("Command").makeOptional("")) {
                 val query = it.args.component1()
 
                 val responseEmbed = when {
@@ -28,7 +27,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
     private fun generateDefaultEmbed(event: CommandEvent<*>) =
         embed {
             title = "Help menu"
-            description = "Use `${config.prefix}help <command>` for more information."
+            description = "Use `${event.relevantPrefix}help <command>` for more information."
             color = infoColor
 
             val categoryMap = fetchVisibleCommands(event).groupBy { it.category }
@@ -38,7 +37,12 @@ class HelpService(private val container: CommandsContainer, private val config: 
                 .map { (category, commands) ->
                     field {
                         name = category
-                        value = commands.sortedBy { it.names.joinToString() }.joinToString("\n") { it.names.joinToString() }
+                        value = "```css\n" +
+                            commands
+                                .sortedBy { it.names.joinToString() }
+                                .joinToString("\n")
+                                { it.names.joinToString() } +
+                            "\n```"
                         inline = true
                     }
             }
@@ -49,7 +53,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
         description = command.description
         color = infoColor
 
-        val commandInvocation = "${config.prefix}$input"
+        val commandInvocation = "${event.relevantPrefix}$input"
         addField("Structure", "$commandInvocation ${generateStructure(command)}")
 
         if (command.parameterCount != 0)
@@ -60,7 +64,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
         CommandRecommender.buildRecommendationEmbed(query) { it.isVisible(event) }
 
     private fun generateExample(command: Command, event: CommandEvent<*>) =
-        command.expectedArgs.arguments.joinToString(" ") {
+        command.arguments.joinToString(" ") {
             val examples = it.generateExamples(event)
             val example = if (examples.isNotEmpty()) examples.random() else "<Example>"
 
@@ -79,7 +83,7 @@ class HelpService(private val container: CommandsContainer, private val config: 
 }
 
 internal fun generateStructure(command: Command) =
-    command.expectedArgs.arguments.joinToString(" ") {
+    command.arguments.joinToString(" ") {
         val type = it.name
         if (it.isOptional) "($type)" else "[$type]"
     }

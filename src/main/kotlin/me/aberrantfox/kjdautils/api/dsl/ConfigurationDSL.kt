@@ -1,8 +1,7 @@
 package me.aberrantfox.kjdautils.api.dsl
 
-import me.aberrantfox.kjdautils.api.dsl.command.Command
+import me.aberrantfox.kjdautils.api.dsl.command.*
 import net.dv8tion.jda.api.entities.*
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import java.awt.Color
 
 enum class PrefixDeleteMode {
@@ -19,16 +18,19 @@ data class ColorConfiguration(
 )
 
 data class KConfiguration(
-    var prefix: String = "+",
+    internal var prefix: (DiscordContext) -> String = { "+" },
     var allowMentionPrefix: Boolean = false,
     var commandReaction: String? = "\uD83D\uDC40",
-    var deleteMode: PrefixDeleteMode = PrefixDeleteMode.None,
     var deleteErrors: Boolean = false,
-    var allowPrivateMessages: Boolean = false,
-    internal var mentionEmbed: ((GuildMessageReceivedEvent) -> MessageEmbed)? = null,
+    var requiresGuild: Boolean = true,
+    internal var mentionEmbed: ((DiscordContext) -> MessageEmbed)? = null,
     internal var visibilityPredicate: (command: Command, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _ -> true }
 ) {
-    fun mentionEmbed(construct: EmbedDSLHandle.(GuildMessageReceivedEvent) -> Unit) {
+    fun prefix(construct: (DiscordContext) -> String) {
+        prefix = construct
+    }
+
+    fun mentionEmbed(construct: EmbedDSLHandle.(DiscordContext) -> Unit) {
         mentionEmbed = {
             val handle = EmbedDSLHandle()
             handle.construct(it)

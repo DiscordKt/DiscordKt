@@ -21,7 +21,7 @@
         <reflections.version>0.9.12</reflections.version>
 
         <!-- Lib -->
-        <jda.version>4.1.1_140</jda.version>
+        <jda.version>4.1.1_152</jda.version>
         <gson.version>2.8.6</gson.version>
         <guava.version>29.0-jre</guava.version>
         <commons.version>1.8</commons.version>
@@ -53,6 +53,28 @@
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
             <version>${reflections.version}</version>
+        </dependency>
+
+        <!-- Scripting Engine -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-compiler-embeddable</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-scripting-compiler-embeddable</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-script-runtime</artifactId>
+            <version>${kotlin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-script-util</artifactId>
+            <version>${kotlin.version}</version>
         </dependency>
 
         <!-- Lib Dependencies -->
@@ -187,6 +209,19 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M4</version>
+            </plugin>
+
+            <!-- Plugin to install the library locally -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>3.0.0-M1</version>
+                <configuration>
+                    <groupId>com.gitlab.aberrantfox</groupId>
+                    <artifactId>${project.artifactId}</artifactId>
+                    <version>${project.version}-SNAPSHOT</version>
+                    <file>target/${project.artifactId}-${project.version}.jar</file>
+                </configuration>
             </plugin>
         </plugins>
     </build>

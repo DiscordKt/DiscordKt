@@ -18,23 +18,14 @@ fun commands(construct: CommandsContainer.() -> Unit): CommandsContainer {
 
 @CommandTagMarker
 data class CommandsContainer(var commands: ArrayList<Command> = arrayListOf()) {
-    operator fun invoke(args: CommandsContainer.() -> Unit) {}
-
-    fun command(vararg names: String, construct: Command.() -> Unit = {}): Command? {
-        val command = Command(names.toMutableList())
-        command.construct()
-        this.commands.add(command)
+    fun command(vararg names: String, body: Command.() -> Unit): Command {
+        val command = Command(names.toList())
+        command.body()
+        commands.add(command)
         return command
     }
 
-    fun join(vararg cmds: CommandsContainer): CommandsContainer {
-        cmds.forEach {
-            this.commands.addAll(it.commands)
-        }
-
-        return this
-    }
-
+    operator fun plus(container: CommandsContainer) = this.apply { commands.addAll(container.commands) }
     operator fun get(name: String) = this.commands.firstOrNull { name.toLowerCase() in it.names.map { it.toLowerCase() } }
 }
 
@@ -50,7 +41,7 @@ fun produceContainer(path: String, diService: DIService): CommandsContainer {
 
     val container = commandSets
         .map { (method, cmdSetCategory) ->
-            (diService.invokeReturningMethod(method) as CommandsContainer) to cmdSetCategory
+            diService.invokeReturningMethod<CommandsContainer>(method) to cmdSetCategory
         }
         .map { (container, cmdSetCategory) ->
             container.also {
@@ -59,7 +50,7 @@ fun produceContainer(path: String, diService: DIService): CommandsContainer {
                     .forEach { it.category = cmdSetCategory }
             }
         }
-        .reduce { a, b -> a.join(b) }
+        .reduce { a, b -> a + b }
 
     InternalLogger.startup(commandSets.size.pluralize("CommandSet") + " -> " + container.commands.size.pluralize("Command"))
 

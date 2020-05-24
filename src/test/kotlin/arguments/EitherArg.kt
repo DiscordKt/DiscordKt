@@ -7,8 +7,8 @@ class EitherArgTest : ArgumentTestFactory {
     override val argumentType = EitherArg(IntegerArg, QuoteArg)
 
     override val validArgs = listOf(
-        "1" to Either.Left(1),
-        "\"A Quote\"" to Either.Right("A Quote")
+        "1" to Left(1),
+        "\"A Quote\"" to Right("A Quote")
     )
 
     override val invalidArgs = listOf("word")

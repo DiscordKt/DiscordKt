@@ -1,6 +1,6 @@
 package arguments
 
-import me.aberrantfox.kjdautils.internal.arguments.TimeStringArg
+import me.aberrantfox.kjdautils.internal.arguments.TimeArg
 import utilities.ArgumentTestFactory
 
 private const val second = 1.0
@@ -11,8 +11,8 @@ private const val week = 604800.0
 private const val month = 2592000.0
 private const val year = 31536000.0
 
-class TimeStringArgTest : ArgumentTestFactory {
-    override val argumentType = TimeStringArg
+class TimeArgTest : ArgumentTestFactory {
+    override val argumentType = TimeArg
 
     override val validArgs = listOf(
         "1s" to second,

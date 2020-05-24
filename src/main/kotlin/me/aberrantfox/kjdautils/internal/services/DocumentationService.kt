@@ -11,7 +11,7 @@ internal fun createDocumentation(container: CommandsContainer) {
     }
 
     fun extractCommandData(command: Command): CommandData {
-        val expectedArgs = command.expectedArgs.arguments.joinToString {
+        val expectedArgs = command.arguments.joinToString {
             if (it.isOptional) "(${it.name})" else it.name
         }.takeIf { it.isNotEmpty() } ?: "<none>"
 

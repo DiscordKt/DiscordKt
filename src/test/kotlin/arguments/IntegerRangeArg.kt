@@ -4,7 +4,7 @@ import me.aberrantfox.kjdautils.internal.arguments.IntegerRangeArg
 import utilities.ArgumentTestFactory
 
 class IntegerRangeArgTest : ArgumentTestFactory {
-    override val argumentType = IntegerRangeArg
+    override val argumentType = IntegerRangeArg(0, 10)
 
     override val validArgs = listOf(
         "0" to 0,

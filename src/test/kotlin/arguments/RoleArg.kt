@@ -5,7 +5,7 @@ import mock.*
 import utilities.ArgumentTestFactory
 
 class RoleArgTest : ArgumentTestFactory {
-    override val argumentType = RoleArg
+    override val argumentType = RoleArg(guildId = FakeIds.Guild)
 
     override val validArgs = listOf(
         FakeIds.Role to singleRoleMock,
