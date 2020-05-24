@@ -22,7 +22,7 @@ data class KConfiguration(
     var allowMentionPrefix: Boolean = false,
     var commandReaction: String? = "\uD83D\uDC40",
     var deleteErrors: Boolean = false,
-    var allowPrivateMessages: Boolean = false,
+    var requiresGuild: Boolean = true,
     internal var mentionEmbed: ((DiscordContext) -> MessageEmbed)? = null,
     internal var visibilityPredicate: (command: Command, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _ -> true }
 ) {

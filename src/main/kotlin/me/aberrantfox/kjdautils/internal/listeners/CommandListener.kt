@@ -49,8 +49,6 @@ internal class CommandListener(private val container: CommandsContainer,
 
         val (_, commandName, actualArgs, _) = rawInputs
 
-        if (!config.allowPrivateMessages && message.channelType == ChannelType.PRIVATE) return
-
         if (commandName.isEmpty()) return
 
         val event = CommandEvent<GenericContainer>(rawInputs, container, discordContext)
@@ -74,6 +72,10 @@ internal class CommandListener(private val container: CommandsContainer,
             else event.respond(errorEmbed)
             return
         }
+
+        if (!message.isFromGuild)
+            if (command.requiresGuild ?: config.requiresGuild)
+                return
 
         if (config.commandReaction != null)
             message.addReaction(config.commandReaction!!).queue()
@@ -101,9 +103,9 @@ internal class CommandListener(private val container: CommandsContainer,
 
         // Lazy sequence allows lower priorities to assume higher priorities are already verified
         val failedResults = sortedConditions.asSequence()
-                .map { conditions -> conditions.map { it.invoke(event) } }
-                .firstOrNull { results -> results.any { it is Fail } }
-                ?.filterIsInstance<Fail>()
+            .map { conditions -> conditions.map { it.invoke(event) } }
+            .firstOrNull { results -> results.any { it is Fail } }
+            ?.filterIsInstance<Fail>()
 
         return if (failedResults?.any { it.reason == null } == true) {
             ""

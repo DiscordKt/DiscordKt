@@ -6,7 +6,7 @@ import me.aberrantfox.kjdautils.internal.command.ArgumentType
 class Command(val names: List<String>,
               var description: String = "<No Description>",
               var category: String = "",
-              var requiresGuild: Boolean = false,
+              var requiresGuild: Boolean? = null,
               var isFlexible: Boolean = false,
               var arguments: List<ArgumentType<*>> = emptyList(),
               private var execute: (CommandEvent<*>) -> Unit = {}) {

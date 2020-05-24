@@ -7,7 +7,7 @@ fun main(args: Array<String>) {
     val token = args.firstOrNull()
         ?: throw IllegalArgumentException("No program arguments provided. Expected bot token.")
 
-    startBot(token) {
+    startBot(token, enableScriptEngine = true) {
         configure {
             //The prefix for commands that your bot will respond to
             prefix {
@@ -23,8 +23,8 @@ fun main(args: Array<String>) {
             //Whether or not error messages should be deleted after sending
             deleteErrors = false
 
-            //Whether or not commands in direct messages are valid
-            allowPrivateMessages = false
+            //Whether or not commands are only valid in guilds
+            requiresGuild = true
 
             //Color configuration for embeds within KUtils
             colors {
