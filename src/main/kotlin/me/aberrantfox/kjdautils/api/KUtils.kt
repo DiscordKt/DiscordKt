@@ -24,7 +24,7 @@ inline fun <reified T> Discord.getInjectionObject() = diService.getElement(T::cl
 private var configured = false
 
 class KUtils(private val config: KConfiguration, token: String, private val globalPath: String, enableScriptEngine: Boolean) {
-    val discord = buildDiscordClient(config, token)
+    val discord = buildDiscordClient(token, config)
     private val conversationService: ConversationService = ConversationService(discord)
 
     init {
