@@ -1,6 +1,6 @@
 package arguments
 
-import me.aberrantfox.kjdautils.internal.arguments.CharArg
+import me.aberrantfox.kutils.api.arguments.CharArg
 import utilities.ArgumentTestFactory
 
 class CharArgTest : ArgumentTestFactory {

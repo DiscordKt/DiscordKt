@@ -1,6 +1,6 @@
 package arguments
 
-import me.aberrantfox.kjdautils.internal.arguments.DoubleArg
+import me.aberrantfox.kutils.api.arguments.DoubleArg
 import utilities.ArgumentTestFactory
 
 class DoubleArgTest : ArgumentTestFactory {

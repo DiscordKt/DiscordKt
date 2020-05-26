@@ -1,6 +1,6 @@
 package arguments
 
-import me.aberrantfox.kjdautils.internal.arguments.CategoryArg
+import me.aberrantfox.kutils.api.arguments.CategoryArg
 import mock.*
 import utilities.ArgumentTestFactory
 

@@ -1,6 +1,6 @@
 package arguments
 
-import me.aberrantfox.kjdautils.internal.arguments.IntegerRangeArg
+import me.aberrantfox.kutils.api.arguments.IntegerRangeArg
 import utilities.ArgumentTestFactory
 
 class IntegerRangeArgTest : ArgumentTestFactory {

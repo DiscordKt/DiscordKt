@@ -6,7 +6,7 @@
 
     <groupId>me.aberrantfox</groupId>
     <artifactId>KUtils</artifactId>
-    <version>0.16.1</version>
+    <version>0.17.0</version>
 
     <properties>
         <!-- Meta -->
@@ -194,7 +194,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>me.aberrantfox.kjdautils.examples.MainAppKt</mainClass>
+                                    <mainClass>me.aberrantfox.kutils.examples.MainAppKt</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>

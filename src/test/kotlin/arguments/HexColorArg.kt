@@ -1,6 +1,6 @@
 package arguments
 
-import me.aberrantfox.kjdautils.internal.arguments.HexColorArg
+import me.aberrantfox.kutils.api.arguments.HexColorArg
 import utilities.ArgumentTestFactory
 import java.awt.Color
 
