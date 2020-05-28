@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.aberrantfox.kutils.api.dsl.embed
 
 import me.aberrantfox.kutils.api.dsl.configuration.ColorConfiguration

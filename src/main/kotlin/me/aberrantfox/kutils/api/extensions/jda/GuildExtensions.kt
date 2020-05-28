@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.aberrantfox.kutils.api.extensions.jda
 
 import me.aberrantfox.kutils.api.extensions.stdlib.formatJdaDate

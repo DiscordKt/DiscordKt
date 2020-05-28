@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.aberrantfox.kutils.api.extensions.stdlib
 
 import net.dv8tion.jda.api.JDA

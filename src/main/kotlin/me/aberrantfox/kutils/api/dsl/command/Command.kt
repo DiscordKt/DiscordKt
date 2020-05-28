@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.aberrantfox.kutils.api.dsl.command
 
 import me.aberrantfox.kutils.api.dsl.arguments.ArgumentType

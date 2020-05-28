@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.aberrantfox.kutils.api.extensions.stdlib
 
 import java.time.Duration
