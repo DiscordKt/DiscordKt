@@ -1,7 +1,7 @@
 package me.jakejmattson.kutils.internal.utils
 
-import me.aberrantfox.kutils.api.dsl.arguments.ArgumentResult
-import me.aberrantfox.kutils.api.extensions.stdlib.isDigitOrPeriod
+import me.jakejmattson.kutils.api.dsl.arguments.ArgumentResult
+import me.jakejmattson.kutils.api.extensions.stdlib.isDigitOrPeriod
 
 private typealias Quantity = Double
 private typealias Quantifier = String

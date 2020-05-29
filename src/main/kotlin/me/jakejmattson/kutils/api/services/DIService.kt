@@ -1,8 +1,8 @@
 package me.jakejmattson.kutils.api.services
 
 import com.google.gson.GsonBuilder
-import me.aberrantfox.kutils.api.annotations.*
-import me.aberrantfox.kutils.internal.utils.InternalLogger
+import me.jakejmattson.kutils.api.annotations.*
+import me.jakejmattson.kutils.internal.utils.InternalLogger
 import java.io.File
 import java.lang.reflect.Method
 import kotlin.system.exitProcess

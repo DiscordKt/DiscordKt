@@ -1,12 +1,12 @@
 package me.jakejmattson.kutils.internal.listeners
 
 import com.google.common.eventbus.Subscribe
-import me.aberrantfox.kutils.api.Discord
-import me.aberrantfox.kutils.api.dsl.command.*
-import me.aberrantfox.kutils.api.dsl.preconditions.*
-import me.aberrantfox.kutils.api.extensions.stdlib.trimToID
-import me.aberrantfox.kutils.api.services.ConversationService
-import me.aberrantfox.kutils.internal.command.*
+import me.jakejmattson.kutils.api.Discord
+import me.jakejmattson.kutils.api.dsl.command.*
+import me.jakejmattson.kutils.api.dsl.preconditions.*
+import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
+import me.jakejmattson.kutils.api.services.ConversationService
+import me.jakejmattson.kutils.internal.command.*
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent

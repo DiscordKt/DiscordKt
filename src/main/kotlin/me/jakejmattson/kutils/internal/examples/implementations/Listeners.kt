@@ -1,7 +1,7 @@
 package me.jakejmattson.kutils.internal.examples.implementations
 
 import com.google.common.eventbus.Subscribe
-import me.aberrantfox.kutils.api.extensions.jda.fullName
+import me.jakejmattson.kutils.api.extensions.jda.fullName
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 
 //A listener is a function marked with @Subscribe that allows you to listen for specific discord events.

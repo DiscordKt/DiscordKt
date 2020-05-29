@@ -1,8 +1,8 @@
 package me.jakejmattson.kutils.api.arguments
 
-import me.aberrantfox.kutils.api.dsl.arguments.*
-import me.aberrantfox.kutils.api.dsl.command.CommandEvent
-import me.aberrantfox.kutils.api.extensions.stdlib.containsURl
+import me.jakejmattson.kutils.api.dsl.arguments.*
+import me.jakejmattson.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.api.extensions.stdlib.containsURl
 
 open class UrlArg(override val name: String = "URL") : ArgumentType<String>() {
     companion object : UrlArg()

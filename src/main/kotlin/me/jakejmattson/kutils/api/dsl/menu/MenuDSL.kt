@@ -1,7 +1,7 @@
 package me.jakejmattson.kutils.api.dsl.menu
 
-import me.aberrantfox.kutils.api.dsl.command.CommandEvent
-import me.aberrantfox.kutils.api.dsl.embed.*
+import me.jakejmattson.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.api.dsl.embed.*
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.GenericEvent

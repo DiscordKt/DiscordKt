@@ -1,7 +1,7 @@
 package me.jakejmattson.kutils.api.arguments
 
-import me.aberrantfox.kutils.api.dsl.arguments.*
-import me.aberrantfox.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.api.dsl.arguments.*
+import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 
 open class AnyArg(override val name: String = "Any") : ArgumentType<String>() {
     companion object : AnyArg()

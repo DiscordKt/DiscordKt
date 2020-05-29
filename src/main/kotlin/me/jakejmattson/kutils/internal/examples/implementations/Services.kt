@@ -1,7 +1,7 @@
 package me.jakejmattson.kutils.internal.examples.implementations
 
-import me.aberrantfox.kutils.api.annotations.*
-import me.aberrantfox.kutils.api.dsl.command.commands
+import me.jakejmattson.kutils.api.annotations.*
+import me.jakejmattson.kutils.api.dsl.command.commands
 
 //Services are the "business logic" within KUtils.
 //They leverage dependency injection to allow you to define behaviors without worrying about instances.

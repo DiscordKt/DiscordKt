@@ -1,7 +1,7 @@
 package me.jakejmattson.kutils.api.arguments
 
-import me.aberrantfox.kutils.api.dsl.arguments.*
-import me.aberrantfox.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.api.dsl.arguments.*
+import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 import java.awt.Color
 
 open class HexColorArg(override val name: String = "Hex Color") : ArgumentType<Color>() {

@@ -2,7 +2,7 @@
 
 package me.jakejmattson.kutils.api.extensions.jda
 
-import me.aberrantfox.kutils.internal.utils.InternalLogger
+import me.jakejmattson.kutils.internal.utils.InternalLogger
 import net.dv8tion.jda.api.entities.*
 
 fun User.toMember(guild: Guild) = guild.getMemberById(this.id)

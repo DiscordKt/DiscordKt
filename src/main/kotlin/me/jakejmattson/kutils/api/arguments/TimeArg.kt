@@ -1,8 +1,8 @@
 package me.jakejmattson.kutils.api.arguments
 
-import me.aberrantfox.kutils.api.dsl.arguments.ArgumentType
-import me.aberrantfox.kutils.api.dsl.command.CommandEvent
-import me.aberrantfox.kutils.internal.utils.convertTimeString
+import me.jakejmattson.kutils.api.dsl.arguments.ArgumentType
+import me.jakejmattson.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.internal.utils.convertTimeString
 
 open class TimeArg(override val name: String = "Time") : ArgumentType<Double>() {
     companion object : TimeArg()

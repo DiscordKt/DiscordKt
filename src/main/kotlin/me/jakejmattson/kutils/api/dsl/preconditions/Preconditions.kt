@@ -1,6 +1,6 @@
 package me.jakejmattson.kutils.api.dsl.preconditions
 
-import me.aberrantfox.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 
 const val defaultPreconditionPriority = 5
 

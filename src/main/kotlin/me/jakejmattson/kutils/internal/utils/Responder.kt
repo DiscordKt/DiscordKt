@@ -1,8 +1,8 @@
 package me.jakejmattson.kutils.internal.utils
 
 import kotlinx.coroutines.*
-import me.aberrantfox.kutils.api.dsl.embed.*
-import me.aberrantfox.kutils.api.extensions.stdlib.sanitiseMentions
+import me.jakejmattson.kutils.api.dsl.embed.*
+import me.jakejmattson.kutils.api.extensions.stdlib.sanitiseMentions
 import net.dv8tion.jda.api.entities.*
 
 internal interface Responder {

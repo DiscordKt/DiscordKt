@@ -1,6 +1,6 @@
 package arguments
 
-import me.aberrantfox.kutils.api.arguments.QuoteArg
+import me.jakejmattson.kutils.api.arguments.QuoteArg
 import utilities.ArgumentTestFactory
 
 class QuoteArgTest : ArgumentTestFactory {

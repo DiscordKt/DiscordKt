@@ -1,10 +1,10 @@
 package me.jakejmattson.kutils.api.services
 
 import kotlinx.coroutines.runBlocking
-import me.aberrantfox.kutils.api.Discord
-import me.aberrantfox.kutils.api.dsl.conversation.*
-import me.aberrantfox.kutils.api.extensions.stdlib.pluralize
-import me.aberrantfox.kutils.internal.utils.*
+import me.jakejmattson.kutils.api.Discord
+import me.jakejmattson.kutils.api.dsl.conversation.*
+import me.jakejmattson.kutils.api.extensions.stdlib.pluralize
+import me.jakejmattson.kutils.internal.utils.*
 import net.dv8tion.jda.api.entities.*
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner

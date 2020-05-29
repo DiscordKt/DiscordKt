@@ -2,7 +2,7 @@
 
 package me.jakejmattson.kutils.api.dsl.command
 
-import me.aberrantfox.kutils.api.dsl.arguments.ArgumentType
+import me.jakejmattson.kutils.api.dsl.arguments.ArgumentType
 
 @CommandTagMarker
 class Command(val names: List<String>,

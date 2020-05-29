@@ -1,6 +1,6 @@
 package me.jakejmattson.kutils.api.dsl.arguments
 
-import me.aberrantfox.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 import net.dv8tion.jda.api.JDA
 
 sealed class ArgumentResult<T> {

@@ -1,9 +1,9 @@
 package me.jakejmattson.kutils.internal.examples.implementations.commands
 
-import me.aberrantfox.kutils.api.annotations.CommandSet
-import me.aberrantfox.kutils.api.arguments.*
-import me.aberrantfox.kutils.api.dsl.command.commands
-import me.aberrantfox.kutils.api.services.ScriptEngineService
+import me.jakejmattson.kutils.api.annotations.CommandSet
+import me.jakejmattson.kutils.api.arguments.*
+import me.jakejmattson.kutils.api.dsl.command.commands
+import me.jakejmattson.kutils.api.services.ScriptEngineService
 
 //These commands showcase some of the more complicated ArgumentTypes and how to use them.
 

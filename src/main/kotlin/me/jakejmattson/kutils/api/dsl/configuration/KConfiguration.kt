@@ -1,7 +1,7 @@
 package me.jakejmattson.kutils.api.dsl.configuration
 
-import me.aberrantfox.kutils.api.dsl.command.*
-import me.aberrantfox.kutils.api.dsl.embed.EmbedDSLHandle
+import me.jakejmattson.kutils.api.dsl.command.*
+import me.jakejmattson.kutils.api.dsl.embed.EmbedDSLHandle
 import net.dv8tion.jda.api.entities.*
 
 data class KConfiguration(

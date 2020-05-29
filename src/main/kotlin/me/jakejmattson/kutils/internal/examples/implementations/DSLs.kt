@@ -1,10 +1,10 @@
 package me.jakejmattson.kutils.internal.examples.implementations
 
-import me.aberrantfox.kutils.api.annotations.CommandSet
-import me.aberrantfox.kutils.api.dsl.command.commands
-import me.aberrantfox.kutils.api.dsl.embed.embed
-import me.aberrantfox.kutils.api.dsl.menu.*
-import me.aberrantfox.kutils.api.extensions.jda.fullName
+import me.jakejmattson.kutils.api.annotations.CommandSet
+import me.jakejmattson.kutils.api.dsl.command.commands
+import me.jakejmattson.kutils.api.dsl.embed.embed
+import me.jakejmattson.kutils.api.dsl.menu.*
+import me.jakejmattson.kutils.api.extensions.jda.fullName
 import net.dv8tion.jda.api.EmbedBuilder
 import java.awt.Color
 

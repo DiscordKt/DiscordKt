@@ -1,8 +1,8 @@
 package me.jakejmattson.kutils.api.dsl.command
 
-import me.aberrantfox.kutils.api.Discord
-import me.aberrantfox.kutils.internal.command.RawInputs
-import me.aberrantfox.kutils.internal.utils.Responder
+import me.jakejmattson.kutils.api.Discord
+import me.jakejmattson.kutils.internal.command.RawInputs
+import me.jakejmattson.kutils.internal.utils.Responder
 import net.dv8tion.jda.api.entities.*
 
 data class DiscordContext(val discord: Discord,

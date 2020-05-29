@@ -1,7 +1,7 @@
 package me.jakejmattson.kutils.api.arguments
 
-import me.aberrantfox.kutils.api.dsl.arguments.*
-import me.aberrantfox.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.api.dsl.arguments.*
+import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 import kotlin.random.Random
 
 open class DoubleArg(override val name: String = "Decimal") : ArgumentType<Double>() {

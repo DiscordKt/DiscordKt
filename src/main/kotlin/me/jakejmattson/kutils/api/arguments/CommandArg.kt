@@ -1,7 +1,7 @@
 package me.jakejmattson.kutils.api.arguments
 
-import me.aberrantfox.kutils.api.dsl.arguments.*
-import me.aberrantfox.kutils.api.dsl.command.*
+import me.jakejmattson.kutils.api.dsl.arguments.*
+import me.jakejmattson.kutils.api.dsl.command.*
 
 open class CommandArg(override val name: String = "Command") : ArgumentType<Command>() {
     companion object : CommandArg()

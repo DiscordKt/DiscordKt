@@ -1,9 +1,9 @@
 package me.jakejmattson.kutils.internal.arguments
 
-import me.aberrantfox.kutils.api.dsl.arguments.*
-import me.aberrantfox.kutils.api.dsl.command.CommandEvent
-import me.aberrantfox.kutils.api.services.generateStructure
-import me.aberrantfox.kutils.internal.arguments.Result.*
+import me.jakejmattson.kutils.api.dsl.arguments.*
+import me.jakejmattson.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.api.services.generateStructure
+import me.jakejmattson.kutils.internal.arguments.Result.*
 
 internal sealed class Result {
     data class Success(val results: List<Any>) : Result()

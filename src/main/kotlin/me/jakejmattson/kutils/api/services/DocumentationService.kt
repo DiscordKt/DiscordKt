@@ -1,6 +1,6 @@
 package me.jakejmattson.kutils.api.services
 
-import me.aberrantfox.kutils.api.dsl.command.*
+import me.jakejmattson.kutils.api.dsl.command.*
 import java.io.File
 
 internal fun createDocumentation(container: CommandsContainer) {

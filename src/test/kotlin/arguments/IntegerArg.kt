@@ -1,6 +1,6 @@
 package arguments
 
-import me.aberrantfox.kutils.api.arguments.IntegerArg
+import me.jakejmattson.kutils.api.arguments.IntegerArg
 import utilities.ArgumentTestFactory
 
 class IntegerArgTest : ArgumentTestFactory {

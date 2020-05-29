@@ -1,8 +1,8 @@
 package mock
 
 import io.mockk.*
-import me.aberrantfox.kutils.api.Discord
-import me.aberrantfox.kutils.api.dsl.command.*
+import me.jakejmattson.kutils.api.Discord
+import me.jakejmattson.kutils.api.dsl.command.*
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.requests.RestAction

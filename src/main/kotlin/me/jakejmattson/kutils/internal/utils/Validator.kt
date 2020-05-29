@@ -1,8 +1,8 @@
 package me.jakejmattson.kutils.internal.utils
 
-import me.aberrantfox.kutils.api.arguments.EitherArg
-import me.aberrantfox.kutils.api.dsl.command.CommandsContainer
-import me.aberrantfox.kutils.api.dsl.configuration.KConfiguration
+import me.jakejmattson.kutils.api.arguments.EitherArg
+import me.jakejmattson.kutils.api.dsl.command.CommandsContainer
+import me.jakejmattson.kutils.api.dsl.configuration.KConfiguration
 
 internal val emojiRegex = "[^\\x00-\\x7F]+ *(?:[^\\x00-\\x7F]| )*".toRegex()
 

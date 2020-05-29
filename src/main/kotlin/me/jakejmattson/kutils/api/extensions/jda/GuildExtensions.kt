@@ -2,7 +2,7 @@
 
 package me.jakejmattson.kutils.api.extensions.jda
 
-import me.aberrantfox.kutils.api.extensions.stdlib.formatJdaDate
+import me.jakejmattson.kutils.api.extensions.stdlib.formatJdaDate
 import net.dv8tion.jda.api.entities.*
 
 fun Guild.getMemberJoinString(target: User) =

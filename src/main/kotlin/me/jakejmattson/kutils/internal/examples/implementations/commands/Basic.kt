@@ -1,8 +1,8 @@
 package me.jakejmattson.kutils.internal.examples.implementations.commands
 
-import me.aberrantfox.kutils.api.annotations.CommandSet
-import me.aberrantfox.kutils.api.arguments.*
-import me.aberrantfox.kutils.api.dsl.command.commands
+import me.jakejmattson.kutils.api.annotations.CommandSet
+import me.jakejmattson.kutils.api.arguments.*
+import me.jakejmattson.kutils.api.dsl.command.commands
 
 //Commands are the main interface that will be used to interact with your bot.
 //This is a good place to start understanding how commands are written.

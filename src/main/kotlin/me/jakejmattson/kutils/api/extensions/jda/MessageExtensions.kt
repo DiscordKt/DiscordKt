@@ -2,7 +2,7 @@
 
 package me.jakejmattson.kutils.api.extensions.jda
 
-import me.aberrantfox.kutils.api.extensions.stdlib.*
+import me.jakejmattson.kutils.api.extensions.stdlib.*
 import net.dv8tion.jda.api.entities.Message
 
 fun Message.containsInvite() = contentRaw.containsInvite()

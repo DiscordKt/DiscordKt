@@ -1,8 +1,8 @@
 package me.jakejmattson.kutils.internal.examples.implementations
 
-import me.aberrantfox.kutils.api.annotations.*
-import me.aberrantfox.kutils.api.dsl.command.commands
-import me.aberrantfox.kutils.api.services.PersistenceService
+import me.jakejmattson.kutils.api.annotations.*
+import me.jakejmattson.kutils.api.dsl.command.commands
+import me.jakejmattson.kutils.api.services.PersistenceService
 
 //Data objects are automatically loaded from the designated path on startup.
 //If the file does not exist at the designated path, it is created using the default arguments.

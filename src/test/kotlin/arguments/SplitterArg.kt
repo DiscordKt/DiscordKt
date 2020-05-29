@@ -1,6 +1,6 @@
 package arguments
 
-import me.aberrantfox.kutils.api.arguments.SplitterArg
+import me.jakejmattson.kutils.api.arguments.SplitterArg
 import utilities.ArgumentTestFactory
 
 class SplitterArgTest : ArgumentTestFactory {

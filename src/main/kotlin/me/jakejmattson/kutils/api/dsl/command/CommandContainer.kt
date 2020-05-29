@@ -1,9 +1,9 @@
 package me.jakejmattson.kutils.api.dsl.command
 
-import me.aberrantfox.kutils.api.annotations.CommandSet
-import me.aberrantfox.kutils.api.extensions.stdlib.pluralize
-import me.aberrantfox.kutils.api.services.DIService
-import me.aberrantfox.kutils.internal.utils.InternalLogger
+import me.jakejmattson.kutils.api.annotations.CommandSet
+import me.jakejmattson.kutils.api.extensions.stdlib.pluralize
+import me.jakejmattson.kutils.api.services.DIService
+import me.jakejmattson.kutils.internal.utils.InternalLogger
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 

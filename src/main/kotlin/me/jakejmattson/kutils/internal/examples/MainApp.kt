@@ -1,6 +1,6 @@
 package me.jakejmattson.kutils.internal.examples
 
-import me.aberrantfox.kutils.api.dsl.configuration.startBot
+import me.jakejmattson.kutils.api.dsl.configuration.startBot
 import java.awt.Color
 
 fun main(args: Array<String>) {

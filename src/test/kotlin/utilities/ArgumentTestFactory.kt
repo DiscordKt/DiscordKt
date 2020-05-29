@@ -1,6 +1,6 @@
 package utilities
 
-import me.aberrantfox.kutils.api.dsl.arguments.*
+import me.jakejmattson.kutils.api.dsl.arguments.*
 import mock.commandEventMock
 import org.junit.jupiter.api.*
 

@@ -1,9 +1,9 @@
 package me.jakejmattson.kutils.internal.command
 
 import kotlinx.coroutines.*
-import me.aberrantfox.kutils.api.dsl.command.*
-import me.aberrantfox.kutils.internal.arguments.*
-import me.aberrantfox.kutils.internal.utils.InternalLogger
+import me.jakejmattson.kutils.api.dsl.command.*
+import me.jakejmattson.kutils.internal.arguments.*
+import me.jakejmattson.kutils.internal.utils.InternalLogger
 import java.util.ArrayList
 
 internal class CommandExecutor {

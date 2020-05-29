@@ -1,7 +1,7 @@
 package me.jakejmattson.kutils.internal.command
 
-import me.aberrantfox.kutils.api.dsl.command.Command
-import me.aberrantfox.kutils.api.dsl.embed.embed
+import me.jakejmattson.kutils.api.dsl.command.Command
+import me.jakejmattson.kutils.api.dsl.embed.embed
 import org.apache.commons.text.similarity.LevenshteinDistance
 
 object CommandRecommender {

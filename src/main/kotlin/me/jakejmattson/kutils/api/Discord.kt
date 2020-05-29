@@ -1,9 +1,9 @@
 package me.jakejmattson.kutils.api
 
 import com.google.gson.Gson
-import me.aberrantfox.kutils.api.dsl.configuration.KConfiguration
-import me.aberrantfox.kutils.internal.event.EventRegister
-import me.aberrantfox.kutils.internal.utils.diService
+import me.jakejmattson.kutils.api.dsl.configuration.KConfiguration
+import me.jakejmattson.kutils.internal.event.EventRegister
+import me.jakejmattson.kutils.internal.utils.diService
 import net.dv8tion.jda.api.*
 import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.hooks.EventListener

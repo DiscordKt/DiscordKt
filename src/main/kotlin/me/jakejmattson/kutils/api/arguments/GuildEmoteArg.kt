@@ -1,8 +1,8 @@
 package me.jakejmattson.kutils.api.arguments
 
-import me.aberrantfox.kutils.api.dsl.arguments.*
-import me.aberrantfox.kutils.api.dsl.command.CommandEvent
-import me.aberrantfox.kutils.api.extensions.stdlib.trimToID
+import me.jakejmattson.kutils.api.dsl.arguments.*
+import me.jakejmattson.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.Emote
 
 open class GuildEmoteArg(override val name: String = "Guild Emote", private val allowsGlobal: Boolean = false) : ArgumentType<Emote>() {

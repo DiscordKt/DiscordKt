@@ -1,16 +1,16 @@
 package me.jakejmattson.kutils.internal.examples.implementations
 
-import me.aberrantfox.kutils.api.annotations.CommandSet
-import me.aberrantfox.kutils.api.arguments.*
-import me.aberrantfox.kutils.api.dsl.command.commands
-import me.aberrantfox.kutils.api.dsl.conversation.Conversation
-import me.aberrantfox.kutils.api.services.*
+import me.jakejmattson.kutils.api.annotations.CommandSet
+import me.jakejmattson.kutils.api.arguments.*
+import me.jakejmattson.kutils.api.dsl.command.commands
+import me.jakejmattson.kutils.api.dsl.conversation.*
+import me.jakejmattson.kutils.api.services.*
 
 //Conversations are a way to collect several pieces of data from a user without creating an unwieldy command.
 
 class DemoConversation : Conversation() {
     @Start
-    fun conversation() = me.aberrantfox.kutils.api.dsl.conversation.conversation(exitString = "exit") {
+    fun demoConversation() = conversation(exitString = "exit") {
         //This is a simple prompt that sends the user a message and waits for their response.
         //You will have access to the type-safe result immediately in this code for processing.
         //This will report an error if the argument parsing fails, and then send the prompt again.

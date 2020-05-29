@@ -1,6 +1,6 @@
 package me.jakejmattson.kutils.api.services
 
-import me.aberrantfox.kutils.api.Discord
+import me.jakejmattson.kutils.api.Discord
 import org.jetbrains.kotlin.cli.common.environment.setIdeaIoUseFallback
 import org.jetbrains.kotlin.script.jsr223.KotlinJsr223JvmLocalScriptEngineFactory
 

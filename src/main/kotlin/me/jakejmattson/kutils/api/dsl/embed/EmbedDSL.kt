@@ -2,7 +2,7 @@
 
 package me.jakejmattson.kutils.api.dsl.embed
 
-import me.aberrantfox.kutils.api.dsl.configuration.ColorConfiguration
+import me.jakejmattson.kutils.api.dsl.configuration.ColorConfiguration
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color

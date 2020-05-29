@@ -3,12 +3,12 @@ package me.jakejmattson.kutils.api.dsl.conversation
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
-import me.aberrantfox.kutils.api.Discord
-import me.aberrantfox.kutils.api.dsl.arguments.*
-import me.aberrantfox.kutils.api.dsl.command.*
-import me.aberrantfox.kutils.api.services.ConversationResult
-import me.aberrantfox.kutils.internal.command.RawInputs
-import me.aberrantfox.kutils.internal.utils.Responder
+import me.jakejmattson.kutils.api.Discord
+import me.jakejmattson.kutils.api.dsl.arguments.*
+import me.jakejmattson.kutils.api.dsl.command.*
+import me.jakejmattson.kutils.api.services.ConversationResult
+import me.jakejmattson.kutils.internal.command.RawInputs
+import me.jakejmattson.kutils.internal.utils.Responder
 import net.dv8tion.jda.api.entities.*
 
 private class ExitException : Exception("Conversation exited early.")
