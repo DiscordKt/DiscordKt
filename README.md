@@ -1,10 +1,6 @@
-<p align="center">
-  <a href="https://discord.gg/REZVVjA">
-    <img src="https://img.shields.io/discord/453208597082406912?logo=discord" alt="chat on Discord">
-  </a>
-</p>
+![KUtils Server](https://discordapp.com/api/guilds/453208597082406912/widget.png?style=banner2)
 
-The documentation for this project is located on the [GitLab Wiki](https://gitlab.com/Aberrantfox/KUtils/wikis/home).
+The documentation for this project is located on the [GitLab Wiki](https://gitlab.com/JakeJMattson/KUtils/wikis/home).
 
 #### Add with Maven
 ```xml
@@ -18,9 +14,9 @@ The documentation for this project is located on the [GitLab Wiki](https://gitla
     
     <dependencies>
         <dependency>
-            <groupId>com.gitlab.aberrantfox</groupId>
+            <groupId>com.gitlab.jakejmattson</groupId>
             <artifactId>KUtils</artifactId>
-            <version>0.16.0</version>
+            <version>0.17.0</version>
         </dependency>
     </dependencies>
 </project>
@@ -34,6 +30,6 @@ repositories {
 }
 
 dependencies {
-    implementation "com.gitlab.aberrantfox:KUtils:0.16.0"
+    implementation "com.gitlab.jakejmattson:KUtils:0.17.0"
 }
 ```

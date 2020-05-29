@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>me.aberrantfox</groupId>
+    <groupId>me.jakejmattson</groupId>
     <artifactId>KUtils</artifactId>
     <version>0.17.0</version>
 
@@ -34,7 +34,7 @@
         <mockk.version>1.10.0</mockk.version>
 
         <!-- Project -->
-        <project.repository>https://gitlab.com/Aberrantfox/KUtils</project.repository>
+        <project.repository>https://gitlab.com/JakeJMattson/KUtils</project.repository>
     </properties>
 
     <dependencies>
@@ -194,7 +194,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>me.aberrantfox.kutils.examples.MainAppKt</mainClass>
+                                    <mainClass>me.jakejmattson.kutils.internal.examples.MainAppKt</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
@@ -217,7 +217,7 @@
                 <artifactId>maven-install-plugin</artifactId>
                 <version>3.0.0-M1</version>
                 <configuration>
-                    <groupId>com.gitlab.aberrantfox</groupId>
+                    <groupId>com.gitlab.jakejmattson</groupId>
                     <artifactId>${project.artifactId}</artifactId>
                     <version>${project.version}-SNAPSHOT</version>
                     <file>target/${project.artifactId}-${project.version}.jar</file>
