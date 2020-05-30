@@ -1,4 +1,6 @@
 .idea/
 target/**
+build/**
+.gradle/**
 **.iml
 config.json
