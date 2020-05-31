@@ -1,4 +1,10 @@
+# IntelliJ
 .idea/
-target/**
-**.iml
+*.iml
+
+# Gradle
+.gradle/
+build/
+
+#Auto-generated file
 config.json
