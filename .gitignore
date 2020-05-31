@@ -1,5 +1,10 @@
+# IntelliJ
 .idea/
 *.iml
 
+# Gradle
 .gradle/
 build/
+
+#Auto-generated file
+config.json

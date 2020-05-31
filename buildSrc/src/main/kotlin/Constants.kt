@@ -23,13 +23,13 @@ object Dependencies {
     //Internal Dependencies
     const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     const val reflections = "org.reflections:reflections:${Versions.reflections}"
-    const val gson = "com.google.code.gson:gson:${Versions.gson}"
-    const val guava = "com.google.guava:guava:${Versions.guava}"
     const val commons = "org.apache.commons:commons-text:${Versions.commons}"
     const val slf4j = "org.slf4j:slf4j-simple:${Versions.slf4j}"
 
     //Library Dependencies
     const val jda = "net.dv8tion:JDA:${Versions.jda}"
+    const val guava = "com.google.guava:guava:${Versions.guava}"
+    const val gson = "com.google.code.gson:gson:${Versions.gson}"
 
     //Scripting Engine
     const val kotlinCompiler = "org.jetbrains.kotlin:kotlin-compiler-embeddable:${Versions.kotlin}"

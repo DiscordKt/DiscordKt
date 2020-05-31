@@ -22,13 +22,13 @@ dependencies {
     //Internal Dependencies
     implementation(Dependencies.coroutines)
     implementation(Dependencies.reflections)
-    implementation(Dependencies.gson)
-    implementation(Dependencies.guava)
     implementation(Dependencies.commons)
     implementation(Dependencies.slf4j)
 
     //Library Dependencies
-    implementation(Dependencies.jda)
+    api(Dependencies.jda)
+    api(Dependencies.guava)
+    api(Dependencies.gson)
 
     //Scripting Engine
     implementation(Dependencies.kotlinCompiler)
@@ -57,13 +57,23 @@ tasks {
     }
 }
 
+
 publishing {
     publications {
         create<MavenPublication>(Constants.projectName) {
             artifactId = Constants.projectName
             from(components["kotlin"])
             pom {
-                name.set(Constants.projectName)
+                withXml {
+                    val repoNode = asNode().appendNode("repositories").appendNode("repository")
+
+                    with(repoNode) {
+                        appendNode("id", "jcenter")
+                        appendNode("name", "jcenter-bintray")
+                        appendNode("url", "https://jcenter.bintray.com")
+                    }
+                }
+
                 description.set(Constants.projectDescription)
                 url.set(Constants.projectUrl)
                 licenses {
