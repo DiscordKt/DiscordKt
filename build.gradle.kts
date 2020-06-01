@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 group = "me.jakejmattson"
 version = "0.17.0"
 
@@ -43,13 +45,8 @@ dependencies {
 }
 
 tasks {
-    compileJava {
-        options.encoding = "UTF-8"
-
-        java {
-            sourceCompatibility = JavaVersion.VERSION_11
-            targetCompatibility = JavaVersion.VERSION_11
-        }
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "1.8"
     }
 
     test {
@@ -57,13 +54,21 @@ tasks {
     }
 }
 
-
 publishing {
     publications {
         create<MavenPublication>(Constants.projectName) {
             artifactId = Constants.projectName
             from(components["kotlin"])
             pom {
+                description.set(Constants.projectDescription)
+                url.set(Constants.projectUrl)
+                developers {
+                    developer {
+                        id.set("JakeJMattson")
+                        name.set("Jake Mattson")
+                        email.set("JakeJMattson@gmail.com")
+                    }
+                }
                 withXml {
                     val repoNode = asNode().appendNode("repositories").appendNode("repository")
 
@@ -73,20 +78,10 @@ publishing {
                         appendNode("url", "https://jcenter.bintray.com")
                     }
                 }
-
-                description.set(Constants.projectDescription)
-                url.set(Constants.projectUrl)
                 licenses {
                     license {
                         name.set("MIT")
                         url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("JakeJMattson")
-                        name.set("Jake Mattson")
-                        email.set("JakeJMattson@gmail.com")
                     }
                 }
             }
