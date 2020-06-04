@@ -35,7 +35,7 @@ internal class CommandListener(private val container: CommandsContainer,
         val discordContext = DiscordContext(discord, message)
         val prefix = config.prefix.invoke(discordContext)
 
-        val conversationService = discord.getInjectionObject<ConversationService>()!!
+        val conversationService = discord.getInjectionObjects(ConversationService::class)
 
         val rawInputs = when {
             isPrefixInvocation(content, prefix) -> stripPrefixInvocation(content, prefix)
