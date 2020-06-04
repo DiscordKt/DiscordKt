@@ -1,4 +1,4 @@
-package me.jakejmattson.kutils.api.services
+package me.jakejmattson.kutils.internal.services
 
 import me.jakejmattson.kutils.api.dsl.command.*
 import java.io.File

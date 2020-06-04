@@ -2,7 +2,7 @@ package me.jakejmattson.kutils.internal.arguments
 
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
-import me.jakejmattson.kutils.api.services.generateStructure
+import me.jakejmattson.kutils.internal.services.generateStructure
 import me.jakejmattson.kutils.internal.arguments.Result.*
 
 internal sealed class Result {

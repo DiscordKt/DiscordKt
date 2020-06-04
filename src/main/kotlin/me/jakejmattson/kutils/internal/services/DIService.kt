@@ -1,13 +1,14 @@
-package me.jakejmattson.kutils.api.services
+package me.jakejmattson.kutils.internal.services
 
 import com.google.gson.GsonBuilder
 import me.jakejmattson.kutils.api.annotations.*
+import me.jakejmattson.kutils.api.services.ScriptEngineService
 import me.jakejmattson.kutils.internal.utils.InternalLogger
 import java.io.File
 import java.lang.reflect.Method
 import kotlin.system.exitProcess
 
-class DIService {
+internal class DIService {
     private val elementMap = HashMap<Class<*>, Any>()
     private val gson = GsonBuilder().setPrettyPrinting().create()
 
@@ -15,7 +16,7 @@ class DIService {
         addElement(PersistenceService(this))
     }
 
-    fun addElement(element: Any) = elementMap.put(element::class.java, element)
+    internal fun addElement(element: Any) = elementMap.put(element::class.java, element)
 
     fun getElement(serviceClass: Class<*>) = elementMap[serviceClass]
 

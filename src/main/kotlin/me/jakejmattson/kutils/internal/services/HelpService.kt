@@ -1,4 +1,4 @@
-package me.jakejmattson.kutils.api.services
+package me.jakejmattson.kutils.internal.services
 
 import me.jakejmattson.kutils.api.arguments.AnyArg
 import me.jakejmattson.kutils.api.dsl.command.*
@@ -6,7 +6,7 @@ import me.jakejmattson.kutils.api.dsl.configuration.KConfiguration
 import me.jakejmattson.kutils.api.dsl.embed.embed
 import me.jakejmattson.kutils.internal.command.CommandRecommender
 
-class HelpService(private val container: CommandsContainer, private val config: KConfiguration) {
+internal class HelpService(private val container: CommandsContainer, private val config: KConfiguration) {
     fun produceHelpCommandContainer() = commands {
         command("Help") {
             description = "Display a help menu."

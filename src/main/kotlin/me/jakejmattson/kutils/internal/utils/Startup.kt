@@ -11,6 +11,8 @@ import me.jakejmattson.kutils.api.services.*
 import me.jakejmattson.kutils.internal.command.CommandRecommender
 import me.jakejmattson.kutils.internal.event.EventRegister
 import me.jakejmattson.kutils.internal.listeners.CommandListener
+import me.jakejmattson.kutils.internal.services.*
+import me.jakejmattson.kutils.internal.services.createDocumentation
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 import kotlin.system.exitProcess

@@ -2,7 +2,7 @@ package me.jakejmattson.kutils.api.dsl.command
 
 import me.jakejmattson.kutils.api.annotations.CommandSet
 import me.jakejmattson.kutils.api.extensions.stdlib.pluralize
-import me.jakejmattson.kutils.api.services.DIService
+import me.jakejmattson.kutils.internal.services.DIService
 import me.jakejmattson.kutils.internal.utils.InternalLogger
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
