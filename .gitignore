@@ -5,6 +5,7 @@
 # Gradle
 .gradle/
 build/
+gradle.properties
 
 #Auto-generated file
 config.json

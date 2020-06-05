@@ -1,11 +1,11 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "me.jakejmattson"
-version = "0.17.0"
+version = "0.17.0-SNAPSHOT"
+val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
     kotlin("jvm") version Versions.kotlin
-    `java-library`
     `maven-publish`
     id("com.github.ben-manes.versions") version "0.28.0"
 }
@@ -14,10 +14,6 @@ repositories {
     mavenCentral()
     mavenLocal()
     jcenter()
-
-    maven {
-        url = uri("https://jitpack.io")
-    }
 }
 
 dependencies {
@@ -57,7 +53,6 @@ tasks {
 publishing {
     publications {
         create<MavenPublication>(Constants.projectName) {
-            artifactId = Constants.projectName
             from(components["kotlin"])
             pom {
                 description.set(Constants.projectDescription)
@@ -82,6 +77,19 @@ publishing {
                     license {
                         name.set("MIT")
                         url.set("https://opensource.org/licenses/MIT")
+                    }
+                }
+            }
+            repositories {
+                val repoName = if (isSnapshot) "Snapshots" else "Releases"
+                val repoUrl = if (isSnapshot) Constants.snapshotsRepoUrl else Constants.releasesRepoUrl
+
+                maven {
+                    name = repoName
+                    url = uri(repoUrl)
+                    credentials {
+                        username = project.properties["nexusUsername"] as String
+                        password = project.properties["nexusPassword"] as String
                     }
                 }
             }
