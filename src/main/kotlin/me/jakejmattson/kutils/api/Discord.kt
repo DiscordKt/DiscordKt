@@ -25,23 +25,23 @@ abstract class Discord {
     @Deprecated("Use classes as parameters", ReplaceWith("discord.getInjectionObjects(T::class)"))
     inline fun <reified T> getInjectionObject() = diService.getElement(T::class.java) as T
 
-    inline fun <reified A : Any> getInjectionObjects(obj: KClass<A>) = getInjectionObject<A>()
+    inline fun <reified A : Any> getInjectionObjects(obj: KClass<A>) = diService.getElement(obj.java) as A
 
     inline fun <reified A : Any, reified B : Any>
-        getInjectionObjects(obj1: KClass<A>, obj2: KClass<B>)
-        = Args2(getInjectionObject<A>(), getInjectionObject<B>())
+        getInjectionObjects(a: KClass<A>, b: KClass<B>)
+        = Args2(getInjectionObjects(a), getInjectionObjects(b))
 
     inline fun <reified A : Any, reified B : Any, reified C : Any>
-        getInjectionObjects(obj1: KClass<A>, obj2: KClass<B>, obj3: KClass<C>)
-        = Args3(getInjectionObject<A>(), getInjectionObject<B>(), getInjectionObject<C>())
+        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>)
+        = Args3(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c))
 
     inline fun <reified A : Any, reified B : Any, reified C : Any, reified D : Any>
-        getInjectionObjects(obj1: KClass<A>, obj2: KClass<B>, obj3: KClass<C>, obj4: KClass<D>)
-        = Args4(getInjectionObject<A>(), getInjectionObject<B>(), getInjectionObject<C>(), getInjectionObject<D>())
+        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>)
+        = Args4(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c), getInjectionObjects(d))
 
     inline fun <reified A : Any, reified B : Any, reified C : Any, reified D : Any, reified E : Any>
-        getInjectionObjects(obj1: KClass<A>, obj2: KClass<B>, obj3: KClass<C>, obj4: KClass<D>, obj5: KClass<E>)
-        = Args5(getInjectionObject<A>(), getInjectionObject<B>(), getInjectionObject<C>(), getInjectionObject<D>(), getInjectionObject<E>())
+        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>, e: KClass<E>)
+        = Args5(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c), getInjectionObjects(d), getInjectionObjects(e))
 }
 
 internal fun buildDiscordClient(token: String, configuration: KConfiguration): Discord {
