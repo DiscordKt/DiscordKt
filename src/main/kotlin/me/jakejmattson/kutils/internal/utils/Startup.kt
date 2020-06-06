@@ -1,20 +1,15 @@
 package me.jakejmattson.kutils.internal.utils
 
-import com.google.common.eventbus.Subscribe
-import me.jakejmattson.kutils.api.annotations.*
 import me.jakejmattson.kutils.api.buildDiscordClient
-import me.jakejmattson.kutils.api.dsl.command.*
+import me.jakejmattson.kutils.api.dsl.command.CommandsContainer
 import me.jakejmattson.kutils.api.dsl.configuration.KConfiguration
-import me.jakejmattson.kutils.api.dsl.preconditions.*
+import me.jakejmattson.kutils.api.dsl.preconditions.PreconditionData
 import me.jakejmattson.kutils.api.extensions.stdlib.pluralize
 import me.jakejmattson.kutils.api.services.*
 import me.jakejmattson.kutils.internal.command.CommandRecommender
 import me.jakejmattson.kutils.internal.event.EventRegister
 import me.jakejmattson.kutils.internal.listeners.CommandListener
 import me.jakejmattson.kutils.internal.services.*
-import me.jakejmattson.kutils.internal.services.createDocumentation
-import org.reflections.Reflections
-import org.reflections.scanners.MethodAnnotationsScanner
 import kotlin.system.exitProcess
 
 @PublishedApi
@@ -29,16 +24,16 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
         InternalLogger.startup("GlobalPath: $globalPath")
         discord.addEventListener(EventRegister)
 
-        registerInjectionObjects(discord, conversationService)
+        registerInjectionObjects(discord, conversationService, PersistenceService())
 
         if (enableScriptEngine)
             registerInjectionObjects(ScriptEngineService(discord))
 
-        detectData()
-        detectServices()
+        registerData()
+        registerServices()
 
         val container = registerCommands()
-        val preconditions = registerPreconditions().toMutableList()
+        val preconditions = registerPreconditions()
         registerListeners(container, preconditions)
 
         conversationService.registerConversations(globalPath)
@@ -55,7 +50,7 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
     }
 
     private fun registerCommands(): CommandsContainer {
-        val localContainer = produceContainer(globalPath, diService)
+        val localContainer = ReflectionUtils.detectCommands(globalPath)
 
         //Add KUtils help command if a command named "Help" is not already provided
         val helpService = HelpService(localContainer, config)
@@ -67,10 +62,7 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
     }
 
     private fun registerListeners(container: CommandsContainer, preconditions: MutableList<PreconditionData>): CommandListener {
-        val listeners = Reflections(globalPath, MethodAnnotationsScanner()).getMethodsAnnotatedWith(Subscribe::class.java)
-            .map { it.declaringClass }
-            .distinct()
-            .map { diService.invokeConstructor(it) }
+        val listeners = ReflectionUtils.detectListeners(globalPath)
 
         InternalLogger.startup(listeners.size.pluralize("Listener"))
 
@@ -84,28 +76,14 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
         return commandListener
     }
 
-    private fun registerPreconditions(): List<PreconditionData> {
-        val preconditions = Reflections(globalPath, MethodAnnotationsScanner())
-            .getMethodsAnnotatedWith(Precondition::class.java)
-            .map {
-                val annotation = it.annotations.first { it.annotationClass == Precondition::class } as Precondition
-                val condition = diService.invokeReturningMethod<(CommandEvent<*>) -> PreconditionResult>(it)
+    private fun registerPreconditions() = ReflectionUtils.detectPreconditions(globalPath).also {
+        InternalLogger.startup(it.size.pluralize("Precondition"))
+    }.toMutableList()
 
-                PreconditionData(condition, annotation.priority)
-            }
+    private fun registerServices() = diService.invokeDestructiveList(ReflectionUtils.detectServices(globalPath))
 
-        InternalLogger.startup(preconditions.size.pluralize("Precondition"))
-
-        return preconditions
-    }
-
-    private fun detectServices() {
-        val services = Reflections(globalPath).getTypesAnnotatedWith(Service::class.java)
-        diService.invokeDestructiveList(services)
-    }
-
-    private fun detectData() {
-        val data = Reflections(globalPath).getTypesAnnotatedWith(Data::class.java)
+    private fun registerData() {
+        val data = ReflectionUtils.detectData(globalPath)
         val missingData = diService.collectDataObjects(data)
 
         InternalLogger.startup(data.size.pluralize("Data"))

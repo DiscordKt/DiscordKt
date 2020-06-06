@@ -2,6 +2,7 @@ package me.jakejmattson.kutils.api.arguments
 
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.api.extensions.jda.tryRetrieveSnowflake
 import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.TextChannel
 
@@ -9,7 +10,7 @@ open class TextChannelArg(override val name: String = "TextChannel", private val
     companion object : TextChannelArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<TextChannel> {
-        val channel = tryRetrieveSnowflake(event.discord.jda) {
+        val channel = event.discord.jda.tryRetrieveSnowflake {
             it.getTextChannelById(arg.trimToID())
         } as TextChannel? ?: return ArgumentResult.Error("Couldn't retrieve text channel: $arg")
 

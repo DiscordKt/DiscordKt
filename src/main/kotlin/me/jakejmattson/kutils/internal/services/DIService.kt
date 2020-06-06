@@ -8,15 +8,12 @@ import java.io.File
 import java.lang.reflect.Method
 import kotlin.system.exitProcess
 
+@PublishedApi
 internal class DIService {
     private val elementMap = HashMap<Class<*>, Any>()
     private val gson = GsonBuilder().setPrettyPrinting().create()
 
-    init {
-        addElement(PersistenceService(this))
-    }
-
-    internal fun addElement(element: Any) = elementMap.put(element::class.java, element)
+    fun addElement(element: Any) = elementMap.put(element::class.java, element)
 
     fun getElement(serviceClass: Class<*>) = elementMap[serviceClass]
 
@@ -116,7 +113,6 @@ internal class DIService {
         require((elementMap.containsKey(clazz))) { "You may only pass @Data annotated objects to PersistenceService#save" }
 
         val annotation = clazz.getAnnotation(Data::class.java) ?: return
-
         val file = File(annotation.path)
 
         file.writeText(gson.toJson(obj))
@@ -125,15 +121,13 @@ internal class DIService {
 
     private fun determineArguments(arguments: Array<out Class<*>>) =
         arguments.map { arg ->
-            val instance = elementMap.entries
+            elementMap.entries
                 .find { arg.isAssignableFrom(it.key) }
                 ?.value
                 ?: if (arg == ScriptEngineService::class.java)
                     throw IllegalStateException("ScriptEngineService must be enabled in startBot() before using.")
                 else
                     throw IllegalStateException("Couldn't inject of type '$arg' from registered objects.")
-
-            instance
         }.toTypedArray()
 
     private fun badInjectionExit(method: Method) {
@@ -157,8 +151,4 @@ internal class DIService {
             "Signature: $currentSignature\n" +
             "Suggested: $suggestedSignature")
     }
-}
-
-class PersistenceService(private val diService: DIService) {
-    fun save(obj: Any) = diService.saveObject(obj)
 }

@@ -2,6 +2,7 @@ package me.jakejmattson.kutils.api.arguments
 
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.api.extensions.jda.tryRetrieveSnowflake
 import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.*
 
@@ -9,7 +10,7 @@ open class VoiceChannelArg(override val name: String = "VoiceChannel", private v
     companion object : VoiceChannelArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<VoiceChannel> {
-        val channel = tryRetrieveSnowflake(event.discord.jda) {
+        val channel = event.discord.jda.tryRetrieveSnowflake {
             it.getVoiceChannelById(arg.trimToID())
         } as VoiceChannel? ?: return ArgumentResult.Error("Couldn't retrieve voice channel: $arg")
 

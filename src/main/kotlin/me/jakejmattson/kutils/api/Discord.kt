@@ -18,7 +18,7 @@ abstract class Discord {
     @Deprecated("To be removed")
     abstract val jda: JDA
     abstract val configuration: KConfiguration
-    val properties = Gson().fromJson(propFile, KUtilsProperties::class.java)
+    val properties = Gson().fromJson(propFile, KUtilsProperties::class.java)!!
 
     internal abstract fun addEventListener(register: EventRegister)
 
@@ -28,27 +28,25 @@ abstract class Discord {
     inline fun <reified A : Any> getInjectionObjects(obj: KClass<A>) = diService.getElement(obj.java) as A
 
     inline fun <reified A : Any, reified B : Any>
-        getInjectionObjects(a: KClass<A>, b: KClass<B>)
-        = Args2(getInjectionObjects(a), getInjectionObjects(b))
+        getInjectionObjects(a: KClass<A>, b: KClass<B>) =
+        Args2(getInjectionObjects(a), getInjectionObjects(b))
 
     inline fun <reified A : Any, reified B : Any, reified C : Any>
-        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>)
-        = Args3(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c))
+        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>) =
+        Args3(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c))
 
     inline fun <reified A : Any, reified B : Any, reified C : Any, reified D : Any>
-        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>)
-        = Args4(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c), getInjectionObjects(d))
+        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>) =
+        Args4(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c), getInjectionObjects(d))
 
     inline fun <reified A : Any, reified B : Any, reified C : Any, reified D : Any, reified E : Any>
-        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>, e: KClass<E>)
-        = Args5(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c), getInjectionObjects(d), getInjectionObjects(e))
+        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>, e: KClass<E>) =
+        Args5(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c), getInjectionObjects(d), getInjectionObjects(e))
 }
 
-internal fun buildDiscordClient(token: String, configuration: KConfiguration): Discord {
-    val jda = JDABuilder(token).build()
-    jda.awaitReady()
-    return object : Discord() {
-        override val jda: JDA = jda
+internal fun buildDiscordClient(token: String, configuration: KConfiguration) =
+    object : Discord() {
+        override val jda: JDA = JDABuilder(token).build().also { it.awaitReady() }
         override val configuration: KConfiguration = configuration
 
         override fun addEventListener(register: EventRegister) {
@@ -57,4 +55,3 @@ internal fun buildDiscordClient(token: String, configuration: KConfiguration): D
             })
         }
     }
-}

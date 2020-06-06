@@ -2,8 +2,8 @@ package me.jakejmattson.kutils.internal.arguments
 
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
-import me.jakejmattson.kutils.internal.services.generateStructure
 import me.jakejmattson.kutils.internal.arguments.Result.*
+import me.jakejmattson.kutils.internal.services.generateStructure
 
 internal sealed class Result {
     data class Success(val results: List<Any>) : Result()

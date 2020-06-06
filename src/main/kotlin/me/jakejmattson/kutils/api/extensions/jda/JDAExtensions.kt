@@ -21,5 +21,11 @@ fun JDA.getRoleIdentifier(role: String): RoleIdentifier {
 
 fun JDA.isRole(role: String) = roles.any { it.id == role || it.name.toLowerCase() == role.toLowerCase() }
 
-
 fun JDA.obtainRole(role: String): Role? = roles.firstOrNull { it.name.toLowerCase() == role.toLowerCase() || it.id == role }
+
+fun JDA.tryRetrieveSnowflake(action: (JDA) -> Any?) =
+    try {
+        action(this)
+    } catch (e: RuntimeException) {
+        null
+    }

@@ -2,7 +2,7 @@ package me.jakejmattson.kutils.internal.examples.implementations
 
 import me.jakejmattson.kutils.api.annotations.*
 import me.jakejmattson.kutils.api.dsl.command.commands
-import me.jakejmattson.kutils.internal.services.PersistenceService
+import me.jakejmattson.kutils.api.services.PersistenceService
 
 //Data objects are automatically loaded from the designated path on startup.
 //If the file does not exist at the designated path, it is created using the default arguments.

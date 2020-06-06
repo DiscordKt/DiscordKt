@@ -2,9 +2,10 @@
 
 package me.jakejmattson.kutils.api.dsl.command
 
+import me.jakejmattson.kutils.api.annotations.KutilsDsl
 import me.jakejmattson.kutils.api.dsl.arguments.ArgumentType
 
-@CommandTagMarker
+@KutilsDsl
 class Command(val names: List<String>,
               var description: String = "<No Description>",
               var category: String = "",
