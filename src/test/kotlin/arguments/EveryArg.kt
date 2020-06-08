@@ -1,6 +1,6 @@
 package arguments
 
-import me.aberrantfox.kjdautils.internal.arguments.EveryArg
+import me.jakejmattson.kutils.api.arguments.EveryArg
 import utilities.ArgumentTestFactory
 
 class EveryArgTest : ArgumentTestFactory {
@@ -12,5 +12,5 @@ class EveryArgTest : ArgumentTestFactory {
         "hello world" to "hello world"
     )
 
-    override val invalidArgs = listOf<String>()
+    override val invalidArgs = listOf("")
 }

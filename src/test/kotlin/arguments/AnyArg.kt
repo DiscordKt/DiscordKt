@@ -1,6 +1,6 @@
 package arguments
 
-import me.aberrantfox.kjdautils.internal.arguments.AnyArg
+import me.jakejmattson.kutils.api.arguments.AnyArg
 import utilities.ArgumentTestFactory
 
 class AnyArgTest : ArgumentTestFactory {

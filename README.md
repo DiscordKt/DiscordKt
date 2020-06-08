@@ -1,39 +1,24 @@
-<p align="center">
-  <a href="https://discord.gg/REZVVjA">
-    <img src="https://img.shields.io/discord/453208597082406912?logo=discord" alt="chat on Discord">
-  </a>
-</p>
+![KUtils Server](https://discordapp.com/api/guilds/453208597082406912/widget.png?style=banner2)
 
-The documentation for this project is located on the [GitLab Wiki](https://gitlab.com/Aberrantfox/KUtils/wikis/home).
+The documentation can be found on the [GitLab Wiki](https://gitlab.com/JakeJMattson/KUtils/wikis/home).
 
-#### Add with Maven
+#### Maven
 ```xml
-<project>
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
-    
-    <dependencies>
-        <dependency>
-            <groupId>com.gitlab.aberrantfox</groupId>
-            <artifactId>KUtils</artifactId>
-            <version>0.16.0</version>
-        </dependency>
-    </dependencies>
-</project>
+<dependency>
+    <groupId>me.jakejmattson</groupId>
+    <artifactId>KUtils</artifactId>
+    <version>0.17.0</version>
+</dependency>
 ```
 
-#### Add with Gradle
+#### Gradle
 ```groovy
-repositories {
-    maven { url 'https://jitpack.io' }
-    jcenter()
-}
-
 dependencies {
-    implementation "com.gitlab.aberrantfox:KUtils:0.16.0"
+    implementation 'me.jakejmattson:KUtils:0.17.0'
+}
+```
+```kotlin
+dependencies {
+    implementation("me.jakejmattson:KUtils:0.17.0")
 }
 ```

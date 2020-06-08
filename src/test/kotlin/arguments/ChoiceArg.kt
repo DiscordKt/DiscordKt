@@ -1,6 +1,6 @@
 package arguments
 
-import me.aberrantfox.kjdautils.internal.arguments.ChoiceArg
+import me.jakejmattson.kutils.api.arguments.ChoiceArg
 import utilities.ArgumentTestFactory
 
 class ChoiceArgTest : ArgumentTestFactory {
