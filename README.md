@@ -1,6 +1,6 @@
 ![KUtils Server](https://discordapp.com/api/guilds/453208597082406912/widget.png?style=banner2)
 
-The documentation for this project is located on the [GitLab Wiki](https://gitlab.com/JakeJMattson/KUtils/wikis/home).
+The documentation can be found on the [GitLab Wiki](https://gitlab.com/JakeJMattson/KUtils/wikis/home).
 
 #### Maven
 ```xml
