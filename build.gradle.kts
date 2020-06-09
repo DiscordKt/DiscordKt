@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "me.jakejmattson"
-version = "0.17.0"
+version = "0.17.1-SNAPSHOT"
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
@@ -105,8 +105,8 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:ssh://gitlab.com/JakeJMattson/KUtils.git")
-                    developerConnection.set("scm:git:ssh://git@gitlab.com:JakeJMattson/KUtils.git")
+                    connection.set("scm:git:ssh://github.com/JakeJMattson/KUtils.git")
+                    developerConnection.set("scm:git:ssh://git@github.com:JakeJMattson/KUtils.git")
                     url.set(Constants.projectUrl)
                 }
             }
