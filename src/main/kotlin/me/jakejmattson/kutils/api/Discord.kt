@@ -23,9 +23,9 @@ abstract class Discord {
     internal abstract fun addEventListener(register: EventRegister)
 
     @Deprecated("Use classes as parameters", ReplaceWith("discord.getInjectionObjects(T::class)"))
-    inline fun <reified T> getInjectionObject() = diService.getElement(T::class.java) as T
+    inline fun <reified T> getInjectionObject() = diService.getElement<T>()
 
-    inline fun <reified A : Any> getInjectionObjects(obj: KClass<A>) = diService.getElement(obj.java) as A
+    inline fun <reified A : Any> getInjectionObjects(a: KClass<A>) = diService.getElement<A>()
 
     inline fun <reified A : Any, reified B : Any>
         getInjectionObjects(a: KClass<A>, b: KClass<B>) =

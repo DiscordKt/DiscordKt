@@ -1,5 +1,6 @@
 package me.jakejmattson.kutils.internal.utils
 
+import me.jakejmattson.kutils.api.annotations.*
 import me.jakejmattson.kutils.api.buildDiscordClient
 import me.jakejmattson.kutils.api.dsl.command.CommandsContainer
 import me.jakejmattson.kutils.api.dsl.configuration.KConfiguration
@@ -80,10 +81,10 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
         InternalLogger.startup(it.size.pluralize("Precondition"))
     }.toMutableList()
 
-    private fun registerServices() = diService.invokeDestructiveList(ReflectionUtils.detectServices(globalPath))
+    private fun registerServices() = diService.invokeDestructiveList(ReflectionUtils.detectClassesWith<Service>(globalPath))
 
     private fun registerData() {
-        val data = ReflectionUtils.detectData(globalPath)
+        val data = ReflectionUtils.detectClassesWith<Data>(globalPath)
         val missingData = diService.collectDataObjects(data)
 
         InternalLogger.startup(data.size.pluralize("Data"))
