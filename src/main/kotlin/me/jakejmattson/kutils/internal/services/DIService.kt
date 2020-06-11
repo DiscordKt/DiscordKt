@@ -37,35 +37,23 @@ internal class DIService {
     }
 
     fun invokeDestructiveList(services: Set<Class<*>>, last: Int = -1) {
-        val failed = hashSetOf<Class<*>>()
-
-        services.forEach {
+        val failed = services.mapNotNull {
             try {
                 val result = invokeConstructor(it)
                 addElement(result)
+                null
             } catch (e: IllegalStateException) {
-                failed.add(it)
+                it
             }
-        }
-
-        println(elementMap)
-        println(failed)
-
-        if (failed.isEmpty())
-            return
+        }.toSet().takeIf { it.isNotEmpty() } ?: return
 
         val sortedFailures = failed
             .map { it.simplerName to it.constructors.first() }
             .sortedBy { (_, constructor) -> constructor.parameterCount }
             .map { (name, constructor) -> name to constructor.parameterTypes }
-            .joinToString("\n") { (name, types) ->
-                "$name(${types.joinToString { it.simplerName }})"
-            }
 
-        if(failed.size != last) {
-            InternalLogger.error("Unable to build the following dependencies:\n$sortedFailures")
-            exitProcess(-1)
-        }
+        if (failed.size == last)
+            InternalLogger.error(generateBadInjectionReport(sortedFailures)).also { exitProcess(-1) }
 
         invokeDestructiveList(failed, failed.size)
     }
@@ -133,4 +121,15 @@ internal class DIService {
             "Signature: $currentSignature\n" +
             "Suggested: $suggestedSignature")
     }
+
+    private fun generateBadInjectionReport(failedInjections: List<Pair<String, Array<Class<*>>>>) =
+        "Dependency injection error. Unable to build the following dependencies:\n" +
+            failedInjections.joinToString("\n") { (name, types) ->
+                "$name(${types.joinToString { it.simplerName }})"
+            } + "\n\nKnown missing base dependencies:\n" +
+            failedInjections.flatMap { (_, parameters) ->
+                parameters.mapNotNull { clazz ->
+                    clazz.takeIf { it !in elementMap }
+                }
+            }.joinToString("\n") { it.simplerName }
 }
