@@ -8,8 +8,8 @@ fun startBot(token: String, enableScriptEngine: Boolean = false, globalPath: Str
 
     val util = KUtils(KConfiguration(), token, globalPath, enableScriptEngine)
     util.operate()
+    util.applyConfiguration.invoke()
 
-    InternalLogger.startup("----------------------------------------------")
     return util
 }
 
