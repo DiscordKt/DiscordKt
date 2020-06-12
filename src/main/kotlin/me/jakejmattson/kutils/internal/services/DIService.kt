@@ -8,6 +8,8 @@ import java.io.File
 import java.lang.reflect.Method
 import kotlin.system.exitProcess
 
+internal data class FailureBundle(val clazz: Class<*>, val parameters: List<Class<*>>)
+
 @PublishedApi
 internal class DIService {
     val elementMap = HashMap<Class<*>, Any>()
@@ -48,9 +50,9 @@ internal class DIService {
         }.toSet().takeIf { it.isNotEmpty() } ?: return
 
         val sortedFailures = failed
-            .map { it.simplerName to it.constructors.first() }
+            .map { it to it.constructors.first() }
             .sortedBy { (_, constructor) -> constructor.parameterCount }
-            .map { (name, constructor) -> name to constructor.parameterTypes }
+            .map { (clazz, constructor) -> FailureBundle(clazz, constructor.parameterTypes.toList()) }
 
         if (failed.size == last)
             InternalLogger.error(generateBadInjectionReport(sortedFailures)).also { exitProcess(-1) }
@@ -122,14 +124,68 @@ internal class DIService {
             "Suggested: $suggestedSignature")
     }
 
-    private fun generateBadInjectionReport(failedInjections: List<Pair<String, Array<Class<*>>>>) =
-        "Dependency injection error. Unable to build the following dependencies:\n" +
-            failedInjections.joinToString("\n") { (name, types) ->
-                "$name(${types.joinToString { it.simplerName }})"
-            } + "\n\nKnown missing base dependencies:\n" +
-            failedInjections.flatMap { (_, parameters) ->
-                parameters.mapNotNull { clazz ->
-                    clazz.takeIf { it !in elementMap }
-                }
-            }.joinToString("\n") { it.simplerName }
+    private fun generateBadInjectionReport(failedInjections: List<FailureBundle>) = buildString {
+        appendln("Dependency injection error!")
+        appendln("Unable to build the following:")
+
+        val failedDependencyList = failedInjections.joinToString("\n") { (clazz, types) ->
+            "${clazz.simplerName}(${types.joinToString { it.simplerName }})"
+        }
+
+        appendln(failedDependencyList)
+
+        val missingDependencies = failedInjections.flatMap { (_, parameters) ->
+            parameters.mapNotNull { clazz ->
+                clazz.takeIf { parameter -> parameter !in elementMap }
+            }
+        }.distinct()
+
+        val missing = missingDependencies.filter { missing -> failedInjections.none { it.clazz == missing } }
+        val failed = missingDependencies.filter { failed -> failedInjections.any { it.clazz == failed } }
+
+        if (missing.isNotEmpty()) {
+            appendln()
+            appendln("Missing base dependencies:")
+            appendln(missing.joinToString("\n") { it.simplerName })
+        }
+
+        if (failed.isNotEmpty()) {
+            val failPaths = failed
+                .mapNotNull { getCyclicList(it) }
+                .distinctBy { it.toSet() }
+                .joinToString("\n") { it.joinToString(" -> ") { it.simplerName } }
+
+            appendln()
+            appendln("Infinite loop detected:")
+            append(failPaths)
+        }
+    }
 }
+
+private fun getCyclicList(target: Class<*>): List<Class<*>>? {
+    val pathList = mutableListOf<Class<*>>()
+    pathList.add(target)
+
+    target.children.forEach {
+        if (hasPath(it, pathList, target))
+            return pathList
+    }
+
+    return null
+}
+
+private fun hasPath(root: Class<*>, path: MutableList<Class<*>>, target: Class<*>): Boolean {
+    path.add(root)
+
+    if (root == target) return true
+
+    for (child in root.children)
+        if (hasPath(child, path, target))
+            return true
+
+    path.removeAt(path.size - 1)
+    return false
+}
+
+private val Class<*>.children
+    get() = constructors.first().parameterTypes
