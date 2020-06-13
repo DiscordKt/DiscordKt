@@ -10,7 +10,10 @@ import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.hooks.EventListener
 import kotlin.reflect.KClass
 
-data class KUtilsProperties(val kutilsVersion: String, val kotlinVersion: String, val jdaVersion: String, val repository: String)
+data class KUtilsProperties(val repository: String,
+                            val kutilsVersion: String,
+                            val kotlinVersion: String,
+                            val jdaVersion: String)
 
 private val propFile = KUtilsProperties::class.java.getResource("/kutils-properties.json").readText()
 

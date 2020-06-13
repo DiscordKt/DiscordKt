@@ -44,6 +44,8 @@ dependencies {
 }
 
 tasks {
+    val resourcePath = "src/main/resources"
+
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
     }
@@ -53,10 +55,26 @@ tasks {
     }
 
     copy {
-        from(file("src/main/resources/templates/readme-template.md"))
+        from(file("$resourcePath/templates/readme-template.md"))
         into(file("."))
         rename{ "README.md" }
-        expand("group" to group, "project" to Constants.projectName, "version" to version)
+        expand(
+            "group" to group,
+            "project" to Constants.projectName,
+            "version" to version
+        )
+    }
+
+    copy {
+        from(file("$resourcePath/templates/properties-template.json"))
+        into(file(resourcePath))
+        rename{ "kutils-properties.json" }
+        expand(
+            "projectRepo" to Constants.projectUrl,
+            "projectVersion" to version,
+            "kotlinVersion" to Versions.kotlin,
+            "jdaVersion" to Versions.jda
+        )
     }
 
     dokka {
