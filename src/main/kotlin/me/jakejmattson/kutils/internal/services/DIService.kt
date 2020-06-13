@@ -134,14 +134,16 @@ internal class DIService {
 
         appendln(failedDependencyList)
 
-        val missingDependencies = failedInjections.flatMap { (_, parameters) ->
-            parameters.mapNotNull { clazz ->
-                clazz.takeIf { parameter -> parameter !in elementMap }
-            }
-        }.distinct()
+        val failedClasses = failedInjections.map { it.clazz }
 
-        val missing = missingDependencies.filter { missing -> failedInjections.none { it.clazz == missing } }
-        val failed = missingDependencies.filter { failed -> failedInjections.any { it.clazz == failed } }
+        val (failed, missing) = failedInjections
+            .flatMap { (_, parameters) ->
+                parameters.mapNotNull { clazz ->
+                    clazz.takeIf { parameter -> parameter !in elementMap }
+                }
+            }
+            .distinct()
+            .partition { it in failedClasses }
 
         if (missing.isNotEmpty()) {
             appendln()
@@ -162,30 +164,19 @@ internal class DIService {
     }
 }
 
-private fun getCyclicList(target: Class<*>): List<Class<*>>? {
-    val pathList = mutableListOf<Class<*>>()
-    pathList.add(target)
-
-    target.children.forEach {
-        if (hasPath(it, pathList, target))
-            return pathList
-    }
-
-    return null
+private fun getCyclicList(target: Class<*>) = mutableListOf(target).takeIf { pathList ->
+    target.children.any { hasPath(it, pathList, target) }
 }
 
 private fun hasPath(root: Class<*>, path: MutableList<Class<*>>, target: Class<*>): Boolean {
     path.add(root)
 
-    if (root == target) return true
+    if (root == target || root.children.any { hasPath(it, path, target) })
+        return true
 
-    for (child in root.children)
-        if (hasPath(child, path, target))
-            return true
-
-    path.removeAt(path.size - 1)
+    path.removeAt(path.lastIndex)
     return false
 }
 
 private val Class<*>.children
-    get() = constructors.first().parameterTypes
+    get() = constructors.firstOrNull()?.parameterTypes ?: emptyArray()
