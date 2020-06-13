@@ -52,6 +52,13 @@ tasks {
         useJUnitPlatform()
     }
 
+    copy {
+        from(file("src/main/resources/templates/readme-template.md"))
+        into(file("."))
+        rename{ "README.md" }
+        expand("group" to group, "project" to Constants.projectName, "version" to version)
+    }
+
     dokka {
         outputFormat = "html"
         outputDirectory = "$buildDir/javadoc"
@@ -118,8 +125,8 @@ publishing {
                     name = repoName
                     url = uri(repoUrl)
                     credentials {
-                        username = project.properties["nexusUsername"] as String
-                        password = project.properties["nexusPassword"] as String
+                        username = project.properties["nexusUsername"] as String?
+                        password = project.properties["nexusPassword"] as String?
                     }
                 }
             }

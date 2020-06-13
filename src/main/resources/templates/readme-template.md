@@ -6,20 +6,20 @@ The best source for learning the framework is by joining the Discord, or checkin
 #### Maven
 ```xml
 <dependency>
-    <groupId>me.jakejmattson</groupId>
-    <artifactId>KUtils</artifactId>
-    <version>0.17.1-SNAPSHOT</version>
+    <groupId>${group}</groupId>
+    <artifactId>${project}</artifactId>
+    <version>${version}</version>
 </dependency>
 ```
 
 #### Gradle
 ```groovy
 dependencies {
-    implementation 'me.jakejmattson:KUtils:0.17.1-SNAPSHOT'
+    implementation '${group}:${project}:${version}'
 }
 ```
 ```kotlin
 dependencies {
-    implementation("me.jakejmattson:KUtils:0.17.1-SNAPSHOT")
+    implementation("${group}:${project}:${version}")
 }
 ```
