@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.jakejmattson.kutils.api.dsl.conversation
 
 import kotlinx.coroutines.channels.Channel

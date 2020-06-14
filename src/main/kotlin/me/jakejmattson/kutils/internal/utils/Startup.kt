@@ -49,6 +49,7 @@ class KUtils(private val config: KConfiguration, token: String, private val glob
         InternalLogger.startup("----------------------------------------------")
     }
 
+    @Suppress("UNUSED")
     fun configure(setup: KConfiguration.() -> Unit = {}) {
         applyConfiguration = {
             init()

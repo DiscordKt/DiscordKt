@@ -8,7 +8,6 @@ import me.jakejmattson.kutils.api.extensions.stdlib.pluralize
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
 import java.lang.reflect.Method
-import kotlin.jvm.internal.Reflection
 
 internal object ReflectionUtils {
     fun detectCommands(path: String): CommandsContainer {

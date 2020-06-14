@@ -10,7 +10,7 @@ open class CharArg(override val name: String = "Character") : ArgumentType<Char>
         return if (arg.length == 1)
             ArgumentResult.Success(arg[0])
         else
-            ArgumentResult.Error("Invalid character argument.")
+            ArgumentResult.Error("$name should be a single character.")
     }
 
     override fun generateExamples(event: CommandEvent<*>) = ('a'..'z').map { it.toString() }

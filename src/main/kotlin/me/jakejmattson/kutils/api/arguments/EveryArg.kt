@@ -7,8 +7,8 @@ open class EveryArg(override val name: String = "Text") : ArgumentType<String>()
     companion object : EveryArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
-        if (args.size == 1 && args.first().isEmpty())
-            return ArgumentResult.Error("No input to consume.")
+        if (args.size in 0..1 && arg.isEmpty())
+            return ArgumentResult.Error("$name cannot be empty.")
 
         return ArgumentResult.Success(args.joinToString(" "), args.size)
     }

@@ -10,11 +10,13 @@ open class IntegerRangeArg(private val min: Int, private val max: Int, override 
     }
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Int> {
-        val integerArg = arg.toIntOrNull() ?: return ArgumentResult.Error("Argument must be an integer.")
+        val int = arg.toIntOrNull()
+            ?: return ArgumentResult.Error("Expected $name, got $arg.")
 
-        if (integerArg !in min..max) return ArgumentResult.Error("Argument not in range $min-$max.")
+        if (int !in min..max)
+            return ArgumentResult.Error("$arg not in range $name($min-$max).")
 
-        return ArgumentResult.Success(integerArg)
+        return ArgumentResult.Success(int)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf((min..max).random().toString())

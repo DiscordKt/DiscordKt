@@ -8,7 +8,7 @@ open class IntegerArg(override val name: String = "Integer") : ArgumentType<Int>
     companion object : IntegerArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Int> {
-        val int = arg.toIntOrNull() ?: return ArgumentResult.Error("Expected an integer number, got $arg")
+        val int = arg.toIntOrNull() ?: return ArgumentResult.Error("Couldn't parse $name from $arg.")
         return ArgumentResult.Success(int)
     }
 

@@ -30,14 +30,23 @@ class EmbedDSLHandle {
 
     private val mutableFields: MutableList<EmbedField> = mutableListOf()
     private var author: MessageEmbed.AuthorInfo? = null
+    private var titleBundle: TitleBuilder? = null
     private var footer: MessageEmbed.Footer? = null
 
+    @Deprecated("Replace with builder.", ReplaceWith("title {\ntext = this."))
     var title: String? = null
+
     var description: String? = null
     var color: Color? = null
     var thumbnail: String? = null
     var image: String? = null
     var timeStamp: TemporalAccessor? = null
+
+    fun title(construct: TitleBuilder.() -> Unit) {
+        val titleBuilder = TitleBuilder()
+        titleBuilder.construct()
+        titleBundle = titleBuilder
+    }
 
     fun author(construct: AuthorBuilder.() -> Unit) {
         val authorBuilder = AuthorBuilder()
@@ -65,7 +74,7 @@ class EmbedDSLHandle {
     fun build(): MessageEmbed {
         val embedBuilder = EmbedBuilder().apply {
             fields.addAll(mutableFields)
-            setTitle(title)
+            setTitle(titleBundle?.text, titleBundle?.url)
             setDescription(description)
             setColor(color)
             setThumbnail(thumbnail)
@@ -79,12 +88,14 @@ class EmbedDSLHandle {
     }
 }
 
-data class FieldBuilder(var name: String? = "", var value: String? = "", var inline: Boolean = false) {
-    fun build() = EmbedField(name, value, inline)
-}
+data class TitleBuilder(var text: String? = "", var url: String? = null)
 
 data class AuthorBuilder(var name: String? = "", var url: String? = null, var iconUrl: String? = null) {
     fun build() = MessageEmbed.AuthorInfo(name, url, iconUrl, null)
+}
+
+data class FieldBuilder(var name: String? = "", var value: String? = "", var inline: Boolean = false) {
+    fun build() = EmbedField(name, value, inline)
 }
 
 data class FooterBuilder(var text: String? = "", var iconUrl: String? = null) {

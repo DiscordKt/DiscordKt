@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.jakejmattson.kutils.api.services
 
 import kotlinx.coroutines.runBlocking
@@ -6,8 +8,6 @@ import me.jakejmattson.kutils.api.dsl.conversation.*
 import me.jakejmattson.kutils.api.extensions.stdlib.pluralize
 import me.jakejmattson.kutils.internal.utils.*
 import net.dv8tion.jda.api.entities.*
-import org.reflections.Reflections
-import org.reflections.scanners.MethodAnnotationsScanner
 import java.lang.reflect.Method
 
 enum class ConversationResult {

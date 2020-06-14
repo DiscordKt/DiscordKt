@@ -1,6 +1,8 @@
+@file:Suppress("unused")
+
 package me.jakejmattson.kutils.api.dsl.configuration
 
-import me.jakejmattson.kutils.internal.utils.*
+import me.jakejmattson.kutils.internal.utils.KUtils
 import org.slf4j.impl.SimpleLogger
 
 fun startBot(token: String, enableScriptEngine: Boolean = false, globalPath: String = defaultGlobalPath(Exception()), operate: KUtils.() -> Unit = {}): KUtils {

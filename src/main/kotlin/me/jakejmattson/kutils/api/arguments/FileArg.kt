@@ -11,7 +11,7 @@ open class FileArg(override val name: String = "File") : ArgumentType<File>() {
         val attachments = event.message.attachments
 
         if (attachments.isEmpty())
-            return ArgumentResult.Error("No attachments in message.")
+            return ArgumentResult.Error("$name argument requires a message attachment.")
 
         val file = attachments.first().downloadToFile().get()
 
