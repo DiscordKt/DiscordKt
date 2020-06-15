@@ -21,7 +21,9 @@ object CommandRecommender {
         embed {
             val recommendation = recommendCommand(input, predicate) ?: "<none>"
 
-            title = "Unknown Command"
+            title {
+                text = "Unknown Command"
+            }
             description = "Closest Recommendation: $recommendation\n"
             color = failureColor
         }

@@ -27,13 +27,15 @@ internal class HelpService(private val container: CommandsContainer, private val
 
     private fun generateDefaultEmbed(event: CommandEvent<*>) =
         embed {
-            title = "Help menu"
+            title {
+                text = "Help menu"
+            }
             description = "Use `${event.relevantPrefix}help <command>` for more information."
             color = infoColor
 
-            val categoryMap = fetchVisibleCommands(event).groupBy { it.category }
-
-            categoryMap.toList()
+            fetchVisibleCommands(event)
+                .groupBy { it.category }
+                .toList()
                 .sortedBy { (_, commands) -> -commands.size }
                 .map { (category, commands) ->
                     field {
@@ -50,7 +52,9 @@ internal class HelpService(private val container: CommandsContainer, private val
         }
 
     private fun generateCommandEmbed(command: Command, event: CommandEvent<*>, input: String) = embed {
-        title = command.names.joinToString()
+        title {
+            text = command.names.joinToString()
+        }
         description = command.description
         color = infoColor
 

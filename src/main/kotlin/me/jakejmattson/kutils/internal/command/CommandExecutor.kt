@@ -14,25 +14,28 @@ internal class CommandExecutor {
     }
 
     private fun invokeCommand(command: Command, actualArgs: List<String>, event: CommandEvent<GenericContainer>) {
-        val shouldDeleteErrors = event.discord.configuration.deleteErrors
         val expected = command.arguments
         val initialConversion = convertArguments(actualArgs, expected, event)
 
-        if (initialConversion is Result.Success) {
-            val bundle = bundleToArgContainer(initialConversion.results)
-            return command.invoke(bundle, event)
+        fun respondAccordingly(error: String) =
+            if (event.discord.configuration.deleteErrors)
+                event.respondTimed(error)
+            else
+                event.respond(error)
+
+        val error = when (initialConversion) {
+            is ConversionResult.Success -> return command.invoke(bundleToArgContainer(initialConversion.results), event)
+            is ConversionResult.Error -> initialConversion.error
         }
 
-        val error = (initialConversion as Result.Error).error
-
         if (!command.isFlexible || expected.size < 2)
-            return if (shouldDeleteErrors) event.respondTimed(error) else event.respond(error)
+            return respondAccordingly(error)
 
         val successList = expected.toMutableList().generateAllPermutations()
             .mapNotNull {
                 val conversion = convertArguments(actualArgs, it, event)
 
-                if (conversion is Result.Success)
+                if (conversion is ConversionResult.Success)
                     it to conversion.results
                 else
                     null
@@ -42,7 +45,7 @@ internal class CommandExecutor {
             }
 
         if (successList.isEmpty())
-            return if (shouldDeleteErrors) event.respondTimed(error) else event.respond(error)
+            return respondAccordingly(error)
 
         if (successList.size > 1) {
             InternalLogger.error(
@@ -53,7 +56,7 @@ internal class CommandExecutor {
                 """.trimIndent()
             )
 
-            return if (shouldDeleteErrors) event.respondTimed(error) else event.respond(error)
+            return respondAccordingly(error)
         }
 
         val success = successList.first()
@@ -69,16 +72,14 @@ internal class CommandExecutor {
     }
 
     private fun <E> MutableList<E>.generateAllPermutations(): List<List<E>> {
-        if (isEmpty()) {
-            val result: MutableList<List<E>> = ArrayList()
-            result.add(ArrayList())
-            return result
-        }
+        if (isEmpty())
+            return listOf(listOf())
+
         val firstElement = removeAt(0)
         val returnValue: MutableList<List<E>> = ArrayList()
 
         generateAllPermutations().forEachIndexed { index, list ->
-            val temp = ArrayList(list)
+            val temp = list.toMutableList()
             temp.add(index, firstElement)
             returnValue.add(temp)
         }
