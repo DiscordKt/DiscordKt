@@ -12,10 +12,10 @@ open class UserArg(override val name: String = "User", private val allowsBot: Bo
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {
         val user = event.discord.jda.tryRetrieveSnowflake {
             it.retrieveUserById(arg.trimToID()).complete()
-        } as User? ?: return ArgumentResult.Error("Couldn't retrieve user: $arg")
+        } as User? ?: return ArgumentResult.Error("Couldn't retrieve $name from $arg.")
 
         if (!allowsBot && user.isBot)
-            return ArgumentResult.Error("A bot is not a valid user arg.")
+            return ArgumentResult.Error("$name cannot be a bot.")
 
         return ArgumentResult.Success(user)
     }

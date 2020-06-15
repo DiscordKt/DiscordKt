@@ -7,11 +7,12 @@ import me.jakejmattson.kutils.api.dsl.preconditions.*
 import me.jakejmattson.kutils.api.extensions.stdlib.pluralize
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
+import java.lang.reflect.Method
 
 internal object ReflectionUtils {
     fun detectCommands(path: String): CommandsContainer {
-        val commandSets = detectMethods<CommandSet>(path)
-            .map { diService.invokeReturningMethod<CommandsContainer>(it) to it.getAnnotation(CommandSet::class.java).category }
+        val commandSets = detectMethodsWith<CommandSet>(path)
+            .map { diService.invokeReturningMethod<CommandsContainer>(it) to it.getAnnotation<CommandSet>().category }
 
         if (commandSets.isEmpty()) {
             InternalLogger.startup("0 CommandSets -> 0 Commands")
@@ -30,22 +31,26 @@ internal object ReflectionUtils {
         return CommandsContainer(allCommands)
     }
 
-    fun detectListeners(path: String) = detectMethods<Subscribe>(path)
+    fun detectListeners(path: String) = detectMethodsWith<Subscribe>(path)
         .map { it.declaringClass }
         .distinct()
         .map { diService.invokeConstructor(it) }
 
-    fun detectPreconditions(path: String) = detectMethods<Precondition>(path)
+    fun detectPreconditions(path: String) = detectMethodsWith<Precondition>(path)
         .map {
-            val annotation = it.getAnnotation(Precondition::class.java)
+            val annotation = it.getAnnotation<Precondition>()
             val condition = diService.invokeReturningMethod<(CommandEvent<*>) -> PreconditionResult>(it)
 
             PreconditionData(condition, annotation.priority)
         }
 
-    fun detectData(path: String) = detectClasses<Data>(path)
-    fun detectServices(path: String) = detectClasses<Service>(path)
-
-    private inline fun <reified T : Annotation> detectClasses(path: String) = Reflections(path).getTypesAnnotatedWith(T::class.java)
-    private inline fun <reified T : Annotation> detectMethods(path: String) = Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(T::class.java)
+    inline fun <reified T : Annotation> detectClassesWith(path: String) = Reflections(path).getTypesAnnotatedWith(T::class.java)
+    inline fun <reified T> detectSubtypesOf(path: String) = Reflections(path).getSubTypesOf(T::class.java)
+    inline fun <reified T : Annotation> detectMethodsWith(path: String) = Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(T::class.java)
 }
+
+internal inline fun <reified T : Annotation> Method.getAnnotation() = getAnnotation(T::class.java)
+internal inline fun <reified T : Annotation> Class<*>.getAnnotation() = getAnnotation(T::class.java)
+
+internal val Class<*>.simplerName
+    get() = simpleName.substringAfterLast(".")

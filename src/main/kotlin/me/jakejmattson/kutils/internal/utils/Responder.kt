@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.jakejmattson.kutils.internal.utils
 
 import kotlinx.coroutines.*

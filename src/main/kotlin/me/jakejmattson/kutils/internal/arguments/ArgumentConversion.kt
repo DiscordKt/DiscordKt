@@ -2,18 +2,18 @@ package me.jakejmattson.kutils.internal.arguments
 
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
-import me.jakejmattson.kutils.internal.arguments.Result.*
+import me.jakejmattson.kutils.internal.arguments.ConversionResult.Success
 import me.jakejmattson.kutils.internal.services.generateStructure
 
-internal sealed class Result {
-    data class Success(val results: List<Any>) : Result()
-    data class Error(val error: String) : Result()
+internal sealed class ConversionResult {
+    data class Success(val results: List<Any>) : ConversionResult()
+    data class Error(val error: String) : ConversionResult()
 }
 
 private fun convertOptional(arg: ArgumentType<*>, event: CommandEvent<*>) = arg.defaultValue?.invoke(event)
 
-internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<*>>, event: CommandEvent<*>): Result {
-    val remainingArgs = actual.toMutableList().filter { it.isNotBlank() }.toMutableList()
+internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<*>>, event: CommandEvent<*>): ConversionResult {
+    val remainingArgs = actual.filter { it.isNotBlank() }.toMutableList()
     val expectation = "Expected: `${generateStructure(event.command!!)}`"
 
     val converted = expected.map { expectedArg ->
@@ -22,10 +22,16 @@ internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<
                 convertOptional(expectedArg, event)
             else {
                 val conversion = expectedArg.convert("", emptyList(), event)
-                    .takeIf { it is ArgumentResult.Success && it.consumed == 0 }
-                    ?: return Error("Received less arguments than expected. $expectation")
 
-                (conversion as ArgumentResult.Success).result
+                when (conversion) {
+                    is ArgumentResult.Error -> return ConversionResult.Error("Missing input for `${expectedArg.name}`")
+                    is ArgumentResult.Success -> {
+                        if (conversion.consumed != 0)
+                            throw IllegalArgumentException("ArgumentType ${expectedArg.name} consumed more arguments than available.")
+
+                        conversion.result
+                    }
+                }
             }
         } else {
             val firstArg = remainingArgs.first()
@@ -33,10 +39,9 @@ internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<
 
             when (result) {
                 is ArgumentResult.Success -> {
-                    if (result.consumed > remainingArgs.size) {
-                        if (!expectedArg.isOptional)
-                            return Error("Received less arguments than expected. $expectation")
-                    } else
+                    if (result.consumed > remainingArgs.size)
+                        throw IllegalArgumentException("ArgumentType ${expectedArg.name} consumed more arguments than available.")
+                    else
                         remainingArgs.subList(0, result.consumed).toList().forEach { remainingArgs.remove(it) }
 
                     result.result
@@ -45,14 +50,14 @@ internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<
                     if (expectedArg.isOptional)
                         convertOptional(expectedArg, event)
                     else
-                        return Error(result.error)
+                        return ConversionResult.Error(result.error)
                 }
             }
         }
     }
 
     if (remainingArgs.isNotEmpty())
-        return Error("Received more arguments than expected. $expectation")
+        return ConversionResult.Error("Received more arguments than expected. $expectation")
 
     return Success(converted as List<Any>)
 }

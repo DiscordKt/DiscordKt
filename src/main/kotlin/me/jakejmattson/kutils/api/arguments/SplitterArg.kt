@@ -10,7 +10,7 @@ open class SplitterArg(override val name: String = "TextWithSplitter", private v
         val joined = args.joinToString(" ")
 
         if (!joined.contains(splitter))
-            return ArgumentResult.Error("Input does not contain the splitter character: `$splitter`")
+            return ArgumentResult.Error("$name requires the character `$splitter` to split input.")
 
         return ArgumentResult.Success(joined.split(splitter).toList(), args.size)
     }

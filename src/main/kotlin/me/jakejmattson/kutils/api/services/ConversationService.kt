@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.jakejmattson.kutils.api.services
 
 import kotlinx.coroutines.runBlocking
@@ -6,8 +8,6 @@ import me.jakejmattson.kutils.api.dsl.conversation.*
 import me.jakejmattson.kutils.api.extensions.stdlib.pluralize
 import me.jakejmattson.kutils.internal.utils.*
 import net.dv8tion.jda.api.entities.*
-import org.reflections.Reflections
-import org.reflections.scanners.MethodAnnotationsScanner
 import java.lang.reflect.Method
 
 enum class ConversationResult {
@@ -28,11 +28,9 @@ class ConversationService(val discord: Discord) {
     internal val activeConversations = mutableMapOf<ConversationContext, ConversationBuilder>()
 
     internal fun registerConversations(path: String) {
-        val startFunctions = Reflections(path, MethodAnnotationsScanner())
-            .getMethodsAnnotatedWith(Conversation.Start::class.java)
+        val startFunctions = ReflectionUtils.detectMethodsWith<Conversation.Start>(path)
 
-        Reflections(path)
-            .getSubTypesOf(Conversation::class.java)
+        ReflectionUtils.detectSubtypesOf<Conversation>(path)
             .forEach { conversationClass ->
                 val relevantStartFunctions = startFunctions.filter { it.declaringClass == conversationClass }
                 val conversationName = conversationClass.name.substringAfterLast(".")
@@ -48,10 +46,7 @@ class ConversationService(val discord: Discord) {
 
                         relevantStartFunctions.firstOrNull { it.returnType == ConversationBuilder::class.java }
                     }
-                }
-
-                starter
-                    ?: return@forEach InternalLogger.error("$conversationName @Start function does not build a conversation. It cannot be registered.")
+                } ?: return@forEach InternalLogger.error("$conversationName @Start function does not build a conversation.")
 
                 val instance = diService.invokeConstructor(conversationClass) as Conversation
                 availableConversations[conversationClass as Class<out Conversation>] = instance to starter
@@ -63,7 +58,8 @@ class ConversationService(val discord: Discord) {
     private fun getConversation(user: User, channel: MessageChannel) = activeConversations[ConversationContext(user.id, channel.id)]
     fun hasConversation(user: User, channel: MessageChannel) = getConversation(user, channel) != null
 
-    inline fun <reified T : Conversation> startConversation(stateContainer: ConversationStateContainer, vararg arguments: Any): ConversationResult {
+    @PublishedApi
+    internal inline fun <reified T : Conversation> startConversation(stateContainer: ConversationStateContainer, vararg arguments: Any): ConversationResult {
         val (_, user, channel) = stateContainer
         val context = ConversationContext(user.id, channel.id)
 

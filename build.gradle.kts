@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "me.jakejmattson"
-version = "0.17.0"
+version = "0.17.1"
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
@@ -44,12 +44,37 @@ dependencies {
 }
 
 tasks {
+    val resourcePath = "src/main/resources"
+
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
     }
 
     test {
         useJUnitPlatform()
+    }
+
+    copy {
+        from(file("$resourcePath/templates/readme-template.md"))
+        into(file("."))
+        rename{ "README.md" }
+        expand(
+            "group" to group,
+            "project" to Constants.projectName,
+            "version" to version
+        )
+    }
+
+    copy {
+        from(file("$resourcePath/templates/properties-template.json"))
+        into(file(resourcePath))
+        rename{ "kutils-properties.json" }
+        expand(
+            "projectRepo" to Constants.projectUrl,
+            "projectVersion" to version,
+            "kotlinVersion" to Versions.kotlin,
+            "jdaVersion" to Versions.jda
+        )
     }
 
     dokka {
@@ -105,8 +130,8 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:ssh://gitlab.com/JakeJMattson/KUtils.git")
-                    developerConnection.set("scm:git:ssh://git@gitlab.com:JakeJMattson/KUtils.git")
+                    connection.set("scm:git:ssh://github.com/JakeJMattson/KUtils.git")
+                    developerConnection.set("scm:git:ssh://git@github.com:JakeJMattson/KUtils.git")
                     url.set(Constants.projectUrl)
                 }
             }
@@ -118,8 +143,8 @@ publishing {
                     name = repoName
                     url = uri(repoUrl)
                     credentials {
-                        username = project.properties["nexusUsername"] as String
-                        password = project.properties["nexusPassword"] as String
+                        username = project.properties["nexusUsername"] as String?
+                        password = project.properties["nexusPassword"] as String?
                     }
                 }
             }

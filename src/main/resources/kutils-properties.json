@@ -1,6 +1,6 @@
 {
-  "kutilsVersion": "${version}",
-  "kotlinVersion": "${kotlin.version}",
-  "jdaVersion": "${jda.version}",
-  "repository": "${project.repository}"
+  "repository": "https://gitlab.com/JakeJMattson/KUtils/",
+  "kutilsVersion": "0.17.1",
+  "kotlinVersion": "1.3.72",
+  "jdaVersion": "4.1.1_165"
 }

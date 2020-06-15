@@ -8,13 +8,13 @@ open class HexColorArg(override val name: String = "Hex Color") : ArgumentType<C
     companion object : HexColorArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Color> {
-        if (arg.length !in 6..7) return ArgumentResult.Error("Invalid format. Hex colors are 6 digits in length.")
+        if (arg.length !in 6..7) return ArgumentResult.Error("Couldn't parse $name from $arg. Hex colors are 6 digits long.")
 
         val trimmedInput = arg.takeLast(6).toUpperCase()
         val isValidHex = trimmedInput.all { it in '0'..'9' || it in 'A'..'F' }
 
         if (!isValidHex)
-            return ArgumentResult.Error("Invalid format. Hexadecimal numbers range from 0 to F")
+            return ArgumentResult.Error("Couldn't parse $name from $arg. Hex colors range from 0 to F")
 
         val int = trimmedInput.toInt(16)
 

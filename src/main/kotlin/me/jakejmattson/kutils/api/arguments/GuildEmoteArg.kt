@@ -15,7 +15,7 @@ open class GuildEmoteArg(override val name: String = "Guild Emote", private val 
         val id = when (split.size) {
             1 -> split[0]
             3 -> split[2]
-            else -> return ArgumentResult.Error("Could not resolve an emote ID from input.")
+            else -> return ArgumentResult.Error("Couldn't retrieve $name from $arg.")
         }
 
         val availableEmotes =

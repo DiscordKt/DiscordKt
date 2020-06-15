@@ -11,7 +11,7 @@ open class UnicodeEmoteArg(override val name: String = "Unicode Emote") : Argume
         return if (emojiRegex.matches(arg))
             ArgumentResult.Success(arg)
         else
-            ArgumentResult.Error("Invalid unicode emote.")
+            ArgumentResult.Error("Couldn't parse $name from $arg.")
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("\uD83D\uDC40")

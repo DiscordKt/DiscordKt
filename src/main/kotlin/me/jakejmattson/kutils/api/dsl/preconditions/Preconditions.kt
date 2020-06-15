@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.jakejmattson.kutils.api.dsl.preconditions
 
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent

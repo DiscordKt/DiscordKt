@@ -7,15 +7,15 @@ open class BooleanArg(override val name: String = "Boolean", val truthValue: Str
     companion object : BooleanArg()
 
     init {
-        require(truthValue.isNotEmpty() && falseValue.isNotEmpty()) { "Custom BooleanArg options cannot be empty!" }
-        require(truthValue.toLowerCase() != falseValue.toLowerCase()) { "Custom BooleanArg options cannot be the same!" }
+        require(truthValue.isNotEmpty() && falseValue.isNotEmpty()) { "Custom BooleanArg ($name) options cannot be empty!" }
+        require(truthValue.toLowerCase() != falseValue.toLowerCase()) { "Custom BooleanArg ($name) options cannot be the same!" }
     }
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Boolean> {
         return when (arg.toLowerCase()) {
             truthValue.toLowerCase() -> ArgumentResult.Success(true)
             falseValue.toLowerCase() -> ArgumentResult.Success(false)
-            else -> ArgumentResult.Error("Invalid boolean argument. Expected `$truthValue` or `$falseValue`.")
+            else -> ArgumentResult.Error("$name should be `$truthValue` or `$falseValue`.")
         }
     }
 

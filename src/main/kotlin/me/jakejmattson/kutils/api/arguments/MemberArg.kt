@@ -9,14 +9,14 @@ open class MemberArg(override val name: String = "Member", private val allowsBot
     companion object : MemberArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Member> {
-        val guild = event.guild ?: return ArgumentResult.Error("Member's can only belong to guilds.")
+        val guild = event.guild ?: return ArgumentResult.Error("$name cannot be accessed from outside a guild.")
         val id = arg.trimToID()
 
         val member = guild.getMemberById(id)
-            ?: return ArgumentResult.Error("Could not find a member in this guild with ID $id")
+            ?: return ArgumentResult.Error("Couldn't retrieve $name from $arg.")
 
         if (!allowsBot && member.user.isBot)
-            return ArgumentResult.Error("A bot is not a valid member arg.")
+            return ArgumentResult.Error("$name cannot be a bot.")
 
         return ArgumentResult.Success(member)
     }

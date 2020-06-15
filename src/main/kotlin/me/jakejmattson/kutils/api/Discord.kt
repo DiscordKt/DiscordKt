@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.jakejmattson.kutils.api
 
 import com.google.gson.Gson
@@ -8,9 +10,14 @@ import me.jakejmattson.kutils.internal.utils.diService
 import net.dv8tion.jda.api.*
 import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.hooks.EventListener
+import net.dv8tion.jda.api.requests.GatewayIntent
+import net.dv8tion.jda.api.utils.MemberCachePolicy
 import kotlin.reflect.KClass
 
-data class KUtilsProperties(val kutilsVersion: String, val kotlinVersion: String, val jdaVersion: String, val repository: String)
+data class KUtilsProperties(val repository: String,
+                            val kutilsVersion: String,
+                            val kotlinVersion: String,
+                            val jdaVersion: String)
 
 private val propFile = KUtilsProperties::class.java.getResource("/kutils-properties.json").readText()
 
@@ -23,9 +30,9 @@ abstract class Discord {
     internal abstract fun addEventListener(register: EventRegister)
 
     @Deprecated("Use classes as parameters", ReplaceWith("discord.getInjectionObjects(T::class)"))
-    inline fun <reified T> getInjectionObject() = diService.getElement(T::class.java) as T
+    inline fun <reified T> getInjectionObject() = diService.getElement<T>()
 
-    inline fun <reified A : Any> getInjectionObjects(obj: KClass<A>) = diService.getElement(obj.java) as A
+    inline fun <reified A : Any> getInjectionObjects(a: KClass<A>) = diService.getElement<A>()
 
     inline fun <reified A : Any, reified B : Any>
         getInjectionObjects(a: KClass<A>, b: KClass<B>) =
@@ -46,7 +53,12 @@ abstract class Discord {
 
 internal fun buildDiscordClient(token: String, configuration: KConfiguration) =
     object : Discord() {
-        override val jda: JDA = JDABuilder(token).build().also { it.awaitReady() }
+        override val jda: JDA = JDABuilder.createDefault(token)
+            .setMemberCachePolicy(MemberCachePolicy.ALL)
+            .enableIntents(GatewayIntent.GUILD_MEMBERS)
+            .build()
+            .also { it.awaitReady() }
+
         override val configuration: KConfiguration = configuration
 
         override fun addEventListener(register: EventRegister) {

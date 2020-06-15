@@ -9,7 +9,7 @@ open class DoubleArg(override val name: String = "Decimal") : ArgumentType<Doubl
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Double> {
         val double = arg.toDoubleOrNull()
-            ?: return ArgumentResult.Error("Expected a decimal number, got $arg")
+            ?: return ArgumentResult.Error("Couldn't parse $name from $arg.")
 
         return ArgumentResult.Success(double)
     }

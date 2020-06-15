@@ -13,7 +13,7 @@ open class RoleArg(override val name: String = "Role", private val guildId: Stri
             val role = event.discord.jda.getRoleById(arg.trimToID())
 
             if (!allowsGlobal && guildId != role?.guild?.id)
-                return ArgumentResult.Error("Role must be from this guild.")
+                return ArgumentResult.Error("$name must be from this guild.")
 
             if (role != null)
                 return ArgumentResult.Success(role)
