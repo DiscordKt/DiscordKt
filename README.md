@@ -8,18 +8,18 @@ The best source for learning the framework is by joining the Discord, or checkin
 <dependency>
     <groupId>me.jakejmattson</groupId>
     <artifactId>KUtils</artifactId>
-    <version>0.17.1</version>
+    <version>0.17.2-SNAPSHOT</version>
 </dependency>
 ```
 
 #### Gradle
 ```groovy
 dependencies {
-    implementation 'me.jakejmattson:KUtils:0.17.1'
+    implementation 'me.jakejmattson:KUtils:0.17.2-SNAPSHOT'
 }
 ```
 ```kotlin
 dependencies {
-    implementation("me.jakejmattson:KUtils:0.17.1")
+    implementation("me.jakejmattson:KUtils:0.17.2-SNAPSHOT")
 }
 ```

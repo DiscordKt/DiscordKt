@@ -2,7 +2,9 @@
 
 package me.jakejmattson.kutils.api.dsl.command
 
+import kotlinx.coroutines.*
 import me.jakejmattson.kutils.api.annotations.KutilsDsl
+import me.jakejmattson.kutils.internal.command.*
 import me.jakejmattson.kutils.internal.utils.*
 
 @KutilsDsl
@@ -17,9 +19,32 @@ class Command(val names: List<String>,
     val parameterCount: Int
         get() = arguments.size
 
-    fun invoke(parsedData: GenericContainer, event: CommandEvent<GenericContainer>) {
+    fun manualParseInput(args: List<String>, event: CommandEvent<GenericContainer>) = parseInputToBundle(this, args, event)
+    fun manualInvoke(parsedData: GenericContainer, event: CommandEvent<GenericContainer>) {
         event.args = parsedData
         execute.invoke(event)
+    }
+
+    fun invoke(args: List<String>, event: CommandEvent<GenericContainer>) {
+        runBlocking {
+            GlobalScope.launch {
+                val result = parseInputToBundle(this@Command, args, event)
+
+                when (result) {
+                    is ParseResult.Success -> {
+                        event.args = result.argumentContainer
+                        execute.invoke(event)
+                    }
+                    is ParseResult.Error -> {
+                        val error = result.error
+
+                        with(event) {
+                            if (discord.configuration.deleteErrors) respondTimed(error) else respond(error)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun <T : GenericContainer> setExecute(argTypes: List<Arg<*>>, event: (CommandEvent<T>) -> Unit) {

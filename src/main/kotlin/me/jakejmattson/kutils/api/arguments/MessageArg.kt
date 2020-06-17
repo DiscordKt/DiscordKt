@@ -14,8 +14,7 @@ open class MessageArg(override val name: String = "Message", private val allowsG
         val isLink = regex.matches(arg)
         val jda = event.discord.jda
 
-        fun <T> generateError(clarification: String)
-            = ArgumentResult.Error<T>("Couldn't retrieve $name from $arg ($clarification).")
+        fun <T> generateError(clarification: String) = ArgumentResult.Error<T>("Couldn't retrieve $name from $arg ($clarification).")
 
         val message = if (isLink) {
             val (guildId, channelId, messageId) = arg.split("/").takeLast(3)

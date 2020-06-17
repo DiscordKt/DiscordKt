@@ -16,7 +16,6 @@ internal class CommandListener(private val container: CommandsContainer,
                                private val preconditions: MutableList<PreconditionData> = mutableListOf()) {
 
     private val config = discord.configuration
-    private val executor = CommandExecutor()
 
     @Subscribe
     fun guildMessageHandler(e: GuildMessageReceivedEvent) = handleMessage(e.message)
@@ -80,7 +79,7 @@ internal class CommandListener(private val container: CommandsContainer,
         if (config.commandReaction != null)
             message.addReaction(config.commandReaction!!).queue()
 
-        executor.executeCommand(command, actualArgs, event)
+        command.invoke(actualArgs, event)
     }
 
     private fun isPrefixInvocation(message: String, prefix: String) = message.startsWith(prefix)
