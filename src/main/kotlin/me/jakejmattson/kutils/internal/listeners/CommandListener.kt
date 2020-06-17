@@ -3,6 +3,7 @@ package me.jakejmattson.kutils.internal.listeners
 import com.google.common.eventbus.Subscribe
 import me.jakejmattson.kutils.api.Discord
 import me.jakejmattson.kutils.api.dsl.command.*
+import me.jakejmattson.kutils.api.dsl.configuration.BotConfiguration
 import me.jakejmattson.kutils.api.dsl.preconditions.*
 import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import me.jakejmattson.kutils.api.services.ConversationService
@@ -13,9 +14,8 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 
 internal class CommandListener(private val container: CommandsContainer,
                                private val discord: Discord,
+                               private val config: BotConfiguration,
                                private val preconditions: MutableList<PreconditionData> = mutableListOf()) {
-
-    private val config = discord.configuration
 
     @Subscribe
     fun guildMessageHandler(e: GuildMessageReceivedEvent) = handleMessage(e.message)

@@ -52,7 +52,7 @@ class ConversationService(val discord: Discord) {
                 availableConversations[conversationClass as Class<out Conversation>] = instance to starter
             }
 
-        println(availableConversations.size.pluralize("Conversation"))
+        InternalLogger.startup(availableConversations.size.pluralize("Conversation"))
     }
 
     private fun getConversation(user: User, channel: MessageChannel) = activeConversations[ConversationContext(user.id, channel.id)]

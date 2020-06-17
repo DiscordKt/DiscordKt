@@ -2,8 +2,11 @@ package me.jakejmattson.kutils.internal.utils
 
 internal class InternalLogger {
     companion object {
+        var shouldLogStartup = true
+
         fun startup(message: String) {
-            println(message)
+            if (shouldLogStartup)
+                println(message)
         }
 
         fun info(message: String) {

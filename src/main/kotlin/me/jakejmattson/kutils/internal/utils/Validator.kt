@@ -2,7 +2,7 @@ package me.jakejmattson.kutils.internal.utils
 
 import me.jakejmattson.kutils.api.arguments.EitherArg
 import me.jakejmattson.kutils.api.dsl.command.CommandsContainer
-import me.jakejmattson.kutils.api.dsl.configuration.KConfiguration
+import me.jakejmattson.kutils.api.dsl.configuration.BotConfiguration
 
 internal val emojiRegex = "[^\\x00-\\x7F]+ *(?:[^\\x00-\\x7F]| )*".toRegex()
 
@@ -56,7 +56,7 @@ internal class Validator {
             }
         }
 
-        fun validateReaction(config: KConfiguration) {
+        fun validateReaction(config: BotConfiguration) {
             val currentReaction = config.commandReaction ?: return
             val isValid = emojiRegex.matches(currentReaction)
 

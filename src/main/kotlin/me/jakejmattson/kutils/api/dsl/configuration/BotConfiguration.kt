@@ -6,7 +6,7 @@ import me.jakejmattson.kutils.api.dsl.command.*
 import me.jakejmattson.kutils.api.dsl.embed.EmbedDSLHandle
 import net.dv8tion.jda.api.entities.*
 
-data class KConfiguration(
+data class BotConfiguration(
     internal var prefix: (DiscordContext) -> String = { "+" },
     var allowMentionPrefix: Boolean = false,
     var commandReaction: String? = "\uD83D\uDC40",

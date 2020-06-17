@@ -4,14 +4,12 @@ package me.jakejmattson.kutils.api
 
 import com.google.gson.Gson
 import me.jakejmattson.kutils.api.dsl.command.*
-import me.jakejmattson.kutils.api.dsl.configuration.KConfiguration
+import me.jakejmattson.kutils.api.dsl.configuration.BotConfiguration
 import me.jakejmattson.kutils.internal.event.EventRegister
 import me.jakejmattson.kutils.internal.utils.diService
 import net.dv8tion.jda.api.*
 import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.hooks.EventListener
-import net.dv8tion.jda.api.requests.GatewayIntent
-import net.dv8tion.jda.api.utils.MemberCachePolicy
 import kotlin.reflect.KClass
 
 data class KUtilsProperties(val repository: String,
@@ -24,7 +22,7 @@ private val propFile = KUtilsProperties::class.java.getResource("/kutils-propert
 abstract class Discord {
     @Deprecated("To be removed")
     abstract val jda: JDA
-    abstract val configuration: KConfiguration
+    abstract val configuration: BotConfiguration
     val properties = Gson().fromJson(propFile, KUtilsProperties::class.java)!!
 
     internal abstract fun addEventListener(register: EventRegister)
@@ -51,15 +49,10 @@ abstract class Discord {
         Args5(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c), getInjectionObjects(d), getInjectionObjects(e))
 }
 
-internal fun buildDiscordClient(token: String, configuration: KConfiguration) =
+internal fun buildDiscordClient(jdaBuilder: JDABuilder, botConfiguration: BotConfiguration) =
     object : Discord() {
-        override val jda: JDA = JDABuilder.createDefault(token)
-            .setMemberCachePolicy(MemberCachePolicy.ALL)
-            .enableIntents(GatewayIntent.GUILD_MEMBERS)
-            .build()
-            .also { it.awaitReady() }
-
-        override val configuration: KConfiguration = configuration
+        override val jda: JDA = jdaBuilder.build().also { it.awaitReady() }
+        override val configuration = botConfiguration
 
         override fun addEventListener(register: EventRegister) {
             jda.addEventListener(object : EventListener {

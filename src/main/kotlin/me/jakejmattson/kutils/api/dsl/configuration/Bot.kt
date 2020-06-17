@@ -5,12 +5,12 @@ package me.jakejmattson.kutils.api.dsl.configuration
 import me.jakejmattson.kutils.internal.utils.KUtils
 import org.slf4j.impl.SimpleLogger
 
-fun startBot(token: String, enableScriptEngine: Boolean = false, globalPath: String = defaultGlobalPath(Exception()), operate: KUtils.() -> Unit = {}): KUtils {
+fun bot(token: String, operate: KUtils.() -> Unit): KUtils {
     System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "WARN")
 
-    val util = KUtils(KConfiguration(), token, globalPath, enableScriptEngine)
+    val util = KUtils(token, defaultGlobalPath(Exception()))
     util.operate()
-    util.applyConfiguration.invoke()
+    util.buildBot()
 
     return util
 }
