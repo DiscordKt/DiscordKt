@@ -11,18 +11,26 @@ import me.jakejmattson.kutils.internal.command.CommandRecommender
 import me.jakejmattson.kutils.internal.event.EventRegister
 import me.jakejmattson.kutils.internal.listeners.CommandListener
 import me.jakejmattson.kutils.internal.services.*
+import net.dv8tion.jda.api.JDABuilder
+import net.dv8tion.jda.api.requests.GatewayIntent
+import net.dv8tion.jda.api.utils.MemberCachePolicy
 import kotlin.system.exitProcess
 
 @PublishedApi
 internal val diService = DIService()
 
 class KUtils(private val token: String, private val globalPath: String) {
-    data class StartupFunctions(var client: ClientConfiguration.() -> Unit = { ClientConfiguration(token) },
+    private val jdaDefault
+        get() = JDABuilder.createDefault(token)
+            .setMemberCachePolicy(MemberCachePolicy.ALL)
+            .enableIntents(GatewayIntent.GUILD_MEMBERS)
+
+    data class StartupFunctions(var client: (String) -> JDABuilder,
                                 var configure: BotConfiguration.(Discord) -> Unit = { BotConfiguration() },
                                 var injecton: InjectionConfiguration.() -> Unit = { InjectionConfiguration() },
                                 var logging: LoggingConfiguration.() -> Unit = { LoggingConfiguration() })
 
-    private val startupBundle = StartupFunctions()
+    private val startupBundle = StartupFunctions({ jdaDefault })
     private val botConfiguration = BotConfiguration()
 
     private fun initCore(discord: Discord, loggingConfiguration: LoggingConfiguration, enableScriptEngine: Boolean) {
@@ -76,20 +84,18 @@ class KUtils(private val token: String, private val globalPath: String) {
         val loggingConfiguration = LoggingConfiguration()
         loggingFun.invoke(loggingConfiguration)
 
-        val client = ClientConfiguration(token)
-        clientFun.invoke(client)
+        val jdaBuilder = clientFun.invoke(token)
 
         val injection = InjectionConfiguration()
         injectionFun.invoke(injection)
 
-        val discord = buildDiscordClient(client.jdaBuilder, botConfiguration)
+        val discord = buildDiscordClient(jdaBuilder, botConfiguration)
         initCore(discord, loggingConfiguration, injection.enableScriptEngineService)
         configureFun.invoke(botConfiguration, discord)
     }
 
     @Suppress("UNUSED")
-    fun client(config: ClientConfiguration.() -> Unit) {
-        println("Storing client info: $config")
+    fun client(config: (String) -> JDABuilder) {
         startupBundle.client = config
     }
 
