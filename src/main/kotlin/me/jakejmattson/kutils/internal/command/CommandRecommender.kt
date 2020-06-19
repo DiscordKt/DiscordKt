@@ -6,7 +6,7 @@ import org.apache.commons.text.similarity.LevenshteinDistance
 
 object CommandRecommender {
     private val calc = LevenshteinDistance()
-    private val possibilities: MutableList<Command> = ArrayList()
+    private val possibilities = mutableListOf<Command>()
 
     // only commands that satisfy the predicate will be considered for recommendation
     fun recommendCommand(input: String, predicate: (Command) -> Boolean = { true }): String? {
@@ -21,9 +21,7 @@ object CommandRecommender {
         embed {
             val recommendation = recommendCommand(input, predicate) ?: "<none>"
 
-            title {
-                text = "Unknown Command"
-            }
+            simpleTitle = "Unknown Command"
             description = "Closest Recommendation: $recommendation\n"
             color = failureColor
         }

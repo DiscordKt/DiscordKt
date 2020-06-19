@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.kutils.api.dsl.configuration
+package me.jakejmattson.kutils.api.dsl
 
 import me.jakejmattson.kutils.internal.utils.KUtils
 import org.slf4j.impl.SimpleLogger

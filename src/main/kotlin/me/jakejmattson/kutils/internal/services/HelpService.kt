@@ -27,9 +27,7 @@ internal class HelpService(private val container: CommandsContainer, private val
 
     private fun generateDefaultEmbed(event: CommandEvent<*>) =
         embed {
-            title {
-                text = "Help menu"
-            }
+            simpleTitle = "Help menu"
             description = "Use `${event.relevantPrefix}help <command>` for more information."
             color = infoColor
 
@@ -52,9 +50,7 @@ internal class HelpService(private val container: CommandsContainer, private val
         }
 
     private fun generateCommandEmbed(command: Command, event: CommandEvent<*>, input: String) = embed {
-        title {
-            text = command.names.joinToString()
-        }
+        simpleTitle = command.names.joinToString()
         description = command.description
         color = infoColor
 
