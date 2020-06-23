@@ -4,7 +4,7 @@ import me.jakejmattson.kutils.api.arguments.*
 import utilities.ArgumentTestFactory
 
 class SingleMultipleArgTest : ArgumentTestFactory {
-    override val argumentType = MultipleArg(IntegerArg)
+    override val argumentType = MultipleArg(IntArg)
 
     override val validArgs = listOf(
         "1" to listOf(1),

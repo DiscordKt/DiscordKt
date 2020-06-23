@@ -4,7 +4,7 @@ import me.jakejmattson.kutils.api.arguments.*
 import utilities.ArgumentTestFactory
 
 class EitherArgTest : ArgumentTestFactory {
-    override val argumentType = EitherArg(IntegerArg, QuoteArg)
+    override val argumentType = EitherArg(IntArg, QuoteArg)
 
     override val validArgs = listOf(
         "1" to Left(1),
