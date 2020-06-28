@@ -3,6 +3,9 @@ package me.jakejmattson.kutils.api.arguments
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 
+/**
+ * Accepts multiple arguments of the given type. Returns a list.
+ */
 class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentType<List<T>>() {
     override val name = if (name.isNotBlank()) name else "${base.name}..."
 

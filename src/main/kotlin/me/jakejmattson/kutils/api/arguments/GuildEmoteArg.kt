@@ -5,6 +5,9 @@ import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.Emote
 
+/**
+ * Accepts a guild emote.
+ */
 open class GuildEmoteArg(override val name: String = "Guild Emote", private val allowsGlobal: Boolean = false) : ArgumentType<Emote>() {
     companion object : GuildEmoteArg()
 

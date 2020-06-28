@@ -6,6 +6,9 @@ import me.jakejmattson.kutils.api.extensions.jda.tryRetrieveSnowflake
 import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.User
 
+/**
+ * Accepts a Discord User entity as an ID or mention.
+ */
 open class UserArg(override val name: String = "User", private val allowsBot: Boolean = false) : ArgumentType<User>() {
     companion object : UserArg()
 

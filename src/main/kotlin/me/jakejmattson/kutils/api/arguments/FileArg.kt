@@ -4,6 +4,9 @@ import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 import java.io.File
 
+/**
+ * Accepts a file as a message attachment.
+ */
 open class FileArg(override val name: String = "File") : ArgumentType<File>() {
     companion object : FileArg()
 

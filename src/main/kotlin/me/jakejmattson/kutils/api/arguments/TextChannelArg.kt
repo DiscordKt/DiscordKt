@@ -6,6 +6,9 @@ import me.jakejmattson.kutils.api.extensions.jda.tryRetrieveSnowflake
 import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.TextChannel
 
+/**
+ * Accepts a Discord TextChannel entity as an ID or mention.
+ */
 open class TextChannelArg(override val name: String = "Text Channel", private val allowsGlobal: Boolean = false) : ArgumentType<TextChannel>() {
     companion object : TextChannelArg()
 

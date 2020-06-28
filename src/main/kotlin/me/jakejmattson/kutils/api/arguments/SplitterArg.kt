@@ -3,6 +3,9 @@ package me.jakejmattson.kutils.api.arguments
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 
+/**
+ * Consumes all arguments and returns a list of the results (split by splitter character).
+ */
 open class SplitterArg(override val name: String = "TextWithSplitter", private val splitter: String = "|") : ArgumentType<List<String>>() {
     companion object : SplitterArg()
 

@@ -5,6 +5,9 @@ import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 import me.jakejmattson.kutils.api.extensions.stdlib.*
 import net.dv8tion.jda.api.entities.Role
 
+/**
+ * Accepts a Discord Role entity as an ID, a mention, or by name.
+ */
 open class RoleArg(override val name: String = "Role", private val guildId: String = "", private val allowsGlobal: Boolean = false) : ArgumentType<Role>() {
     companion object : RoleArg()
 

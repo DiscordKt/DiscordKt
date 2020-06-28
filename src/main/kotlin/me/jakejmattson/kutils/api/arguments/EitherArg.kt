@@ -16,7 +16,9 @@ sealed class Either<out L, out R> {
         }
 }
 
-// Either accept the left argument or the right argument type. Left is tried first.
+/**
+ * Either accept the left argument or the right argument type. Left is tried first.
+ */
 class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, name: String = "") : ArgumentType<Either<L, R>>() {
     override val name = if (name.isNotBlank()) name else "${left.name} | ${right.name}"
 

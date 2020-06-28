@@ -4,6 +4,9 @@ import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 import java.awt.Color
 
+/**
+ * Accepts a color in hexadecimal format. The '#' symbol is optional.
+ */
 open class HexColorArg(override val name: String = "Hex Color") : ArgumentType<Color>() {
     companion object : HexColorArg()
 
@@ -16,9 +19,9 @@ open class HexColorArg(override val name: String = "Hex Color") : ArgumentType<C
         if (!isValidHex)
             return ArgumentResult.Error("Couldn't parse $name from $arg. Hex colors range from 0 to F")
 
-        val int = trimmedInput.toInt(16)
+        val color = Color(trimmedInput.toInt(16))
 
-        return ArgumentResult.Success(Color(int))
+        return ArgumentResult.Success(color)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("#000000", "ffffff")

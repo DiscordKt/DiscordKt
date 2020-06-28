@@ -3,6 +3,9 @@ package me.jakejmattson.kutils.api.arguments
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 
+/**
+ * Accepts either of two values. Defaults to true/false.
+ */
 open class BooleanArg(override val name: String = "Boolean", val truthValue: String = "true", val falseValue: String = "false") : ArgumentType<Boolean>() {
     companion object : BooleanArg()
 

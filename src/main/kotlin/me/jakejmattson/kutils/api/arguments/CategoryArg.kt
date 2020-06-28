@@ -5,6 +5,9 @@ import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 import me.jakejmattson.kutils.api.extensions.stdlib.*
 import net.dv8tion.jda.api.entities.Category
 
+/**
+ * Accepts a Discord Category entity as an ID, a mention, or by name.
+ */
 open class CategoryArg(override val name: String = "Category", private val guildId: String = "", private val allowsGlobal: Boolean = false) : ArgumentType<Category>() {
     companion object : CategoryArg()
 

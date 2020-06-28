@@ -4,6 +4,9 @@ import me.jakejmattson.kutils.api.dsl.arguments.ArgumentType
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 import me.jakejmattson.kutils.internal.utils.convertTimeString
 
+/**
+ * Accepts a group of time elements and returns the number of seconds as a double.
+ */
 open class TimeArg(override val name: String = "Time") : ArgumentType<Double>() {
     companion object : TimeArg()
 

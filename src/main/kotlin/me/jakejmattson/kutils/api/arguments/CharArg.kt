@@ -3,6 +3,9 @@ package me.jakejmattson.kutils.api.arguments
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 
+/**
+ * Accepts a single character.
+ */
 open class CharArg(override val name: String = "Character") : ArgumentType<Char>() {
     companion object : CharArg()
 

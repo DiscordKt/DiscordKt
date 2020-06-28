@@ -3,6 +3,9 @@ package me.jakejmattson.kutils.api.arguments
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 
+/**
+ * Accepts any (single) argument. Does not accept empty strings.
+ */
 open class AnyArg(override val name: String = "Any") : ArgumentType<String>() {
     companion object : AnyArg()
 

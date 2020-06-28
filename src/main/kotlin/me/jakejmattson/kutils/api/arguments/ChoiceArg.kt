@@ -3,6 +3,9 @@ package me.jakejmattson.kutils.api.arguments
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 
+/**
+ * Accepts a choice from the provided list.
+ */
 open class ChoiceArg<T>(override val name: String, vararg choices: T) : ArgumentType<String>() {
     private val enumerations = choices.associateBy { it.toString().toLowerCase() }
     private val options = enumerations.keys

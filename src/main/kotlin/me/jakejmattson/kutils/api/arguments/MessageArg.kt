@@ -6,6 +6,9 @@ import me.jakejmattson.kutils.api.extensions.jda.tryRetrieveSnowflake
 import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.*
 
+/**
+ * Accepts a Discord Message entity as an ID or a link.
+ */
 open class MessageArg(override val name: String = "Message", private val allowsGlobal: Boolean = false) : ArgumentType<Message>() {
     companion object : MessageArg()
 
