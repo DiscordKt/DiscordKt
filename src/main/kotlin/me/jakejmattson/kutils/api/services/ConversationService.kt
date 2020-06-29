@@ -46,7 +46,8 @@ class ConversationService(val discord: Discord) {
 
                         relevantStartFunctions.firstOrNull { it.returnType == ConversationBuilder::class.java }
                     }
-                } ?: return@forEach InternalLogger.error("$conversationName @Start function does not build a conversation.")
+                }
+                    ?: return@forEach InternalLogger.error("$conversationName @Start function does not build a conversation.")
 
                 val instance = diService.invokeConstructor(conversationClass) as Conversation
                 availableConversations[conversationClass as Class<out Conversation>] = instance to starter

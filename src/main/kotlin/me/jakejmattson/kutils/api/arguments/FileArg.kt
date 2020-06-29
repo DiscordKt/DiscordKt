@@ -14,11 +14,11 @@ open class FileArg(override val name: String = "File") : ArgumentType<File>() {
         val attachments = event.message.attachments
 
         if (attachments.isEmpty())
-            return ArgumentResult.Error("$name argument requires a message attachment.")
+            return Error("$name argument requires a message attachment.")
 
         val file = attachments.first().downloadToFile().get()
 
-        return ArgumentResult.Success(file, 0)
+        return Success(file, 0)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("File")

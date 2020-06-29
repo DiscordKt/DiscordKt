@@ -16,14 +16,14 @@ open class RoleArg(override val name: String = "Role", private val guildId: Stri
             val role = event.discord.jda.getRoleById(arg.trimToID())
 
             if (!allowsGlobal && guildId != role?.guild?.id)
-                return ArgumentResult.Error("$name must be from this guild.")
+                return Error("$name must be from this guild.")
 
             if (role != null)
-                return ArgumentResult.Success(role)
+                return Success(role)
         }
 
         val guild = (if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild)
-            ?: return ArgumentResult.Error("Cannot resolve a role by name from a DM. Please invoke in a guild or use an ID.")
+            ?: return Error("Cannot resolve a role by name from a DM. Please invoke in a guild or use an ID.")
 
         val argString = args.joinToString(" ").toLowerCase()
         val viableNames = guild.roles
@@ -34,13 +34,13 @@ open class RoleArg(override val name: String = "Role", private val guildId: Stri
         val result = longestMatch?.let { viableNames.filter { it.name == longestMatch.name } } ?: emptyList()
 
         return when (result.size) {
-            0 -> ArgumentResult.Error("Could not resolve any roles by name.")
+            0 -> Error("Could not resolve any roles by name.")
             1 -> {
                 val role = result.first()
                 val argList = args.take(role.name.split(" ").size)
-                ArgumentResult.Success(role, argList.size)
+                Success(role, argList.size)
             }
-            else -> ArgumentResult.Error("Resolving role by name returned multiple matches. Please use an ID.")
+            else -> Error("Resolving role by name returned multiple matches. Please use an ID.")
         }
     }
 

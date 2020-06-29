@@ -13,9 +13,9 @@ open class GuildArg(override val name: String = "Guild") : ArgumentType<Guild>()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Guild> {
         val guild = event.discord.jda.guilds.firstOrNull { it.id == arg.trimToID() }
-            ?: return ArgumentResult.Error("Couldn't retrieve $name from $arg.")
+            ?: return Error("Couldn't retrieve $name from $arg.")
 
-        return ArgumentResult.Success(guild)
+        return Success(guild)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf(event.guild?.id ?: "244230771232079873")

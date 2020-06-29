@@ -70,8 +70,8 @@ data class ConversationStateContainer(val discord: Discord,
                 throw ExitException()
 
             when (val result = parseResponse(argumentType, input)) {
-                is ArgumentResult.Success -> result.result as T
-                is ArgumentResult.Error -> {
+                is Success<*> -> result.result as T
+                is Error<*> -> {
                     respond(result.error)
                     null
                 }

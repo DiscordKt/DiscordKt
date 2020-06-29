@@ -12,9 +12,9 @@ open class ChoiceArg<T>(override val name: String, vararg choices: T) : Argument
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         val selection = enumerations[arg.toLowerCase()] as? String
-            ?: return ArgumentResult.Error("Invalid choice for $name. Available choices: ${options.joinToString()}")
+            ?: return Error("Invalid choice for $name. Available choices: ${options.joinToString()}")
 
-        return ArgumentResult.Success(selection)
+        return Success(selection)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = options.toList()

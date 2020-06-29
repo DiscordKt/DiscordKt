@@ -15,12 +15,12 @@ open class TextChannelArg(override val name: String = "Text Channel", private va
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<TextChannel> {
         val channel = event.discord.jda.tryRetrieveSnowflake {
             it.getTextChannelById(arg.trimToID())
-        } as TextChannel? ?: return ArgumentResult.Error("Couldn't retrieve $name from $arg.")
+        } as TextChannel? ?: return Error("Couldn't retrieve $name from $arg.")
 
         if (!allowsGlobal && channel.guild.id != event.guild?.id)
-            return ArgumentResult.Error("$name must be from this guild.")
+            return Error("$name must be from this guild.")
 
-        return ArgumentResult.Success(channel)
+        return Success(channel)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id)

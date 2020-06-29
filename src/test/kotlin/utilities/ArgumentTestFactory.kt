@@ -12,12 +12,12 @@ interface ArgumentTestFactory {
     @TestFactory
     fun `valid input`() = validArgs.map { (input, expected) ->
         when (val conversionResult = argumentType.attemptConvert(input)) {
-            is ArgumentResult.Success -> {
+            is Success -> {
                 DynamicTest.dynamicTest("\"$input\" -> $expected") {
                     Assertions.assertEquals(conversionResult.result, expected)
                 }
             }
-            is ArgumentResult.Error -> {
+            is Error -> {
                 DynamicTest.dynamicTest("\"$input\" -> ${conversionResult.error}") {
                     fail { conversionResult.error }
                 }
@@ -28,12 +28,12 @@ interface ArgumentTestFactory {
     @TestFactory
     fun `invalid input`() = invalidArgs.map { input ->
         when (val conversionResult = argumentType.attemptConvert(input)) {
-            is ArgumentResult.Error -> {
+            is Error -> {
                 DynamicTest.dynamicTest("\"$input\" -> ${conversionResult.error}") {
                     Assertions.assertTrue(true)
                 }
             }
-            is ArgumentResult.Success -> {
+            is Success -> {
                 DynamicTest.dynamicTest("\"$input\" -> ${conversionResult.result}") {
                     fail { "Conversion succeeded, but was expected to fail." }
                 }

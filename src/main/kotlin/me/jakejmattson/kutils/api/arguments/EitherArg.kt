@@ -27,9 +27,9 @@ class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, nam
         val rightResult = right.convert(arg, args, event)
 
         return when {
-            leftResult is ArgumentResult.Success -> ArgumentResult.Success(Left(leftResult.result), leftResult.consumed)
-            rightResult is ArgumentResult.Success -> ArgumentResult.Success(Right(rightResult.result), rightResult.consumed)
-            else -> ArgumentResult.Error("Could not match input with either expected argument.")
+            leftResult is Success -> Success(Left(leftResult.result), leftResult.consumed)
+            rightResult is Success -> Success(Right(rightResult.result), rightResult.consumed)
+            else -> Error("Could not match input with either expected argument.")
         }
     }
 

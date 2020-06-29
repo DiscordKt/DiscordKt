@@ -19,23 +19,23 @@ class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentTyp
             val conversion = base.convert(currentArg, remainingArgs, event)
 
             when (conversion) {
-                is ArgumentResult.Success -> {
+                is Success -> {
                     totalResult.add(conversion.result)
                     val consumed = conversion.consumed
                     totalConsumed += consumed
 
                     remainingArgs.subList(0, consumed).toList().forEach { remainingArgs.remove(it) }
                 }
-                is ArgumentResult.Error -> {
+                is Error -> {
                     if (totalResult.isEmpty())
-                        return ArgumentResult.Error(conversion.error)
+                        return Error(conversion.error)
 
                     break@complete
                 }
             }
         }
 
-        return ArgumentResult.Success(totalResult, totalConsumed)
+        return Success(totalResult, totalConsumed)
     }
 
     override fun generateExamples(event: CommandEvent<*>) =

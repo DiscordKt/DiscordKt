@@ -16,9 +16,9 @@ open class BooleanArg(override val name: String = "Boolean", val truthValue: Str
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Boolean> {
         return when (arg.toLowerCase()) {
-            truthValue.toLowerCase() -> ArgumentResult.Success(true)
-            falseValue.toLowerCase() -> ArgumentResult.Success(false)
-            else -> ArgumentResult.Error("$name should be `$truthValue` or `$falseValue`.")
+            truthValue.toLowerCase() -> Success(true)
+            falseValue.toLowerCase() -> Success(false)
+            else -> Error("$name should be `$truthValue` or `$falseValue`.")
         }
     }
 

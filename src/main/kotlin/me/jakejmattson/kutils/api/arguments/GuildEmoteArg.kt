@@ -18,7 +18,7 @@ open class GuildEmoteArg(override val name: String = "Guild Emote", private val 
         val id = when (split.size) {
             1 -> split[0]
             3 -> split[2]
-            else -> return ArgumentResult.Error("Couldn't retrieve $name from $arg.")
+            else -> return Error("Couldn't retrieve $name from $arg.")
         }
 
         val availableEmotes =
@@ -27,12 +27,12 @@ open class GuildEmoteArg(override val name: String = "Guild Emote", private val 
             else
                 event.guild?.emotes
 
-        availableEmotes ?: return ArgumentResult.Error("Could not find a guild to fetch emojis from.")
+        availableEmotes ?: return Error("Could not find a guild to fetch emojis from.")
 
         val emote = availableEmotes.firstOrNull { it.id == id }
-            ?: return ArgumentResult.Error("Could not find an emoji${if (!allowsGlobal) " in this guild " else " "}with the ID: $id")
+            ?: return Error("Could not find an emoji${if (!allowsGlobal) " in this guild " else " "}with the ID: $id")
 
-        return ArgumentResult.Success(emote)
+        return Success(emote)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = event.guild?.emotes?.map { it.asMention } ?: emptyList()

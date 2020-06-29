@@ -16,14 +16,14 @@ open class CategoryArg(override val name: String = "Category", private val guild
             val category = event.discord.jda.getCategoryById(arg.trimToID())
 
             if (!allowsGlobal && guildId != category?.guild?.id)
-                return ArgumentResult.Error("$name must be from this guild.")
+                return Error("$name must be from this guild.")
 
             if (category != null)
-                return ArgumentResult.Success(category)
+                return Success(category)
         }
 
         val guild = (if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild)
-            ?: return ArgumentResult.Error("Cannot resolve a category by name from a DM. Please invoke in a guild or use an ID.")
+            ?: return Error("Cannot resolve a category by name from a DM. Please invoke in a guild or use an ID.")
 
         val argString = args.joinToString(" ").toLowerCase()
         val viableNames = guild.categories
@@ -34,13 +34,13 @@ open class CategoryArg(override val name: String = "Category", private val guild
         val result = longestMatch?.let { viableNames.filter { it.name == longestMatch.name } } ?: emptyList()
 
         return when (result.size) {
-            0 -> ArgumentResult.Error("Could not resolve any categories by name.")
+            0 -> Error("Could not resolve any categories by name.")
             1 -> {
                 val category = result.first()
                 val argList = args.take(category.name.split(" ").size)
-                ArgumentResult.Success(category, argList.size)
+                Success(category, argList.size)
             }
-            else -> ArgumentResult.Error("Resolving category by name returned multiple matches. Please use an ID.")
+            else -> Error("Resolving category by name returned multiple matches. Please use an ID.")
         }
     }
 

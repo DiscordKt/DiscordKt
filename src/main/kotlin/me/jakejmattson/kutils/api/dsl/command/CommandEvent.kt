@@ -26,6 +26,5 @@ data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
 
     lateinit var args: T
 
-    fun cloneToGeneric(rawInputs: RawInputs, commandsContainer: CommandsContainer = container, context: DiscordContext = discordContext)
-        = CommandEvent<GenericContainer>(rawInputs, commandsContainer, context)
+    fun cloneToGeneric(rawInputs: RawInputs, commandsContainer: CommandsContainer = container, context: DiscordContext = discordContext) = CommandEvent<GenericContainer>(rawInputs, commandsContainer, context)
 }

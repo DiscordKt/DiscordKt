@@ -11,9 +11,9 @@ open class CommandArg(override val name: String = "Command") : ArgumentType<Comm
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Command> {
         val command = event.container[arg.toLowerCase()]
-            ?: return ArgumentResult.Error("Couldn't parse $name from $arg.")
+            ?: return Error("Couldn't parse $name from $arg.")
 
-        return ArgumentResult.Success(command)
+        return Success(command)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = event.container.commands.mapNotNull { it.names.firstOrNull() }

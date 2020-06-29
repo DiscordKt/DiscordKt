@@ -13,7 +13,7 @@ open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>(
         val quotationMark = '"'
 
         if (!arg.startsWith(quotationMark)) {
-            return ArgumentResult.Error("Expected an opening quotation mark, found: $arg")
+            return Error("Expected an opening quotation mark, found: $arg")
         }
 
         val rawQuote = if (arg.endsWith(quotationMark)) {
@@ -23,13 +23,13 @@ open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>(
         }
 
         if (!rawQuote.endsWith(quotationMark)) {
-            return ArgumentResult.Error("Missing closing quotation mark.")
+            return Error("Missing closing quotation mark.")
         }
 
         val quote = rawQuote.trim(quotationMark)
         val consumedCount = quote.split(" ").size
 
-        return ArgumentResult.Success(quote, consumedCount)
+        return Success(quote, consumedCount)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("\"A Quote\"")
