@@ -2,7 +2,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "me.jakejmattson"
 version = "0.18.0-SNAPSHOT"
-val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
     kotlin("jvm") version Versions.kotlin
@@ -136,11 +135,9 @@ publishing {
                 }
             }
             repositories {
-                val repoName = if (isSnapshot) "Snapshots" else "Releases"
-                val repoUrl = if (isSnapshot) Constants.snapshotsRepoUrl else Constants.releasesRepoUrl
+                val repoUrl = if (version.toString().endsWith("SNAPSHOT")) Constants.snapshotsRepoUrl else Constants.releasesRepoUrl
 
                 maven {
-                    name = repoName
                     url = uri(repoUrl)
                     credentials {
                         username = project.properties["nexusUsername"] as String?
