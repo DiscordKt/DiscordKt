@@ -8,8 +8,8 @@ import kotlin.random.Random
 /**
  * Accept a whole number in the int range.
  */
-open class IntArg(override val name: String = "Int") : ArgumentType<Int>() {
-    companion object : IntArg()
+open class IntegerArg(override val name: String = "Int") : ArgumentType<Int>() {
+    companion object : IntegerArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toIntOrNull()) {

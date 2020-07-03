@@ -1,10 +1,10 @@
 package arguments
 
-import me.jakejmattson.kutils.api.arguments.IntArg
+import me.jakejmattson.kutils.api.arguments.IntegerArg
 import utilities.ArgumentTestFactory
 
-class IntArgTest : ArgumentTestFactory {
-    override val argumentType = IntArg
+class IntegerArgTest : ArgumentTestFactory {
+    override val argumentType = IntegerArg
 
     override val validArgs = listOf(
         "100" to 100,
