@@ -1,10 +1,22 @@
 package me.jakejmattson.kutils.api.dsl.command
 
 import me.jakejmattson.kutils.api.Discord
-import me.jakejmattson.kutils.internal.command.RawInputs
 import me.jakejmattson.kutils.internal.utils.Responder
 import net.dv8tion.jda.api.entities.*
 
+/**
+ * Data class containing the raw information from the command execution.
+ */
+data class RawInputs(
+    val rawMessageContent: String,
+    val commandName: String,
+    val commandArgs: List<String> = listOf(),
+    val prefixCount: Int
+)
+
+/**
+ * The discord context of the command execution.
+ */
 data class DiscordContext(val discord: Discord,
                           val message: Message,
                           val author: User = message.author,
@@ -13,6 +25,9 @@ data class DiscordContext(val discord: Discord,
     val relevantPrefix: String = discord.configuration.prefix.invoke(this)
 }
 
+/**
+ * A command execution event.
+ */
 data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
                                               val container: CommandsContainer,
                                               private val discordContext: DiscordContext) : Responder {

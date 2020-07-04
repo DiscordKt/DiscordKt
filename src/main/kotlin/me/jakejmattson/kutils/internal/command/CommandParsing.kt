@@ -1,11 +1,6 @@
 package me.jakejmattson.kutils.internal.command
 
-data class RawInputs(
-    val rawMessageContent: String,
-    val commandName: String,
-    val commandArgs: List<String> = listOf(),
-    val prefixCount: Int
-)
+import me.jakejmattson.kutils.api.dsl.command.RawInputs
 
 internal fun stripPrefixInvocation(message: String, prefix: String): RawInputs {
     val prefixSeq = generateSequence(prefix) { it + prefix }

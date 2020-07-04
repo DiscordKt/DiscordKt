@@ -9,7 +9,6 @@ import me.jakejmattson.kutils.api.Discord
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.*
 import me.jakejmattson.kutils.api.services.ConversationResult
-import me.jakejmattson.kutils.internal.command.RawInputs
 import me.jakejmattson.kutils.internal.utils.Responder
 import net.dv8tion.jda.api.entities.*
 
@@ -35,6 +34,16 @@ data class ConversationStateContainer(val discord: Discord,
         inputChannel.send(message)
     }
 
+    /**
+     * Halt the execution of the conversation and wait for a response. Re-prompt until the response converts correctly.
+     * Once the conversion succeeds, perform an additional check to validate the response.
+     *
+     * @see me.jakejmattson.kutils.api.dsl.arguments.ArgumentType
+     * @param argumentType The ArgumentType that the prompt expects in response.
+     * @param initialPrompt The message/embed sent to the user as a prompt for information.
+     * @param until An additional check to validate that the response is valid.
+     * @param errorMessage The message provided when the additional check is failed.
+     */
     @Throws(DmException::class)
     fun <T> blockingPromptUntil(argumentType: ArgumentType<T>, initialPrompt: () -> Any, until: (T) -> Boolean, errorMessage: () -> Any): T {
         var value: T = blockingPrompt(argumentType, initialPrompt)
@@ -47,6 +56,13 @@ data class ConversationStateContainer(val discord: Discord,
         return value
     }
 
+    /**
+     * Halt the execution of the conversation and wait for a response. Re-prompt until the response converts correctly.
+     *
+     * @see me.jakejmattson.kutils.api.dsl.arguments.ArgumentType
+     * @param argumentType The ArgumentType that the prompt expects in response.
+     * @param prompt The message/embed sent to the user as a prompt for information.
+     */
     @Throws(DmException::class)
     fun <T> blockingPrompt(argumentType: ArgumentType<T>, prompt: () -> Any): T {
         val promptValue = prompt.invoke()
