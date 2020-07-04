@@ -1,6 +1,5 @@
 package me.jakejmattson.kutils.api.arguments
 
-
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 import kotlin.random.Random

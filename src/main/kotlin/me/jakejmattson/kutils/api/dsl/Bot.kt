@@ -3,7 +3,7 @@
 package me.jakejmattson.kutils.api.dsl
 
 import me.jakejmattson.kutils.internal.utils.KUtils
-import org.slf4j.impl.SimpleLogger
+import org.slf4j.simple.SimpleLogger
 
 fun bot(token: String, operate: KUtils.() -> Unit): KUtils {
     System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "WARN")

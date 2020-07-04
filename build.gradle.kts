@@ -20,7 +20,6 @@ repositories {
 
 dependencies {
     //Internal Dependencies
-    implementation(Dependencies.coroutines)
     implementation(Dependencies.reflections)
     implementation(Dependencies.commons)
     implementation(Dependencies.slf4j)
@@ -135,10 +134,12 @@ publishing {
                 }
             }
             repositories {
-                val repoUrl = if (version.toString().endsWith("SNAPSHOT")) Constants.snapshotsRepoUrl else Constants.releasesRepoUrl
-
                 maven {
-                    url = uri(repoUrl)
+                    url = if (version.toString().endsWith("SNAPSHOT"))
+                        uri(Constants.snapshotsRepoUrl)
+                    else
+                        uri(Constants.releasesRepoUrl)
+
                     credentials {
                         username = project.properties["nexusUsername"] as String?
                         password = project.properties["nexusPassword"] as String?
