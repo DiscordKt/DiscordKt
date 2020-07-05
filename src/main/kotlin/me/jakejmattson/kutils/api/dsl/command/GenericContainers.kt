@@ -1,5 +1,8 @@
 package me.jakejmattson.kutils.api.dsl.command
 
+/**
+ * A container for generic data that saves type information.
+ */
 open class GenericContainer
 class NoArgs : GenericContainer()
 data class Args1<T>(val first: T) : GenericContainer()

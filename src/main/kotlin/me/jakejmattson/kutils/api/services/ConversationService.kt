@@ -74,6 +74,15 @@ class ConversationService(val discord: Discord) {
         }
     }
 
+    /**
+     * Start a conversation with someone in their private messages.
+     *
+     * @param user The user to start a conversation with.
+     * @param arguments The data you'd like to inject into the conversation.
+     *
+     * @return The result of the conversation indicated by an enum.
+     * @see ConversationResult
+     */
     inline fun <reified T : Conversation> startPrivateConversation(user: User, vararg arguments: Any): ConversationResult {
         if (user.mutualGuilds.isEmpty() || user.isBot)
             return ConversationResult.INVALID_USER

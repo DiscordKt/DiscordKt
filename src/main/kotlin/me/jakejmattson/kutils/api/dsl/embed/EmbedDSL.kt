@@ -76,21 +76,17 @@ class EmbedDSLHandle {
     fun addInlineField(name: String?, value: String?) = addField(EmbedField(name, value, true))
     fun addBlankField(inline: Boolean) = addField(EmbedField("", "", inline))
 
-    fun build(): MessageEmbed {
-        val embedBuilder = EmbedBuilder().apply {
-            fields.addAll(mutableFields)
-            setTitle(titleBundle?.text, titleBundle?.url)
-            setDescription(description)
-            setColor(color)
-            setThumbnail(thumbnail)
-            setImage(image)
-            setTimestamp(timeStamp)
-            setAuthor(author?.name, author?.url, author?.iconUrl)
-            setFooter(footer?.text, footer?.iconUrl)
-        }
-
-        return embedBuilder.build()
-    }
+    fun build() = EmbedBuilder().apply {
+        fields.addAll(mutableFields)
+        setTitle(titleBundle?.text, titleBundle?.url)
+        setDescription(description)
+        setColor(color)
+        setThumbnail(thumbnail)
+        setImage(image)
+        setTimestamp(timeStamp)
+        setAuthor(author?.name, author?.url, author?.iconUrl)
+        setFooter(footer?.text, footer?.iconUrl)
+    }.build()
 }
 
 data class TitleBuilder(var text: String? = "", var url: String? = null)

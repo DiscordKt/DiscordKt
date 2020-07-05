@@ -22,17 +22,17 @@ data class Success<T>(val result: T, val consumed: Int = 1) : ArgumentResult<T>(
 data class Error<T>(val error: String) : ArgumentResult<T>()
 
 /**
- * An object that maps a command's String arguments to a desired type.
+ * An object that represents a type and contains the logic to convert string arguments to the desired type.
  *
  * @sample me.jakejmattson.kutils.api.arguments.IntegerArg
  */
 abstract class ArgumentType<T> : Cloneable {
     abstract val name: String
 
-    var isOptional: Boolean = false
+    internal var isOptional: Boolean = false
         private set
 
-    var defaultValue: ((CommandEvent<*>) -> T)? = null
+    internal var defaultValue: ((CommandEvent<*>) -> T)? = null
         private set
 
     private fun <T> cloneToOptional() = (clone() as ArgumentType<T>).apply { isOptional = true }
@@ -48,6 +48,8 @@ abstract class ArgumentType<T> : Cloneable {
      * @param args All remaining arguments passed into the command.
      * @param event The CommandEvent triggered by the execution of the command.
      * @return ArgumentResult subtype 'Success' or 'Error'.
+     * @see Success
+     * @see Error
      */
     abstract fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
 

@@ -8,6 +8,15 @@ import me.jakejmattson.kutils.internal.command.*
 import me.jakejmattson.kutils.internal.utils.*
 
 @KutilsDsl
+/**
+ * @param names The name(s) this command can be executed by (case insensitive).
+ * @param description A brief description of the command - used in documentation.
+ * @param category The category that this command belongs to - set automatically by CommandSet.
+ * @param requiresGuild Whether or not this command needs to be executed in a guild.
+ * @param isFlexible Whether or not this command can accept arguments in any order.
+ * @param arguments The ArgumentTypes that are required by this function to execute.
+ * @param execute The logic that will run whenever this command is executed.
+ */
 class Command(val names: List<String>,
               var description: String = "<No Description>",
               var category: String = "",
@@ -19,28 +28,49 @@ class Command(val names: List<String>,
     val parameterCount: Int
         get() = arguments.size
 
+    /**
+     * Manually parse args into an intermediate bundle to allow verifying the result.
+     *
+     * @param args The raw string arguments to be provided to the command.
+     * @return The result of the parsing operation as a ParseResult
+     * @see manualInvoke
+     * @see ParseResult
+     */
     fun manualParseInput(args: List<String>, event: CommandEvent<GenericContainer>) = parseInputToBundle(this, args, event)
+
+    /**
+     * Invoke this command manually.
+     *
+     * @param parsedData String arguments parsed into their respective types and bundled into a GenericContainer.
+     * @see manualParseInput
+     */
     fun manualInvoke(parsedData: GenericContainer, event: CommandEvent<GenericContainer>) {
-        event.args = parsedData
-        execute.invoke(event)
+        GlobalScope.launch {
+            event.args = parsedData
+            execute.invoke(event)
+        }
     }
 
+    /**
+     * Invoke this command "blindly" with the given arguments and context.
+     *
+     * @param args The raw string arguments to be provided to the command.
+     * @see manualParseInput
+     */
     fun invoke(args: List<String>, event: CommandEvent<GenericContainer>) {
-        runBlocking {
-            GlobalScope.launch {
-                val result = parseInputToBundle(this@Command, args, event)
+        GlobalScope.launch {
+            val result = parseInputToBundle(this@Command, args, event)
 
-                when (result) {
-                    is ParseResult.Success -> {
-                        event.args = result.argumentContainer
-                        execute.invoke(event)
-                    }
-                    is ParseResult.Error -> {
-                        val error = result.error
+            when (result) {
+                is ParseResult.Success -> {
+                    event.args = result.argumentContainer
+                    execute.invoke(event)
+                }
+                is ParseResult.Error -> {
+                    val error = result.error
 
-                        with(event) {
-                            if (discord.configuration.deleteErrors) respondTimed(error) else respond(error)
-                        }
+                    with(event) {
+                        if (discord.configuration.deleteErrors) respondTimed(error) else respond(error)
                     }
                 }
             }

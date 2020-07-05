@@ -22,7 +22,7 @@ data class BotConfiguration(
     internal var visibilityPredicate: (command: Command, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _ -> true }
 ) {
     /**
-     * Function to dynamically determine the prefix in a given context.
+     * Predicate to dynamically determine the prefix in a given context.
      */
     fun prefix(construct: (DiscordContext) -> String) {
         prefix = construct

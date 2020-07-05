@@ -94,21 +94,33 @@ class KUtils(private val token: String, private val globalPath: String) {
         configureFun.invoke(botConfiguration, discord)
     }
 
+    /**
+     * Modify client configuration.
+     */
     @Suppress("UNUSED")
     fun client(config: (String) -> JDABuilder) {
         startupBundle.client = config
     }
 
+    /**
+     * Modify core configuration.
+     */
     @Suppress("UNUSED")
     fun configure(config: BotConfiguration.(Discord) -> Unit) {
         startupBundle.configure = config
     }
 
+    /**
+     * Inject objects into the dependency injection pool.
+     */
     @Suppress("UNUSED")
     fun injection(config: InjectionConfiguration.() -> Unit) {
         startupBundle.injecton = config
     }
 
+    /**
+     * Modify logging configuration.
+     */
     @Suppress("UNUSED")
     fun logging(config: LoggingConfiguration.() -> Unit) {
         startupBundle.logging = config

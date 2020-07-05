@@ -21,12 +21,26 @@ data class ConversationStateContainer(val discord: Discord,
                                       var exitString: String? = null) : Responder {
 
     private val inputChannel = Channel<Message>()
+
+    /**
+     * All ID's of messages sent by the bot in this conversation.
+     */
     val botMessageIds = mutableListOf<String>()
+
+    /**
+     * All ID's of messages sent by the user in this conversation.
+     */
     val userMessageIds = mutableListOf<String>()
 
+    /**
+     * The ID of the most recent message sent by the bot in this conversation.
+     */
     val previousBotMessageId
         get() = botMessageIds.last()
 
+    /**
+     * The ID of the most recent message sent by the user in this conversation.
+     */
     val previousUserMessageId
         get() = userMessageIds.last()
 
@@ -134,4 +148,9 @@ class ConversationBuilder(private val exitString: String?, private val block: (C
     internal suspend fun acceptMessage(message: Message) = stateContainer.acceptMessage(message)
 }
 
+/**
+ * This block builds a conversation.
+ *
+ * @param exitString If this String is entered by the user, the conversation is exited.
+ */
 fun conversation(exitString: String? = null, block: ConversationStateContainer.() -> Unit) = ConversationBuilder(exitString, block)

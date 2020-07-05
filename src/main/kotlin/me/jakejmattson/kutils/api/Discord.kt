@@ -12,6 +12,12 @@ import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.hooks.EventListener
 import kotlin.reflect.KClass
 
+/**
+ * @param repository The repository URL for KUtils.
+ * @param kutilsVersion The version of KUtils being used.
+ * @param kotlinVersion The version of Kotlin used by KUtils.
+ * @param jdaVersion The version of JDA used by KUtils.
+ */
 data class KUtilsProperties(val repository: String,
                             val kutilsVersion: String,
                             val kotlinVersion: String,
@@ -19,6 +25,11 @@ data class KUtilsProperties(val repository: String,
 
 private val propFile = KUtilsProperties::class.java.getResource("/kutils-properties.json").readText()
 
+/**
+ * @property jda An instance of JDA that allows access to the Discord API.
+ * @property configuration All of the current configuration details for this bot.
+ * @property properties Various meta KUtils properties.
+ */
 abstract class Discord {
     @Deprecated("To be removed")
     abstract val jda: JDA
