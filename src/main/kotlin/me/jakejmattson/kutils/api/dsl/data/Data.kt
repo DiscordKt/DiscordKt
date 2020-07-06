@@ -1,6 +1,6 @@
 package me.jakejmattson.kutils.api.dsl.data
 
-import com.google.gson.GsonBuilder
+import com.google.gson.*
 import me.jakejmattson.kutils.internal.utils.diService
 import java.io.File
 
@@ -8,7 +8,13 @@ import java.io.File
  * A class that represents some data in a JSON file.
  */
 abstract class Data(val path: String, val killIfGenerated: Boolean = true) {
-    private val gson = GsonBuilder().setPrettyPrinting().create()
+    private val gson = GsonBuilder()
+        .setExclusionStrategies(object : ExclusionStrategy {
+            override fun shouldSkipClass(clazz: Class<*>) = false
+            override fun shouldSkipField(f: FieldAttributes?) = f?.declaringClass == Data::class.java
+        })
+        .setPrettyPrinting()
+        .create()
     val file = File(path)
 
     internal fun readFromFile() = gson.fromJson(file.readText(), this::class.java)

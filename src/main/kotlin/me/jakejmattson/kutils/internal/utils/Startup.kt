@@ -15,6 +15,7 @@ import me.jakejmattson.kutils.internal.services.*
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.MemberCachePolicy
+import kotlin.system.exitProcess
 
 @PublishedApi
 internal val diService = DIService()
@@ -161,13 +162,18 @@ class KUtils(private val token: String, private val globalPath: String) {
         .map {
             val default = it.getConstructor().newInstance()
 
-            val data = if (default.file.exists()) {
-                default.readFromFile()
-            } else {
-                if (default.killIfGenerated)
-                    InternalLogger.error("Please fill in the following file before re-running: ${default.file.absolutePath}")
+            val data = with(default) {
+                if (file.exists()) {
+                    readFromFile()
+                } else {
+                    if (killIfGenerated) {
+                        InternalLogger.error("Please fill in the following file before re-running: ${file.absolutePath}")
+                        writeToFile()
+                        exitProcess(-1)
+                    }
 
-                default.apply { writeToFile() }
+                    this
+                }
             }
 
             diService.inject(data)
