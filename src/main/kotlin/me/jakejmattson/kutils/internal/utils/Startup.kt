@@ -1,9 +1,10 @@
 package me.jakejmattson.kutils.internal.utils
 
 import me.jakejmattson.kutils.api.*
-import me.jakejmattson.kutils.api.annotations.*
+import me.jakejmattson.kutils.api.annotations.Service
 import me.jakejmattson.kutils.api.dsl.command.CommandsContainer
 import me.jakejmattson.kutils.api.dsl.configuration.*
+import me.jakejmattson.kutils.api.dsl.data.Data
 import me.jakejmattson.kutils.api.dsl.preconditions.PreconditionData
 import me.jakejmattson.kutils.api.extensions.stdlib.pluralize
 import me.jakejmattson.kutils.api.services.*
@@ -14,7 +15,6 @@ import me.jakejmattson.kutils.internal.services.*
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.MemberCachePolicy
-import kotlin.system.exitProcess
 
 @PublishedApi
 internal val diService = DIService()
@@ -42,12 +42,11 @@ class KUtils(private val token: String, private val globalPath: String) {
 
         val conversationService = ConversationService(discord)
 
-        diService.addElement(discord)
-        diService.addElement(conversationService)
-        diService.addElement(PersistenceService())
+        diService.inject(discord)
+        diService.inject(conversationService)
 
         if (enableScriptEngine)
-            diService.addElement(ScriptEngineService(discord))
+            diService.inject(ScriptEngineService(discord))
 
         val data = registerData()
         InternalLogger.startup(data.size.pluralize("Data"))
@@ -157,16 +156,20 @@ class KUtils(private val token: String, private val globalPath: String) {
     private fun detectServices() = ReflectionUtils.detectClassesWith<Service>(globalPath)
     private fun registerServices(services: Set<Class<*>>) = diService.invokeDestructiveList(services)
 
-    private fun registerData(): Set<Class<*>> {
-        val data = ReflectionUtils.detectClassesWith<Data>(globalPath)
-        val missingData = diService.collectDataObjects(data)
+    private fun registerData() = ReflectionUtils
+        .detectSubtypesOf<Data>(globalPath)
+        .map {
+            val default = it.getConstructor().newInstance()
 
-        if (missingData.isEmpty()) return data
+            val data = if (default.file.exists()) {
+                default.readFromFile()
+            } else {
+                if (default.killIfGenerated)
+                    InternalLogger.error("Please fill in the following file before re-running: ${default.file.absolutePath}")
 
-        val dataString = missingData.joinToString(", ", postfix = ".")
+                default.apply { writeToFile() }
+            }
 
-        InternalLogger.error("The below data files were generated and must be filled in before re-running.\n$dataString")
-
-        exitProcess(0)
-    }
+            diService.inject(data)
+        }
 }

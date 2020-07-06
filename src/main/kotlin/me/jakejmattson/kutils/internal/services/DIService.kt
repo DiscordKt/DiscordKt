@@ -1,10 +1,8 @@
 package me.jakejmattson.kutils.internal.services
 
-import com.google.gson.GsonBuilder
 import me.jakejmattson.kutils.api.annotations.*
 import me.jakejmattson.kutils.api.services.ScriptEngineService
 import me.jakejmattson.kutils.internal.utils.*
-import java.io.File
 import java.lang.reflect.Method
 import kotlin.system.exitProcess
 
@@ -13,9 +11,10 @@ internal data class FailureBundle(val clazz: Class<*>, val parameters: List<Clas
 @PublishedApi
 internal class DIService {
     val elementMap = HashMap<Class<*>, Any>()
-    private val gson = GsonBuilder().setPrettyPrinting().create()
 
-    fun addElement(element: Any) = elementMap.put(element::class.java, element)
+    fun inject(element: Any) {
+        elementMap[element::class.java] = element
+    }
 
     @PublishedApi
     internal inline fun <reified T> getElement() = elementMap[T::class.java] as T
@@ -42,7 +41,7 @@ internal class DIService {
         val failed = services.mapNotNull {
             try {
                 val result = invokeConstructor(it)
-                addElement(result)
+                inject(result)
                 null
             } catch (e: IllegalStateException) {
                 it
@@ -58,37 +57,6 @@ internal class DIService {
             InternalLogger.error(generateBadInjectionReport(sortedFailures)).also { exitProcess(-1) }
 
         invokeDestructiveList(failed, failed.size)
-    }
-
-    fun collectDataObjects(dataObjs: Set<Class<*>>) = dataObjs.mapNotNull {
-        val annotation = it.getAnnotation<Data>()
-        val file = File(annotation.path)
-        val parent = file.parentFile
-
-        if (parent != null && !parent.exists())
-            parent.mkdirs()
-
-        val alreadyGenerated = file.exists()
-
-        if (file.exists()) {
-            val contents = file.readText()
-            elementMap[it] = gson.fromJson(contents, it)
-        } else {
-            val obj = it.getConstructor().newInstance()
-            file.writeText(gson.toJson(obj, it))
-            elementMap[it] = obj
-        }
-
-        if (annotation.killIfGenerated && !alreadyGenerated) file.absolutePath else null
-    }
-
-    fun saveObject(obj: Any) {
-        val clazz = obj::class.java
-        val annotation = clazz.getAnnotation<Data>()
-            ?: throw IllegalArgumentException("PersistenceService#save parameters must be annotated with @Data")
-
-        File(annotation.path).writeText(gson.toJson(obj))
-        elementMap[clazz] = obj
     }
 
     private fun determineArguments(parameters: Array<out Class<*>>) = if (parameters.isEmpty()) emptyArray() else
