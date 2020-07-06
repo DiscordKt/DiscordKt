@@ -14,12 +14,13 @@ plugins {
 
 repositories {
     mavenCentral()
-    mavenLocal()
     jcenter()
 }
 
 dependencies {
     //Internal Dependencies
+    implementation(kotlin("stdlib-jdk8"))
+    implementation(Dependencies.coroutines)
     implementation(Dependencies.reflections)
     implementation(Dependencies.commons)
     implementation(Dependencies.slf4j)
@@ -28,12 +29,6 @@ dependencies {
     api(Dependencies.jda)
     api(Dependencies.guava)
     api(Dependencies.gson)
-
-    //Scripting Engine
-    implementation(Dependencies.kotlinCompiler)
-    implementation(Dependencies.script_compiler)
-    implementation(Dependencies.script_runtime)
-    implementation(Dependencies.script_util)
 
     //Test Dependencies
     testImplementation(Dependencies.mockk)

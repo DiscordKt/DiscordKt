@@ -8,6 +8,7 @@ import java.io.File
  * A class that represents some data in a JSON file.
  */
 abstract class Data(val path: String, val killIfGenerated: Boolean = true) {
+    val file = File(path)
     private val gson = GsonBuilder()
         .setExclusionStrategies(object : ExclusionStrategy {
             override fun shouldSkipClass(clazz: Class<*>) = false
@@ -15,7 +16,6 @@ abstract class Data(val path: String, val killIfGenerated: Boolean = true) {
         })
         .setPrettyPrinting()
         .create()
-    val file = File(path)
 
     internal fun readFromFile() = gson.fromJson(file.readText(), this::class.java)
     internal fun writeToFile() {

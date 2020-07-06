@@ -1,7 +1,6 @@
 package me.jakejmattson.kutils.internal.services
 
 import me.jakejmattson.kutils.api.annotations.*
-import me.jakejmattson.kutils.api.services.ScriptEngineService
 import me.jakejmattson.kutils.internal.utils.*
 import java.lang.reflect.Method
 import kotlin.system.exitProcess
@@ -62,12 +61,7 @@ internal class DIService {
     private fun determineArguments(parameters: Array<out Class<*>>) = if (parameters.isEmpty()) emptyArray() else
         parameters.map { arg ->
             elementMap.entries.find { arg.isAssignableFrom(it.key) }?.value
-                ?: throw IllegalStateException(
-                    when (arg) {
-                        ScriptEngineService::class.java -> "ScriptEngineService must be enabled in startBot() before using."
-                        else -> "Couldn't inject of type '$arg' from registered objects."
-                    }
-                )
+                ?: throw IllegalStateException("Couldn't inject of type '$arg' from registered objects.")
         }.toTypedArray()
 
     private fun displayReturnError(method: Method) {
