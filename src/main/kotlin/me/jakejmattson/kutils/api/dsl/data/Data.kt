@@ -6,6 +6,10 @@ import java.io.File
 
 /**
  * A class that represents some data in a JSON file.
+ *
+ * @property path The file path on the system where the data is located.
+ * @property killIfGenerated Whether or not the program should exit if this file was not present.
+ * @property file The file obtained from the provided path.
  */
 abstract class Data(val path: String, val killIfGenerated: Boolean = true) {
     val file = File(path)
@@ -27,6 +31,9 @@ abstract class Data(val path: String, val killIfGenerated: Boolean = true) {
         File(path).writeText(gson.toJson(this))
     }
 
+    /**
+     * Save the modified data object back into the injection pool and write to file.
+     */
     fun save() {
         writeToFile()
         diService.inject(this)

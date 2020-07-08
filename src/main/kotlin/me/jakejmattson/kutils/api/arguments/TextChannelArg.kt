@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.TextChannel
 
 /**
  * Accepts a Discord TextChannel entity as an ID or mention.
+ *
+ * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
  */
 open class TextChannelArg(override val name: String = "Text Channel", private val allowsGlobal: Boolean = false) : ArgumentType<TextChannel>() {
     companion object : TextChannelArg()

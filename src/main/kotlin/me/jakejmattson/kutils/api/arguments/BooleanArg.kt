@@ -5,8 +5,11 @@ import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 
 /**
  * Accepts either of two values. Defaults to true/false.
+ *
+ * @param truthValue The string value that results in true.
+ * @param falseValue The string value that results in false.
  */
-open class BooleanArg(override val name: String = "Boolean", val truthValue: String = "true", val falseValue: String = "false") : ArgumentType<Boolean>() {
+open class BooleanArg(override val name: String = "Boolean", private val truthValue: String = "true", private val falseValue: String = "false") : ArgumentType<Boolean>() {
     companion object : BooleanArg()
 
     init {

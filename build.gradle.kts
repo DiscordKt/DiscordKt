@@ -73,6 +73,11 @@ tasks {
     dokka {
         outputFormat = "html"
         outputDirectory = "$buildDir/javadoc"
+
+        configuration {
+            includeNonPublic = false
+            skipEmptyPackages = true
+        }
     }
 }
 

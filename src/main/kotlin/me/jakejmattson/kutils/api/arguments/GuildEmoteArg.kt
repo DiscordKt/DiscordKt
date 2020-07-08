@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.entities.Emote
 
 /**
  * Accepts a guild emote.
+ *
+ * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
  */
 open class GuildEmoteArg(override val name: String = "Guild Emote", private val allowsGlobal: Boolean = false) : ArgumentType<Emote>() {
     companion object : GuildEmoteArg()

@@ -7,6 +7,9 @@ import net.dv8tion.jda.api.entities.Role
 
 /**
  * Accepts a Discord Role entity as an ID, a mention, or by name.
+ *
+ * @param guildId The guild ID used to determine which guild to search in.
+ * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
  */
 open class RoleArg(override val name: String = "Role", private val guildId: String = "", private val allowsGlobal: Boolean = false) : ArgumentType<Role>() {
     companion object : RoleArg()

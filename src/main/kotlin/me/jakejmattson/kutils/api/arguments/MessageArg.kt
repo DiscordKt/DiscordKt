@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.*
 
 /**
  * Accepts a Discord Message entity as an ID or a link.
+ *
+ * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
  */
 open class MessageArg(override val name: String = "Message", private val allowsGlobal: Boolean = false) : ArgumentType<Message>() {
     companion object : MessageArg()

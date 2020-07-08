@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.*
 
 /**
  * Accepts a Discord VoiceChannel entity as an ID or mention.
+ *
+ * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
  */
 open class VoiceChannelArg(override val name: String = "Voice Channel", private val allowsGlobal: Boolean = false) : ArgumentType<VoiceChannel>() {
     companion object : VoiceChannelArg()

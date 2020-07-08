@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.User
 
 /**
  * Accepts a Discord User entity as an ID or mention.
+ *
+ * @param allowsBot Whether or not a bot is a valid input.
  */
 open class UserArg(override val name: String = "User", private val allowsBot: Boolean = false) : ArgumentType<User>() {
     companion object : UserArg()

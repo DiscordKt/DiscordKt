@@ -24,6 +24,7 @@ data class Error<T>(val error: String) : ArgumentResult<T>()
 /**
  * An object that represents a type and contains the logic to convert string arguments to the desired type.
  *
+ * @property name The display name for this type in documentations and examples.
  * @sample me.jakejmattson.kutils.api.arguments.IntegerArg
  */
 abstract class ArgumentType<T> : Cloneable {
