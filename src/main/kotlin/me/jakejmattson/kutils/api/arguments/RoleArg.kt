@@ -15,19 +15,21 @@ open class RoleArg(override val name: String = "Role", private val guildId: Stri
     companion object : RoleArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
+        val resolvedGuildId = guildId.ifBlank { event.guild?.id }.takeUnless { it.isNullOrBlank() }
+
         if (arg.trimToID().isLong()) {
             val role = event.discord.jda.getRoleById(arg.trimToID())
 
-            if (!allowsGlobal && guildId != role?.guild?.id)
+            if (!allowsGlobal && resolvedGuildId != role?.guild?.id)
                 return Error("$name must be from this guild.")
 
             if (role != null)
                 return Success(role)
         }
 
-        val guild = (if (guildId.isNotEmpty()) event.discord.jda.getGuildById(guildId) else event.guild)
-            ?: return Error("Cannot resolve a role by name from a DM. Please invoke in a guild or use an ID.")
+        resolvedGuildId ?: return Error("Cannot resolve a role by name from a DM. Please invoke in a guild or use an ID.")
 
+        val guild = event.discord.jda.getGuildById(resolvedGuildId) ?: return Error("$name could not determine a guild to search in.")
         val argString = args.joinToString(" ").toLowerCase()
         val viableNames = guild.roles
             .filter { argString.startsWith(it.name.toLowerCase()) }
