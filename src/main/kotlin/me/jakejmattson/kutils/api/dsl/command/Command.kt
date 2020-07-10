@@ -29,20 +29,17 @@ class Command(val names: List<String>,
         get() = arguments.size
 
     /**
-     * Manually parse args into an intermediate bundle to allow verifying the result.
+     * Manually parse args into an intermediate bundle to allow verifying the result, then execute it with [manualInvoke].
      *
      * @param args The raw string arguments to be provided to the command.
-     * @return The result of the parsing operation as a ParseResult
-     * @see manualInvoke
-     * @see ParseResult
+     * @return The result of the parsing operation as a [ParseResult].
      */
     fun manualParseInput(args: List<String>, event: CommandEvent<GenericContainer>) = parseInputToBundle(this, args, event)
 
     /**
-     * Invoke this command manually.
+     * Invoke this command manually with the parsed output from [manualParseInput].
      *
      * @param parsedData String arguments parsed into their respective types and bundled into a GenericContainer.
-     * @see manualParseInput
      */
     fun manualInvoke(parsedData: GenericContainer, event: CommandEvent<GenericContainer>) {
         GlobalScope.launch {
@@ -52,10 +49,9 @@ class Command(val names: List<String>,
     }
 
     /**
-     * Invoke this command "blindly" with the given arguments and context.
+     * Invoke this command "blindly" with the given arguments and context. Use [manualParseInput] and [manualInvoke] for a manual approach.
      *
      * @param args The raw string arguments to be provided to the command.
-     * @see manualParseInput
      */
     fun invoke(args: List<String>, event: CommandEvent<GenericContainer>) {
         GlobalScope.launch {

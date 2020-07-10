@@ -141,14 +141,14 @@ class KUtils(private val token: String, private val globalPath: String) {
         return localContainer
     }
 
-    private fun registerListeners(discord: Discord, container: CommandsContainer, preconditions: MutableList<PreconditionData>): CommandListener {
+    private fun registerListeners(discord: Discord, container: CommandsContainer, preconditions: List<PreconditionData>): CommandListener {
         val listeners = ReflectionUtils.detectListeners(globalPath)
 
         InternalLogger.startup(listeners.size.pluralize("Listener"))
 
         fun registerListener(listener: Any) = EventRegister.eventBus.register(listener)
 
-        val commandListener = CommandListener(container, discord, botConfiguration, preconditions)
+        val commandListener = CommandListener(container, discord, preconditions)
 
         registerListener(commandListener)
         listeners.forEach { registerListener(it) }

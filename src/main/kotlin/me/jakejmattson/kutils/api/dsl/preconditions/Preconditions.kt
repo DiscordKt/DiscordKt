@@ -7,10 +7,7 @@ import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 const val defaultPreconditionPriority = 5
 
 /**
- * A block representing a precondition that will either Pass or Fail.
- *
- * @see Pass
- * @see Fail
+ * A block representing a precondition that will either [Pass] or [Fail].
  */
 fun precondition(condition: (CommandEvent<*>) -> PreconditionResult) = condition
 
@@ -28,4 +25,4 @@ object Pass : PreconditionResult()
  *
  * @param reason The reason for failure.
  */
-data class Fail(val reason: String? = null) : PreconditionResult()
+data class Fail(val reason: String = "") : PreconditionResult()

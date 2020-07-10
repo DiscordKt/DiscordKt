@@ -14,8 +14,9 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 
 internal class CommandListener(private val container: CommandsContainer,
                                private val discord: Discord,
-                               private val config: BotConfiguration,
-                               private val preconditions: MutableList<PreconditionData> = mutableListOf()) {
+                               private val preconditions: List<PreconditionData> = listOf()) {
+
+    private val config: BotConfiguration = discord.configuration
 
     @Subscribe
     fun guildMessageHandler(e: GuildMessageReceivedEvent) = handleMessage(e.message)
@@ -24,16 +25,11 @@ internal class CommandListener(private val container: CommandsContainer,
     fun privateMessageHandler(e: PrivateMessageReceivedEvent) = handleMessage(e.message)
 
     private fun handleMessage(message: Message) {
-        val author = message.author
+        val author = message.author.takeUnless { it.isBot } ?: return
         val channel = message.channel
-        val guild = if (message.isFromGuild) message.guild else null
-
-        if (author.isBot) return
-
         val content = message.contentRaw
         val discordContext = DiscordContext(discord, message)
         val prefix = config.prefix.invoke(discordContext)
-
         val conversationService = discord.getInjectionObjects(ConversationService::class)
 
         val rawInputs = when {
@@ -63,6 +59,8 @@ internal class CommandListener(private val container: CommandsContainer,
         val command = container[commandName]
 
         if (command == null) {
+            val guild = if (message.isFromGuild) message.guild else null
+
             val errorEmbed = CommandRecommender.buildRecommendationEmbed(commandName) {
                 config.visibilityPredicate(it, author, channel, guild)
             }

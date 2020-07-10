@@ -44,13 +44,12 @@ internal object ReflectionUtils {
             PreconditionData(condition, annotation.priority)
         }
 
-    inline fun <reified T : Annotation> detectClassesWith(path: String) = Reflections(path).getTypesAnnotatedWith(T::class.java)
-    inline fun <reified T> detectSubtypesOf(path: String) = Reflections(path).getSubTypesOf(T::class.java)
-    inline fun <reified T : Annotation> detectMethodsWith(path: String) = Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(T::class.java)
+    inline fun <reified T : Annotation> detectClassesWith(path: String): Set<Class<*>> = Reflections(path).getTypesAnnotatedWith(T::class.java)
+    inline fun <reified T> detectSubtypesOf(path: String): Set<Class<out T>> = Reflections(path).getSubTypesOf(T::class.java)
+    inline fun <reified T : Annotation> detectMethodsWith(path: String): Set<Method> = Reflections(path, MethodAnnotationsScanner()).getMethodsAnnotatedWith(T::class.java)
 }
 
 internal inline fun <reified T : Annotation> Method.getAnnotation() = getAnnotation(T::class.java)
-internal inline fun <reified T : Annotation> Class<*>.getAnnotation() = getAnnotation(T::class.java)
 
 internal val Class<*>.simplerName
     get() = simpleName.substringAfterLast(".")

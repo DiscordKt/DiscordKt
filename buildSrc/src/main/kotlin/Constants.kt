@@ -14,7 +14,7 @@ object Versions {
     const val guava = "29.0-jre"
     const val commons = "1.8"
     const val slf4j = "2.0.0-alpha1"
-    const val jda = "4.2.0_173"
+    const val jda = "4.2.0_175"
 
     //Test Dependencies
     const val mockk = "1.10.0"

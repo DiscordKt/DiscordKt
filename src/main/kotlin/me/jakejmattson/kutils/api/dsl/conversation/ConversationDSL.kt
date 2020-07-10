@@ -52,8 +52,7 @@ data class ConversationStateContainer(val discord: Discord,
      * Halt the execution of the conversation and wait for a response. Re-prompt until the response converts correctly.
      * Once the conversion succeeds, perform an additional check to validate the response.
      *
-     * @see me.jakejmattson.kutils.api.dsl.arguments.ArgumentType
-     * @param argumentType The ArgumentType that the prompt expects in response.
+     * @param argumentType The [ArgumentType] that the prompt expects in response.
      * @param initialPrompt The message/embed sent to the user as a prompt for information.
      * @param until An additional check to validate that the response is valid.
      * @param errorMessage The message provided when the additional check is failed.
@@ -73,8 +72,7 @@ data class ConversationStateContainer(val discord: Discord,
     /**
      * Halt the execution of the conversation and wait for a response. Re-prompt until the response converts correctly.
      *
-     * @see me.jakejmattson.kutils.api.dsl.arguments.ArgumentType
-     * @param argumentType The ArgumentType that the prompt expects in response.
+     * @param argumentType The [ArgumentType] that the prompt expects in response.
      * @param prompt The message/embed sent to the user as a prompt for information.
      */
     @Throws(DmException::class)
