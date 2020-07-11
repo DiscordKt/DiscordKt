@@ -27,9 +27,11 @@ open class CategoryArg(override val name: String = "Category", private val guild
                 return Success(category)
         }
 
-        resolvedGuildId ?: return Error("Cannot resolve a category by name from a DM. Please invoke in a guild or use an ID.")
+        resolvedGuildId
+            ?: return Error("Cannot resolve a category by name from a DM. Please invoke in a guild or use an ID.")
 
-        val guild = event.discord.jda.getGuildById(resolvedGuildId) ?: return Error("$name could not determine a guild to search in.")
+        val guild = event.discord.jda.getGuildById(resolvedGuildId)
+            ?: return Error("$name could not determine a guild to search in.")
         val argString = args.joinToString(" ").toLowerCase()
         val viableNames = guild.categories
             .filter { argString.startsWith(it.name.toLowerCase()) }

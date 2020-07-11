@@ -5,7 +5,7 @@ import me.jakejmattson.kutils.api.annotations.Service
 import me.jakejmattson.kutils.api.dsl.command.CommandsContainer
 import me.jakejmattson.kutils.api.dsl.configuration.*
 import me.jakejmattson.kutils.api.dsl.data.Data
-import me.jakejmattson.kutils.api.dsl.preconditions.PreconditionData
+import me.jakejmattson.kutils.api.dsl.preconditions.Precondition
 import me.jakejmattson.kutils.api.extensions.stdlib.pluralize
 import me.jakejmattson.kutils.api.services.ConversationService
 import me.jakejmattson.kutils.internal.command.CommandRecommender
@@ -141,7 +141,7 @@ class KUtils(private val token: String, private val globalPath: String) {
         return localContainer
     }
 
-    private fun registerListeners(discord: Discord, container: CommandsContainer, preconditions: List<PreconditionData>): CommandListener {
+    private fun registerListeners(discord: Discord, container: CommandsContainer, preconditions: List<Precondition>): CommandListener {
         val listeners = ReflectionUtils.detectListeners(globalPath)
 
         InternalLogger.startup(listeners.size.pluralize("Listener"))
@@ -156,9 +156,9 @@ class KUtils(private val token: String, private val globalPath: String) {
         return commandListener
     }
 
-    private fun detectPreconditions() = ReflectionUtils.detectPreconditions(globalPath).toMutableList()
+    private fun detectPreconditions() = ReflectionUtils.detectSubtypesOf<Precondition>(globalPath).map { diService.invokeConstructor(it) }
     private fun detectServices() = ReflectionUtils.detectClassesWith<Service>(globalPath)
-    private fun registerServices(services: Set<Class<*>>) = diService.invokeDestructiveList(services)
+    private fun registerServices(services: Set<Class<*>>) = diService.buildAllRecursively(services)
 
     private fun registerData() = ReflectionUtils
         .detectSubtypesOf<Data>(globalPath)

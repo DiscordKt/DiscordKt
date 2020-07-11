@@ -5,7 +5,7 @@ import me.jakejmattson.kutils.internal.utils.diService
 import java.io.File
 
 /**
- * A class that represents some data in a JSON file.
+ * A class that represents some data in a JSON file. This will be registered into the dependency pool automatically.
  *
  * @property path The file path on the system where the data is located.
  * @property killIfGenerated Whether or not the program should exit if this file was not present.

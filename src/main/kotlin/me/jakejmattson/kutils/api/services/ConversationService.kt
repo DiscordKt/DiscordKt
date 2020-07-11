@@ -57,8 +57,8 @@ class ConversationService(val discord: Discord) {
                 }
                     ?: return@forEach InternalLogger.error("$conversationName @Start function does not build a conversation.")
 
-                val instance = diService.invokeConstructor(conversationClass) as Conversation
-                availableConversations[conversationClass as Class<out Conversation>] = instance to starter
+                val instance = diService.invokeConstructor(conversationClass)
+                availableConversations[conversationClass] = instance to starter
             }
 
         InternalLogger.startup(availableConversations.size.pluralize("Conversation"))

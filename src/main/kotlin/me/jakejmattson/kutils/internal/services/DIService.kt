@@ -1,6 +1,6 @@
 package me.jakejmattson.kutils.internal.services
 
-import me.jakejmattson.kutils.api.annotations.*
+import me.jakejmattson.kutils.api.annotations.CommandSet
 import me.jakejmattson.kutils.internal.utils.*
 import java.lang.reflect.Method
 import kotlin.system.exitProcess
@@ -18,7 +18,7 @@ internal class DIService {
     @PublishedApi
     internal inline fun <reified T> getElement() = elementMap[T::class.java] as T
 
-    internal inline fun <reified T> invokeReturningMethod(method: Method): T {
+    internal inline fun <reified T> invokeMethod(method: Method): T {
         val objects = determineArguments(method.parameterTypes)
         val result = method.invoke(null, *objects) as? T
 
@@ -30,13 +30,13 @@ internal class DIService {
         return result
     }
 
-    internal fun invokeConstructor(clazz: Class<*>): Any {
+    internal fun <T> invokeConstructor(clazz: Class<T>): T {
         val constructor = clazz.constructors.first()
         val objects = determineArguments(constructor.parameterTypes)
-        return constructor.newInstance(*objects)
+        return constructor.newInstance(*objects) as T
     }
 
-    fun invokeDestructiveList(services: Set<Class<*>>, last: Int = -1) {
+    fun buildAllRecursively(services: Set<Class<*>>, last: Int = -1) {
         val failed = services.mapNotNull {
             try {
                 val result = invokeConstructor(it)
@@ -55,7 +55,7 @@ internal class DIService {
         if (failed.size == last)
             InternalLogger.error(generateBadInjectionReport(sortedFailures)).also { exitProcess(-1) }
 
-        invokeDestructiveList(failed, failed.size)
+        buildAllRecursively(failed, failed.size)
     }
 
     private fun determineArguments(parameters: Array<out Class<*>>) = if (parameters.isEmpty()) emptyArray() else
@@ -74,7 +74,6 @@ internal class DIService {
 
         val (invocationInfo, expectedReturn) = when (annotation) {
             is CommandSet -> "$annotationName(\"${annotation.category}\") fun $signatureBase" to "commands { ... }"
-            is Precondition -> "$annotationName(${annotation.priority}) fun $signatureBase" to "precondition { ... }"
             else -> annotationName to "<Unknown>"
         }
 

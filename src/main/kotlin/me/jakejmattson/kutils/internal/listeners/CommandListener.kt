@@ -14,7 +14,7 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 
 internal class CommandListener(private val container: CommandsContainer,
                                private val discord: Discord,
-                               private val preconditions: List<PreconditionData> = listOf()) {
+                               private val preconditions: List<Precondition> = listOf()) {
 
     private val config: BotConfiguration = discord.configuration
 
@@ -47,12 +47,14 @@ internal class CommandListener(private val container: CommandsContainer,
         if (commandName.isEmpty()) return
 
         val event = CommandEvent<GenericContainer>(rawInputs, container, discordContext)
+        val errors = getPreconditionErrors(event)
 
-        getPreconditionError(event)?.let {
-            if (it != "") {
-                if (config.deleteErrors) event.respondTimed(it)
-                else event.respond(it)
-            }
+        if (errors.isNotEmpty()) {
+            val errorMessage = errors.firstOrNull { it.isNotBlank() }
+
+            if (errorMessage != null)
+                if (config.deleteErrors) event.respondTimed(errorMessage) else event.respond(errorMessage)
+
             return
         }
 
@@ -91,23 +93,9 @@ internal class CommandListener(private val container: CommandsContainer,
         return message.startsWith("<@!$id>") || message.startsWith("<@$id>")
     }
 
-    private fun getPreconditionError(event: CommandEvent<*>): String? {
-        val sortedConditions = preconditions
-            .groupBy({ it.priority }, { it.condition })
-            .toList()
-            .sortedBy { (priority, _) -> priority }
-            .map { (_, conditions) -> conditions }
-
-        // Lazy sequence allows lower priorities to assume higher priorities are already verified
-        val failedResults = sortedConditions.asSequence()
-            .map { conditions -> conditions.map { it.invoke(event) } }
-            .firstOrNull { results -> results.any { it is Fail } }
-            ?.filterIsInstance<Fail>()
-
-        return if (failedResults?.any { it.reason == null } == true) {
-            ""
-        } else {
-            failedResults?.firstOrNull { it.reason != null }?.reason
-        }
-    }
+    private fun getPreconditionErrors(event: CommandEvent<*>) =
+        preconditions
+            .map { it.evaluate(event) }
+            .filterIsInstance<Fail>()
+            .map { it.reason }
 }

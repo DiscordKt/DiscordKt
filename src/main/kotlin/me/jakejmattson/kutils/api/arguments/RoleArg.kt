@@ -27,9 +27,11 @@ open class RoleArg(override val name: String = "Role", private val guildId: Stri
                 return Success(role)
         }
 
-        resolvedGuildId ?: return Error("Cannot resolve a role by name from a DM. Please invoke in a guild or use an ID.")
+        resolvedGuildId
+            ?: return Error("Cannot resolve a role by name from a DM. Please invoke in a guild or use an ID.")
 
-        val guild = event.discord.jda.getGuildById(resolvedGuildId) ?: return Error("$name could not determine a guild to search in.")
+        val guild = event.discord.jda.getGuildById(resolvedGuildId)
+            ?: return Error("$name could not determine a guild to search in.")
         val argString = args.joinToString(" ").toLowerCase()
         val viableNames = guild.roles
             .filter { argString.startsWith(it.name.toLowerCase()) }
