@@ -33,9 +33,6 @@ class EmbedDSLHandle {
     private var titleBundle: TitleBuilder? = null
     private var footer: MessageEmbed.Footer? = null
 
-    @Deprecated("Replace with simpleTitle or title{ } builder.", ReplaceWith("simpleTitle"))
-    var title: String? = null
-
     var simpleTitle: String? = null
         set(value) {
             titleBundle = TitleBuilder(value)

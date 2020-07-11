@@ -3,20 +3,20 @@ package me.jakejmattson.kutils.internal.services
 import me.jakejmattson.kutils.api.annotations.CommandSet
 import me.jakejmattson.kutils.internal.utils.*
 import java.lang.reflect.Method
+import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
 internal data class FailureBundle(val clazz: Class<*>, val parameters: List<Class<*>>)
 
 @PublishedApi
 internal class DIService {
-    val elementMap = HashMap<Class<*>, Any>()
+    private val elementMap = HashMap<Class<*>, Any>()
 
     fun inject(element: Any) {
         elementMap[element::class.java] = element
     }
 
-    @PublishedApi
-    internal inline fun <reified T> getElement() = elementMap[T::class.java] as T
+    operator fun <T : Any> get(clazz: KClass<T>) = elementMap[clazz.java] as T
 
     internal inline fun <reified T> invokeMethod(method: Method): T {
         val objects = determineArguments(method.parameterTypes)
