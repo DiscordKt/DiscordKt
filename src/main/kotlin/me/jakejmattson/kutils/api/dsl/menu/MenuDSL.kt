@@ -2,8 +2,8 @@
 
 package me.jakejmattson.kutils.api.dsl.menu
 
-import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 import me.jakejmattson.kutils.api.dsl.embed.*
+import me.jakejmattson.kutils.internal.utils.InternalLogger
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.GenericEvent
@@ -13,8 +13,8 @@ import net.dv8tion.jda.api.hooks.EventListener
 typealias ReactionAction = (currentEmbed: EmbedBuilder) -> Unit
 
 class MenuDSLHandle {
-    private var embeds: MutableList<MessageEmbed> = mutableListOf()
-    private var reactions: HashMap<String, ReactionAction> = hashMapOf()
+    private var embeds = mutableListOf<MessageEmbed>()
+    private var reactions = hashMapOf<String, ReactionAction>()
     var leftReact: String = "⬅"
     var rightReact: String = "➡"
 
@@ -34,34 +34,38 @@ class MenuDSLHandle {
 data class Menu(val embeds: MutableList<MessageEmbed>,
                 val leftReact: String,
                 val rightReact: String,
-                val customReactions: HashMap<String, ReactionAction>)
+                val customReactions: HashMap<String, ReactionAction>) {
+    internal fun build(channel: MessageChannel) {
+        if (channel is PrivateChannel)
+            return InternalLogger.error("Cannot use menus within a private context.")
+
+        if (embeds.isEmpty())
+            return InternalLogger.error("Cannot build a menu with no embeds.")
+
+        val firstPage = embeds.first()
+
+        if (embeds.size == 1) {
+            channel.sendMessage(firstPage).queue()
+            return
+        }
+
+        channel.sendMessage(firstPage).queue { message ->
+            message.addReaction(leftReact).queue()
+            message.addReaction(rightReact).queue()
+
+            customReactions.keys.forEach {
+                message.addReaction(it).queue()
+            }
+
+            channel.jda.addEventListener(ReactionListener(message, this))
+        }
+    }
+}
 
 fun menu(construct: MenuDSLHandle.() -> Unit): Menu {
     val handle = MenuDSLHandle()
     handle.construct()
     return handle.build()
-}
-
-fun CommandEvent<*>.respond(menu: Menu) {
-    require(menu.embeds.isNotEmpty()) { "Cannot build a menu with no embeds." }
-
-    val firstPage = menu.embeds.first()
-
-    if (menu.embeds.size == 1) {
-        channel.sendMessage(firstPage).queue()
-        return
-    }
-
-    channel.sendMessage(firstPage).queue { message ->
-        message.addReaction(menu.leftReact).queue()
-        message.addReaction(menu.rightReact).queue()
-
-        menu.customReactions.keys.forEach {
-            message.addReaction(it).queue()
-        }
-
-        discord.jda.addEventListener(ReactionListener(message, menu))
-    }
 }
 
 private class ReactionListener(message: Message, private val menu: Menu) : EventListener {
