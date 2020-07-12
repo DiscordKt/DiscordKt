@@ -8,6 +8,7 @@ import kotlinx.coroutines.selects.select
 import me.jakejmattson.kutils.api.Discord
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.*
+import me.jakejmattson.kutils.api.dsl.embed.*
 import me.jakejmattson.kutils.api.services.ConversationResult
 import me.jakejmattson.kutils.internal.utils.Responder
 import net.dv8tion.jda.api.entities.*
@@ -50,39 +51,26 @@ data class ConversationStateContainer(val discord: Discord,
 
     /**
      * Halt the execution of the conversation and wait for a response. Re-prompt until the response converts correctly.
-     * Once the conversion succeeds, perform an additional check to validate the response.
      *
      * @param argumentType The [ArgumentType] that the prompt expects in response.
-     * @param initialPrompt The message/embed sent to the user as a prompt for information.
-     * @param until An additional check to validate that the response is valid.
-     * @param errorMessage The message provided when the additional check is failed.
+     * @param prompt The string message sent to the user as a prompt for information.
      */
     @Throws(DmException::class)
-    fun <T> blockingPromptUntil(argumentType: ArgumentType<T>, initialPrompt: () -> Any, until: (T) -> Boolean, errorMessage: () -> Any): T {
-        var value: T = blockingPrompt(argumentType, initialPrompt)
-
-        while (!until.invoke(value)) {
-            sendPrompt(errorMessage.invoke())
-            value = blockingPrompt(argumentType, initialPrompt)
-        }
-
-        return value
+    fun <T> promptMessage(argumentType: ArgumentType<T>, prompt: String): T {
+        require(!argumentType.isOptional) { "Conversation arguments cannot be optional" }
+        return retrieveValidResponse(argumentType, prompt)
     }
 
     /**
      * Halt the execution of the conversation and wait for a response. Re-prompt until the response converts correctly.
      *
      * @param argumentType The [ArgumentType] that the prompt expects in response.
-     * @param prompt The message/embed sent to the user as a prompt for information.
+     * @param prompt The embed sent to the user as a prompt for information.
      */
     @Throws(DmException::class)
-    fun <T> blockingPrompt(argumentType: ArgumentType<T>, prompt: () -> Any): T {
-        val promptValue = prompt.invoke()
-
+    fun <T> promptEmbed(argumentType: ArgumentType<T>, prompt: EmbedDSLHandle.() -> Unit): T {
         require(!argumentType.isOptional) { "Conversation arguments cannot be optional" }
-        require(promptValue is String || promptValue is MessageEmbed) { "Prompt must be a String or a MessageEmbed" }
-
-        return retrieveValidResponse(argumentType, promptValue)
+        return retrieveValidResponse(argumentType, embed(prompt))
     }
 
     private fun <T> retrieveValidResponse(argumentType: ArgumentType<*>, prompt: Any): T = runBlocking<T> {
