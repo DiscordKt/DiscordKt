@@ -127,10 +127,17 @@ class ConversationService(val discord: Discord) {
         return startConversation<T>(state, *arguments)
     }
 
-    internal fun handleResponse(message: Message) {
+    internal fun handleMessage(message: Message) {
         runBlocking {
             val conversation = getConversation(message.author, message.channel) ?: return@runBlocking
             conversation.acceptMessage(message)
+        }
+    }
+
+    internal fun handleReaction(author: User, channel: MessageChannel, reaction: MessageReaction) {
+        runBlocking {
+            val conversation = getConversation(author, channel) ?: return@runBlocking
+            conversation.acceptReaction(reaction)
         }
     }
 }

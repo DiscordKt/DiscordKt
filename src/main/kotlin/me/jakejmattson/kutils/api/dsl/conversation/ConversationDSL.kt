@@ -16,12 +16,19 @@ import net.dv8tion.jda.api.entities.*
 private class ExitException : Exception("Conversation exited early.")
 private class DmException : Exception("Message failed to deliver.")
 
+/**
+ * @property reaction The unicode string representing the reaction.
+ * @property value The value that this reaction has when selected.
+ */
+data class Reaction<T>(val reaction: String, val value: T)
+
 data class ConversationStateContainer(val discord: Discord,
                                       val user: User,
                                       override val channel: MessageChannel,
                                       var exitString: String? = null) : Responder {
 
-    private val inputChannel = Channel<Message>()
+    private val messageBuffer = Channel<Message>()
+    private val reactionBuffer = Channel<MessageReaction>()
 
     /**
      * All ID's of messages sent by the bot in this conversation.
@@ -45,12 +52,11 @@ data class ConversationStateContainer(val discord: Discord,
     val previousUserMessageId
         get() = userMessageIds.last()
 
-    internal suspend fun acceptMessage(message: Message) {
-        inputChannel.send(message)
-    }
+    internal suspend fun acceptMessage(message: Message) = messageBuffer.send(message)
+    internal suspend fun acceptReaction(reaction: MessageReaction) = reactionBuffer.send(reaction)
 
     /**
-     * Halt the execution of the conversation and wait for a response. Re-prompt until the response converts correctly.
+     * Prompt the user with a String. Re-prompt until the response converts correctly.
      *
      * @param argumentType The [ArgumentType] that the prompt expects in response.
      * @param prompt The string message sent to the user as a prompt for information.
@@ -58,11 +64,11 @@ data class ConversationStateContainer(val discord: Discord,
     @Throws(DmException::class)
     fun <T> promptMessage(argumentType: ArgumentType<T>, prompt: String): T {
         require(!argumentType.isOptional) { "Conversation arguments cannot be optional" }
-        return retrieveValidResponse(argumentType, prompt)
+        return retrieveValidTextResponse(argumentType, prompt)
     }
 
     /**
-     * Halt the execution of the conversation and wait for a response. Re-prompt until the response converts correctly.
+     * Prompt the user with an embed. Re-prompt until the response converts correctly.
      *
      * @param argumentType The [ArgumentType] that the prompt expects in response.
      * @param prompt The embed sent to the user as a prompt for information.
@@ -70,16 +76,39 @@ data class ConversationStateContainer(val discord: Discord,
     @Throws(DmException::class)
     fun <T> promptEmbed(argumentType: ArgumentType<T>, prompt: EmbedDSLHandle.() -> Unit): T {
         require(!argumentType.isOptional) { "Conversation arguments cannot be optional" }
-        return retrieveValidResponse(argumentType, embed(prompt))
+        return retrieveValidTextResponse(argumentType, embed(prompt))
     }
 
-    private fun <T> retrieveValidResponse(argumentType: ArgumentType<*>, prompt: Any): T = runBlocking<T> {
+    /**
+     * Prompt the user with an embed and the provided reactions.
+     *
+     * @param reactions The [Reaction] objects
+     * @param prompt The embed sent to the user as a prompt for information.
+     */
+    @Throws(DmException::class)
+    fun <T> promptReaction(vararg reactions: Reaction<T>, prompt: EmbedDSLHandle.() -> Unit): T {
+        channel.sendMessage(embed(prompt)).queue { message ->
+            botMessageIds.add(message.id)
+
+            reactions.forEach {
+                message.addReaction(it.reaction).queue()
+            }
+        }
+
+        return retrieveValidReactionResponse(reactions.toList())
+    }
+
+    private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<*>, prompt: Any): T = runBlocking<T> {
         sendPrompt(prompt)
-        retrieveResponse(argumentType) ?: retrieveValidResponse(argumentType, prompt)
+        retrieveTextResponse(argumentType) ?: retrieveValidTextResponse(argumentType, prompt)
     }
 
-    private suspend fun <T> retrieveResponse(argumentType: ArgumentType<*>) = select<T?> {
-        inputChannel.onReceive { input ->
+    private fun <T> retrieveValidReactionResponse(reactions: List<Reaction<T>>): T = runBlocking<T> {
+        retrieveReactionResponse(reactions) ?: retrieveValidReactionResponse(reactions)
+    }
+
+    private suspend fun <T> retrieveTextResponse(argumentType: ArgumentType<*>) = select<T?> {
+        messageBuffer.onReceive { input ->
             userMessageIds.add(input.id)
 
             if (input.contentStripped == exitString)
@@ -95,19 +124,27 @@ data class ConversationStateContainer(val discord: Discord,
         }
     }
 
+    private suspend fun <T> retrieveReactionResponse(reactions: List<Reaction<T>>) = select<T?> {
+        reactionBuffer.onReceive { input ->
+            if (input.messageId != previousBotMessageId)
+                return@onReceive null
+
+            reactions.firstOrNull { it.reaction == input.reactionEmote.emoji }?.value
+        }
+    }
+
     private fun parseResponse(argumentType: ArgumentType<*>, message: Message): ArgumentResult<*> {
         val rawInputs = RawInputs(message.contentRaw, "", message.contentStripped.split(" "), 0)
         val commandEvent = CommandEvent<Nothing>(rawInputs, CommandsContainer(), DiscordContext(discord, message))
         return argumentType.convert(message.contentStripped, commandEvent.rawInputs.commandArgs, commandEvent)
     }
 
-    private fun sendPrompt(prompt: Any) {
+    private fun sendPrompt(prompt: Any) =
         when (prompt) {
             is String -> channel.sendMessage(prompt).queue { botMessageIds.add(it.id) }
             is MessageEmbed -> channel.sendMessage(prompt).queue { botMessageIds.add(it.id) }
-            else -> throw IllegalArgumentException("Prompt must be a String or a MessageEmbed")
+            else -> Unit
         }
-    }
 }
 
 class ConversationBuilder(private val exitString: String?, private val block: (ConversationStateContainer) -> Unit) {
@@ -132,6 +169,9 @@ class ConversationBuilder(private val exitString: String?, private val block: (C
 
     @PublishedApi
     internal suspend fun acceptMessage(message: Message) = stateContainer.acceptMessage(message)
+
+    @PublishedApi
+    internal suspend fun acceptReaction(reaction: MessageReaction) = stateContainer.acceptReaction(reaction)
 }
 
 /**

@@ -10,7 +10,7 @@ import me.jakejmattson.kutils.api.extensions.stdlib.pluralize
 import me.jakejmattson.kutils.api.services.ConversationService
 import me.jakejmattson.kutils.internal.command.CommandRecommender
 import me.jakejmattson.kutils.internal.event.EventRegister
-import me.jakejmattson.kutils.internal.listeners.CommandListener
+import me.jakejmattson.kutils.internal.listeners.*
 import me.jakejmattson.kutils.internal.services.*
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.requests.GatewayIntent
@@ -58,7 +58,7 @@ class KUtils(private val token: String, private val globalPath: String) {
         val preconditions = detectPreconditions()
         InternalLogger.startup(preconditions.size.pluralize("Precondition"))
 
-        registerListeners(discord, container, preconditions)
+        registerListeners(discord, container, preconditions, conversationService)
 
         conversationService.registerConversations(globalPath)
 
@@ -141,7 +141,7 @@ class KUtils(private val token: String, private val globalPath: String) {
         return localContainer
     }
 
-    private fun registerListeners(discord: Discord, container: CommandsContainer, preconditions: List<Precondition>): CommandListener {
+    private fun registerListeners(discord: Discord, container: CommandsContainer, preconditions: List<Precondition>, conversationService: ConversationService): CommandListener {
         val listeners = ReflectionUtils.detectListeners(globalPath)
 
         InternalLogger.startup(listeners.size.pluralize("Listener"))
@@ -149,8 +149,10 @@ class KUtils(private val token: String, private val globalPath: String) {
         fun registerListener(listener: Any) = EventRegister.eventBus.register(listener)
 
         val commandListener = CommandListener(container, discord, preconditions)
+        val reactionListener = ReactionListener(conversationService)
 
         registerListener(commandListener)
+        registerListener(reactionListener)
         listeners.forEach { registerListener(it) }
 
         return commandListener

@@ -39,7 +39,7 @@ internal class CommandListener(private val container: CommandsContainer,
                 return channel.sendMessage(embed).queue()
             }
             isMentionInvocation(content) -> stripMentionInvocation(content)
-            else -> return conversationService.handleResponse(message)
+            else -> return conversationService.handleMessage(message)
         }
 
         val (_, commandName, actualArgs, _) = rawInputs
