@@ -55,9 +55,7 @@ class Command(val names: List<String>,
      */
     fun invoke(args: List<String>, event: CommandEvent<GenericContainer>) {
         GlobalScope.launch {
-            val result = parseInputToBundle(this@Command, args, event)
-
-            when (result) {
+            when (val result = parseInputToBundle(this@Command, args, event)) {
                 is ParseResult.Success -> {
                     event.args = result.argumentContainer
                     execute.invoke(event)

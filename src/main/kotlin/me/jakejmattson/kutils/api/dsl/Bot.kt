@@ -3,16 +3,14 @@
 package me.jakejmattson.kutils.api.dsl
 
 import me.jakejmattson.kutils.internal.utils.KUtils
-import org.slf4j.simple.SimpleLogger
 
 /**
- * Create an instance of your Discord bot!
+ * Create an instance of your Discord bot! You can use the following blocks to modify bot configuration:
+ * [configure][KUtils.configure], [injection][KUtils.injection], [client][KUtils.client], [logging][KUtils.logging]
  *
  * @param token Your Discord bot token.
  */
 fun bot(token: String, operate: KUtils.() -> Unit): KUtils {
-    System.setProperty(SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "WARN")
-
     val util = KUtils(token, detectGlobalPath(Exception()))
     util.operate()
     util.buildBot()

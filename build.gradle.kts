@@ -77,6 +77,15 @@ tasks {
         configuration {
             includeNonPublic = false
             skipEmptyPackages = true
+            reportUndocumented = true
+
+            targets = listOf("JVM")
+            platform = "JVM"
+
+            sourceLink {
+                path = "src/main/kotlin"
+                url = "https://github.com/JakeJMattson/KUtils/tree/master/src/main/kotlin"
+            }
         }
     }
 }
