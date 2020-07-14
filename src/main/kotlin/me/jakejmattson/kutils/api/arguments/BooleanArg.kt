@@ -10,6 +10,9 @@ import me.jakejmattson.kutils.api.dsl.command.CommandEvent
  * @param falseValue The string value that results in false.
  */
 open class BooleanArg(override val name: String = "Boolean", private val truthValue: String = "true", private val falseValue: String = "false") : ArgumentType<Boolean>() {
+    /**
+     * Accepts either true or false.
+     */
     companion object : BooleanArg()
 
     init {

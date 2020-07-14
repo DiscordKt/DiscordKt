@@ -12,6 +12,9 @@ import net.dv8tion.jda.api.entities.User
  * @param allowsBot Whether or not a bot is a valid input.
  */
 open class UserArg(override val name: String = "User", private val allowsBot: Boolean = false) : ArgumentType<User>() {
+    /**
+     * Accepts a Discord User entity as an ID or mention. Does not allow bots.
+     */
     companion object : UserArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {

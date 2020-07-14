@@ -8,6 +8,9 @@ import java.awt.Color
  * Accepts a color in hexadecimal format. The '#' symbol is optional.
  */
 open class HexColorArg(override val name: String = "Hex Color") : ArgumentType<Color>() {
+    /**
+     * Accepts a color in hexadecimal format. The '#' symbol is optional.
+     */
     companion object : HexColorArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Color> {

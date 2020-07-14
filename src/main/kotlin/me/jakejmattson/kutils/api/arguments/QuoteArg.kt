@@ -7,6 +7,9 @@ import me.jakejmattson.kutils.api.dsl.command.CommandEvent
  * Accepts a group of arguments surrounded by quotation marks.
  */
 open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>() {
+    /**
+     * Accepts a group of arguments surrounded by quotation marks.
+     */
     companion object : QuoteArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {

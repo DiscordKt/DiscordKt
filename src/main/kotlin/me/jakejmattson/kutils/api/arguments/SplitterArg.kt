@@ -9,6 +9,9 @@ import me.jakejmattson.kutils.api.dsl.command.CommandEvent
  * @param splitter The character used to split the input.
  */
 open class SplitterArg(override val name: String = "TextWithSplitter", private val splitter: String = "|") : ArgumentType<List<String>>() {
+    /**
+     * Consumes all arguments and returns a list of the results (split by '|' character).
+     */
     companion object : SplitterArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<String>> {

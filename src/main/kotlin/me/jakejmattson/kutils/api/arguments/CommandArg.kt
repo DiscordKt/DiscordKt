@@ -7,6 +7,9 @@ import me.jakejmattson.kutils.api.dsl.command.*
  * Accepts a KUtils command.
  */
 open class CommandArg(override val name: String = "Command") : ArgumentType<Command>() {
+    /**
+     * Accepts a KUtils command.
+     */
     companion object : CommandArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Command> {

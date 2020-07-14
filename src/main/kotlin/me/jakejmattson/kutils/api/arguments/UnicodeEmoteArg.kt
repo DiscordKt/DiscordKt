@@ -8,6 +8,9 @@ import me.jakejmattson.kutils.internal.utils.emojiRegex
  * Accepts an emote as a unicode string.
  */
 open class UnicodeEmoteArg(override val name: String = "Unicode Emote") : ArgumentType<String>() {
+    /**
+     * Accepts an emote as a unicode string.
+     */
     companion object : UnicodeEmoteArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {

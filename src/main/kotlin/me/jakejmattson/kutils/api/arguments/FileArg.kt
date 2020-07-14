@@ -8,6 +8,9 @@ import java.io.File
  * Accepts a file as a message attachment.
  */
 open class FileArg(override val name: String = "File") : ArgumentType<File>() {
+    /**
+     * Accepts a file as a message attachment.
+     */
     companion object : FileArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<File> {

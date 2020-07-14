@@ -5,9 +5,12 @@ import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 import me.jakejmattson.kutils.api.extensions.stdlib.containsURl
 
 /**
- * Accepts a URL.
+ * Accepts a string that matches the URL regex.
  */
 open class UrlArg(override val name: String = "URL") : ArgumentType<String>() {
+    /**
+     * Accepts a string that matches the URL regex.
+     */
     companion object : UrlArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
