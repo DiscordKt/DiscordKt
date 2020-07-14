@@ -2,7 +2,7 @@ package me.jakejmattson.kutils.api.arguments
 
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
-import me.jakejmattson.kutils.api.extensions.stdlib.*
+import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.Role
 
 /**
@@ -17,7 +17,7 @@ open class RoleArg(override val name: String = "Role", private val guildId: Stri
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
         val resolvedGuildId = guildId.ifBlank { event.guild?.id }.takeUnless { it.isNullOrBlank() }
 
-        if (arg.trimToID().isLong()) {
+        if (arg.trimToID().toLongOrNull() != null) {
             val role = event.discord.jda.getRoleById(arg.trimToID())
 
             if (!allowsGlobal && resolvedGuildId != role?.guild?.id)

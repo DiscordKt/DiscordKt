@@ -1,7 +1,6 @@
 package me.jakejmattson.kutils.internal.utils
 
 import me.jakejmattson.kutils.api.dsl.arguments.*
-import me.jakejmattson.kutils.api.extensions.stdlib.isDigitOrPeriod
 
 private typealias Quantity = Double
 private typealias Quantifier = String
@@ -57,7 +56,7 @@ private fun toQuantifier(element: String) = element.takeIf { it.toLowerCase() in
 private fun toQuantity(element: String) = element.toDoubleOrNull()
 
 private fun toBoth(element: String): Pair<Double, String>? {
-    val quantityRaw = element.toCharArray().takeWhile { it.isDigitOrPeriod() }.joinToString("")
+    val quantityRaw = element.toCharArray().takeWhile { it.isDigit() || it == '.' }.joinToString("")
     val quantity = toQuantity(quantityRaw) ?: return null
     val quantifier = toQuantifier(element.substring(quantityRaw.length))
         ?: return null

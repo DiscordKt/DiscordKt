@@ -2,7 +2,7 @@ package me.jakejmattson.kutils.api.arguments
 
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
-import me.jakejmattson.kutils.api.extensions.stdlib.*
+import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.Category
 
 /**
@@ -17,7 +17,7 @@ open class CategoryArg(override val name: String = "Category", private val guild
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
         val resolvedGuildId = guildId.ifBlank { event.guild?.id }.takeUnless { it.isNullOrBlank() }
 
-        if (arg.trimToID().isLong()) {
+        if (arg.trimToID().toLongOrNull() != null) {
             val category = event.discord.jda.getCategoryById(arg.trimToID())
 
             if (!allowsGlobal && resolvedGuildId != category?.guild?.id)
