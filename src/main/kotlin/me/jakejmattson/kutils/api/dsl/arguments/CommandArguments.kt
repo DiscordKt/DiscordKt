@@ -58,5 +58,6 @@ abstract class ArgumentType<T> : Cloneable {
      */
     abstract fun generateExamples(event: CommandEvent<*>): List<String>
 
+    /** @suppress */
     override fun toString() = this::class.toString().substringAfterLast(".").substringBefore("$")
 }

@@ -44,24 +44,28 @@ class EmbedDSLHandle {
     var image: String? = null
     var timeStamp: TemporalAccessor? = null
 
+    /** @suppress */
     fun title(construct: TitleBuilder.() -> Unit) {
         val titleBuilder = TitleBuilder()
         titleBuilder.construct()
         titleBundle = titleBuilder
     }
 
+    /** @suppress */
     fun author(construct: AuthorBuilder.() -> Unit) {
         val authorBuilder = AuthorBuilder()
         authorBuilder.construct()
         author = authorBuilder.build()
     }
 
+    /** @suppress */
     fun field(construct: FieldBuilder.() -> Unit) {
         val fieldBuilder = FieldBuilder()
         fieldBuilder.construct()
         mutableFields.add(fieldBuilder.build())
     }
 
+    /** @suppress */
     fun footer(construct: FooterBuilder.() -> Unit) {
         val footerBuilder = FooterBuilder()
         footerBuilder.construct()
@@ -84,20 +88,24 @@ class EmbedDSLHandle {
         setAuthor(author?.name, author?.url, author?.iconUrl)
         setFooter(footer?.text, footer?.iconUrl)
     }.build()
-}
 
-data class TitleBuilder(var text: String? = "", var url: String? = null)
+    /** @suppress */
+    data class TitleBuilder(var text: String? = "", var url: String? = null)
 
-data class AuthorBuilder(var name: String? = "", var url: String? = null, var iconUrl: String? = null) {
-    fun build() = MessageEmbed.AuthorInfo(name, url, iconUrl, null)
-}
+    /** @suppress */
+    data class AuthorBuilder(var name: String? = "", var url: String? = null, var iconUrl: String? = null) {
+        fun build() = MessageEmbed.AuthorInfo(name, url, iconUrl, null)
+    }
 
-data class FieldBuilder(var name: String? = "", var value: String? = "", var inline: Boolean = false) {
-    fun build() = EmbedField(name, value, inline)
-}
+    /** @suppress */
+    data class FieldBuilder(var name: String? = "", var value: String? = "", var inline: Boolean = false) {
+        fun build() = EmbedField(name, value, inline)
+    }
 
-data class FooterBuilder(var text: String? = "", var iconUrl: String? = null) {
-    fun build() = MessageEmbed.Footer(text, iconUrl, null)
+    /** @suppress */
+    data class FooterBuilder(var text: String? = "", var iconUrl: String? = null) {
+        fun build() = MessageEmbed.Footer(text, iconUrl, null)
+    }
 }
 
 fun embed(construct: EmbedDSLHandle.() -> Unit): MessageEmbed {
