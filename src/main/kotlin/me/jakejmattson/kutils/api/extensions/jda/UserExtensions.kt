@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.entities.*
 /**
  * Attempt to convert this user to a member with the given guild.
  */
-fun User.toMember(guild: Guild) = guild.getMemberById(this.id)
+fun User.toMember(guild: Guild) = guild.getMemberById(id)
 
 /**
  * Send the user a private string message.

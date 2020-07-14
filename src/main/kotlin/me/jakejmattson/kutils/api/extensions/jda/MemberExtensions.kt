@@ -7,9 +7,5 @@ import net.dv8tion.jda.api.entities.Member
 /**
  * Get the highest role available to this user.
  */
-fun Member.getHighestRole() =
-    if (roles.isNotEmpty()) {
-        roles.maxBy { it.position }
-    } else {
-        guild.roles.minBy { it.position }
-    }
+fun Member.getHighestRole() = roles.maxBy { it.position } ?: guild.publicRole
+

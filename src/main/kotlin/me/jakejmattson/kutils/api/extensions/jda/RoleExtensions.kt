@@ -5,6 +5,6 @@ package me.jakejmattson.kutils.api.extensions.jda
 import net.dv8tion.jda.api.entities.Role
 
 /**
- * Compare two roles by their position.
+ * Define the comparison operator for roles.
  */
-fun Role.isEqualOrHigherThan(other: Role) = position >= other.position
+operator fun Role.compareTo(other: Role) = position.compareTo(other.position)

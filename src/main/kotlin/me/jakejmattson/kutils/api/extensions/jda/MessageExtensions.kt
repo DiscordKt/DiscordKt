@@ -16,11 +16,6 @@ fun Message.containsInvite() = contentRaw.containsInvite()
 fun Message.containsURL() = contentRaw.containsURl()
 
 /**
- * Delete this message if it exists.
- */
-fun Message.deleteIfExists(runnable: () -> Unit = {}) = channel.retrieveMessageById(id).queue { it?.delete()?.queue { runnable() } }
-
-/**
  * Checks whether or not this message's raw content mentions a user or role.
  */
 fun Message.mentionsSomeone() = (mentionsEveryone() || mentionedUsers.size > 0 || mentionedRoles.size > 0)
