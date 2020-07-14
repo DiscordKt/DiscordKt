@@ -101,8 +101,6 @@ class KUtils(private val token: String, private val globalPath: String) {
 
     /**
      * Modify core configuration.
-     *
-     * @sample me.jakejmattson.kutils.api.dsl.configuration.BotConfiguration
      */
     @Suppress("UNUSED")
     fun configure(config: BotConfiguration.(Discord) -> Unit) {
@@ -111,8 +109,6 @@ class KUtils(private val token: String, private val globalPath: String) {
 
     /**
      * Inject objects into the dependency injection pool.
-     *
-     * @sample me.jakejmattson.kutils.api.dsl.configuration.InjectionConfiguration
      */
     @Suppress("UNUSED")
     fun injection(config: InjectionConfiguration.() -> Unit) {
@@ -121,8 +117,6 @@ class KUtils(private val token: String, private val globalPath: String) {
 
     /**
      * Modify logging configuration.
-     *
-     * @sample me.jakejmattson.kutils.api.dsl.configuration.LoggingConfiguration
      */
     @Suppress("UNUSED")
     fun logging(config: LoggingConfiguration.() -> Unit) {

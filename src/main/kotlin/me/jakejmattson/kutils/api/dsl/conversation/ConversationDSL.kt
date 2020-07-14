@@ -82,7 +82,7 @@ data class ConversationStateContainer(val discord: Discord,
     /**
      * Prompt the user with an embed and the provided reactions.
      *
-     * @param reactions The [Reaction] objects
+     * @param reactions The [Reaction] objects that will be added to the embed.
      * @param prompt The embed sent to the user as a prompt for information.
      */
     @Throws(DmException::class)

@@ -4,10 +4,9 @@ package me.jakejmattson.kutils.api.extensions.jda
 
 import net.dv8tion.jda.api.entities.Member
 
-fun Member.fullName() = "${this.user.name}#${this.user.discriminator}"
-
-fun Member.descriptor() = "${this.user.name}#${this.user.discriminator} :: ID :: ${this.user.id}"
-
+/**
+ * Get the highest role available to this user.
+ */
 fun Member.getHighestRole() =
     if (roles.isNotEmpty()) {
         roles.maxBy { it.position }

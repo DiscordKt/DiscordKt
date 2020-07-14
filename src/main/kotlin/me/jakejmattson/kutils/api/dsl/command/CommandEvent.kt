@@ -26,11 +26,7 @@ data class DiscordContext(val discord: Discord,
 }
 
 /**
- * A command execution event.
- *
- * @see RawInputs
- * @see CommandsContainer
- * @see Discord
+ * A command execution event containing the [RawInputs], [CommandsContainer], and the relevant [DiscordContext].
  */
 data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
                                               val container: CommandsContainer,
