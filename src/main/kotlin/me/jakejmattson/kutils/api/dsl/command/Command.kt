@@ -16,6 +16,8 @@ import me.jakejmattson.kutils.internal.utils.*
  * @param isFlexible Whether or not this command can accept arguments in any order.
  * @param arguments The ArgumentTypes that are required by this function to execute.
  * @param execute The logic that will run whenever this command is executed.
+ *
+ * @property parameterCount The number of arguments this command accepts.
  */
 class Command(val names: List<String>,
               var description: String = "<No Description>",

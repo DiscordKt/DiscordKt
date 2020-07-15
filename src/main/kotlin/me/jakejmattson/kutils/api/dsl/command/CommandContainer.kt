@@ -9,6 +9,11 @@ fun commands(construct: CommandsContainer.() -> Unit): CommandsContainer {
     return commands
 }
 
+/**
+ * A container for a collection of commands and convenience methods.
+ *
+* @param commands A list of all currently registered commands.
+ */
 data class CommandsContainer(val commands: MutableList<Command> = mutableListOf()) {
     /**
      * A block to be used for creating a new command.
@@ -20,6 +25,9 @@ data class CommandsContainer(val commands: MutableList<Command> = mutableListOf(
         return command
     }
 
+    /** @suppress */
     operator fun plus(container: CommandsContainer) = apply { commands.addAll(container.commands) }
+
+    /** @suppress **/
     operator fun get(name: String) = commands.firstOrNull { name.toLowerCase() in it.names.map { it.toLowerCase() } }
 }
