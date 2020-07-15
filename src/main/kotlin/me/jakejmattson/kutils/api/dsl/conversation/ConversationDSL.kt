@@ -16,12 +16,7 @@ import net.dv8tion.jda.api.entities.*
 private class ExitException : Exception("Conversation exited early.")
 private class DmException : Exception("Message failed to deliver.")
 
-/**
- * @property reaction The unicode string representing the reaction.
- * @property value The value that this reaction has when selected.
- */
-data class Reaction<T>(val reaction: String, val value: T)
-
+/** @suppress */
 data class ConversationStateContainer(val discord: Discord,
                                       val user: User,
                                       override val channel: MessageChannel,
@@ -82,20 +77,20 @@ data class ConversationStateContainer(val discord: Discord,
     /**
      * Prompt the user with an embed and the provided reactions.
      *
-     * @param reactions The [Reaction] objects that will be added to the embed.
+     * @param reactionMap A map of reactions that will be added to the embed and their values.
      * @param prompt The embed sent to the user as a prompt for information.
      */
     @Throws(DmException::class)
-    fun <T> promptReaction(vararg reactions: Reaction<T>, prompt: EmbedDSLHandle.() -> Unit): T {
+    fun <T> promptReaction(reactionMap: Map<String, T>, prompt: EmbedDSLHandle.() -> Unit): T {
         channel.sendMessage(embed(prompt)).queue { message ->
             botMessageIds.add(message.id)
 
-            reactions.forEach {
-                message.addReaction(it.reaction).queue()
+            reactionMap.forEach {
+                message.addReaction(it.key).queue()
             }
         }
 
-        return retrieveValidReactionResponse(reactions.toList())
+        return retrieveValidReactionResponse(reactionMap)
     }
 
     private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<*>, prompt: Any): T = runBlocking<T> {
@@ -103,7 +98,7 @@ data class ConversationStateContainer(val discord: Discord,
         retrieveTextResponse(argumentType) ?: retrieveValidTextResponse(argumentType, prompt)
     }
 
-    private fun <T> retrieveValidReactionResponse(reactions: List<Reaction<T>>): T = runBlocking<T> {
+    private fun <T> retrieveValidReactionResponse(reactions: Map<String, T>): T = runBlocking<T> {
         retrieveReactionResponse(reactions) ?: retrieveValidReactionResponse(reactions)
     }
 
@@ -124,12 +119,14 @@ data class ConversationStateContainer(val discord: Discord,
         }
     }
 
-    private suspend fun <T> retrieveReactionResponse(reactions: List<Reaction<T>>) = select<T?> {
+    private suspend fun <T> retrieveReactionResponse(reactions: Map<String, T>) = select<T?> {
         reactionBuffer.onReceive { input ->
             if (input.messageId != previousBotMessageId)
                 return@onReceive null
 
-            reactions.firstOrNull { it.reaction == input.reactionEmote.emoji }?.value
+            val emoji = input.reactionEmote.emoji
+
+            reactions[emoji]
         }
     }
 
@@ -147,6 +144,7 @@ data class ConversationStateContainer(val discord: Discord,
         }
 }
 
+/** @suppress */
 class ConversationBuilder(private val exitString: String?, private val block: (ConversationStateContainer) -> Unit) {
     private lateinit var stateContainer: ConversationStateContainer
 
