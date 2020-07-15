@@ -41,6 +41,8 @@ data class BotConfiguration(
 
     /**
      * Function to dynamically determine if a command is visible in a given context.
+     *
+     * @sample VisibilityContext
      */
     fun visibilityPredicate(predicate: (VisibilityContext) -> Boolean = { _ -> true }) {
         visibilityPredicate = { command, user, messageChannel, guild ->
@@ -51,6 +53,8 @@ data class BotConfiguration(
 
     /**
      * Block to set global color constants, specifically for embeds.
+     *
+     * @sample ColorConfiguration
      */
     fun colors(construct: ColorConfiguration.() -> Unit) {
         val colors = ColorConfiguration()

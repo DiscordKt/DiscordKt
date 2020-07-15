@@ -11,18 +11,20 @@ import me.jakejmattson.kutils.internal.utils.*
 import net.dv8tion.jda.api.entities.*
 import java.lang.reflect.Method
 
-/**
- * @property INVALID_USER The target user cannot be reached - a bot or no shared guild.
- * @property CANNOT_DM The target user has the bot blocked or has DMs off.
- * @property HAS_CONVO The target user already has a conversation.
- * @property COMPLETE The conversation has completed successfully.
- * @property EXITED The conversation was exited by the user.
- */
 enum class ConversationResult {
+    /** The target user cannot be reached - a bot or no shared guild. */
     INVALID_USER,
+
+    /** The target user has the bot blocked or has DMs off. */
     CANNOT_DM,
+
+    /** The target user already has a conversation. */
     HAS_CONVO,
+
+    /** The conversation has completed successfully. */
     COMPLETE,
+
+    /** The conversation was exited by the user. */
     EXITED
 }
 

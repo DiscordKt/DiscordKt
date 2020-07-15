@@ -4,6 +4,9 @@ package me.jakejmattson.kutils.api.dsl.arguments
 
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 
+/**
+ * The result of an argument conversion.
+ */
 sealed class ArgumentResult<T>
 
 /**
@@ -36,9 +39,33 @@ abstract class ArgumentType<T> : Cloneable {
         private set
 
     private fun <T> cloneToOptional() = (clone() as ArgumentType<T>).apply { isOptional = true }
+
+    /**
+     * Make this argument optional and fall back to the default value if the conversion fails.
+     *
+     * @param default A default value matching the expected type.
+     */
     fun makeOptional(default: T) = cloneToOptional<T>().apply { defaultValue = { default } }
+
+    /**
+     * Make this argument optional and fall back to the default value if the conversion fails. Exposes the [CommandEvent].
+     *
+     * @param default A default value matching the expected type.
+     */
     fun makeOptional(default: (CommandEvent<*>) -> T) = cloneToOptional<T>().apply { defaultValue = default }
+
+    /**
+     * Make this argument optional and fall back to the default value if the conversion fails.
+     *
+     * @param default A default value matching the expected type - can also be null.
+     */
     fun makeNullableOptional(default: T? = null) = cloneToOptional<T?>().apply { defaultValue = { default } }
+
+    /**
+     * Make this argument optional and fall back to the default value if the conversion fails. Exposes the [CommandEvent].
+     *
+     * @param default A default value matching the expected type - can also be null.
+     */
     fun makeNullableOptional(default: (CommandEvent<*>) -> T?) = cloneToOptional<T?>().apply { defaultValue = default }
 
     /**

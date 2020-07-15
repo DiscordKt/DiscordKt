@@ -21,12 +21,11 @@ import kotlin.system.exitProcess
 internal val diService = DIService()
 
 class KUtils(private val token: String, private val globalPath: String) {
-    private val jdaDefault
-        get() = JDABuilder.createDefault(token)
+    private val jdaDefault = JDABuilder.createDefault(token)
             .setMemberCachePolicy(MemberCachePolicy.ALL)
             .enableIntents(GatewayIntent.GUILD_MEMBERS)
 
-    data class StartupFunctions(var client: (String) -> JDABuilder,
+    private data class StartupFunctions(var client: (String) -> JDABuilder,
                                 var configure: BotConfiguration.(Discord) -> Unit = { BotConfiguration() },
                                 var injecton: InjectionConfiguration.() -> Unit = { InjectionConfiguration() },
                                 var logging: LoggingConfiguration.() -> Unit = { LoggingConfiguration() })
