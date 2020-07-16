@@ -20,7 +20,10 @@ import kotlin.system.exitProcess
 @PublishedApi
 internal val diService = DIService()
 
-class KUtils(private val token: String, private val globalPath: String) {
+/**
+ * Backing class for [bot][me.jakejmattson.kutils.api.dsl.bot] function.
+ */
+class Bot(private val token: String, private val globalPath: String) {
     private val jdaDefault = JDABuilder.createDefault(token)
             .setMemberCachePolicy(MemberCachePolicy.ALL)
             .enableIntents(GatewayIntent.GUILD_MEMBERS)
@@ -93,7 +96,6 @@ class KUtils(private val token: String, private val globalPath: String) {
     /**
      * Modify client configuration.
      */
-    @Suppress("UNUSED")
     fun client(config: (String) -> JDABuilder) {
         startupBundle.client = config
     }
@@ -103,7 +105,6 @@ class KUtils(private val token: String, private val globalPath: String) {
      *
      * @sample BotConfiguration
      */
-    @Suppress("UNUSED")
     fun configure(config: BotConfiguration.(Discord) -> Unit) {
         startupBundle.configure = config
     }
@@ -113,7 +114,6 @@ class KUtils(private val token: String, private val globalPath: String) {
      *
      * @sample InjectionConfiguration
      */
-    @Suppress("UNUSED")
     fun injection(config: InjectionConfiguration.() -> Unit) {
         startupBundle.injecton = config
     }
@@ -123,7 +123,6 @@ class KUtils(private val token: String, private val globalPath: String) {
      *
      * @sample LoggingConfiguration
      */
-    @Suppress("UNUSED")
     fun logging(config: LoggingConfiguration.() -> Unit) {
         startupBundle.logging = config
     }

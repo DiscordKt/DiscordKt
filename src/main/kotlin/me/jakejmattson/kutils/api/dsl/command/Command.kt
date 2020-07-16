@@ -63,7 +63,7 @@ class Command(val names: List<String>,
                     execute.invoke(event)
                 }
                 is ParseResult.Error -> {
-                    val error = result.error
+                    val error = result.reason
 
                     with(event) {
                         if (discord.configuration.deleteErrors) respondTimed(error) else respond(error)

@@ -4,9 +4,23 @@ import me.jakejmattson.kutils.api.dsl.command.*
 import me.jakejmattson.kutils.internal.arguments.*
 import me.jakejmattson.kutils.internal.utils.InternalLogger
 
+/**
+ * Intermediate result of manual parsing.
+ */
 sealed class ParseResult {
+    /**
+     * The parsing succeeded.
+     *
+     * @param argumentContainer The parsing results.
+     */
     data class Success(val argumentContainer: GenericContainer) : ParseResult()
-    data class Error(val error: String) : ParseResult()
+
+    /**
+     * The parsing failed.
+     *
+     * @param reason The reason for the failure.
+     */
+    data class Error(val reason: String) : ParseResult()
 }
 
 internal fun parseInputToBundle(command: Command, actualArgs: List<String>, event: CommandEvent<GenericContainer>): ParseResult {
