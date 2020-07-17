@@ -2,7 +2,6 @@
 
 package me.jakejmattson.kutils.api.dsl.embed
 
-import me.jakejmattson.kutils.api.dsl.configuration.ColorConfiguration
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color
@@ -12,46 +11,59 @@ private typealias EmbedField = MessageEmbed.Field
 
 class EmbedDSLHandle {
     companion object {
-        private val defaultColors = ColorConfiguration()
-
-        var successColor: Color = defaultColors.successColor
-        var failureColor: Color = defaultColors.failureColor
-        var infoColor: Color = defaultColors.infoColor
+        lateinit var successColor: Color
+        lateinit var failureColor: Color
+        lateinit var infoColor: Color
     }
 
+    /** @suppress Redundant doc */
     val successColor: Color
         get() = Companion.successColor
 
+    /** @suppress Redundant doc */
     val failureColor: Color
         get() = Companion.failureColor
 
+    /** @suppress Redundant doc */
     val infoColor: Color
         get() = Companion.infoColor
 
-    private val mutableFields: MutableList<EmbedField> = mutableListOf()
+    private val mutableFields = mutableListOf<EmbedField>()
     private var author: MessageEmbed.AuthorInfo? = null
     private var titleBundle: TitleBuilder? = null
     private var footer: MessageEmbed.Footer? = null
 
+    /**
+     * Alternative simple value instead of the [title] builder.
+     */
     var simpleTitle: String? = null
         set(value) {
             titleBundle = TitleBuilder(value)
         }
 
+    /** @suppress Redundant doc */
     var description: String? = null
+
+    /** @suppress Redundant doc */
     var color: Color? = null
+
+    /** @suppress Redundant doc */
     var thumbnail: String? = null
+
+    /** @suppress Redundant doc */
     var image: String? = null
+
+    /** @suppress Redundant doc */
     var timeStamp: TemporalAccessor? = null
 
-    /** @suppress */
+    /** @suppress Redundant doc */
     fun title(construct: TitleBuilder.() -> Unit) {
         val titleBuilder = TitleBuilder()
         titleBuilder.construct()
         titleBundle = titleBuilder
     }
 
-    /** @suppress */
+    /** @suppress Redundant doc */
     fun author(construct: AuthorBuilder.() -> Unit) {
         val authorBuilder = AuthorBuilder()
         authorBuilder.construct()
@@ -72,11 +84,21 @@ class EmbedDSLHandle {
         footer = footerBuilder.build()
     }
 
+    /** @suppress Redundant doc */
     fun addField(field: EmbedField) = mutableFields.add(field)
+
+    /** @suppress Redundant doc */
     fun addField(name: String?, value: String?, inline: Boolean = false) = addField(EmbedField(name, value, inline))
+
+    /** @suppress Redundant doc */
     fun addInlineField(name: String?, value: String?) = addField(EmbedField(name, value, true))
+
+    /** @suppress Redundant doc */
     fun addBlankField(inline: Boolean) = addField(EmbedField("", "", inline))
 
+    /**
+     * Build the embed and apply the DSL configuration.
+     */
     fun build() = EmbedBuilder().apply {
         fields.addAll(mutableFields)
         setTitle(titleBundle?.text, titleBundle?.url)
@@ -108,12 +130,18 @@ class EmbedDSLHandle {
     }
 }
 
+/**
+ * Construct an embed using the DSL.
+ */
 fun embed(construct: EmbedDSLHandle.() -> Unit): MessageEmbed {
     val handle = EmbedDSLHandle()
     handle.construct()
     return handle.build()
 }
 
+/**
+ * Convert a Discord embed entity back into the builder format.
+ */
 fun MessageEmbed.toEmbedBuilder() =
     EmbedBuilder().apply {
         setTitle(title)
