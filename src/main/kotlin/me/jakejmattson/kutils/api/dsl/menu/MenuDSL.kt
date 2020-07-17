@@ -2,6 +2,7 @@
 
 package me.jakejmattson.kutils.api.dsl.menu
 
+import me.jakejmattson.kutils.api.annotations.BuilderDSL
 import me.jakejmattson.kutils.api.dsl.embed.*
 import me.jakejmattson.kutils.internal.utils.InternalLogger
 import net.dv8tion.jda.api.EmbedBuilder
@@ -12,14 +13,14 @@ import net.dv8tion.jda.api.hooks.EventListener
 
 typealias ReactionAction = (currentEmbed: EmbedBuilder) -> Unit
 
-class MenuDSLHandle {
+class MenuDSL {
     private var embeds = mutableListOf<MessageEmbed>()
     private var reactions = hashMapOf<String, ReactionAction>()
     var leftReact: String = "⬅"
     var rightReact: String = "➡"
 
-    fun embed(construct: EmbedDSLHandle.() -> Unit) {
-        val handle = EmbedDSLHandle()
+    fun embed(construct: EmbedDSL.() -> Unit) {
+        val handle = EmbedDSL()
         handle.construct()
         embeds.add(handle.build())
     }
@@ -62,8 +63,9 @@ data class Menu(val embeds: MutableList<MessageEmbed>,
     }
 }
 
-fun menu(construct: MenuDSLHandle.() -> Unit): Menu {
-    val handle = MenuDSLHandle()
+@BuilderDSL
+fun menu(construct: MenuDSL.() -> Unit): Menu {
+    val handle = MenuDSL()
     handle.construct()
     return handle.build()
 }

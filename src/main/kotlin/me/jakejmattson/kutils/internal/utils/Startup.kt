@@ -1,7 +1,7 @@
 package me.jakejmattson.kutils.internal.utils
 
 import me.jakejmattson.kutils.api.*
-import me.jakejmattson.kutils.api.annotations.Service
+import me.jakejmattson.kutils.api.annotations.*
 import me.jakejmattson.kutils.api.dsl.command.CommandsContainer
 import me.jakejmattson.kutils.api.dsl.configuration.*
 import me.jakejmattson.kutils.api.dsl.data.Data
@@ -96,6 +96,7 @@ class Bot(private val token: String, private val globalPath: String) {
     /**
      * Modify client configuration.
      */
+    @ConfigurationDSL
     fun client(config: (String) -> JDABuilder) {
         startupBundle.client = config
     }
@@ -105,6 +106,7 @@ class Bot(private val token: String, private val globalPath: String) {
      *
      * @sample BotConfiguration
      */
+    @ConfigurationDSL
     fun configure(config: BotConfiguration.(Discord) -> Unit) {
         startupBundle.configure = config
     }
@@ -114,6 +116,7 @@ class Bot(private val token: String, private val globalPath: String) {
      *
      * @sample InjectionConfiguration
      */
+    @ConfigurationDSL
     fun injection(config: InjectionConfiguration.() -> Unit) {
         startupBundle.injecton = config
     }
@@ -123,6 +126,7 @@ class Bot(private val token: String, private val globalPath: String) {
      *
      * @sample LoggingConfiguration
      */
+    @ConfigurationDSL
     fun logging(config: LoggingConfiguration.() -> Unit) {
         startupBundle.logging = config
     }

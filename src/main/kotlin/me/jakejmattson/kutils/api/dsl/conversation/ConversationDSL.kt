@@ -6,6 +6,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.kutils.api.Discord
+import me.jakejmattson.kutils.api.annotations.BuilderDSL
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.*
 import me.jakejmattson.kutils.api.dsl.embed.*
@@ -69,7 +70,7 @@ data class ConversationStateContainer(val discord: Discord,
      * @param prompt The embed sent to the user as a prompt for information.
      */
     @Throws(DmException::class)
-    fun <T> promptEmbed(argumentType: ArgumentType<T>, prompt: EmbedDSLHandle.() -> Unit): T {
+    fun <T> promptEmbed(argumentType: ArgumentType<T>, prompt: EmbedDSL.() -> Unit): T {
         require(!argumentType.isOptional) { "Conversation arguments cannot be optional" }
         return retrieveValidTextResponse(argumentType, embed(prompt))
     }
@@ -81,7 +82,7 @@ data class ConversationStateContainer(val discord: Discord,
      * @param prompt The embed sent to the user as a prompt for information.
      */
     @Throws(DmException::class)
-    fun <T> promptReaction(reactionMap: Map<String, T>, prompt: EmbedDSLHandle.() -> Unit): T {
+    fun <T> promptReaction(reactionMap: Map<String, T>, prompt: EmbedDSL.() -> Unit): T {
         channel.sendMessage(embed(prompt)).queue { message ->
             botMessageIds.add(message.id)
 
@@ -177,4 +178,5 @@ class ConversationBuilder(private val exitString: String?, private val block: (C
  *
  * @param exitString If this String is entered by the user, the conversation is exited.
  */
+@BuilderDSL
 fun conversation(exitString: String? = null, block: ConversationStateContainer.() -> Unit) = ConversationBuilder(exitString, block)

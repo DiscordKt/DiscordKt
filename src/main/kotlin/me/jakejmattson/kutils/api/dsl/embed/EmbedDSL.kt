@@ -2,6 +2,7 @@
 
 package me.jakejmattson.kutils.api.dsl.embed
 
+import me.jakejmattson.kutils.api.annotations.BuilderDSL
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color
@@ -9,11 +10,12 @@ import java.time.temporal.TemporalAccessor
 
 private typealias EmbedField = MessageEmbed.Field
 
-class EmbedDSLHandle {
+/** @suppress DSL Builder */
+class EmbedDSL {
     companion object {
-        lateinit var successColor: Color
-        lateinit var failureColor: Color
-        lateinit var infoColor: Color
+        internal lateinit var successColor: Color
+        internal lateinit var failureColor: Color
+        internal lateinit var infoColor: Color
     }
 
     /** @suppress Redundant doc */
@@ -30,7 +32,7 @@ class EmbedDSLHandle {
 
     private val mutableFields = mutableListOf<EmbedField>()
     private var author: MessageEmbed.AuthorInfo? = null
-    private var titleBundle: TitleBuilder? = null
+    private var titleBundle: Title? = null
     private var footer: MessageEmbed.Footer? = null
 
     /**
@@ -38,48 +40,50 @@ class EmbedDSLHandle {
      */
     var simpleTitle: String? = null
         set(value) {
-            titleBundle = TitleBuilder(value)
+            titleBundle = Title(value)
         }
 
-    /** @suppress Redundant doc */
+    /** @suppress External doc */
     var description: String? = null
 
-    /** @suppress Redundant doc */
+    /** @suppress External doc */
     var color: Color? = null
 
-    /** @suppress Redundant doc */
+    /** @suppress External doc */
     var thumbnail: String? = null
 
-    /** @suppress Redundant doc */
+    /** @suppress External doc */
     var image: String? = null
 
-    /** @suppress Redundant doc */
+    /** @suppress External doc */
     var timeStamp: TemporalAccessor? = null
 
-    /** @suppress Redundant doc */
-    fun title(construct: TitleBuilder.() -> Unit) {
-        val titleBuilder = TitleBuilder()
+    /** @suppress External doc */
+    fun title(construct: Title.() -> Unit) {
+        val titleBuilder = Title()
         titleBuilder.construct()
         titleBundle = titleBuilder
     }
 
-    /** @suppress Redundant doc */
-    fun author(construct: AuthorBuilder.() -> Unit) {
-        val authorBuilder = AuthorBuilder()
+    /** @suppress External doc */
+    fun author(construct: Author.() -> Unit) {
+        val authorBuilder = Author()
         authorBuilder.construct()
         author = authorBuilder.build()
     }
 
-    /** @suppress */
-    fun field(construct: FieldBuilder.() -> Unit) {
-        val fieldBuilder = FieldBuilder()
+    /** @suppress External doc */
+    fun field(construct: Field.() -> Unit) {
+        val fieldBuilder = Field()
         fieldBuilder.construct()
         mutableFields.add(fieldBuilder.build())
     }
 
-    /** @suppress */
-    fun footer(construct: FooterBuilder.() -> Unit) {
-        val footerBuilder = FooterBuilder()
+    /**
+     * @sample Footer
+     */
+    fun footer(construct: Footer.() -> Unit) {
+        val footerBuilder = Footer()
         footerBuilder.construct()
         footer = footerBuilder.build()
     }
@@ -96,10 +100,7 @@ class EmbedDSLHandle {
     /** @suppress Redundant doc */
     fun addBlankField(inline: Boolean) = addField(EmbedField("", "", inline))
 
-    /**
-     * Build the embed and apply the DSL configuration.
-     */
-    fun build() = EmbedBuilder().apply {
+    internal fun build() = EmbedBuilder().apply {
         fields.addAll(mutableFields)
         setTitle(titleBundle?.text, titleBundle?.url)
         setDescription(description)
@@ -111,30 +112,29 @@ class EmbedDSLHandle {
         setFooter(footer?.text, footer?.iconUrl)
     }.build()
 
-    /** @suppress */
-    data class TitleBuilder(var text: String? = "", var url: String? = null)
+    /** @suppress DSL backing */
+    data class Title(var text: String? = "", var url: String? = null)
 
-    /** @suppress */
-    data class AuthorBuilder(var name: String? = "", var url: String? = null, var iconUrl: String? = null) {
-        fun build() = MessageEmbed.AuthorInfo(name, url, iconUrl, null)
+    /** @suppress DSL backing */
+    data class Author(var name: String? = "", var url: String? = null, var iconUrl: String? = null) {
+        internal fun build() = MessageEmbed.AuthorInfo(name, url, iconUrl, null)
     }
 
-    /** @suppress */
-    data class FieldBuilder(var name: String? = "", var value: String? = "", var inline: Boolean = false) {
-        fun build() = EmbedField(name, value, inline)
+    /** @suppress DSL backing */
+    data class Field(var name: String? = "", var value: String? = "", var inline: Boolean = false) {
+        internal fun build() = EmbedField(name, value, inline)
     }
 
-    /** @suppress */
-    data class FooterBuilder(var text: String? = "", var iconUrl: String? = null) {
-        fun build() = MessageEmbed.Footer(text, iconUrl, null)
+    /** @suppress DSL backing */
+    data class Footer(var text: String? = "", var iconUrl: String? = null) {
+        internal fun build() = MessageEmbed.Footer(text, iconUrl, null)
     }
 }
 
-/**
- * Construct an embed using the DSL.
- */
-fun embed(construct: EmbedDSLHandle.() -> Unit): MessageEmbed {
-    val handle = EmbedDSLHandle()
+/** @suppress DSL Builder */
+@BuilderDSL
+fun embed(construct: EmbedDSL.() -> Unit): MessageEmbed {
+    val handle = EmbedDSL()
     handle.construct()
     return handle.build()
 }

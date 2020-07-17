@@ -3,11 +3,9 @@
 package me.jakejmattson.kutils.api.dsl.command
 
 import kotlinx.coroutines.*
-import me.jakejmattson.kutils.api.annotations.KutilsDsl
 import me.jakejmattson.kutils.internal.command.*
 import me.jakejmattson.kutils.internal.utils.*
 
-@KutilsDsl
 /**
  * @param names The name(s) this command can be executed by (case insensitive).
  * @param description A brief description of the command - used in documentation.

@@ -2,6 +2,7 @@
 
 package me.jakejmattson.kutils.api.dsl
 
+import me.jakejmattson.kutils.api.annotations.ConfigurationDSL
 import me.jakejmattson.kutils.internal.utils.Bot
 
 /**
@@ -10,6 +11,7 @@ import me.jakejmattson.kutils.internal.utils.Bot
  *
  * @param token Your Discord bot token.
  */
+@ConfigurationDSL
 fun bot(token: String, operate: Bot.() -> Unit) =
     Bot(token, detectGlobalPath(Exception())).apply {
         operate()

@@ -2,8 +2,9 @@
 
 package me.jakejmattson.kutils.api.dsl.configuration
 
+import me.jakejmattson.kutils.api.annotations.BotConfigurationDSL
 import me.jakejmattson.kutils.api.dsl.command.*
-import me.jakejmattson.kutils.api.dsl.embed.EmbedDSLHandle
+import me.jakejmattson.kutils.api.dsl.embed.EmbedDSL
 import net.dv8tion.jda.api.entities.*
 
 /**
@@ -24,6 +25,7 @@ data class BotConfiguration(
     /**
      * Predicate to dynamically determine the prefix in a given context.
      */
+    @BotConfigurationDSL
     fun prefix(construct: (DiscordContext) -> String) {
         prefix = construct
     }
@@ -31,11 +33,12 @@ data class BotConfiguration(
     /**
      * An embed that will be sent anytime someone (solely) mentions the bot.
      */
-    fun mentionEmbed(construct: EmbedDSLHandle.(DiscordContext) -> Unit) {
+    @BotConfigurationDSL
+    fun mentionEmbed(construct: EmbedDSL.(DiscordContext) -> Unit) {
         mentionEmbed = {
-            val handle = EmbedDSLHandle()
-            handle.construct(it)
-            handle.build()
+            val embed = EmbedDSL()
+            embed.construct(it)
+            embed.build()
         }
     }
 
@@ -44,6 +47,7 @@ data class BotConfiguration(
      *
      * @sample VisibilityContext
      */
+    @BotConfigurationDSL
     fun visibilityPredicate(predicate: (VisibilityContext) -> Boolean = { _ -> true }) {
         visibilityPredicate = { command, user, messageChannel, guild ->
             val context = VisibilityContext(command, user, messageChannel, guild)
@@ -56,11 +60,12 @@ data class BotConfiguration(
      *
      * @sample ColorConfiguration
      */
+    @BotConfigurationDSL
     fun colors(construct: ColorConfiguration.() -> Unit) {
         val colors = ColorConfiguration()
         colors.construct()
-        EmbedDSLHandle.successColor = colors.successColor
-        EmbedDSLHandle.failureColor = colors.failureColor
-        EmbedDSLHandle.infoColor = colors.infoColor
+        EmbedDSL.successColor = colors.successColor
+        EmbedDSL.failureColor = colors.failureColor
+        EmbedDSL.infoColor = colors.infoColor
     }
 }

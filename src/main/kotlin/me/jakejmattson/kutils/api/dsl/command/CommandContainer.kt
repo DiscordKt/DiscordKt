@@ -1,8 +1,11 @@
 package me.jakejmattson.kutils.api.dsl.command
 
+import me.jakejmattson.kutils.api.annotations.BuilderDSL
+
 /**
  * Create a container where multiple commands can be created.
  */
+@BuilderDSL
 fun commands(construct: CommandsContainer.() -> Unit): CommandsContainer {
     val commands = CommandsContainer()
     commands.construct()
