@@ -8,7 +8,7 @@ plugins {
     `maven-publish`
     signing
     id("io.codearte.nexus-staging") version "0.21.2"
-    id("com.github.ben-manes.versions") version "0.28.0"
+    id("com.github.ben-manes.versions") version "0.29.0"
     id("org.jetbrains.dokka") version "0.10.1"
 }
 
