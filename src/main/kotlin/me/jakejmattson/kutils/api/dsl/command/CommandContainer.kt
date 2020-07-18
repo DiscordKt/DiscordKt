@@ -28,9 +28,9 @@ data class CommandsContainer(val commands: MutableList<Command> = mutableListOf(
         return command
     }
 
-    /** @suppress */
+    /** @suppress operator */
     operator fun plus(container: CommandsContainer) = apply { commands.addAll(container.commands) }
 
-    /** @suppress **/
+    /** @suppress operator **/
     operator fun get(name: String) = commands.firstOrNull { name.toLowerCase() in it.names.map { it.toLowerCase() } }
 }

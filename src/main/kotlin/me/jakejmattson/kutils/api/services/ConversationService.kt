@@ -11,7 +11,9 @@ import me.jakejmattson.kutils.internal.utils.*
 import net.dv8tion.jda.api.entities.*
 import java.lang.reflect.Method
 
-/** @suppress All properties documented */
+/**
+ * An enum representing possible ways that a conversation can end.
+ */
 enum class ConversationResult {
     /** The target user cannot be reached - a bot or no shared guild. */
     INVALID_USER,

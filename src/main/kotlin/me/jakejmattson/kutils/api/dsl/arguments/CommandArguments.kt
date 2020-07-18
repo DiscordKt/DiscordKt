@@ -3,6 +3,7 @@
 package me.jakejmattson.kutils.api.dsl.arguments
 
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.internal.utils.simplerName
 
 /**
  * The result of an argument conversion.
@@ -85,6 +86,6 @@ abstract class ArgumentType<T> : Cloneable {
      */
     abstract fun generateExamples(event: CommandEvent<*>): List<String>
 
-    /** @suppress */
-    override fun toString() = this::class.toString().substringAfterLast(".").substringBefore("$")
+    /** Determine the simpler name (just the class) and then remove the companion tag */
+    override fun toString() = this::class.java.simplerName.substringBefore("$")
 }

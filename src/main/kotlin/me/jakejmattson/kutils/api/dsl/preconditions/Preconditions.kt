@@ -14,7 +14,7 @@ abstract class Precondition {
     abstract fun evaluate(event: CommandEvent<*>): PreconditionResult
 }
 
-/** @suppress  */
+/** @suppress Redundant doc */
 sealed class PreconditionResult
 
 /**

@@ -38,25 +38,25 @@ abstract class Discord {
 
     internal abstract fun addEventListener(register: EventRegister)
 
-    /** @suppress */
+    /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any> getInjectionObjects(a: KClass<A>) = diService[A::class]
 
-    /** @suppress */
+    /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any, reified B : Any>
         getInjectionObjects(a: KClass<A>, b: KClass<B>) =
         Args2(getInjectionObjects(a), getInjectionObjects(b))
 
-    /** @suppress */
+    /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any, reified B : Any, reified C : Any>
         getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>) =
         Args3(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c))
 
-    /** @suppress */
+    /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any, reified B : Any, reified C : Any, reified D : Any>
         getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>) =
         Args4(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c), getInjectionObjects(d))
 
-    /** @suppress */
+    /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any, reified B : Any, reified C : Any, reified D : Any, reified E : Any>
         getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>, e: KClass<E>) =
         Args5(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c), getInjectionObjects(d), getInjectionObjects(e))
