@@ -11,6 +11,7 @@ import me.jakejmattson.kutils.internal.utils.*
 import net.dv8tion.jda.api.entities.*
 import java.lang.reflect.Method
 
+/** @suppress All properties documented */
 enum class ConversationResult {
     /** The target user cannot be reached - a bot or no shared guild. */
     INVALID_USER,
@@ -28,8 +29,14 @@ enum class ConversationResult {
     EXITED
 }
 
-data class ConversationContext(val userId: String, val channelId: String)
+@PublishedApi
+internal data class ConversationContext(val userId: String, val channelId: String)
 
+/**
+ * A service to keep track of registered and ongoing conversations, as well as start new ones.
+ *
+ * @param discord An instance of the KUtils discord object used to create the ConversationStateContainer.
+ */
 class ConversationService(val discord: Discord) {
     @PublishedApi
     internal val availableConversations = mutableMapOf<Class<out Conversation>, Pair<Conversation, Method>>()
@@ -67,6 +74,10 @@ class ConversationService(val discord: Discord) {
     }
 
     private fun getConversation(user: User, channel: MessageChannel) = activeConversations[ConversationContext(user.id, channel.id)]
+
+    /**
+     * Whether or not a conversation with the given context already exists.
+     */
     fun hasConversation(user: User, channel: MessageChannel) = getConversation(user, channel) != null
 
     @PublishedApi

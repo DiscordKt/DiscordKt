@@ -4,6 +4,9 @@ package me.jakejmattson.kutils.api.dsl.preconditions
 
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 
+/**
+ * A class that represents some condition that must Pass before a command can be executed.
+ */
 abstract class Precondition {
     /**
      * A function that will either [Pass] or [Fail].
@@ -11,6 +14,7 @@ abstract class Precondition {
     abstract fun evaluate(event: CommandEvent<*>): PreconditionResult
 }
 
+/** @suppress  */
 sealed class PreconditionResult
 
 /**

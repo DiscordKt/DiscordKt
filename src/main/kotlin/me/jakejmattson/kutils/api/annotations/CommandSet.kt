@@ -1,9 +1,7 @@
 package me.jakejmattson.kutils.api.annotations
 
-@Target(AnnotationTarget.FUNCTION)
 /**
  * Annotates a container where commands can be created.
- *
- * @param category The category/group that these commands will be placed into.
  */
+@Target(AnnotationTarget.FUNCTION)
 annotation class CommandSet(val category: String)

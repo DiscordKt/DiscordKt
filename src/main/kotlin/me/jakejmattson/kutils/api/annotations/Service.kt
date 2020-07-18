@@ -1,7 +1,7 @@
 package me.jakejmattson.kutils.api.annotations
 
-@Target(AnnotationTarget.CLASS)
 /**
  * A class defining business logic and state.
  */
+@Target(AnnotationTarget.CLASS)
 annotation class Service
