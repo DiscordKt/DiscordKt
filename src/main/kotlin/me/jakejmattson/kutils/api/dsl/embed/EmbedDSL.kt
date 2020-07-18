@@ -3,14 +3,15 @@
 package me.jakejmattson.kutils.api.dsl.embed
 
 import me.jakejmattson.kutils.api.annotations.BuilderDSL
+import me.jakejmattson.kutils.internal.utils.EmbedField
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color
 import java.time.temporal.TemporalAccessor
 
-private typealias EmbedField = MessageEmbed.Field
-
-/** @suppress DSL Builder */
+/**
+ * Type-safe build for creating Discord embeds.
+ */
 class EmbedDSL {
     companion object {
         internal lateinit var successColor: Color
@@ -36,7 +37,7 @@ class EmbedDSL {
     private var footer: MessageEmbed.Footer? = null
 
     /**
-     * Alternative simple value instead of the [title] builder.
+     * Alternative simple value instead of the title builder function.
      */
     var simpleTitle: String? = null
         set(value) {

@@ -4,48 +4,65 @@ package me.jakejmattson.kutils.api.dsl.menu
 
 import me.jakejmattson.kutils.api.annotations.BuilderDSL
 import me.jakejmattson.kutils.api.dsl.embed.*
-import me.jakejmattson.kutils.internal.utils.InternalLogger
-import net.dv8tion.jda.api.EmbedBuilder
+import me.jakejmattson.kutils.internal.utils.*
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.events.message.guild.react.GuildMessageReactionAddEvent
 import net.dv8tion.jda.api.hooks.EventListener
 
-typealias ReactionAction = (currentEmbed: EmbedBuilder) -> Unit
-
+/**
+ * Type-safe builder for creating paginated embeds with custom reactions.
+ *
+ * @property leftReact Reaction used to move to the previous page.
+ * @property rightReact Reaction used to move to the next page.
+ */
 class MenuDSL {
     private var embeds = mutableListOf<MessageEmbed>()
     private var reactions = hashMapOf<String, ReactionAction>()
     var leftReact: String = "⬅"
     var rightReact: String = "➡"
 
-    fun embed(construct: EmbedDSL.() -> Unit) {
+    /**
+     * Add a new page to this menu using the EmbedDSL.
+     */
+    fun page(construct: EmbedDSL.() -> Unit) {
         val handle = EmbedDSL()
         handle.construct()
         embeds.add(handle.build())
     }
 
+    /**
+     * Add a reaction to the menu and the action to execute when it is clicked.
+     */
     fun reaction(reaction: String, action: ReactionAction) {
         reactions[reaction] = action
     }
 
-    fun build() = Menu(embeds, leftReact, rightReact, reactions)
+    internal fun build() = Menu(embeds, leftReact, rightReact, reactions)
 }
 
-data class Menu(val embeds: MutableList<MessageEmbed>,
+/**
+ * Class for storing menu data.
+ *
+ * @property pages A list of embed representing menu pages.
+ * @property leftReact Reaction used to move to the previous page.
+ * @property rightReact Reaction used to move to the next page.
+ * @property customReactions All custom reactions and their actions.
+ */
+data class Menu(val pages: MutableList<MessageEmbed>,
                 val leftReact: String,
                 val rightReact: String,
-                val customReactions: HashMap<String, ReactionAction>) {
+                val customReactions: Map<String, ReactionAction>) {
     internal fun build(channel: MessageChannel) {
         if (channel is PrivateChannel)
             return InternalLogger.error("Cannot use menus within a private context.")
 
-        if (embeds.isEmpty())
-            return InternalLogger.error("Cannot build a menu with no embeds.")
+        if (pages.isEmpty())
+            return InternalLogger.error("A menu must have at least one page.")
 
-        val firstPage = embeds.first()
+        val firstPage = pages.first()
 
-        if (embeds.size == 1) {
+        if (pages.size == 1) {
             channel.sendMessage(firstPage).queue()
             return
         }
@@ -63,6 +80,7 @@ data class Menu(val embeds: MutableList<MessageEmbed>,
     }
 }
 
+/** @suppress DSL Builder */
 @BuilderDSL
 fun menu(construct: MenuDSL.() -> Unit): Menu {
     val handle = MenuDSL()
@@ -85,7 +103,7 @@ private class ReactionListener(message: Message, private val menu: Menu) : Event
 
         val reactionString = event.reaction.reactionEmote.emoji
 
-        fun editEmbed() = event.channel.editMessageById(event.messageId, menu.embeds[index]).queue()
+        fun editEmbed() = event.channel.editMessageById(event.messageId, menu.pages[index]).queue()
 
         when (reactionString) {
             menu.leftReact -> {
@@ -97,7 +115,7 @@ private class ReactionListener(message: Message, private val menu: Menu) : Event
             }
 
             menu.rightReact -> {
-                if (index != menu.embeds.lastIndex) {
+                if (index != menu.pages.lastIndex) {
                     index++
                     editEmbed()
                     return
@@ -106,10 +124,10 @@ private class ReactionListener(message: Message, private val menu: Menu) : Event
         }
 
         val action = menu.customReactions[reactionString] ?: return
-        val exposedBuilder = menu.embeds[index].toEmbedBuilder()
+        val exposedBuilder = menu.pages[index].toEmbedBuilder()
 
         action.invoke(exposedBuilder)
-        menu.embeds[index] = exposedBuilder.build()
+        menu.pages[index] = exposedBuilder.build()
         editEmbed()
     }
 }
