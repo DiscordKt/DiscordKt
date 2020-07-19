@@ -1,5 +1,6 @@
 package me.jakejmattson.kutils.internal.utils
 
+import com.google.common.eventbus.EventBus
 import me.jakejmattson.kutils.api.*
 import me.jakejmattson.kutils.api.annotations.*
 import me.jakejmattson.kutils.api.dsl.command.CommandsContainer
@@ -9,7 +10,6 @@ import me.jakejmattson.kutils.api.dsl.preconditions.Precondition
 import me.jakejmattson.kutils.api.extensions.stdlib.pluralize
 import me.jakejmattson.kutils.api.services.ConversationService
 import me.jakejmattson.kutils.internal.command.CommandRecommender
-import me.jakejmattson.kutils.internal.event.EventRegister
 import me.jakejmattson.kutils.internal.listeners.*
 import me.jakejmattson.kutils.internal.services.*
 import net.dv8tion.jda.api.JDABuilder
@@ -25,43 +25,41 @@ internal val diService = DIService()
  */
 class Bot(private val token: String, private val globalPath: String) {
     private val jdaDefault = JDABuilder.createDefault(token)
-            .setMemberCachePolicy(MemberCachePolicy.ALL)
-            .enableIntents(GatewayIntent.GUILD_MEMBERS)
+        .setMemberCachePolicy(MemberCachePolicy.ALL)
+        .enableIntents(GatewayIntent.GUILD_MEMBERS)
 
     private data class StartupFunctions(var client: (String) -> JDABuilder,
-                                var configure: BotConfiguration.(Discord) -> Unit = { BotConfiguration() },
-                                var injecton: InjectionConfiguration.() -> Unit = { InjectionConfiguration() },
-                                var logging: LoggingConfiguration.() -> Unit = { LoggingConfiguration() })
+                                        var configure: BotConfiguration.(Discord) -> Unit = { BotConfiguration() },
+                                        var injecton: InjectionConfiguration.() -> Unit = { InjectionConfiguration() },
+                                        var logging: LoggingConfiguration.() -> Unit = { LoggingConfiguration() })
 
     private val startupBundle = StartupFunctions({ jdaDefault })
     private val botConfiguration = BotConfiguration()
+    private val eventBus = EventBus()
 
     private fun initCore(discord: Discord, loggingConfiguration: LoggingConfiguration) {
-        InternalLogger.shouldLogStartup = loggingConfiguration.showStartupLog
+        diService.inject(discord)
 
+        InternalLogger.shouldLogStartup = loggingConfiguration.showStartupLog
         InternalLogger.startup("--------------- KUtils Startup ---------------")
         InternalLogger.startup("GlobalPath: $globalPath")
-        discord.addEventListener(EventRegister)
-
-        val conversationService = ConversationService(discord)
-
-        diService.inject(discord)
-        diService.inject(conversationService)
 
         val data = registerData()
-        InternalLogger.startup(data.size.pluralize("Data"))
-
-        val services = detectServices()
-        InternalLogger.startup(services.size.pluralize("Service"))
-        registerServices(services)
-
+        val conversationService = ConversationService(discord).apply { diService.inject(this) }
+        val services = registerServices()
         val container = registerCommands()
+        val listeners = detectListeners()
+        val preconditions = buildPreconditions()
+        val commandListener = CommandListener(container, discord, preconditions)
+        val reactionListener = ReactionListener(conversationService)
+        val allListeners = listeners + listOf(commandListener, reactionListener)
 
-        val preconditions = detectPreconditions()
+        InternalLogger.startup(data.size.pluralize("Data"))
+        InternalLogger.startup(services.size.pluralize("Service"))
+        InternalLogger.startup(listeners.size.pluralize("Listener"))
         InternalLogger.startup(preconditions.size.pluralize("Precondition"))
 
-        registerListeners(discord, container, preconditions, conversationService)
-
+        allListeners.forEach { eventBus.register(it) }
         conversationService.registerConversations(globalPath)
 
         if (loggingConfiguration.generateCommandDocs)
@@ -88,7 +86,7 @@ class Bot(private val token: String, private val globalPath: String) {
         val injection = InjectionConfiguration()
         injectionFun.invoke(injection)
 
-        val discord = buildDiscordClient(jdaBuilder, botConfiguration)
+        val discord = buildDiscordClient(jdaBuilder, botConfiguration, eventBus)
         initCore(discord, loggingConfiguration)
         configureFun.invoke(botConfiguration, discord)
     }
@@ -143,26 +141,9 @@ class Bot(private val token: String, private val globalPath: String) {
         return localContainer
     }
 
-    private fun registerListeners(discord: Discord, container: CommandsContainer, preconditions: List<Precondition>, conversationService: ConversationService): CommandListener {
-        val listeners = ReflectionUtils.detectListeners(globalPath)
-
-        InternalLogger.startup(listeners.size.pluralize("Listener"))
-
-        fun registerListener(listener: Any) = EventRegister.eventBus.register(listener)
-
-        val commandListener = CommandListener(container, discord, preconditions)
-        val reactionListener = ReactionListener(conversationService)
-
-        registerListener(commandListener)
-        registerListener(reactionListener)
-        listeners.forEach { registerListener(it) }
-
-        return commandListener
-    }
-
-    private fun detectPreconditions() = ReflectionUtils.detectSubtypesOf<Precondition>(globalPath).map { diService.invokeConstructor(it) }
-    private fun detectServices() = ReflectionUtils.detectClassesWith<Service>(globalPath)
-    private fun registerServices(services: Set<Class<*>>) = diService.buildAllRecursively(services)
+    private fun detectListeners() = ReflectionUtils.detectListeners(globalPath)
+    private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(globalPath).apply { diService.buildAllRecursively(this) }
+    private fun buildPreconditions() = ReflectionUtils.detectSubtypesOf<Precondition>(globalPath).map { diService.invokeConstructor(it) }
 
     private fun registerData() = ReflectionUtils
         .detectSubtypesOf<Data>(globalPath)

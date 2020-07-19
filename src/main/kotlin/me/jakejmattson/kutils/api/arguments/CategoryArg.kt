@@ -13,8 +13,8 @@ import net.dv8tion.jda.api.entities.Category
  */
 open class CategoryArg(override val name: String = "Category", private val guildId: String = "", private val allowsGlobal: Boolean = false) : ArgumentType<Category>() {
     /**
-    * Accepts a Discord Category entity as an ID, a mention, or by name from within this guild.
-    */
+     * Accepts a Discord Category entity as an ID, a mention, or by name from within this guild.
+     */
     companion object : CategoryArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {

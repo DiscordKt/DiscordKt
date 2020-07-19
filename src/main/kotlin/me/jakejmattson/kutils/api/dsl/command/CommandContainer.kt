@@ -15,7 +15,7 @@ fun commands(construct: CommandsContainer.() -> Unit): CommandsContainer {
 /**
  * A container for a collection of commands and convenience methods.
  *
-* @param commands A list of all currently registered commands.
+ * @param commands A list of all currently registered commands.
  */
 data class CommandsContainer(val commands: MutableList<Command> = mutableListOf()) {
     /**

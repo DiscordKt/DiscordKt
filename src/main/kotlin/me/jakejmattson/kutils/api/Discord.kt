@@ -2,10 +2,10 @@
 
 package me.jakejmattson.kutils.api
 
+import com.google.common.eventbus.EventBus
 import com.google.gson.Gson
 import me.jakejmattson.kutils.api.dsl.command.*
 import me.jakejmattson.kutils.api.dsl.configuration.BotConfiguration
-import me.jakejmattson.kutils.internal.event.EventRegister
 import me.jakejmattson.kutils.internal.utils.diService
 import net.dv8tion.jda.api.*
 import net.dv8tion.jda.api.events.GenericEvent
@@ -36,8 +36,6 @@ abstract class Discord {
     abstract val configuration: BotConfiguration
     val properties = Gson().fromJson(propFile, KUtilsProperties::class.java)!!
 
-    internal abstract fun addEventListener(register: EventRegister)
-
     /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any> getInjectionObjects(a: KClass<A>) = diService[A::class]
 
@@ -62,14 +60,16 @@ abstract class Discord {
         Args5(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c), getInjectionObjects(d), getInjectionObjects(e))
 }
 
-internal fun buildDiscordClient(jdaBuilder: JDABuilder, botConfiguration: BotConfiguration) =
+internal fun buildDiscordClient(jdaBuilder: JDABuilder, botConfiguration: BotConfiguration, eventBus: EventBus) =
     object : Discord() {
-        override val jda = jdaBuilder.build().also { it.awaitReady() }
         override val configuration = botConfiguration
 
-        override fun addEventListener(register: EventRegister) {
-            jda.addEventListener(object : EventListener {
-                override fun onEvent(event: GenericEvent) = register.onEvent(event)
-            })
-        }
+        override val jda = jdaBuilder
+            .build()
+            .apply {
+                addEventListener(object : EventListener {
+                    override fun onEvent(event: GenericEvent) = eventBus.post(event)
+                })
+            }
+            .apply { awaitReady() }
     }

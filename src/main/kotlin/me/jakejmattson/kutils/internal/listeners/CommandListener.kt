@@ -14,7 +14,7 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 
 internal class CommandListener(private val container: CommandsContainer,
                                private val discord: Discord,
-                               private val preconditions: List<Precondition> = listOf()) {
+                               private val preconditions: List<Precondition>) {
 
     private val config: BotConfiguration = discord.configuration
 
