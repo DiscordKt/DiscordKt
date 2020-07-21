@@ -29,11 +29,12 @@ data class Error<T>(val error: String) : ArgumentResult<T>()
  * An object that represents a type and contains the logic to convert string arguments to the desired type.
  *
  * @property name The display name for this type in documentations and examples.
+ * @property isOptional Whether or not this argument is strictly required.
  */
 abstract class ArgumentType<T> : Cloneable {
     abstract val name: String
 
-    internal var isOptional: Boolean = false
+    var isOptional: Boolean = false
         private set
 
     internal var defaultValue: ((CommandEvent<*>) -> T)? = null

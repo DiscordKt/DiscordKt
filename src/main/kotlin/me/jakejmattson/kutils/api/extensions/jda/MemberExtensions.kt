@@ -9,3 +9,7 @@ import net.dv8tion.jda.api.entities.Member
  */
 fun Member.getHighestRole() = roles.maxBy { it.position } ?: guild.publicRole
 
+/**
+ * A member's name and discriminator - user#1234
+ */
+fun Member.fullName() = user.fullName()
