@@ -52,6 +52,26 @@ data class ConversationStateContainer(val discord: Discord,
     internal suspend fun acceptReaction(reaction: MessageReaction) = reactionBuffer.send(reaction)
 
     /**
+     * Prompt the user with a String. Re-prompt until the response converts correctly. Then apply a custom predicate as an additional check.
+     *
+     * @param argumentType The [ArgumentType] that the prompt expects in response.
+     * @param prompt The string message sent to the user as a prompt for information.
+     * @param error The error String to send when the input fails the custom check.
+     * @param isValid A predicate to determine whether or not the input is accepted.
+     */
+    @Throws(DmException::class)
+    fun <T> promptUntil(argumentType: ArgumentType<T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
+        var value: T = promptMessage(argumentType, prompt)
+
+        while (!isValid.invoke(value)) {
+            sendPrompt(error)
+            value = promptMessage(argumentType, prompt)
+        }
+
+        return value
+    }
+
+    /**
      * Prompt the user with a String. Re-prompt until the response converts correctly.
      *
      * @param argumentType The [ArgumentType] that the prompt expects in response.
