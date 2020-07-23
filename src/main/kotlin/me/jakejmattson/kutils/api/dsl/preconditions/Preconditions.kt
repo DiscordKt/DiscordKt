@@ -3,14 +3,13 @@
 package me.jakejmattson.kutils.api.dsl.preconditions
 
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
-import kotlin.reflect.KClass
 
 /**
  * A class that represents some condition that must Pass before a command can be executed.
  *
- * Preconditions that should be run before this one.
+ * @param priority The relative priority of this precondition being run.
  */
-abstract class Precondition(vararg runAfter: KClass<out Precondition> = emptyArray()) {
+abstract class Precondition(val priority: Int = 5) {
     /**
      * A function that will either [Pass] or [Fail].
      */

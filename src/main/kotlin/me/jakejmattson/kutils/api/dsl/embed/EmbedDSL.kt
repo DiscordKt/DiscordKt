@@ -3,6 +3,7 @@
 package me.jakejmattson.kutils.api.dsl.embed
 
 import me.jakejmattson.kutils.api.annotations.BuilderDSL
+import me.jakejmattson.kutils.api.dsl.configuration.ColorConfiguration
 import me.jakejmattson.kutils.internal.utils.EmbedField
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
@@ -14,9 +15,11 @@ import java.time.temporal.TemporalAccessor
  */
 class EmbedDSL {
     companion object {
-        internal lateinit var successColor: Color
-        internal lateinit var failureColor: Color
-        internal lateinit var infoColor: Color
+        private val defaults = ColorConfiguration()
+
+        internal var successColor: Color = defaults.successColor
+        internal var failureColor: Color = defaults.failureColor
+        internal var infoColor: Color = defaults.infoColor
     }
 
     /** @suppress Redundant doc */

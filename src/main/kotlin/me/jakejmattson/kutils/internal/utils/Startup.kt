@@ -49,7 +49,7 @@ class Bot(private val token: String, private val globalPath: String) {
         val services = registerServices()
         val container = registerCommands()
         val listeners = detectListeners()
-        val preconditions = buildPreconditions()
+        val preconditions = buildPreconditions().sortedBy { it.priority }
         val commandListener = CommandListener(container, discord, preconditions)
         val reactionListener = ReactionListener(conversationService)
         val allListeners = listeners + listOf(commandListener, reactionListener)
