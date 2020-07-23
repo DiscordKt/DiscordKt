@@ -3,6 +3,7 @@ package me.jakejmattson.kutils.internal.listeners
 import com.google.common.eventbus.Subscribe
 import me.jakejmattson.kutils.api.Discord
 import me.jakejmattson.kutils.api.dsl.command.*
+import me.jakejmattson.kutils.api.dsl.configuration.BotConfiguration
 import me.jakejmattson.kutils.api.dsl.preconditions.*
 import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import me.jakejmattson.kutils.api.services.ConversationService
@@ -13,10 +14,9 @@ import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 
 internal class CommandListener(private val container: CommandsContainer,
                                private val discord: Discord,
-                               private val preconditions: MutableList<PreconditionData> = mutableListOf()) {
+                               private val preconditions: List<Precondition>) {
 
-    private val config = discord.configuration
-    private val executor = CommandExecutor()
+    private val config: BotConfiguration = discord.configuration
 
     @Subscribe
     fun guildMessageHandler(e: GuildMessageReceivedEvent) = handleMessage(e.message)
@@ -25,16 +25,11 @@ internal class CommandListener(private val container: CommandsContainer,
     fun privateMessageHandler(e: PrivateMessageReceivedEvent) = handleMessage(e.message)
 
     private fun handleMessage(message: Message) {
-        val author = message.author
+        val author = message.author.takeUnless { it.isBot } ?: return
         val channel = message.channel
-        val guild = if (message.isFromGuild) message.guild else null
-
-        if (author.isBot) return
-
         val content = message.contentRaw
         val discordContext = DiscordContext(discord, message)
         val prefix = config.prefix.invoke(discordContext)
-
         val conversationService = discord.getInjectionObjects(ConversationService::class)
 
         val rawInputs = when {
@@ -44,7 +39,7 @@ internal class CommandListener(private val container: CommandsContainer,
                 return channel.sendMessage(embed).queue()
             }
             isMentionInvocation(content) -> stripMentionInvocation(content)
-            else -> return conversationService.handleResponse(message)
+            else -> return conversationService.handleMessage(message)
         }
 
         val (_, commandName, actualArgs, _) = rawInputs
@@ -52,18 +47,22 @@ internal class CommandListener(private val container: CommandsContainer,
         if (commandName.isEmpty()) return
 
         val event = CommandEvent<GenericContainer>(rawInputs, container, discordContext)
+        val errors = getPreconditionErrors(event)
 
-        getPreconditionError(event)?.let {
-            if (it != "") {
-                if (config.deleteErrors) event.respondTimed(it)
-                else event.respond(it)
-            }
+        if (errors.isNotEmpty()) {
+            val errorMessage = errors.firstOrNull { it.isNotBlank() }
+
+            if (errorMessage != null)
+                if (config.deleteErrors) event.respondTimed(errorMessage) else event.respond(errorMessage)
+
             return
         }
 
         val command = container[commandName]
 
         if (command == null) {
+            val guild = if (message.isFromGuild) message.guild else null
+
             val errorEmbed = CommandRecommender.buildRecommendationEmbed(commandName) {
                 config.visibilityPredicate(it, author, channel, guild)
             }
@@ -80,7 +79,7 @@ internal class CommandListener(private val container: CommandsContainer,
         if (config.commandReaction != null)
             message.addReaction(config.commandReaction!!).queue()
 
-        executor.executeCommand(command, actualArgs, event)
+        command.invoke(actualArgs, event)
     }
 
     private fun isPrefixInvocation(message: String, prefix: String) = message.startsWith(prefix)
@@ -94,23 +93,9 @@ internal class CommandListener(private val container: CommandsContainer,
         return message.startsWith("<@!$id>") || message.startsWith("<@$id>")
     }
 
-    private fun getPreconditionError(event: CommandEvent<*>): String? {
-        val sortedConditions = preconditions
-            .groupBy({ it.priority }, { it.condition })
-            .toList()
-            .sortedBy { (priority, _) -> priority }
-            .map { (_, conditions) -> conditions }
-
-        // Lazy sequence allows lower priorities to assume higher priorities are already verified
-        val failedResults = sortedConditions.asSequence()
-            .map { conditions -> conditions.map { it.invoke(event) } }
-            .firstOrNull { results -> results.any { it is Fail } }
-            ?.filterIsInstance<Fail>()
-
-        return if (failedResults?.any { it.reason == null } == true) {
-            ""
-        } else {
-            failedResults?.firstOrNull { it.reason != null }?.reason
-        }
-    }
+    private fun getPreconditionErrors(event: CommandEvent<*>) =
+        preconditions
+            .map { it.evaluate(event) }
+            .filterIsInstance<Fail>()
+            .map { it.reason }
 }

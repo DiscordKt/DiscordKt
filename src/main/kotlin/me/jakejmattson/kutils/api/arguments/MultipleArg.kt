@@ -3,6 +3,11 @@ package me.jakejmattson.kutils.api.arguments
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 
+/**
+ * Accepts multiple arguments of the given type. Returns a list.
+ *
+ * @param base The [ArgumentType] that you expect to be used to create the list.
+ */
 class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentType<List<T>>() {
     override val name = if (name.isNotBlank()) name else "${base.name}..."
 
@@ -16,23 +21,23 @@ class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentTyp
             val conversion = base.convert(currentArg, remainingArgs, event)
 
             when (conversion) {
-                is ArgumentResult.Success -> {
+                is Success -> {
                     totalResult.add(conversion.result)
                     val consumed = conversion.consumed
                     totalConsumed += consumed
 
                     remainingArgs.subList(0, consumed).toList().forEach { remainingArgs.remove(it) }
                 }
-                is ArgumentResult.Error -> {
+                is Error -> {
                     if (totalResult.isEmpty())
-                        return ArgumentResult.Error(conversion.error)
+                        return Error(conversion.error)
 
                     break@complete
                 }
             }
         }
 
-        return ArgumentResult.Success(totalResult, totalConsumed)
+        return Success(totalResult, totalConsumed)
     }
 
     override fun generateExamples(event: CommandEvent<*>) =

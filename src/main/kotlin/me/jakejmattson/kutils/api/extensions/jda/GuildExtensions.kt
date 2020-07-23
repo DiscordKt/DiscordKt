@@ -2,23 +2,16 @@
 
 package me.jakejmattson.kutils.api.extensions.jda
 
-import me.jakejmattson.kutils.api.extensions.stdlib.formatJdaDate
 import net.dv8tion.jda.api.entities.*
 
-fun Guild.getMemberJoinString(target: User) =
-    if (isMember(target)) {
-        target.toMember(this)!!.timeJoined.toString().formatJdaDate()
-    } else {
-        "This user is not currently in this guild"
-    }
-
-fun Guild.getRoleByName(name: String, ignoreCase: Boolean = true) = getRolesByName(name, ignoreCase).firstOrNull()
-
+/**
+ * Search for a role in a guild.
+ */
 fun Guild.getRoleByIdOrName(idOrName: String): Role? {
-    if (idOrName.toLowerCase() == "everyone") {
-        return this.publicRole
-    }
-    val name = getRoleByName(idOrName, true)
+    if (idOrName.toLowerCase() == "everyone")
+        return publicRole
+
+    val name = getRolesByName(name, true).firstOrNull()
 
     if (name != null) return name
 
@@ -28,5 +21,3 @@ fun Guild.getRoleByIdOrName(idOrName: String): Role? {
         null
     }
 }
-
-fun Guild.hasRole(roleName: String): Boolean = this.roles.any { it.name.toLowerCase() == roleName.toLowerCase() }

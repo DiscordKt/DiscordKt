@@ -1,53 +1,54 @@
 package me.jakejmattson.kutils.internal.command
 
-import kotlinx.coroutines.*
 import me.jakejmattson.kutils.api.dsl.command.*
 import me.jakejmattson.kutils.internal.arguments.*
 import me.jakejmattson.kutils.internal.utils.InternalLogger
-import java.util.ArrayList
 
-internal class CommandExecutor {
-    fun executeCommand(command: Command, args: List<String>, event: CommandEvent<GenericContainer>) = runBlocking {
-        GlobalScope.launch {
-            invokeCommand(command, args, event)
-        }
-    }
+/**
+ * Intermediate result of manual parsing.
+ */
+sealed class ParseResult {
+    /**
+     * The parsing succeeded.
+     *
+     * @param argumentContainer The parsing results.
+     */
+    data class Success(val argumentContainer: GenericContainer) : ParseResult()
 
-    private fun invokeCommand(command: Command, actualArgs: List<String>, event: CommandEvent<GenericContainer>) {
-        val expected = command.arguments
-        val initialConversion = convertArguments(actualArgs, expected, event)
+    /**
+     * The parsing failed.
+     *
+     * @param reason The reason for the failure.
+     */
+    data class Error(val reason: String) : ParseResult()
+}
 
-        fun respondAccordingly(error: String) =
-            if (event.discord.configuration.deleteErrors)
-                event.respondTimed(error)
-            else
-                event.respond(error)
+internal fun parseInputToBundle(command: Command, actualArgs: List<String>, event: CommandEvent<GenericContainer>): ParseResult {
+    val expected = command.arguments
+    val initialConversion = convertArguments(actualArgs, expected, event)
 
-        val error = when (initialConversion) {
-            is ConversionResult.Success -> return command.invoke(bundleToArgContainer(initialConversion.results), event)
-            is ConversionResult.Error -> initialConversion.error
-        }
+    if (initialConversion is ConversionResult.Success)
+        return ParseResult.Success(bundleToArgContainer(initialConversion.results))
+    else
+        initialConversion as ConversionResult.Error
 
-        if (!command.isFlexible || expected.size < 2)
-            return respondAccordingly(error)
+    val error = initialConversion.error
 
-        val successList = expected.toMutableList().generateAllPermutations()
-            .mapNotNull {
-                val conversion = convertArguments(actualArgs, it, event)
+    if (!command.isFlexible || expected.size < 2)
+        return ParseResult.Error(error)
 
-                if (conversion is ConversionResult.Success)
-                    it to conversion.results
-                else
-                    null
-            }
-            .map { (argumentTypes, results) ->
-                argumentTypes.zip(results)
-            }
+    val successList = expected
+        .toMutableList()
+        .generateAllPermutations()
+        .map { it to convertArguments(actualArgs, it, event) }
+        .filter { it.second is ConversionResult.Success }
+        .map { it.first to (it.second as ConversionResult.Success).results }
+        .map { (argumentTypes, results) -> argumentTypes.zip(results) }
 
-        if (successList.isEmpty())
-            return respondAccordingly(error)
-
-        if (successList.size > 1) {
+    val success = when (successList.size) {
+        0 -> return ParseResult.Error(error)
+        1 -> successList.first()
+        else -> {
             InternalLogger.error(
                 """
                     Flexible command resolved ambiguously.
@@ -56,34 +57,31 @@ internal class CommandExecutor {
                 """.trimIndent()
             )
 
-            return respondAccordingly(error)
+            return ParseResult.Error(error)
         }
-
-        val success = successList.first()
-
-        val orderedResult = expected.map { sortKey ->
-            success.first {
-                it.first == sortKey
-            }.second
-        }
-
-        val bundle = bundleToArgContainer(orderedResult)
-        command.invoke(bundle, event)
     }
 
-    private fun <E> MutableList<E>.generateAllPermutations(): List<List<E>> {
-        if (isEmpty())
-            return listOf(listOf())
-
-        val firstElement = removeAt(0)
-        val returnValue: MutableList<List<E>> = ArrayList()
-
-        generateAllPermutations().forEachIndexed { index, list ->
-            val temp = list.toMutableList()
-            temp.add(index, firstElement)
-            returnValue.add(temp)
-        }
-
-        return returnValue
+    val orderedResult = expected.map { sortKey ->
+        success.first {
+            it.first == sortKey
+        }.second
     }
+
+    return ParseResult.Success(bundleToArgContainer(orderedResult))
+}
+
+private fun <E> MutableList<E>.generateAllPermutations(): List<List<E>> {
+    if (isEmpty())
+        return listOf(listOf())
+
+    val firstElement = removeAt(0)
+    val returnValue = mutableListOf<List<E>>()
+
+    generateAllPermutations().forEachIndexed { index, list ->
+        val temp = list.toMutableList()
+        temp.add(index, firstElement)
+        returnValue.add(temp)
+    }
+
+    return returnValue
 }

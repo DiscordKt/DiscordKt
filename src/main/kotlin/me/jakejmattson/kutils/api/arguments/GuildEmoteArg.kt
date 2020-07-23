@@ -5,7 +5,15 @@ import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.Emote
 
+/**
+ * Accepts a guild emote.
+ *
+ * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
+ */
 open class GuildEmoteArg(override val name: String = "Guild Emote", private val allowsGlobal: Boolean = false) : ArgumentType<Emote>() {
+    /**
+     * Accepts a guild emote from within this guild.
+     */
     companion object : GuildEmoteArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Emote> {
@@ -15,7 +23,7 @@ open class GuildEmoteArg(override val name: String = "Guild Emote", private val 
         val id = when (split.size) {
             1 -> split[0]
             3 -> split[2]
-            else -> return ArgumentResult.Error("Couldn't retrieve $name from $arg.")
+            else -> return Error("Couldn't retrieve $name from $arg.")
         }
 
         val availableEmotes =
@@ -24,12 +32,12 @@ open class GuildEmoteArg(override val name: String = "Guild Emote", private val 
             else
                 event.guild?.emotes
 
-        availableEmotes ?: return ArgumentResult.Error("Could not find a guild to fetch emojis from.")
+        availableEmotes ?: return Error("Could not find a guild to fetch emojis from.")
 
         val emote = availableEmotes.firstOrNull { it.id == id }
-            ?: return ArgumentResult.Error("Could not find an emoji${if (!allowsGlobal) " in this guild " else " "}with the ID: $id")
+            ?: return Error("Could not find an emoji${if (!allowsGlobal) " in this guild " else " "}with the ID: $id")
 
-        return ArgumentResult.Success(emote)
+        return Success(emote)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = event.guild?.emotes?.map { it.asMention } ?: emptyList()

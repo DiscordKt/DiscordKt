@@ -14,7 +14,7 @@ object Versions {
     const val guava = "29.0-jre"
     const val commons = "1.8"
     const val slf4j = "1.7.30"
-    const val jda = "4.1.1_165"
+    const val jda = "4.2.0_181"
 
     //Test Dependencies
     const val mockk = "1.10.0"
@@ -26,18 +26,12 @@ object Dependencies {
     const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     const val reflections = "org.reflections:reflections:${Versions.reflections}"
     const val commons = "org.apache.commons:commons-text:${Versions.commons}"
-    const val slf4j = "org.slf4j:slf4j-simple:${Versions.slf4j}"
+    const val slf4j = "org.slf4j:slf4j-nop:${Versions.slf4j}"
 
     //Library Dependencies
     const val jda = "net.dv8tion:JDA:${Versions.jda}"
     const val guava = "com.google.guava:guava:${Versions.guava}"
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
-
-    //Scripting Engine
-    const val kotlinCompiler = "org.jetbrains.kotlin:kotlin-compiler-embeddable:${Versions.kotlin}"
-    const val script_compiler = "org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:${Versions.kotlin}"
-    const val script_runtime = "org.jetbrains.kotlin:kotlin-script-runtime:${Versions.kotlin}"
-    const val script_util = "org.jetbrains.kotlin:kotlin-script-util:${Versions.kotlin}"
 
     //Test Dependencies
     const val mockk = "io.mockk:mockk:${Versions.mockk}"

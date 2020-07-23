@@ -4,13 +4,12 @@ package me.jakejmattson.kutils.api.extensions.jda
 
 import net.dv8tion.jda.api.entities.Member
 
-fun Member.fullName() = "${this.user.name}#${this.user.discriminator}"
+/**
+ * Get the highest role available to this user.
+ */
+fun Member.getHighestRole() = roles.maxBy { it.position } ?: guild.publicRole
 
-fun Member.descriptor() = "${this.user.name}#${this.user.discriminator} :: ID :: ${this.user.id}"
-
-fun Member.getHighestRole() =
-    if (roles.isNotEmpty()) {
-        roles.maxBy { it.position }
-    } else {
-        guild.roles.minBy { it.position }
-    }
+/**
+ * A member's name and discriminator - user#1234
+ */
+fun Member.fullName() = user.fullName()

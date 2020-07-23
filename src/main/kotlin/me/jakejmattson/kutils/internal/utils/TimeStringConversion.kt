@@ -1,7 +1,6 @@
 package me.jakejmattson.kutils.internal.utils
 
-import me.jakejmattson.kutils.api.dsl.arguments.ArgumentResult
-import me.jakejmattson.kutils.api.extensions.stdlib.isDigitOrPeriod
+import me.jakejmattson.kutils.api.dsl.arguments.*
 
 private typealias Quantity = Double
 private typealias Quantifier = String
@@ -13,14 +12,14 @@ internal fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
     val timeElements = possibleElements.dropLastWhile { it is Quantity } // assume trailing numbers are part of next arg (ID, Integer, etc.)
 
     if (timeElements.isEmpty())
-        return ArgumentResult.Error("Invalid time element passed.")
+        return Error("Invalid time element passed.")
 
     val consumed = original.subList(0, timeElements.size)
     val quantityCount = timeElements.count { it is Quantity }
     val quantifierCount = timeElements.count { it is Quantifier }
 
     if (quantityCount != quantifierCount)
-        return ArgumentResult.Error("The number of quantities doesn't match the number of quantifiers.")
+        return Error("The number of quantities doesn't match the number of quantifiers.")
 
     val hasMissingQuantifier = timeElements.withIndex().any { (index, current) ->
         val next = timeElements.getOrNull(index + 1)
@@ -28,7 +27,7 @@ internal fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
     }
 
     if (hasMissingQuantifier)
-        return ArgumentResult.Error("At least one quantity is missing a quantifier.")
+        return Error("At least one quantity is missing a quantifier.")
 
     val timePairs = timeElements
         .mapIndexedNotNull { index, element ->
@@ -40,13 +39,13 @@ internal fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
         }
 
     if (timePairs.any { it.first < 0.0 })
-        return ArgumentResult.Error("Time argument cannot be negative.")
+        return Error("Time argument cannot be negative.")
 
     val timeInSeconds = timePairs
         .map { (quantity, quantifier) -> quantity * timeStringToSeconds.getValue(quantifier) }
         .reduce { a, b -> a + b }
 
-    return ArgumentResult.Success(timeInSeconds, consumed.size)
+    return Success(timeInSeconds, consumed.size)
 }
 
 private fun toTimeElement(element: String): Any? = toBoth(element)
@@ -57,7 +56,7 @@ private fun toQuantifier(element: String) = element.takeIf { it.toLowerCase() in
 private fun toQuantity(element: String) = element.toDoubleOrNull()
 
 private fun toBoth(element: String): Pair<Double, String>? {
-    val quantityRaw = element.toCharArray().takeWhile { it.isDigitOrPeriod() }.joinToString("")
+    val quantityRaw = element.toCharArray().takeWhile { it.isDigit() || it == '.' }.joinToString("")
     val quantity = toQuantity(quantityRaw) ?: return null
     val quantifier = toQuantifier(element.substring(quantityRaw.length))
         ?: return null

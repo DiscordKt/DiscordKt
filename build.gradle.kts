@@ -1,26 +1,25 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "me.jakejmattson"
-version = "0.17.1"
-val isSnapshot = version.toString().endsWith("SNAPSHOT")
+version = "0.18.0-SNAPSHOT"
 
 plugins {
     kotlin("jvm") version Versions.kotlin
     `maven-publish`
     signing
     id("io.codearte.nexus-staging") version "0.21.2"
-    id("com.github.ben-manes.versions") version "0.28.0"
+    id("com.github.ben-manes.versions") version "0.29.0"
     id("org.jetbrains.dokka") version "0.10.1"
 }
 
 repositories {
     mavenCentral()
-    mavenLocal()
     jcenter()
 }
 
 dependencies {
     //Internal Dependencies
+    implementation(kotlin("stdlib-jdk8"))
     implementation(Dependencies.coroutines)
     implementation(Dependencies.reflections)
     implementation(Dependencies.commons)
@@ -30,12 +29,6 @@ dependencies {
     api(Dependencies.jda)
     api(Dependencies.guava)
     api(Dependencies.gson)
-
-    //Scripting Engine
-    implementation(Dependencies.kotlinCompiler)
-    implementation(Dependencies.script_compiler)
-    implementation(Dependencies.script_runtime)
-    implementation(Dependencies.script_util)
 
     //Test Dependencies
     testImplementation(Dependencies.mockk)
@@ -80,6 +73,20 @@ tasks {
     dokka {
         outputFormat = "html"
         outputDirectory = "$buildDir/javadoc"
+
+        configuration {
+            includeNonPublic = false
+            skipEmptyPackages = true
+            reportUndocumented = true
+
+            targets = listOf("JVM")
+            platform = "JVM"
+
+            sourceLink {
+                path = "src/main/kotlin"
+                url = "https://github.com/JakeJMattson/KUtils/tree/master/src/main/kotlin"
+            }
+        }
     }
 }
 
@@ -136,12 +143,12 @@ publishing {
                 }
             }
             repositories {
-                val repoName = if (isSnapshot) "Snapshots" else "Releases"
-                val repoUrl = if (isSnapshot) Constants.snapshotsRepoUrl else Constants.releasesRepoUrl
-
                 maven {
-                    name = repoName
-                    url = uri(repoUrl)
+                    url = if (version.toString().endsWith("SNAPSHOT"))
+                        uri(Constants.snapshotsRepoUrl)
+                    else
+                        uri(Constants.releasesRepoUrl)
+
                     credentials {
                         username = project.properties["nexusUsername"] as String?
                         password = project.properties["nexusPassword"] as String?

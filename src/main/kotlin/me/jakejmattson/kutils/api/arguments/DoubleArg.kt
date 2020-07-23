@@ -4,17 +4,20 @@ import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 import kotlin.random.Random
 
-open class DoubleArg(override val name: String = "Decimal") : ArgumentType<Double>() {
+/**
+ * Accept a decimal number in the double range.
+ */
+open class DoubleArg(override val name: String = "Double") : ArgumentType<Double>() {
+    /**
+     * Accept a decimal number in the double range.
+     */
     companion object : DoubleArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Double> {
-        val double = arg.toDoubleOrNull()
-            ?: return ArgumentResult.Error("Couldn't parse $name from $arg.")
+    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
+        when (val result = arg.toDoubleOrNull()) {
+            null -> Error<Double>("Couldn't parse $name from $arg.")
+            else -> Success(result)
+        }
 
-        return ArgumentResult.Success(double)
-    }
-
-    override fun generateExamples(event: CommandEvent<*>) = listOf(
-        "%.2f".format(Random.nextDouble(0.00, 9.99))
-    )
+    override fun generateExamples(event: CommandEvent<*>) = listOf("%.2f".format(Random.nextDouble(0.00, 9.99)))
 }

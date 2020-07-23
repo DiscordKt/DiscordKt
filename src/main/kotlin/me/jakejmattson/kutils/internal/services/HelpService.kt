@@ -2,11 +2,11 @@ package me.jakejmattson.kutils.internal.services
 
 import me.jakejmattson.kutils.api.arguments.AnyArg
 import me.jakejmattson.kutils.api.dsl.command.*
-import me.jakejmattson.kutils.api.dsl.configuration.KConfiguration
+import me.jakejmattson.kutils.api.dsl.configuration.BotConfiguration
 import me.jakejmattson.kutils.api.dsl.embed.embed
 import me.jakejmattson.kutils.internal.command.CommandRecommender
 
-internal class HelpService(private val container: CommandsContainer, private val config: KConfiguration) {
+internal class HelpService(private val container: CommandsContainer, private val config: BotConfiguration) {
     fun produceHelpCommandContainer() = commands {
         command("Help") {
             description = "Display a help menu."
@@ -27,9 +27,7 @@ internal class HelpService(private val container: CommandsContainer, private val
 
     private fun generateDefaultEmbed(event: CommandEvent<*>) =
         embed {
-            title {
-                text = "Help menu"
-            }
+            simpleTitle = "Help menu"
             description = "Use `${event.relevantPrefix}help <command>` for more information."
             color = infoColor
 
@@ -52,9 +50,7 @@ internal class HelpService(private val container: CommandsContainer, private val
         }
 
     private fun generateCommandEmbed(command: Command, event: CommandEvent<*>, input: String) = embed {
-        title {
-            text = command.names.joinToString()
-        }
+        simpleTitle = command.names.joinToString()
         description = command.description
         color = infoColor
 

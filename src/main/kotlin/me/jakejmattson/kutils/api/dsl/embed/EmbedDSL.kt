@@ -2,112 +2,150 @@
 
 package me.jakejmattson.kutils.api.dsl.embed
 
+import me.jakejmattson.kutils.api.annotations.BuilderDSL
 import me.jakejmattson.kutils.api.dsl.configuration.ColorConfiguration
+import me.jakejmattson.kutils.internal.utils.EmbedField
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import java.awt.Color
 import java.time.temporal.TemporalAccessor
 
-private typealias EmbedField = MessageEmbed.Field
-
-class EmbedDSLHandle {
+/**
+ * Type-safe build for creating Discord embeds.
+ */
+class EmbedDSL {
     companion object {
-        private val defaultColors = ColorConfiguration()
+        private val defaults = ColorConfiguration()
 
-        var successColor: Color = defaultColors.successColor
-        var failureColor: Color = defaultColors.failureColor
-        var infoColor: Color = defaultColors.infoColor
+        internal var successColor: Color = defaults.successColor
+        internal var failureColor: Color = defaults.failureColor
+        internal var infoColor: Color = defaults.infoColor
     }
 
+    /** @suppress Redundant doc */
     val successColor: Color
         get() = Companion.successColor
 
+    /** @suppress Redundant doc */
     val failureColor: Color
         get() = Companion.failureColor
 
+    /** @suppress Redundant doc */
     val infoColor: Color
         get() = Companion.infoColor
 
-    private val mutableFields: MutableList<EmbedField> = mutableListOf()
+    private val mutableFields = mutableListOf<EmbedField>()
     private var author: MessageEmbed.AuthorInfo? = null
-    private var titleBundle: TitleBuilder? = null
+    private var titleBundle: Title? = null
     private var footer: MessageEmbed.Footer? = null
 
-    @Deprecated("Replace with title{ } builder.")
-    var title: String? = null
+    /**
+     * Alternative simple value instead of the title builder function.
+     */
+    var simpleTitle: String? = null
+        set(value) {
+            titleBundle = Title(value)
+        }
 
+    /** @suppress External doc */
     var description: String? = null
+
+    /** @suppress External doc */
     var color: Color? = null
+
+    /** @suppress External doc */
     var thumbnail: String? = null
+
+    /** @suppress External doc */
     var image: String? = null
+
+    /** @suppress External doc */
     var timeStamp: TemporalAccessor? = null
 
-    fun title(construct: TitleBuilder.() -> Unit) {
-        val titleBuilder = TitleBuilder()
+    /** @suppress External doc */
+    fun title(construct: Title.() -> Unit) {
+        val titleBuilder = Title()
         titleBuilder.construct()
         titleBundle = titleBuilder
     }
 
-    fun author(construct: AuthorBuilder.() -> Unit) {
-        val authorBuilder = AuthorBuilder()
+    /** @suppress External doc */
+    fun author(construct: Author.() -> Unit) {
+        val authorBuilder = Author()
         authorBuilder.construct()
         author = authorBuilder.build()
     }
 
-    fun field(construct: FieldBuilder.() -> Unit) {
-        val fieldBuilder = FieldBuilder()
+    /** @suppress External doc */
+    fun field(construct: Field.() -> Unit) {
+        val fieldBuilder = Field()
         fieldBuilder.construct()
         mutableFields.add(fieldBuilder.build())
     }
 
-    fun footer(construct: FooterBuilder.() -> Unit) {
-        val footerBuilder = FooterBuilder()
+    /**
+     * @sample Footer
+     */
+    fun footer(construct: Footer.() -> Unit) {
+        val footerBuilder = Footer()
         footerBuilder.construct()
         footer = footerBuilder.build()
     }
 
+    /** @suppress Redundant doc */
     fun addField(field: EmbedField) = mutableFields.add(field)
+
+    /** @suppress Redundant doc */
     fun addField(name: String?, value: String?, inline: Boolean = false) = addField(EmbedField(name, value, inline))
+
+    /** @suppress Redundant doc */
     fun addInlineField(name: String?, value: String?) = addField(EmbedField(name, value, true))
+
+    /** @suppress Redundant doc */
     fun addBlankField(inline: Boolean) = addField(EmbedField("", "", inline))
 
-    fun build(): MessageEmbed {
-        val embedBuilder = EmbedBuilder().apply {
-            fields.addAll(mutableFields)
-            setTitle(titleBundle?.text, titleBundle?.url)
-            setDescription(description)
-            setColor(color)
-            setThumbnail(thumbnail)
-            setImage(image)
-            setTimestamp(timeStamp)
-            setAuthor(author?.name, author?.url, author?.iconUrl)
-            setFooter(footer?.text, footer?.iconUrl)
-        }
+    internal fun build() = EmbedBuilder().apply {
+        fields.addAll(mutableFields)
+        setTitle(titleBundle?.text, titleBundle?.url)
+        setDescription(description)
+        setColor(color)
+        setThumbnail(thumbnail)
+        setImage(image)
+        setTimestamp(timeStamp)
+        setAuthor(author?.name, author?.url, author?.iconUrl)
+        setFooter(footer?.text, footer?.iconUrl)
+    }.build()
 
-        return embedBuilder.build()
+    /** @suppress DSL backing */
+    data class Title(var text: String? = "", var url: String? = null)
+
+    /** @suppress DSL backing */
+    data class Author(var name: String? = "", var url: String? = null, var iconUrl: String? = null) {
+        internal fun build() = MessageEmbed.AuthorInfo(name, url, iconUrl, null)
+    }
+
+    /** @suppress DSL backing */
+    data class Field(var name: String? = "", var value: String? = "", var inline: Boolean = false) {
+        internal fun build() = EmbedField(name, value, inline)
+    }
+
+    /** @suppress DSL backing */
+    data class Footer(var text: String? = "", var iconUrl: String? = null) {
+        internal fun build() = MessageEmbed.Footer(text, iconUrl, null)
     }
 }
 
-data class TitleBuilder(var text: String? = "", var url: String? = null)
-
-data class AuthorBuilder(var name: String? = "", var url: String? = null, var iconUrl: String? = null) {
-    fun build() = MessageEmbed.AuthorInfo(name, url, iconUrl, null)
-}
-
-data class FieldBuilder(var name: String? = "", var value: String? = "", var inline: Boolean = false) {
-    fun build() = EmbedField(name, value, inline)
-}
-
-data class FooterBuilder(var text: String? = "", var iconUrl: String? = null) {
-    fun build() = MessageEmbed.Footer(text, iconUrl, null)
-}
-
-fun embed(construct: EmbedDSLHandle.() -> Unit): MessageEmbed {
-    val handle = EmbedDSLHandle()
+/** @suppress DSL Builder */
+@BuilderDSL
+fun embed(construct: EmbedDSL.() -> Unit): MessageEmbed {
+    val handle = EmbedDSL()
     handle.construct()
     return handle.build()
 }
 
+/**
+ * Convert a Discord embed entity back into the builder format.
+ */
 fun MessageEmbed.toEmbedBuilder() =
     EmbedBuilder().apply {
         setTitle(title)

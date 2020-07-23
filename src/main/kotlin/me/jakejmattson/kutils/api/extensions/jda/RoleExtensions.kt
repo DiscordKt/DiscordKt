@@ -4,4 +4,7 @@ package me.jakejmattson.kutils.api.extensions.jda
 
 import net.dv8tion.jda.api.entities.Role
 
-fun Role.isEqualOrHigherThan(other: Role?) = if (other == null) false else this.position >= other.position
+/**
+ * Define the comparison operator for roles.
+ */
+operator fun Role.compareTo(other: Role) = position.compareTo(other.position)

@@ -6,7 +6,15 @@ import me.jakejmattson.kutils.api.extensions.jda.tryRetrieveSnowflake
 import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.*
 
+/**
+ * Accepts a Discord Message entity as an ID or a link.
+ *
+ * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
+ */
 open class MessageArg(override val name: String = "Message", private val allowsGlobal: Boolean = false) : ArgumentType<Message>() {
+    /**
+     * Accepts a Discord Message entity as an ID or a link from within this guild.
+     */
     companion object : MessageArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Message> {
@@ -14,8 +22,7 @@ open class MessageArg(override val name: String = "Message", private val allowsG
         val isLink = regex.matches(arg)
         val jda = event.discord.jda
 
-        fun <T> generateError(clarification: String)
-            = ArgumentResult.Error<T>("Couldn't retrieve $name from $arg ($clarification).")
+        fun <T> generateError(clarification: String) = Error<T>("Couldn't retrieve $name from $arg ($clarification).")
 
         val message = if (isLink) {
             val (guildId, channelId, messageId) = arg.split("/").takeLast(3)
@@ -37,7 +44,7 @@ open class MessageArg(override val name: String = "Message", private val allowsG
             } as Message? ?: return generateError("Invalid ID")
         }
 
-        return ArgumentResult.Success(message)
+        return Success(message)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf(event.message.id)

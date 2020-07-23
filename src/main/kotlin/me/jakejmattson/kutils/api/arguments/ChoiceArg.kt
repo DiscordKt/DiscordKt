@@ -2,16 +2,27 @@ package me.jakejmattson.kutils.api.arguments
 
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.internal.utils.InternalLogger
 
-open class ChoiceArg<T>(override val name: String, vararg choices: T) : ArgumentType<String>() {
+/**
+ * Accepts a choice from the provided list.
+ *
+ * @param choices The available choices. Can be any type, but associated by toString value.
+ */
+open class ChoiceArg<T>(override val name: String, vararg choices: T) : ArgumentType<T>() {
     private val enumerations = choices.associateBy { it.toString().toLowerCase() }
     private val options = enumerations.keys
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
-        val selection = enumerations[arg.toLowerCase()] as? String
-            ?: return ArgumentResult.Error("Invalid choice for $name. Available choices: ${options.joinToString()}")
+    init {
+        if (choices.size != options.size)
+            InternalLogger.error("ChoiceArg has detected a collision. Please ensure elements are unique.")
+    }
 
-        return ArgumentResult.Success(selection)
+    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T> {
+        val selection = enumerations[arg.toLowerCase()]
+            ?: return Error("Invalid choice for $name. Available choices: ${options.joinToString()}")
+
+        return Success(selection)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = options.toList()

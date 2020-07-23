@@ -6,18 +6,26 @@ import me.jakejmattson.kutils.api.extensions.jda.tryRetrieveSnowflake
 import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.User
 
+/**
+ * Accepts a Discord User entity as an ID or mention.
+ *
+ * @param allowsBot Whether or not a bot is a valid input.
+ */
 open class UserArg(override val name: String = "User", private val allowsBot: Boolean = false) : ArgumentType<User>() {
+    /**
+     * Accepts a Discord User entity as an ID or mention. Does not allow bots.
+     */
     companion object : UserArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {
         val user = event.discord.jda.tryRetrieveSnowflake {
             it.retrieveUserById(arg.trimToID()).complete()
-        } as User? ?: return ArgumentResult.Error("Couldn't retrieve $name from $arg.")
+        } as User? ?: return Error("Couldn't retrieve $name from $arg.")
 
         if (!allowsBot && user.isBot)
-            return ArgumentResult.Error("$name cannot be a bot.")
+            return Error("$name cannot be a bot.")
 
-        return ArgumentResult.Success(user)
+        return Success(user)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.id)

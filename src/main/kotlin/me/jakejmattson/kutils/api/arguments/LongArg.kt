@@ -4,17 +4,17 @@ import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
 
 /**
- * Accept a whole number in the int range.
+ * Accept a whole number in the long range.
  */
-open class IntegerArg(override val name: String = "Integer") : ArgumentType<Int>() {
+open class LongArg(override val name: String = "Long") : ArgumentType<Long>() {
     /**
-     * Accept a whole number in the int range.
+     * Accept a whole number in the long range.
      */
-    companion object : IntegerArg()
+    companion object : LongArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
-        when (val result = arg.toIntOrNull()) {
-            null -> Error<Int>("Couldn't parse $name from $arg.")
+        when (val result = arg.toLongOrNull()) {
+            null -> Error<Long>("Couldn't parse $name from $arg.")
             else -> Success(result)
         }
 

@@ -5,9 +5,20 @@ package me.jakejmattson.kutils.api.extensions.stdlib
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
+/**
+ * Create a string with a number and its respective singular/plural unit string.
+ *
+ * @param unit The unit string applied to this number.
+ */
 fun Number.pluralize(unit: String) = "$this ${if (this.toLong() == 1L) unit else "${unit}s"}"
 
-fun Long.toTimeString(trimFront: Boolean = true, trimBack: Boolean = true) = with(Duration.of(this, ChronoUnit.SECONDS)) {
+/**
+ * Convert this long value to a time string
+ *
+ * @param trimLeadingZeroes Trim all zero values before the first non-zero value.
+ * @param trimTrailingZeros Trim all zero values after the last non-zero value.
+ */
+fun Long.toTimeString(trimLeadingZeroes: Boolean = true, trimTrailingZeros: Boolean = true) = with(Duration.of(this, ChronoUnit.SECONDS)) {
     val timeString =
         "${toDaysPart().pluralize("day")} " +
             "${toHoursPart().pluralize("hour")} " +
@@ -16,10 +27,10 @@ fun Long.toTimeString(trimFront: Boolean = true, trimBack: Boolean = true) = wit
 
     var grouped = group(timeString)
 
-    if (trimFront)
+    if (trimLeadingZeroes)
         grouped = grouped.trimFront()
 
-    if (trimBack)
+    if (trimTrailingZeros)
         grouped = grouped.trimBack()
 
     assemble(grouped).ifBlank { "0 seconds" }
