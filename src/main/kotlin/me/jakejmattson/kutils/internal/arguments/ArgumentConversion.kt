@@ -2,7 +2,6 @@ package me.jakejmattson.kutils.internal.arguments
 
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
-import me.jakejmattson.kutils.internal.arguments.ConversionResult.Success
 import me.jakejmattson.kutils.internal.services.generateStructure
 
 internal sealed class ConversionResult {
@@ -25,7 +24,7 @@ internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<
 
                 when (conversion) {
                     is Error -> return ConversionResult.Error("Missing input for `${expectedArg.name}`")
-                    is me.jakejmattson.kutils.api.dsl.arguments.Success -> {
+                    is Success -> {
                         if (conversion.consumed != 0)
                             throw IllegalArgumentException("ArgumentType ${expectedArg.name} consumed more arguments than available.")
 
@@ -38,7 +37,7 @@ internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<
             val result = expectedArg.convert(firstArg, remainingArgs, event)
 
             when (result) {
-                is me.jakejmattson.kutils.api.dsl.arguments.Success -> {
+                is Success -> {
                     if (result.consumed > remainingArgs.size)
                         throw IllegalArgumentException("ArgumentType ${expectedArg.name} consumed more arguments than available.")
                     else
@@ -59,5 +58,5 @@ internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<
     if (remainingArgs.isNotEmpty())
         return ConversionResult.Error("Received more arguments than expected. $expectation")
 
-    return Success(converted as List<Any>)
+    return ConversionResult.Success(converted as List<Any>)
 }

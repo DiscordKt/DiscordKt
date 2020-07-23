@@ -31,7 +31,7 @@ private val propFile = KUtilsProperties::class.java.getResource("/kutils-propert
  * @property properties Various meta KUtils properties.
  */
 abstract class Discord {
-    @Deprecated("To be removed")
+    @Deprecated("I'm gonna remove this I swear.")
     abstract val jda: JDA
     abstract val configuration: BotConfiguration
     val properties = Gson().fromJson(propFile, KUtilsProperties::class.java)!!
