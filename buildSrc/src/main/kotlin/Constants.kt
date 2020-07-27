@@ -12,7 +12,7 @@ object Versions {
     const val reflections = "0.9.12"
     const val gson = "2.8.6"
     const val guava = "29.0-jre"
-    const val commons = "1.8"
+    const val commons = "1.9"
     const val slf4j = "1.7.30"
     const val jda = "4.2.0_181"
 

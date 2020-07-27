@@ -11,7 +11,8 @@ import net.dv8tion.jda.api.entities.*
 internal interface Responder {
     val channel: MessageChannel
 
-    fun respond(message: String) = unsafeRespond(message.sanitiseMentions())
+    fun unsafeRespond(message: String) = chunkRespond(message)
+    fun respond(message: String) = chunkRespond(message.sanitiseMentions(channel.jda))
     fun respond(embed: MessageEmbed) = channel.sendMessage(embed).queue()
     fun respond(construct: EmbedDSL.() -> Unit) = respond(embed(construct))
     fun respond(message: String, construct: EmbedDSL.() -> Unit) = channel.sendMessage(message).embed(embed(construct)).queue()
@@ -20,7 +21,7 @@ internal interface Responder {
     fun respondTimed(message: String, millis: Long = 5000) {
         require(millis >= 0) { "RespondTimed: Delay cannot be negative." }
 
-        channel.sendMessage(message.sanitiseMentions()).queue {
+        channel.sendMessage(message.sanitiseMentions(channel.jda)).queue {
             GlobalScope.launch {
                 delay(millis)
                 it.delete().queue()
@@ -39,7 +40,7 @@ internal interface Responder {
         }
     }
 
-    fun unsafeRespond(message: String) {
+    private fun chunkRespond(message: String) {
         require(message.isNotEmpty()) { "Cannot send an empty message." }
         message.chunked(2000).forEach { channel.sendMessage(it).queue() }
     }
