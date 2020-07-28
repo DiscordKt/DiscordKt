@@ -15,19 +15,16 @@ open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>(
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         val quotationMark = '"'
 
-        if (!arg.startsWith(quotationMark)) {
-            return Error("Expected an opening quotation mark, found: $arg")
-        }
+        if (!arg.startsWith(quotationMark))
+            return Error("No opening quotation mark")
 
-        val rawQuote = if (arg.endsWith(quotationMark)) {
-            arg
-        } else {
+        val rawQuote = if (!arg.endsWith(quotationMark))
             args.takeUntil { !it.endsWith(quotationMark) }.joinToString(" ")
-        }
+        else
+            arg
 
-        if (!rawQuote.endsWith(quotationMark)) {
-            return Error("Missing closing quotation mark.")
-        }
+        if (!rawQuote.endsWith(quotationMark))
+            return Error("No closing quotation mark")
 
         val quote = rawQuote.trim(quotationMark)
         val consumedCount = quote.split(" ").size
@@ -36,6 +33,7 @@ open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>(
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("\"A Quote\"")
+    override fun formatData(data: String) = "\"$data\""
 }
 
 private fun List<String>.takeUntil(predicate: (String) -> Boolean): List<String> {

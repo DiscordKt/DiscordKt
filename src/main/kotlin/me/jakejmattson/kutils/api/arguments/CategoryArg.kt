@@ -24,17 +24,16 @@ open class CategoryArg(override val name: String = "Category", private val guild
             val category = event.discord.jda.getCategoryById(arg.trimToID())
 
             if (!allowsGlobal && resolvedGuildId != category?.guild?.id)
-                return Error("$name must be from this guild.")
+                return Error("Must be from this guild")
 
             if (category != null)
                 return Success(category)
         }
 
-        resolvedGuildId
-            ?: return Error("Cannot resolve a category by name from a DM. Please invoke in a guild or use an ID.")
+        resolvedGuildId ?: return Error("Please invoke in a guild or use an ID")
 
         val guild = event.discord.jda.getGuildById(resolvedGuildId)
-            ?: return Error("$name could not determine a guild to search in.")
+            ?: return Error("Guild not found")
         val argString = args.joinToString(" ").toLowerCase()
         val viableNames = guild.categories
             .filter { argString.startsWith(it.name.toLowerCase()) }
@@ -44,16 +43,18 @@ open class CategoryArg(override val name: String = "Category", private val guild
         val result = longestMatch?.let { viableNames.filter { it.name == longestMatch.name } } ?: emptyList()
 
         return when (result.size) {
-            0 -> Error("Could not resolve any categories by name.")
+            0 -> Error("Not found")
             1 -> {
                 val category = result.first()
                 val argList = args.take(category.name.split(" ").size)
                 Success(category, argList.size)
             }
-            else -> Error("Resolving category by name returned multiple matches. Please use an ID.")
+            else -> Error("Found multiple matches")
         }
     }
 
     override fun generateExamples(event: CommandEvent<*>) = event.guild?.categories?.map { it.id }
         ?: listOf("Chat Channels")
+
+    override fun formatData(data: Category) = data.name
 }

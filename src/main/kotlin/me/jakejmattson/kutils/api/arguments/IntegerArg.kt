@@ -14,7 +14,7 @@ open class IntegerArg(override val name: String = "Integer") : ArgumentType<Int>
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toIntOrNull()) {
-            null -> Error<Int>("Couldn't parse $name from $arg.")
+            null -> Error<Int>("Invalid format")
             else -> Success(result)
         }
 

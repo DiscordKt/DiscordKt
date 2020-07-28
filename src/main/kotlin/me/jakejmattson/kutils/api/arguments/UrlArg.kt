@@ -17,7 +17,7 @@ open class UrlArg(override val name: String = "URL") : ArgumentType<String>() {
         return if (arg.containsURl())
             Success(arg)
         else
-            Error("Couldn't parse $name from $arg.")
+            Error("Invalid format")
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("http://www.google.com")

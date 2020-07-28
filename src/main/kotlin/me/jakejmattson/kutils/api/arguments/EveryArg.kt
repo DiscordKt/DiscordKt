@@ -14,7 +14,7 @@ open class EveryArg(override val name: String = "Text") : ArgumentType<String>()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         if (args.size in 0..1 && arg.isEmpty())
-            return Error("$name cannot be empty.")
+            return Error("Cannot be empty")
 
         return Success(args.joinToString(" "), args.size)
     }

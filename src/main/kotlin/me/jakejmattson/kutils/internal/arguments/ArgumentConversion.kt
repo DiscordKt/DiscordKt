@@ -11,10 +11,11 @@ internal sealed class ConversionResult {
 internal data class DataMap<T>(val argument: ArgumentType<Any>, val value: T)
 
 private fun formatDataMap(data: List<DataMap<*>>): String {
-    val length = data.maxBy { it.argument.name.length }?.argument?.name?.length ?: 0
+    val length = data.map { it.argument.name.length }.max() ?: 0
 
     return data.joinToString("\n") {
-        "%-${length}s = %s".format(it.argument.name, it.argument.formatData(it.value!!))
+        val arg = it.argument
+        "%-${length}s = %s".format(arg.name, arg.formatData(it.value!!))
     }
 }
 
@@ -55,7 +56,7 @@ internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<
     val error = formatDataMap(conversionData) +
         if (!hasFatalError && remainingArgs.isNotEmpty()) {
             hasFatalError = true
-            "\n\nRemaining Args: " + remainingArgs.joinToString()
+            "\n\nRemaining Args: " + remainingArgs.joinToString(" ")
         }
         else ""
 

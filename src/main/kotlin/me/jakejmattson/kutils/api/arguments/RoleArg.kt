@@ -24,17 +24,17 @@ open class RoleArg(override val name: String = "Role", private val guildId: Stri
             val role = event.discord.jda.getRoleById(arg.trimToID())
 
             if (!allowsGlobal && resolvedGuildId != role?.guild?.id)
-                return Error("$name must be from this guild.")
+                return Error("Must be from this guild")
 
             if (role != null)
                 return Success(role)
         }
 
         resolvedGuildId
-            ?: return Error("Cannot resolve a role by name from a DM. Please invoke in a guild or use an ID.")
+            ?: return Error("Please invoke in a guild or use an ID")
 
         val guild = event.discord.jda.getGuildById(resolvedGuildId)
-            ?: return Error("$name could not determine a guild to search in.")
+            ?: return Error("Guild not found")
         val argString = args.joinToString(" ").toLowerCase()
         val viableNames = guild.roles
             .filter { argString.startsWith(it.name.toLowerCase()) }
@@ -44,16 +44,18 @@ open class RoleArg(override val name: String = "Role", private val guildId: Stri
         val result = longestMatch?.let { viableNames.filter { it.name == longestMatch.name } } ?: emptyList()
 
         return when (result.size) {
-            0 -> Error("Could not resolve any roles by name.")
+            0 -> Error("Not found")
             1 -> {
                 val role = result.first()
                 val argList = args.take(role.name.split(" ").size)
                 Success(role, argList.size)
             }
-            else -> Error("Resolving role by name returned multiple matches. Please use an ID.")
+            else -> Error("Found multiple matches")
         }
     }
 
     override fun generateExamples(event: CommandEvent<*>) =
         event.guild?.roles?.map { it.name }?.takeIf { !it.isNullOrEmpty() } ?: listOf("Staff")
+
+    override fun formatData(data: Role) = data.name
 }

@@ -24,7 +24,7 @@ open class BooleanArg(override val name: String = "Boolean", private val truthVa
         return when (arg.toLowerCase()) {
             truthValue.toLowerCase() -> Success(true)
             falseValue.toLowerCase() -> Success(false)
-            else -> Error("$name should be `$truthValue` or `$falseValue`.")
+            else -> Error("Must be '$truthValue' or '$falseValue'")
         }
     }
 

@@ -14,10 +14,10 @@ open class IntegerRangeArg(private val min: Int, private val max: Int, override 
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Int> {
         val int = arg.toIntOrNull()
-            ?: return Error("Expected $name, got $arg.")
+            ?: return Error("Invalid format")
 
         if (int !in min..max)
-            return Error("$arg not in range $name($min-$max).")
+            return Error("Not in range $min-$max")
 
         return Success(int)
     }

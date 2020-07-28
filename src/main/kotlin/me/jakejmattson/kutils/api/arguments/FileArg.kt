@@ -17,7 +17,7 @@ open class FileArg(override val name: String = "File") : ArgumentType<File>() {
         val attachments = event.message.attachments
 
         if (attachments.isEmpty())
-            return Error("$name argument requires a message attachment.")
+            return Error("No attachments")
 
         val file = attachments.first().downloadToFile().get()
 
@@ -25,4 +25,5 @@ open class FileArg(override val name: String = "File") : ArgumentType<File>() {
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("File")
+    override fun formatData(data: File) = data.name
 }
