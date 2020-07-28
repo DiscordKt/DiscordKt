@@ -1,5 +1,6 @@
 package me.jakejmattson.kutils.internal.command
 
+import me.jakejmattson.kutils.api.dsl.arguments.ArgumentType
 import me.jakejmattson.kutils.api.dsl.command.*
 import me.jakejmattson.kutils.internal.arguments.*
 import me.jakejmattson.kutils.internal.utils.InternalLogger
@@ -25,7 +26,7 @@ sealed class ParseResult {
 
 internal fun parseInputToBundle(command: Command, actualArgs: List<String>, event: CommandEvent<GenericContainer>): ParseResult {
     val expected = command.arguments
-    val initialConversion = convertArguments(actualArgs, expected, event)
+    val initialConversion = convertArguments(actualArgs, expected as List<ArgumentType<Any>>, event)
 
     if (initialConversion is ConversionResult.Success)
         return ParseResult.Success(bundleToArgContainer(initialConversion.results))

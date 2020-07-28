@@ -1,4 +1,4 @@
-package me.jakejmattson.kutils.internal.utils
+package me.jakejmattson.kutils.internal.arguments
 
 import me.jakejmattson.kutils.api.dsl.arguments.*
 
