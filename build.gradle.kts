@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "me.jakejmattson"
 version = "0.18.1-SNAPSHOT"
+val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
     kotlin("jvm") version Versions.kotlin
@@ -48,7 +49,9 @@ tasks {
     }
 
     copy {
-        from(file("$resourcePath/templates/readme-template.md"))
+        val path = "$resourcePath/templates/readme-" + (if (isSnapshot) "snapshot" else "release") + ".md"
+
+        from(file(path))
         into(file("."))
         rename{ "README.md" }
         expand(
@@ -144,10 +147,7 @@ publishing {
             }
             repositories {
                 maven {
-                    url = if (version.toString().endsWith("SNAPSHOT"))
-                        uri(Constants.snapshotsRepoUrl)
-                    else
-                        uri(Constants.releasesRepoUrl)
+                    url = if (isSnapshot) uri(Constants.snapshotsRepoUrl) else uri(Constants.releasesRepoUrl)
 
                     credentials {
                         username = project.properties["nexusUsername"] as String?

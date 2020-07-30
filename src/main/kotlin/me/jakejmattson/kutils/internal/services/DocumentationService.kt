@@ -13,7 +13,7 @@ internal fun createDocumentation(container: CommandsContainer) {
     fun extractCommandData(command: Command): CommandData {
         val expectedArgs = command.arguments.joinToString {
             if (it.isOptional) "(${it.name})" else it.name
-        }.takeIf { it.isNotEmpty() } ?: "<none>"
+        }.takeIf { it.isNotEmpty() } ?: ""
 
         return CommandData(command.names.joinToString().replace("|", "\\|"),
             expectedArgs.replace("|", "\\|"),
@@ -24,13 +24,12 @@ internal fun createDocumentation(container: CommandsContainer) {
         val headerData = CommandData("Commands", "Arguments", "Description")
 
         commandData.add(headerData)
-        val longestName = commandData.maxBy { it.name.length }!!.name.length
-        val longestArgs = commandData.maxBy { it.args.length }!!.args.length
-        val longestDescription = commandData.maxBy { it.description.length }!!.description.length
+        val longestName = commandData.map { it.name.length }.max() ?: 0
+        val longestArgs = commandData.map { it.args.length }.max() ?: 0
+        val longestDescription = commandData.map { it.description.length }.max() ?: 0
         commandData.remove(headerData)
 
         val formatString = "| %-${longestName}s | %-${longestArgs}s | %-${longestDescription}s |"
-
         val headerString = headerData.format(formatString)
         val separator = formatString.format("-".repeat(longestName), "-".repeat(longestArgs), "-".repeat(longestDescription))
         val commandString = commandData.sortedBy { it.name }.joinToString("\n") { it.format(formatString) }
