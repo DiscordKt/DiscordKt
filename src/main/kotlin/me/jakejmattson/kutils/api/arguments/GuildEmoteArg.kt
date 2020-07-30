@@ -23,19 +23,17 @@ open class GuildEmoteArg(override val name: String = "Guild Emote", private val 
         val id = when (split.size) {
             1 -> split[0]
             3 -> split[2]
-            else -> return Error("Couldn't retrieve $name from $arg.")
+            else -> return Error("Not found")
         }
 
         val availableEmotes =
             if (allowsGlobal)
                 event.discord.jda.guilds.flatMap { it.emotes }
             else
-                event.guild?.emotes
-
-        availableEmotes ?: return Error("Could not find a guild to fetch emojis from.")
+                event.guild?.emotes ?: emptyList()
 
         val emote = availableEmotes.firstOrNull { it.id == id }
-            ?: return Error("Could not find an emoji${if (!allowsGlobal) " in this guild " else " "}with the ID: $id")
+            ?: return Error("Not found")
 
         return Success(emote)
     }

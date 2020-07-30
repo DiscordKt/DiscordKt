@@ -1,6 +1,6 @@
 {
-  "repository": "https://gitlab.com/JakeJMattson/KUtils/",
-  "kutilsVersion": "0.18.0",
+  "repository": "https://github.com/JakeJMattson/KUtils/",
+  "kutilsVersion": "0.18.1",
   "kotlinVersion": "1.3.72",
-  "jdaVersion": "4.2.0_181"
+  "jdaVersion": "4.2.0_183"
 }

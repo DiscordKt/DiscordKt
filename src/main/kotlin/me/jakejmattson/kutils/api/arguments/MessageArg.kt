@@ -22,26 +22,24 @@ open class MessageArg(override val name: String = "Message", private val allowsG
         val isLink = regex.matches(arg)
         val jda = event.discord.jda
 
-        fun <T> generateError(clarification: String) = Error<T>("Couldn't retrieve $name from $arg ($clarification).")
-
         val message = if (isLink) {
             val (guildId, channelId, messageId) = arg.split("/").takeLast(3)
 
             if (!allowsGlobal && guildId != event.guild?.id)
-                return generateError("Must be from this guild")
+                return Error("Must be from this guild")
 
             val guild = jda.guilds.firstOrNull { it.id == guildId }
-                ?: return generateError("Invalid guild")
+                ?: return Error("Invalid guild")
 
             val channel = guild.channels.filterIsInstance<TextChannel>().firstOrNull { it.id == channelId }
-                ?: return generateError("Invalid channel")
+                ?: return Error("Invalid channel")
 
             channel.retrieveMessageById(messageId).complete()
-                ?: return generateError("Invalid message")
+                ?: return Error("Invalid message")
         } else {
             jda.tryRetrieveSnowflake {
                 event.channel.retrieveMessageById(arg.trimToID()).complete()
-            } as Message? ?: return generateError("Invalid ID")
+            } as Message? ?: return Error("Invalid ID")
         }
 
         return Success(message)

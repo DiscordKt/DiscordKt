@@ -20,10 +20,10 @@ open class VoiceChannelArg(override val name: String = "Voice Channel", private 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<VoiceChannel> {
         val channel = event.discord.jda.tryRetrieveSnowflake {
             it.getVoiceChannelById(arg.trimToID())
-        } as VoiceChannel? ?: return Error("Couldn't retrieve $name from $arg.")
+        } as VoiceChannel? ?: return Error("Not found")
 
         if (!allowsGlobal && channel.guild.id != event.guild?.id)
-            return Error("$name must be from this guild.")
+            return Error("Must be from this guild")
 
         return Success(channel)
     }
@@ -32,4 +32,6 @@ open class VoiceChannelArg(override val name: String = "Voice Channel", private 
         val channel = event.guild?.channels?.firstOrNull { it.type == ChannelType.VOICE } as? VoiceChannel
         return listOf(channel?.id ?: "582168201979494421")
     }
+
+    override fun formatData(data: VoiceChannel) = data.name
 }

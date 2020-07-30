@@ -1,7 +1,7 @@
 object Constants {
     const val projectName = "KUtils"
     const val projectDescription = "A Discord bot framework for Kotlin."
-    const val projectUrl = "https://gitlab.com/JakeJMattson/$projectName/"
+    const val projectUrl = "https://github.com/JakeJMattson/$projectName/"
     const val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
     const val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
 }
@@ -12,9 +12,9 @@ object Versions {
     const val reflections = "0.9.12"
     const val gson = "2.8.6"
     const val guava = "29.0-jre"
-    const val commons = "1.8"
-    const val slf4j = "1.7.30"
-    const val jda = "4.2.0_181"
+    const val commons = "1.9"
+    const val slf4j = "2.0.0-alpha1"
+    const val jda = "4.2.0_183"
 
     //Test Dependencies
     const val mockk = "1.10.0"

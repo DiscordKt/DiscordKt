@@ -18,10 +18,11 @@ open class SplitterArg(override val name: String = "TextWithSplitter", private v
         val joined = args.joinToString(" ")
 
         if (!joined.contains(splitter))
-            return Error("$name requires the character `$splitter` to split input.")
+            return Error("Missing '$splitter'")
 
         return Success(joined.split(splitter).toList(), args.size)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("A${splitter}B${splitter}C")
+    override fun formatData(data: List<String>) = data.joinToString(splitter)
 }

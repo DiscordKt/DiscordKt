@@ -17,7 +17,7 @@ open class UnicodeEmoteArg(override val name: String = "Unicode Emote") : Argume
         return if (emojiRegex.matches(arg))
             Success(arg)
         else
-            Error("Couldn't parse $name from $arg.")
+            Error("Invalid format")
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("\uD83D\uDC40")

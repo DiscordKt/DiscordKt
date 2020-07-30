@@ -16,7 +16,7 @@ open class CharArg(override val name: String = "Character") : ArgumentType<Char>
         return if (arg.length == 1)
             Success(arg[0])
         else
-            Error("$name should be a single character.")
+            Error("Must be a single character")
     }
 
     override fun generateExamples(event: CommandEvent<*>) = ('a'..'z').map { it.toString() }

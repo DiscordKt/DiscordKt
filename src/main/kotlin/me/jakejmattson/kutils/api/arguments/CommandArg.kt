@@ -14,10 +14,11 @@ open class CommandArg(override val name: String = "Command") : ArgumentType<Comm
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Command> {
         val command = event.container[arg.toLowerCase()]
-            ?: return Error("Couldn't parse $name from $arg.")
+            ?: return Error("Not found")
 
         return Success(command)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = event.container.commands.mapNotNull { it.names.firstOrNull() }
+    override fun formatData(data: Command) = data.names.first()
 }

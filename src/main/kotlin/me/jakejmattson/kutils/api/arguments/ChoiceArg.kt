@@ -15,12 +15,12 @@ open class ChoiceArg<T>(override val name: String, vararg choices: T) : Argument
 
     init {
         if (choices.size != options.size)
-            InternalLogger.error("ChoiceArg has detected a collision. Please ensure elements are unique.")
+            InternalLogger.error("ChoiceArg elements must be unique.")
     }
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T> {
         val selection = enumerations[arg.toLowerCase()]
-            ?: return Error("Invalid choice for $name. Available choices: ${options.joinToString()}")
+            ?: return Error("Invalid selection")
 
         return Success(selection)
     }

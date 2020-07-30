@@ -89,4 +89,9 @@ abstract class ArgumentType<T> : Cloneable {
 
     /** Determine the simpler name (just the class) and then remove the companion tag */
     override fun toString() = this::class.java.simplerName.substringBefore("$")
+
+    /**
+     * Create a custom formatter for the data this ArgumentType produces.
+     */
+    open fun formatData(data: T): String = data.toString()
 }

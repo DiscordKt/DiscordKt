@@ -2,6 +2,7 @@ package me.jakejmattson.kutils.api.arguments
 
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
+import me.jakejmattson.kutils.api.extensions.jda.*
 import me.jakejmattson.kutils.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.Member
 
@@ -17,17 +18,19 @@ open class MemberArg(override val name: String = "Member", private val allowsBot
     companion object : MemberArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Member> {
-        val guild = event.guild ?: return Error("$name cannot be accessed from outside a guild.")
+        val guild = event.guild ?: return Error("No guild found")
         val id = arg.trimToID()
 
-        val member = guild.getMemberById(id)
-            ?: return Error("Couldn't retrieve $name from $arg.")
+        val member = guild.jda.tryRetrieveSnowflake {
+            guild.getMemberById(id)
+        } as Member? ?: return Error("Not found")
 
         if (!allowsBot && member.user.isBot)
-            return Error("$name cannot be a bot.")
+            return Error("Cannot be a bot")
 
         return Success(member)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.id)
+    override fun formatData(data: Member) = "@${data.user.fullName()}"
 }

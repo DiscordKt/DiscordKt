@@ -41,7 +41,7 @@ class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, nam
         return when {
             leftResult is Success -> Success(Left(leftResult.result), leftResult.consumed)
             rightResult is Success -> Success(Right(rightResult.result), rightResult.consumed)
-            else -> Error("Could not match input with either expected argument.")
+            else -> Error("Matched neither expected args")
         }
     }
 

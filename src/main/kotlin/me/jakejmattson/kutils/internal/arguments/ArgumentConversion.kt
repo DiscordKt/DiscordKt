@@ -2,61 +2,68 @@ package me.jakejmattson.kutils.internal.arguments
 
 import me.jakejmattson.kutils.api.dsl.arguments.*
 import me.jakejmattson.kutils.api.dsl.command.CommandEvent
-import me.jakejmattson.kutils.internal.services.generateStructure
 
 internal sealed class ConversionResult {
     data class Success(val results: List<Any>) : ConversionResult()
     data class Error(val error: String) : ConversionResult()
 }
 
-private fun convertOptional(arg: ArgumentType<*>, event: CommandEvent<*>) = arg.defaultValue?.invoke(event)
+internal data class DataMap<T>(val argument: ArgumentType<Any>, val value: T)
 
-internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<*>>, event: CommandEvent<*>): ConversionResult {
+private fun formatDataMap(data: List<DataMap<*>>): String {
+    val length = data.map { it.argument.name.length }.max() ?: 0
+
+    return data.joinToString("\n") {
+        val arg = it.argument
+        "%-${length}s = %s".format(arg.name, arg.formatData(it.value!!))
+    }
+}
+
+internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<Any>>, event: CommandEvent<*>): ConversionResult {
     val remainingArgs = actual.filter { it.isNotBlank() }.toMutableList()
-    val expectation = "Expected: `${generateStructure(event.command!!)}`"
+    var hasFatalError = false
 
-    val converted = expected.map { expectedArg ->
-        if (remainingArgs.isEmpty()) {
-            if (expectedArg.isOptional)
-                convertOptional(expectedArg, event)
-            else {
-                val conversion = expectedArg.convert("", emptyList(), event)
+    val conversionData = expected.map { expectedArg ->
+        if (hasFatalError)
+            return@map DataMap(expectedArg, "")
 
-                when (conversion) {
-                    is Error -> return ConversionResult.Error("Missing input for `${expectedArg.name}`")
-                    is Success -> {
-                        if (conversion.consumed != 0)
-                            throw IllegalArgumentException("ArgumentType ${expectedArg.name} consumed more arguments than available.")
+        val conversionResult = if (remainingArgs.isNotEmpty())
+            expectedArg.convert(remainingArgs.first(), remainingArgs, event)
+        else
+            expectedArg.convert("", emptyList(), event)
 
-                        conversion.result
-                    }
-                }
+        when (conversionResult) {
+            is Success -> {
+                if (conversionResult.consumed > remainingArgs.size)
+                    throw IllegalArgumentException("ArgumentType ${expectedArg.name} consumed more arguments than available.")
+
+                if (remainingArgs.isNotEmpty())
+                    remainingArgs.slice(0 until conversionResult.consumed).forEach { remainingArgs.remove(it) }
+
+                DataMap(expectedArg, conversionResult.result)
             }
-        } else {
-            val firstArg = remainingArgs.first()
-            val result = expectedArg.convert(firstArg, remainingArgs, event)
-
-            when (result) {
-                is Success -> {
-                    if (result.consumed > remainingArgs.size)
-                        throw IllegalArgumentException("ArgumentType ${expectedArg.name} consumed more arguments than available.")
-                    else
-                        remainingArgs.subList(0, result.consumed).toList().forEach { remainingArgs.remove(it) }
-
-                    result.result
-                }
-                is Error -> {
-                    if (expectedArg.isOptional)
-                        convertOptional(expectedArg, event)
-                    else
-                        return ConversionResult.Error(result.error)
+            is Error -> {
+                if (expectedArg.isOptional)
+                    DataMap(expectedArg, expectedArg.defaultValue?.invoke(event))
+                else {
+                    hasFatalError = true
+                    DataMap(expectedArg, if (remainingArgs.isNotEmpty()) "<${conversionResult.error}>" else "<Missing>")
                 }
             }
         }
     }
 
-    if (remainingArgs.isNotEmpty())
-        return ConversionResult.Error("Received more arguments than expected. $expectation")
+    val error = formatDataMap(conversionData) +
+        if (!hasFatalError && remainingArgs.isNotEmpty()) {
+            hasFatalError = true
+            "\n\nRemaining Args: " + remainingArgs.joinToString(" ")
+        }
+        else ""
 
-    return ConversionResult.Success(converted as List<Any>)
+    if (hasFatalError)
+        return ConversionResult.Error("```$error```")
+
+    val data = conversionData.map { it.value } as List<Any>
+
+    return ConversionResult.Success(data)
 }

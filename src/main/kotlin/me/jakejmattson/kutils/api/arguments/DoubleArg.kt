@@ -15,7 +15,7 @@ open class DoubleArg(override val name: String = "Double") : ArgumentType<Double
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toDoubleOrNull()) {
-            null -> Error<Double>("Couldn't parse $name from $arg.")
+            null -> Error<Double>("Invalid format")
             else -> Success(result)
         }
 

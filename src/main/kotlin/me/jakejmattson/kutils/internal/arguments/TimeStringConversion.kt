@@ -1,4 +1,4 @@
-package me.jakejmattson.kutils.internal.utils
+package me.jakejmattson.kutils.internal.arguments
 
 import me.jakejmattson.kutils.api.dsl.arguments.*
 
@@ -12,14 +12,14 @@ internal fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
     val timeElements = possibleElements.dropLastWhile { it is Quantity } // assume trailing numbers are part of next arg (ID, Integer, etc.)
 
     if (timeElements.isEmpty())
-        return Error("Invalid time element passed.")
+        return Error("Invalid time element")
 
     val consumed = original.subList(0, timeElements.size)
     val quantityCount = timeElements.count { it is Quantity }
     val quantifierCount = timeElements.count { it is Quantifier }
 
     if (quantityCount != quantifierCount)
-        return Error("The number of quantities doesn't match the number of quantifiers.")
+        return Error("Invalid format")
 
     val hasMissingQuantifier = timeElements.withIndex().any { (index, current) ->
         val next = timeElements.getOrNull(index + 1)
@@ -27,7 +27,7 @@ internal fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
     }
 
     if (hasMissingQuantifier)
-        return Error("At least one quantity is missing a quantifier.")
+        return Error("Quantity missing quantifier")
 
     val timePairs = timeElements
         .mapIndexedNotNull { index, element ->
@@ -39,7 +39,7 @@ internal fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
         }
 
     if (timePairs.any { it.first < 0.0 })
-        return Error("Time argument cannot be negative.")
+        return Error("Cannot be negative")
 
     val timeInSeconds = timePairs
         .map { (quantity, quantifier) -> quantity * timeStringToSeconds.getValue(quantifier) }
