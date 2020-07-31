@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "me.jakejmattson"
-version = "0.18.1"
+version = "0.19.0"
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
@@ -64,7 +64,7 @@ tasks {
     copy {
         from(file("$resourcePath/templates/properties-template.json"))
         into(file(resourcePath))
-        rename{ "kutils-properties.json" }
+        rename{ "library-properties.json" }
         expand(
             "projectRepo" to Constants.projectUrl,
             "projectVersion" to version,
@@ -84,11 +84,6 @@ tasks {
 
             targets = listOf("JVM")
             platform = "JVM"
-
-            sourceLink {
-                path = "src/main/kotlin"
-                url = "https://github.com/JakeJMattson/KUtils/tree/master/src/main/kotlin"
-            }
         }
     }
 }
@@ -140,8 +135,8 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:ssh://github.com/JakeJMattson/KUtils.git")
-                    developerConnection.set("scm:git:ssh://git@github.com:JakeJMattson/KUtils.git")
+                    connection.set("scm:git:ssh://github.com/JakeJMattson/DiscordKt.git")
+                    developerConnection.set("scm:git:ssh://git@github.com:JakeJMattson/DiscordKt.git")
                     url.set(Constants.projectUrl)
                 }
             }

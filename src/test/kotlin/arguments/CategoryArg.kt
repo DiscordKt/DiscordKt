@@ -1,6 +1,6 @@
 package arguments
 
-import me.jakejmattson.kutils.api.arguments.CategoryArg
+import me.jakejmattson.discordkt.api.arguments.CategoryArg
 import mock.*
 import utilities.ArgumentTestFactory
 
