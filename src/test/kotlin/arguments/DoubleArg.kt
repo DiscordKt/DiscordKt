@@ -1,6 +1,6 @@
 package arguments
 
-import me.jakejmattson.kutils.api.arguments.DoubleArg
+import me.jakejmattson.discordkt.api.arguments.DoubleArg
 import utilities.ArgumentTestFactory
 
 class DoubleArgTest : ArgumentTestFactory {

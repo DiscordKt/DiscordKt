@@ -1,6 +1,6 @@
 {
   "repository": "${projectRepo}",
-  "kutilsVersion": "${projectVersion}",
+  "libraryVersion": "${projectVersion}",
   "kotlinVersion": "${kotlinVersion}",
   "jdaVersion": "${jdaVersion}"
 }

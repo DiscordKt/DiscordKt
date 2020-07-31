@@ -1,6 +1,6 @@
 package arguments
 
-import me.jakejmattson.kutils.api.arguments.UserArg
+import me.jakejmattson.discordkt.api.arguments.UserArg
 import mock.*
 import utilities.ArgumentTestFactory
 

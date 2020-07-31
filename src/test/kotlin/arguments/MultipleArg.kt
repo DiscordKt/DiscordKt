@@ -1,6 +1,6 @@
 package arguments
 
-import me.jakejmattson.kutils.api.arguments.*
+import me.jakejmattson.discordkt.api.arguments.*
 import utilities.ArgumentTestFactory
 
 class SingleMultipleArgTest : ArgumentTestFactory {

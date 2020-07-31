@@ -1,6 +1,6 @@
 package arguments
 
-import me.jakejmattson.kutils.api.arguments.BooleanArg
+import me.jakejmattson.discordkt.api.arguments.BooleanArg
 import utilities.ArgumentTestFactory
 
 class BooleanArgTest : ArgumentTestFactory {

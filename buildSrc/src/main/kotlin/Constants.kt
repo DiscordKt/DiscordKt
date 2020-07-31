@@ -1,5 +1,5 @@
 object Constants {
-    const val projectName = "KUtils"
+    const val projectName = "DiscordKt"
     const val projectDescription = "A Discord bot framework for Kotlin."
     const val projectUrl = "https://github.com/JakeJMattson/$projectName/"
     const val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
