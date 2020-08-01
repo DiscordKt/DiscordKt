@@ -2,7 +2,7 @@
 
 package me.jakejmattson.discordkt.api.dsl.embed
 
-import me.jakejmattson.discordkt.api.annotations.BuilderDSL
+import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.api.dsl.configuration.ColorConfiguration
 import me.jakejmattson.discordkt.internal.utils.EmbedField
 import net.dv8tion.jda.api.EmbedBuilder

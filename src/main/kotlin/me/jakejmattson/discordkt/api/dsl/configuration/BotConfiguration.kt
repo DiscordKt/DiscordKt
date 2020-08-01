@@ -2,7 +2,7 @@
 
 package me.jakejmattson.discordkt.api.dsl.configuration
 
-import me.jakejmattson.discordkt.api.annotations.BotConfigurationDSL
+import me.jakejmattson.discordkt.internal.annotations.BotConfigurationDSL
 import me.jakejmattson.discordkt.api.dsl.command.*
 import me.jakejmattson.discordkt.api.dsl.embed.EmbedDSL
 import net.dv8tion.jda.api.entities.*

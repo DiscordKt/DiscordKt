@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "me.jakejmattson"
-version = "0.19.0"
+version = "0.19.1-SNAPSHOT"
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {

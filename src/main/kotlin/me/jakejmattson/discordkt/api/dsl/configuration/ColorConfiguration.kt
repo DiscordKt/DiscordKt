@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.api.dsl.configuration
 
-import me.jakejmattson.discordkt.api.annotations.BotConfigurationDSL
+import me.jakejmattson.discordkt.internal.annotations.BotConfigurationDSL
 import java.awt.Color
 
 /**

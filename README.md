@@ -7,21 +7,34 @@ The best source for learning the framework is by joining the Discord, or checkin
 
 #### Maven
 ```xml
+<repository>
+    <id>Sonatype Snapshots</id>
+    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+</repository>
+
 <dependency>
     <groupId>me.jakejmattson</groupId>
     <artifactId>DiscordKt</artifactId>
-    <version>0.19.0</version>
+    <version>0.19.1-SNAPSHOT</version>
 </dependency>
 ```
 
 #### Gradle
 ```groovy
+maven {
+    url 'https://oss.sonatype.org/content/repositories/snapshots/'
+}
+
 dependencies {
-    implementation 'me.jakejmattson:DiscordKt:0.19.0'
+    implementation 'me.jakejmattson:DiscordKt:0.19.1-SNAPSHOT'
 }
 ```
 ```kotlin
+maven {
+    url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+}
+
 dependencies {
-    implementation("me.jakejmattson:DiscordKt:0.19.0")
+    implementation("me.jakejmattson:DiscordKt:0.19.1-SNAPSHOT")
 }
 ```

@@ -9,6 +9,7 @@ import me.jakejmattson.discordkt.api.dsl.data.Data
 import me.jakejmattson.discordkt.api.dsl.preconditions.Precondition
 import me.jakejmattson.discordkt.api.extensions.stdlib.pluralize
 import me.jakejmattson.discordkt.api.services.ConversationService
+import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.command.CommandRecommender
 import me.jakejmattson.discordkt.internal.listeners.*
 import me.jakejmattson.discordkt.internal.services.*

@@ -1,4 +1,4 @@
-package me.jakejmattson.discordkt.api.annotations
+package me.jakejmattson.discordkt.internal.annotations
 
 @DslMarker
 internal annotation class ConfigurationDSL
