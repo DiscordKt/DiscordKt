@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.internal.utils
 
 import com.google.common.eventbus.EventBus
 import me.jakejmattson.discordkt.api.*
-import me.jakejmattson.discordkt.api.annotations.*
+import me.jakejmattson.discordkt.api.annotations.Service
 import me.jakejmattson.discordkt.api.dsl.command.CommandsContainer
 import me.jakejmattson.discordkt.api.dsl.configuration.*
 import me.jakejmattson.discordkt.api.dsl.data.Data
@@ -42,8 +42,8 @@ class Bot(private val token: String, private val globalPath: String) {
         diService.inject(discord)
 
         InternalLogger.shouldLogStartup = loggingConfiguration.showStartupLog
-        InternalLogger.startup("--------------- DiscordKt ${discord.properties.libraryVersion} ---------------")
-        InternalLogger.startup("GlobalPath: $globalPath")
+        val header = "------- DiscordKt ${discord.properties.libraryVersion} -------"
+        InternalLogger.startup(header)
 
         val data = registerData()
         val conversationService = ConversationService(discord).apply { diService.inject(this) }
@@ -69,7 +69,7 @@ class Bot(private val token: String, private val globalPath: String) {
         Validator.validateCommandMeta(container)
         Validator.validateReaction(botConfiguration)
 
-        InternalLogger.startup("----------------------------------------------")
+        InternalLogger.startup("-".repeat(header.length))
     }
 
     internal fun buildBot() {
