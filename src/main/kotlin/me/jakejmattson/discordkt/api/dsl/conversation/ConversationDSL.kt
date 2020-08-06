@@ -18,7 +18,7 @@ private class ExitException : Exception("Conversation exited early.")
 private class DmException : Exception("Message failed to deliver.")
 
 /** @suppress DSL backing */
-data class ConversationStateContainer(val discord: Discord,
+data class ConversationStateContainer(override val discord: Discord,
                                       val user: User,
                                       override val channel: MessageChannel,
                                       var exitString: String? = null) : Responder {

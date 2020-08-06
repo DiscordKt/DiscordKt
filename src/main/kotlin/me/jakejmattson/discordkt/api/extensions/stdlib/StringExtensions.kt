@@ -2,8 +2,8 @@
 
 package me.jakejmattson.discordkt.api.extensions.stdlib
 
+import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.extensions.jda.fullName
-import net.dv8tion.jda.api.JDA
 
 private val urlRegexes = listOf(
     "[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)",
@@ -37,20 +37,20 @@ fun String.isBooleanValue() =
 /**
  * Sanitize all mentions and replace them with their resolved discord names.
  */
-fun String.sanitiseMentions(jda: JDA) = this
+fun String.sanitiseMentions(discord: Discord) = this
     .split(" ")
     .filter { it.startsWith("<") && it.endsWith(">") }
     .map { mention ->
         val id = mention.trimToID()
+        val jda = discord.jda
 
-        val name = when (mention[1]) {
+        val sanitized = when (mention[1]) {
             '@' -> jda.retrieveUserById(id).complete()?.fullName()
-            '#' -> jda.getGuildChannelById(id)?.name
             '&' -> jda.getRoleById(id)?.name
-            else -> null
+            else -> mention
         } ?: id
 
-        mention to name
+        mention to sanitized
     }.foldRight(this) { mentionMap: Pair<String, String>, result: String ->
         result.replace(mentionMap.first, mentionMap.second)
     }
