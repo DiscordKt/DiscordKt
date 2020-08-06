@@ -36,9 +36,9 @@ open class MessageArg(override val name: String = "Message", private val allowsG
             channel.retrieveMessageById(messageId).complete()
                 ?: return Error("Invalid message")
         } else {
-            event.discord.retrieveSnowflake {
+            event.discord.retrieveEntity {
                 event.channel.retrieveMessageById(arg.trimToID()).complete()
-            } as Message? ?: return Error("Invalid ID")
+            } ?: return Error("Invalid ID")
         }
 
         return Success(message)

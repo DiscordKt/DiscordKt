@@ -17,9 +17,9 @@ open class VoiceChannelArg(override val name: String = "Voice Channel", private 
     companion object : VoiceChannelArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<VoiceChannel> {
-        val channel = event.discord.retrieveSnowflake {
+        val channel = event.discord.retrieveEntity {
             it.getVoiceChannelById(arg.trimToID())
-        } as VoiceChannel? ?: return Error("Not found")
+        } ?: return Error("Not found")
 
         if (!allowsGlobal && channel.guild.id != event.guild?.id)
             return Error("Must be from this guild")

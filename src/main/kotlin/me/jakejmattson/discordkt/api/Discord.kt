@@ -36,7 +36,14 @@ abstract class Discord {
     abstract val configuration: BotConfiguration
     val properties = Gson().fromJson(propFile, Properties::class.java)!!
 
-    fun retrieveSnowflake(action: (JDA) -> Any?) = try { action(jda) } catch (e: RuntimeException) { null }
+    /**
+     * Retrieve a Discord entity from a snowflake ID.
+     */
+    fun <T> retrieveEntity(action: (JDA) -> T?) = try {
+        action(jda)
+    } catch (e: RuntimeException) {
+        null
+    }
 
     /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any> getInjectionObjects(a: KClass<A>) = diService[A::class]

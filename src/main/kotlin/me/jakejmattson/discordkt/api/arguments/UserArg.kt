@@ -18,9 +18,9 @@ open class UserArg(override val name: String = "User", private val allowsBot: Bo
     companion object : UserArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {
-        val user = event.discord.retrieveSnowflake {
+        val user = event.discord.retrieveEntity {
             it.retrieveUserById(arg.trimToID()).complete()
-        } as User? ?: return Error("Not found")
+        } ?: return Error("Not found")
 
         if (!allowsBot && user.isBot)
             return Error("Cannot be a bot")

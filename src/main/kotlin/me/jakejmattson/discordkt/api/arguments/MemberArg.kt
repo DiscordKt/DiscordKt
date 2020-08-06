@@ -21,9 +21,9 @@ open class MemberArg(override val name: String = "Member", private val allowsBot
         val guild = event.guild ?: return Error("No guild found")
         val id = arg.trimToID()
 
-        val member = event.discord.retrieveSnowflake {
+        val member = event.discord.retrieveEntity {
             guild.getMemberById(id)
-        } as Member? ?: return Error("Not found")
+        } ?: return Error("Not found")
 
         if (!allowsBot && member.user.isBot)
             return Error("Cannot be a bot")

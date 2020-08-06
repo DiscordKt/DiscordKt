@@ -57,8 +57,7 @@ internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<
         if (!hasFatalError && remainingArgs.isNotEmpty()) {
             hasFatalError = true
             "\n\nRemaining Args: " + remainingArgs.joinToString(" ")
-        }
-        else ""
+        } else ""
 
     if (hasFatalError)
         return ConversionResult.Error("```$error```")

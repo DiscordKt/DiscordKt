@@ -17,9 +17,9 @@ open class TextChannelArg(override val name: String = "Text Channel", private va
     companion object : TextChannelArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<TextChannel> {
-        val channel = event.discord.retrieveSnowflake {
+        val channel = event.discord.retrieveEntity {
             it.getTextChannelById(arg.trimToID())
-        } as TextChannel? ?: return Error("Not found")
+        } ?: return Error("Not found")
 
         if (!allowsGlobal && channel.guild.id != event.guild?.id)
             return Error("Must be from this guild.")

@@ -2,8 +2,8 @@
 
 package me.jakejmattson.discordkt.api.dsl.menu
 
-import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.api.dsl.embed.*
+import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.utils.*
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.GenericEvent

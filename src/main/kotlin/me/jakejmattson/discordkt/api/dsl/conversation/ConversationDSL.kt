@@ -6,11 +6,11 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.*
 import me.jakejmattson.discordkt.api.dsl.embed.*
 import me.jakejmattson.discordkt.api.services.ConversationResult
+import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.utils.Responder
 import net.dv8tion.jda.api.entities.*
 
