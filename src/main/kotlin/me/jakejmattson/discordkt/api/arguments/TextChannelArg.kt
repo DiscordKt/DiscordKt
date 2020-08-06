@@ -2,7 +2,6 @@ package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.jda.tryRetrieveSnowflake
 import me.jakejmattson.discordkt.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.TextChannel
 
@@ -18,7 +17,7 @@ open class TextChannelArg(override val name: String = "Text Channel", private va
     companion object : TextChannelArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<TextChannel> {
-        val channel = event.discord.jda.tryRetrieveSnowflake {
+        val channel = event.discord.retrieveSnowflake {
             it.getTextChannelById(arg.trimToID())
         } as TextChannel? ?: return Error("Not found")
 

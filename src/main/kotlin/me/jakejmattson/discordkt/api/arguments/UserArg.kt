@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.jda.*
+import me.jakejmattson.discordkt.api.extensions.jda.fullName
 import me.jakejmattson.discordkt.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.User
 
@@ -18,7 +18,7 @@ open class UserArg(override val name: String = "User", private val allowsBot: Bo
     companion object : UserArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {
-        val user = event.discord.jda.tryRetrieveSnowflake {
+        val user = event.discord.retrieveSnowflake {
             it.retrieveUserById(arg.trimToID()).complete()
         } as User? ?: return Error("Not found")
 

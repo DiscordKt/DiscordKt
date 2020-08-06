@@ -2,7 +2,6 @@ package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.jda.tryRetrieveSnowflake
 import me.jakejmattson.discordkt.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.*
 
@@ -37,7 +36,7 @@ open class MessageArg(override val name: String = "Message", private val allowsG
             channel.retrieveMessageById(messageId).complete()
                 ?: return Error("Invalid message")
         } else {
-            jda.tryRetrieveSnowflake {
+            event.discord.retrieveSnowflake {
                 event.channel.retrieveMessageById(arg.trimToID()).complete()
             } as Message? ?: return Error("Invalid ID")
         }
