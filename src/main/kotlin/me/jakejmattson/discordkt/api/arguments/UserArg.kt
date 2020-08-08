@@ -8,10 +8,8 @@ import net.dv8tion.jda.api.entities.User
 
 /**
  * Accepts a Discord User entity as an ID or mention.
- *
- * @param allowsBot Whether or not a bot is a valid input.
  */
-open class UserArg(override val name: String = "User", private val allowsBot: Boolean = false) : ArgumentType<User>() {
+open class UserArg(override val name: String = "User") : ArgumentType<User>() {
     /**
      * Accepts a Discord User entity as an ID or mention. Does not allow bots.
      */
@@ -21,9 +19,6 @@ open class UserArg(override val name: String = "User", private val allowsBot: Bo
         val user = event.discord.retrieveEntity {
             it.retrieveUserById(arg.trimToID()).complete()
         } ?: return Error("Not found")
-
-        if (!allowsBot && user.isBot)
-            return Error("Cannot be a bot")
 
         return Success(user)
     }

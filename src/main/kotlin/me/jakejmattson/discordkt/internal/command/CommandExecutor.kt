@@ -33,10 +33,10 @@ internal fun parseInputToBundle(command: Command, actualArgs: List<String>, even
     else
         initialConversion as ConversionResult.Error
 
-    val error = initialConversion.error
+    val error = ParseResult.Error(initialConversion.error)
 
     if (!command.isFlexible || expected.size < 2)
-        return ParseResult.Error(error)
+        return error
 
     val successList = expected
         .toMutableList()
@@ -47,7 +47,7 @@ internal fun parseInputToBundle(command: Command, actualArgs: List<String>, even
         .map { (argumentTypes, results) -> argumentTypes.zip(results) }
 
     val success = when (successList.size) {
-        0 -> return ParseResult.Error(error)
+        0 -> return error
         1 -> successList.first()
         else -> {
             InternalLogger.error(
@@ -58,7 +58,7 @@ internal fun parseInputToBundle(command: Command, actualArgs: List<String>, even
                 """.trimIndent()
             )
 
-            return ParseResult.Error(error)
+            return error
         }
     }
 
