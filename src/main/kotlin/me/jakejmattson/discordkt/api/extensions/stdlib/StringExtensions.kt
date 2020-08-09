@@ -37,23 +37,36 @@ fun String.isBooleanValue() =
 /**
  * Sanitize all mentions and replace them with their resolved discord names.
  */
-fun String.sanitiseMentions(discord: Discord) = this
-    .split(" ")
-    .filter { it.startsWith("<") && it.endsWith(">") }
-    .map { mention ->
-        val id = mention.trimToID()
-        val jda = discord.jda
+fun String.sanitiseMentions(discord: Discord): String {
+    val userRegex = "<@!?(\\d+)>".toRegex()
+    val roleRegex = "<@&(\\d+)>".toRegex()
 
-        val sanitized = when (mention[1]) {
-            '@' -> jda.retrieveUserById(id).complete()?.fullName()
-            '&' -> jda.getRoleById(id)?.name
-            else -> mention
-        } ?: id
+    val mentionMap = userRegex.findAll(this).map {
+        val mention = it.value
 
-        mention to sanitized
-    }.foldRight(this) { mentionMap: Pair<String, String>, result: String ->
-        result.replace(mentionMap.first, mentionMap.second)
+        val resolvedName = discord.retrieveEntity { jda ->
+            jda.retrieveUserById(mention.trimToID()).complete()?.fullName()
+        } ?: mention
+
+        mention to resolvedName
+    } + roleRegex.findAll(this).map {
+        val mention = it.value
+
+        val resolvedName = discord.retrieveEntity { jda ->
+            jda.getRoleById(mention.trimToID())?.name
+        } ?: mention
+
+        mention to resolvedName
     }
+
+    return replaceMap(mentionMap.toList())
+}
+
+fun String.replaceMap(replacements: List<Pair<String, String>>): String {
+    var result = this
+    replacements.forEach { (l, r) -> result = result.replace(l, r) }
+    return result
+}
 
 /**
  * Trim any type of mention into an ID.
