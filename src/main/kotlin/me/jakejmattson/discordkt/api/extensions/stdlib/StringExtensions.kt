@@ -40,31 +40,35 @@ fun String.isBooleanValue() =
 fun String.sanitiseMentions(discord: Discord): String {
     val userRegex = "<@!?(\\d+)>".toRegex()
     val roleRegex = "<@&(\\d+)>".toRegex()
-    val hereRegex = "@*here".toRegex()
-    val everyone = "@*everyone".toRegex()
+    val hereRegex = "@+here".toRegex()
+    val everyone = "@+everyone".toRegex()
 
-    val mentionMap = everyone.findAll(this).map { it.value to "everyone" } +
-            hereRegex.findAll(this).map { it.value to "here" } +
-            userRegex.findAll(this).map {
-                val mention = it.value
+    val mentionMap = userRegex.findAll(this).map {
+        val mention = it.value
 
-                val resolvedName = discord.retrieveEntity { jda ->
-                    jda.retrieveUserById(mention.trimToID()).complete()?.fullName()
-                } ?: mention
+        val resolvedName = discord.retrieveEntity { jda ->
+            jda.retrieveUserById(mention.trimToID()).complete()?.fullName()
+        } ?: mention
 
-                mention to resolvedName
-            } +
-            roleRegex.findAll(this).map {
-                val mention = it.value
+        mention to resolvedName
+    } + roleRegex.findAll(this).map {
+        val mention = it.value
 
-                val resolvedName = discord.retrieveEntity { jda ->
-                    jda.getRoleById(mention.trimToID())?.name
-                } ?: mention
+        val resolvedName = discord.retrieveEntity { jda ->
+            jda.getRoleById(mention.trimToID())?.name
+        } ?: mention
 
-                mention to resolvedName
-            }
+        mention to resolvedName
+    } + hereRegex.findAll(this).map { it.value to "here" }
 
-    return replaceMap(mentionMap.toList())
+    val newString = replaceMap(mentionMap.toList())
+
+    val everyoneMap = everyone
+            .findAll(newString)
+            .map { it.value to "everyone" }
+            .toList()
+
+    return newString.replaceMap(everyoneMap)
 }
 
 /**
