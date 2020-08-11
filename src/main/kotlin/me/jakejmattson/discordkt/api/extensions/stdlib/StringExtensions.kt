@@ -40,10 +40,8 @@ fun String.isBooleanValue() =
 fun String.sanitiseMentions(discord: Discord): String {
     val userRegex = "<@!?(\\d+)>".toRegex()
     val roleRegex = "<@&(\\d+)>".toRegex()
-    val hereRegex = "@+here".toRegex()
-    val everyone = "@+everyone".toRegex()
 
-    val mentionMap = userRegex.findAll(this).map {
+    val userMentions = userRegex.findAll(this).map {
         val mention = it.value
 
         val resolvedName = discord.retrieveEntity { jda ->
@@ -51,7 +49,9 @@ fun String.sanitiseMentions(discord: Discord): String {
         } ?: mention
 
         mention to resolvedName
-    } + roleRegex.findAll(this).map {
+    }.toList()
+
+    val roleMentions = roleRegex.findAll(this).map {
         val mention = it.value
 
         val resolvedName = discord.retrieveEntity { jda ->
@@ -59,26 +59,35 @@ fun String.sanitiseMentions(discord: Discord): String {
         } ?: mention
 
         mention to resolvedName
-    } + hereRegex.findAll(this).map { it.value to "here" }
+    }.toList()
 
-    val newString = replaceMap(mentionMap.toList())
-
-    val everyoneMap = everyone
-            .findAll(newString)
-            .map { it.value to "everyone" }
-            .toList()
-
-    return newString.replaceMap(everyoneMap)
+    return replaceAll(roleMentions)
+            .replaceAll(userMentions)
+            .replaceHereMentions()
+            .replaceEveryoneMentions()
+            .replaceHereMentions()
 }
 
 /**
  * Trim any type of mention into an ID.
  */
 fun String.trimToID() = takeUnless { startsWith("<") && endsWith(">") }
-        ?: replaceMap(listOf("<", ">", "@", "!", "&", "#").zip(listOf("", "", "", "", "", "")))
+        ?: replaceAll(listOf("<", ">", "@", "!", "&", "#").zip(listOf("", "", "", "", "", "")))
 
-private fun String.replaceMap(replacements: List<Pair<String, String>>): String {
+private fun String.replaceAll(replacements: List<Pair<String, String>>): String {
     var result = this
     replacements.forEach { (l, r) -> result = result.replace(l, r) }
     return result
+}
+
+private fun String.replaceHereMentions(): String {
+    val regex = "@+here".toRegex()
+    val mentions = regex.findAll(this).map { it.value to "here" }.toList()
+    return replaceAll(mentions)
+}
+
+private fun String.replaceEveryoneMentions(): String {
+    val regex = "@+everyone".toRegex()
+    val mentions = regex.findAll(this).map { it.value to "everyone" }.toList()
+    return replaceAll(mentions)
 }
