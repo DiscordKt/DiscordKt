@@ -23,7 +23,6 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(Dependencies.coroutines)
     implementation(Dependencies.reflections)
-    implementation(Dependencies.commons)
     implementation(Dependencies.slf4j)
 
     //Library Dependencies
