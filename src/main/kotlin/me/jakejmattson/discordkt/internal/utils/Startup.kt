@@ -155,9 +155,10 @@ class Bot(private val token: String, private val globalPath: String) {
                 if (file.exists()) {
                     readFromFile()
                 } else {
+                    writeToFile()
+
                     if (killIfGenerated) {
                         InternalLogger.error("Please fill in the following file before re-running: ${file.absolutePath}")
-                        writeToFile()
                         exitProcess(-1)
                     }
 
