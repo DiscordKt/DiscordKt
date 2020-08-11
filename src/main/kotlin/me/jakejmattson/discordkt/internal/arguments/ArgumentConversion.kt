@@ -3,19 +3,26 @@ package me.jakejmattson.discordkt.internal.arguments
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
 
-internal sealed class ConversionResult {
-    data class Success(val results: List<Any>) : ConversionResult()
-    data class Error(val error: String) : ConversionResult()
-}
+internal sealed class ConversionResult
+internal data class ConversionSuccess(val results: List<Any>) : ConversionResult()
+internal data class ConversionError(val error: String) : ConversionResult()
 
-internal data class DataMap<T>(val argument: ArgumentType<Any>, val value: T)
+internal sealed class DataMap(val argument: ArgumentType<Any>)
+internal data class SuccessData<T>(private val arg: ArgumentType<Any>, val value: T) : DataMap(arg)
+internal data class ErrorData(private val arg: ArgumentType<Any>, val error: String) : DataMap(arg)
 
-private fun formatDataMap(data: List<DataMap<*>>): String {
-    val length = data.map { it.argument.name.length }.max() ?: 0
+private fun formatDataMap(successData: List<DataMap>): String {
+    val length = successData.map { it.argument.name.length }.max() ?: 0
 
-    return data.joinToString("\n") {
+    return successData.joinToString("\n") {
         val arg = it.argument
-        "%-${length}s = %s".format(arg.name, arg.formatData(it.value!!))
+
+        val value = when (it) {
+            is SuccessData<*> -> arg.formatData(it.value!!)
+            is ErrorData -> it.error
+        }
+
+        "%-${length}s = %s".format(arg.name, value)
     }
 }
 
@@ -25,12 +32,10 @@ internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<
 
     val conversionData = expected.map { expectedArg ->
         if (hasFatalError)
-            return@map DataMap(expectedArg, "")
+            return@map ErrorData(expectedArg, "")
 
-        val conversionResult = if (remainingArgs.isNotEmpty())
-            expectedArg.convert(remainingArgs.first(), remainingArgs, event)
-        else
-            expectedArg.convert("", emptyList(), event)
+        val firstArg = remainingArgs.firstOrNull() ?: ""
+        val conversionResult = expectedArg.convert(firstArg, remainingArgs, event)
 
         when (conversionResult) {
             is Success -> {
@@ -40,14 +45,14 @@ internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<
                 if (remainingArgs.isNotEmpty())
                     remainingArgs.slice(0 until conversionResult.consumed).forEach { remainingArgs.remove(it) }
 
-                DataMap(expectedArg, conversionResult.result)
+                SuccessData(expectedArg, conversionResult.result)
             }
             is Error -> {
                 if (expectedArg.isOptional)
-                    DataMap(expectedArg, expectedArg.defaultValue?.invoke(event))
+                    SuccessData(expectedArg, expectedArg.defaultValue.invoke(event))
                 else {
                     hasFatalError = true
-                    DataMap(expectedArg, if (remainingArgs.isNotEmpty()) "<${conversionResult.error}>" else "<Missing>")
+                    ErrorData(expectedArg, if (remainingArgs.isNotEmpty()) "<${conversionResult.error}>" else "<Missing>")
                 }
             }
         }
@@ -60,9 +65,7 @@ internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<
         } else ""
 
     if (hasFatalError)
-        return ConversionResult.Error("```$error```")
+        return ConversionError("```$error```")
 
-    val data = conversionData.map { it.value } as List<Any>
-
-    return ConversionResult.Success(data)
+    return ConversionSuccess(conversionData.map { (it as SuccessData<*>).value!! })
 }

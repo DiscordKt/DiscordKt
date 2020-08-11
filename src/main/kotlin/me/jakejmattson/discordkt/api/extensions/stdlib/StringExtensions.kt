@@ -6,8 +6,8 @@ import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.extensions.jda.fullName
 
 private val urlRegexes = listOf(
-        "[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)",
-        "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)"
+    "[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)",
+    "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)"
 ).map { it.toRegex() }
 
 private val inviteRegex = "(\n|.)*((discord|discordapp).(gg|me|io|com/invite)/)(\n|.)*".toRegex()
@@ -26,13 +26,13 @@ fun String.containsInvite() = inviteRegex.matches(this)
  * Whether or not this string is a valid boolean value (true/false/t/f).
  */
 fun String.isBooleanValue() =
-        when (this.toLowerCase()) {
-            "true" -> true
-            "false" -> true
-            "t" -> true
-            "f" -> true
-            else -> false
-        }
+    when (this.toLowerCase()) {
+        "true" -> true
+        "false" -> true
+        "t" -> true
+        "f" -> true
+        else -> false
+    }
 
 /**
  * Sanitize all mentions and replace them with their resolved discord names.
@@ -62,17 +62,17 @@ fun String.sanitiseMentions(discord: Discord): String {
     }.toList()
 
     return replaceAll(roleMentions)
-            .replaceAll(userMentions)
-            .replaceHereMentions()
-            .replaceEveryoneMentions()
-            .replaceHereMentions()
+        .replaceAll(userMentions)
+        .replaceHereMentions()
+        .replaceEveryoneMentions()
+        .replaceHereMentions()
 }
 
 /**
  * Trim any type of mention into an ID.
  */
 fun String.trimToID() = takeUnless { startsWith("<") && endsWith(">") }
-        ?: replaceAll(listOf("<", ">", "@", "!", "&", "#").zip(listOf("", "", "", "", "", "")))
+    ?: replaceAll(listOf("<", ">", "@", "!", "&", "#").zip(listOf("", "", "", "", "", "")))
 
 private fun String.replaceAll(replacements: List<Pair<String, String>>): String {
     var result = this

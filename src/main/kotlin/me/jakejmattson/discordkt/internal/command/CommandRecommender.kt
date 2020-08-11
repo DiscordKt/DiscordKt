@@ -9,10 +9,10 @@ internal object CommandRecommender {
     // only commands that satisfy the predicate will be considered for recommendation
     private fun recommendCommand(input: String, predicate: (Command) -> Boolean): String? {
         val (closestMatch, distance) = possibilities
-                .filter(predicate)
-                .flatMap { it.names }
-                .map { it to calculateLevenshteinDistance(input, it) }
-                .minBy { it.second }!!
+            .filter(predicate)
+            .flatMap { it.names }
+            .map { it to calculateLevenshteinDistance(input, it) }
+            .minBy { it.second }!!
 
         return closestMatch.takeUnless { distance > input.length / 2 + 2 }
     }
