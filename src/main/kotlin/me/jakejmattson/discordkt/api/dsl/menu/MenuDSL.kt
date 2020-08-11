@@ -60,22 +60,18 @@ data class Menu(val pages: MutableList<MessageEmbed>,
         if (pages.isEmpty())
             return InternalLogger.error("A menu must have at least one page.")
 
-        val firstPage = pages.first()
+        channel.sendMessage(pages.first()).queue { message ->
+            val multiPage = pages.size != 1
 
-        if (pages.size == 1) {
-            channel.sendMessage(firstPage).queue()
-            return
-        }
-
-        channel.sendMessage(firstPage).queue { message ->
-            message.addReaction(leftReact).queue()
-            message.addReaction(rightReact).queue()
-
-            customReactions.keys.forEach {
-                message.addReaction(it).queue()
+            if (multiPage) {
+                message.addReaction(leftReact).queue()
+                message.addReaction(rightReact).queue()
             }
 
-            channel.jda.addEventListener(ReactionListener(message, this))
+            customReactions.keys.forEach { message.addReaction(it).queue() }
+
+            if (multiPage || customReactions.isNotEmpty())
+                channel.jda.addEventListener(ReactionListener(message, this))
         }
     }
 }
