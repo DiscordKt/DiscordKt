@@ -35,4 +35,10 @@ fun User.sendPrivateMessage(msg: MessageEmbed) =
  */
 fun User.fullName() = "$name#$discriminator"
 
+/**
+ * A Discord profile link for this user.
+ */
+val User.profileLink
+    get() = "https://discordapp.com/users/$id/"
+
 private fun notifyDirectMessageError(user: String) = InternalLogger.error("Failed to send private message to $user")
