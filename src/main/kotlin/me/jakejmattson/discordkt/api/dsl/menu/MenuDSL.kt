@@ -103,19 +103,23 @@ private class ReactionListener(message: Message, private val menu: Menu) : Event
 
         when (reactionString) {
             menu.leftReact -> {
-                if (index != 0) {
+                if (index != 0)
                     index--
-                    editEmbed()
-                    return
-                }
+                else
+                    index = menu.pages.lastIndex
+
+                editEmbed()
+                return
             }
 
             menu.rightReact -> {
-                if (index != menu.pages.lastIndex) {
+                if (index != menu.pages.lastIndex)
                     index++
-                    editEmbed()
-                    return
-                }
+                else
+                    index = 0
+
+                editEmbed()
+                return
             }
         }
 
