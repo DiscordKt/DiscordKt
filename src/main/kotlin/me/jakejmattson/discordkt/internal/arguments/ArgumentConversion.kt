@@ -4,7 +4,7 @@ import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
 
 internal sealed class ConversionResult
-internal data class ConversionSuccess(val results: List<Any>) : ConversionResult()
+internal data class ConversionSuccess(val results: List<Any?>) : ConversionResult()
 internal data class ConversionError(val error: String) : ConversionResult()
 
 internal sealed class DataMap(val argument: ArgumentType<Any>)
@@ -18,7 +18,7 @@ private fun formatDataMap(successData: List<DataMap>): String {
         val arg = it.argument
 
         val value = when (it) {
-            is SuccessData<*> -> arg.formatData(it.value!!)
+            is SuccessData<*> -> it.value?.let { arg.formatData(it) }
             is ErrorData -> it.error
         }
 
@@ -67,5 +67,5 @@ internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<
     if (hasFatalError)
         return ConversionError("```$error```")
 
-    return ConversionSuccess(conversionData.map { (it as SuccessData<*>).value!! })
+    return ConversionSuccess(conversionData.filterIsInstance<SuccessData<*>>().map { it.value })
 }
