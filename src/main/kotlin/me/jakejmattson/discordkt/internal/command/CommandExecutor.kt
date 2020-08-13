@@ -28,26 +28,24 @@ internal fun parseInputToBundle(command: Command, actualArgs: List<String>, even
     val expected = command.arguments
     val initialConversion = convertArguments(actualArgs, expected as List<ArgumentType<Any>>, event)
 
-    if (initialConversion is ConversionResult.Success)
-        return ParseResult.Success(bundleToArgContainer(initialConversion.results))
-    else
-        initialConversion as ConversionResult.Error
-
-    val error = initialConversion.error
+    val error = when (initialConversion) {
+        is ConversionSuccess -> return ParseResult.Success(bundleToArgContainer(initialConversion.results))
+        is ConversionError -> ParseResult.Error(initialConversion.error)
+    }
 
     if (!command.isFlexible || expected.size < 2)
-        return ParseResult.Error(error)
+        return error
 
     val successList = expected
         .toMutableList()
         .generateAllPermutations()
         .map { it to convertArguments(actualArgs, it, event) }
-        .filter { it.second is ConversionResult.Success }
-        .map { it.first to (it.second as ConversionResult.Success).results }
+        .filter { it.second is ConversionSuccess }
+        .map { it.first to (it.second as ConversionSuccess).results }
         .map { (argumentTypes, results) -> argumentTypes.zip(results) }
 
     val success = when (successList.size) {
-        0 -> return ParseResult.Error(error)
+        0 -> return error
         1 -> successList.first()
         else -> {
             InternalLogger.error(
@@ -58,15 +56,11 @@ internal fun parseInputToBundle(command: Command, actualArgs: List<String>, even
                 """.trimIndent()
             )
 
-            return ParseResult.Error(error)
+            return error
         }
     }
 
-    val orderedResult = expected.map { sortKey ->
-        success.first {
-            it.first == sortKey
-        }.second
-    }
+    val orderedResult = expected.map { sortKey -> success.first { it.first == sortKey }.second }
 
     return ParseResult.Success(bundleToArgContainer(orderedResult))
 }

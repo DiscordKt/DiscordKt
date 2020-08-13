@@ -12,9 +12,8 @@ object Versions {
     const val reflections = "0.9.12"
     const val gson = "2.8.6"
     const val guava = "29.0-jre"
-    const val commons = "1.9"
-    const val slf4j = "2.0.0-alpha1"
-    const val jda = "4.2.0_183"
+    const val slf4j = "1.7.30"
+    const val jda = "4.2.0_189"
 
     //Test Dependencies
     const val mockk = "1.10.0"
@@ -25,7 +24,6 @@ object Dependencies {
     //Internal Dependencies
     const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     const val reflections = "org.reflections:reflections:${Versions.reflections}"
-    const val commons = "org.apache.commons:commons-text:${Versions.commons}"
     const val slf4j = "org.slf4j:slf4j-nop:${Versions.slf4j}"
 
     //Library Dependencies

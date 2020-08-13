@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "me.jakejmattson"
-version = "0.19.0"
+version = "0.19.1"
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
@@ -23,7 +23,6 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(Dependencies.coroutines)
     implementation(Dependencies.reflections)
-    implementation(Dependencies.commons)
     implementation(Dependencies.slf4j)
 
     //Library Dependencies

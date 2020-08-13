@@ -37,7 +37,7 @@ abstract class ArgumentType<T> : Cloneable {
     var isOptional: Boolean = false
         private set
 
-    internal var defaultValue: ((CommandEvent<*>) -> T)? = null
+    internal lateinit var defaultValue: ((CommandEvent<*>) -> T)
         private set
 
     private fun <T> cloneToOptional() = (clone() as ArgumentType<T>).apply { isOptional = true }

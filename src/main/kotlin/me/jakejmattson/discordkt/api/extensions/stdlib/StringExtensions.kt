@@ -2,8 +2,8 @@
 
 package me.jakejmattson.discordkt.api.extensions.stdlib
 
+import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.extensions.jda.fullName
-import net.dv8tion.jda.api.JDA
 
 private val urlRegexes = listOf(
     "[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)",
@@ -11,6 +11,10 @@ private val urlRegexes = listOf(
 ).map { it.toRegex() }
 
 private val inviteRegex = "(\n|.)*((discord|discordapp).(gg|me|io|com/invite)/)(\n|.)*".toRegex()
+private val roleRegex = "<@&(\\d+)>".toRegex()
+private val userRegex = "<@!?(\\d+)>".toRegex()
+private val hereRegex = "@+here".toRegex()
+private val everyoneRegex = "@+everyone".toRegex()
 
 /**
  * Whether ot not this string matches a URL regex.
@@ -26,7 +30,7 @@ fun String.containsInvite() = inviteRegex.matches(this)
  * Whether or not this string is a valid boolean value (true/false/t/f).
  */
 fun String.isBooleanValue() =
-    when (this.toLowerCase()) {
+    when (toLowerCase()) {
         "true" -> true
         "false" -> true
         "t" -> true
@@ -37,34 +41,63 @@ fun String.isBooleanValue() =
 /**
  * Sanitize all mentions and replace them with their resolved discord names.
  */
-fun String.sanitiseMentions(jda: JDA) = this
-    .split(" ")
-    .filter { it.startsWith("<") && it.endsWith(">") }
-    .map { mention ->
-        val id = mention.trimToID()
-
-        val name = when (mention[1]) {
-            '@' -> jda.retrieveUserById(id).complete()?.fullName()
-            '#' -> jda.getGuildChannelById(id)?.name
-            '&' -> jda.getRoleById(id)?.name
-            else -> null
-        } ?: id
-
-        mention to name
-    }.foldRight(this) { mentionMap: Pair<String, String>, result: String ->
-        result.replace(mentionMap.first, mentionMap.second)
-    }
+fun String.sanitiseMentions(discord: Discord) = cleanseRoles(discord)
+    .cleanseUsers(discord)
+    .cleanseHere()
+    .cleanseEveryone()
+    .cleanseAll()
 
 /**
  * Trim any type of mention into an ID.
  */
-fun String.trimToID() =
-    if (startsWith("<") && endsWith(">"))
-        this.replace("<", "")
-            .replace(">", "")
-            .replace("@", "") // User mentions
-            .replace("!", "") // User mentions with nicknames
-            .replace("&", "") // Role mentions
-            .replace("#", "") // Channel mentions
-    else
-        this
+fun String.trimToID() = takeUnless { startsWith("<") && endsWith(">") }
+    ?: replaceAll(listOf("<", ">", "@", "!", "&", "#").zip(listOf("", "", "", "", "", "")))
+
+private fun String.replaceAll(replacements: List<Pair<String, String>>): String {
+    var result = this
+    replacements.forEach { (l, r) -> result = result.replace(l, r) }
+    return result
+}
+
+private fun String.cleanseRoles(discord: Discord): String {
+    val roleMentions = roleRegex.findAll(this).map {
+        val mention = it.value
+
+        val resolvedName = discord.retrieveEntity { jda ->
+            jda.getRoleById(mention.trimToID())?.name
+        } ?: mention
+
+        mention to resolvedName
+    }.toList()
+
+    return replaceAll(roleMentions)
+}
+
+private fun String.cleanseUsers(discord: Discord): String {
+    val userMentions = userRegex.findAll(this).map {
+        val mention = it.value
+
+        val resolvedName = discord.retrieveEntity { jda ->
+            jda.retrieveUserById(mention.trimToID()).complete()?.fullName()
+        } ?: mention
+
+        mention to resolvedName
+    }.toList()
+
+    return replaceAll(userMentions)
+}
+
+private fun String.cleanseHere(): String {
+    val mentions = hereRegex.findAll(this).map { it.value to "here" }.toList()
+    return replaceAll(mentions)
+}
+
+private fun String.cleanseEveryone(): String {
+    val mentions = everyoneRegex.findAll(this).map { it.value to "everyone" }.toList()
+    return replaceAll(mentions)
+}
+
+private fun String.cleanseAll(): String {
+    val remaining = everyoneRegex.findAll(this).count() + hereRegex.findAll(this).count()
+    return takeUnless { remaining != 0 } ?: replace("@", "")
+}

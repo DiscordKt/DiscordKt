@@ -6,11 +6,11 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.annotations.BuilderDSL
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.*
 import me.jakejmattson.discordkt.api.dsl.embed.*
 import me.jakejmattson.discordkt.api.services.ConversationResult
+import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.utils.Responder
 import net.dv8tion.jda.api.entities.*
 
@@ -18,7 +18,7 @@ private class ExitException : Exception("Conversation exited early.")
 private class DmException : Exception("Message failed to deliver.")
 
 /** @suppress DSL backing */
-data class ConversationStateContainer(val discord: Discord,
+data class ConversationStateContainer(override val discord: Discord,
                                       val user: User,
                                       override val channel: MessageChannel,
                                       var exitString: String? = null) : Responder {

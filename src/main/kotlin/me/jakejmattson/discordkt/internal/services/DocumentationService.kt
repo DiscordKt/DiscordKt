@@ -1,64 +1,71 @@
 package me.jakejmattson.discordkt.internal.services
 
+import me.jakejmattson.discordkt.api.arguments.MultipleArg
 import me.jakejmattson.discordkt.api.dsl.command.*
 import java.io.File
 
 internal fun createDocumentation(container: CommandsContainer) {
-    data class CategoryDocs(val name: String, val docString: String)
+    val commands = container.commands.takeUnless { it.isEmpty() } ?: return
 
-    data class CommandData(val name: String, val args: String, val description: String) {
-        fun format(format: String) = String.format(format, name, args, description)
+    data class CommandData(val name: String, val args: String, val desc: String) {
+        fun format(format: String) = String.format(format, name, args, desc)
     }
 
+    fun String.sanitizePipe() = replace("|", "\\|")
+    fun List<CommandData>.maxLength(header: String, field: (CommandData) -> String) = (map { field.invoke(it).length } + header.length).max()!!
+
     fun extractCommandData(command: Command): CommandData {
+        val nameString = (if (command.isFlexible) "*" else "") + command.names.joinToString().sanitizePipe()
+
         val expectedArgs = command.arguments.joinToString {
             if (it.isOptional) "(${it.name})" else it.name
         }.takeIf { it.isNotEmpty() } ?: ""
 
-        return CommandData(command.names.joinToString().replace("|", "\\|"),
-            expectedArgs.replace("|", "\\|"),
-            command.description.replace("|", "\\|"))
+        return CommandData(nameString, expectedArgs.sanitizePipe(), command.description.sanitizePipe())
     }
 
-    fun formatDocs(commandData: MutableList<CommandData>): String {
-        val headerData = CommandData("Commands", "Arguments", "Description")
+    fun formatDocs(commandData: List<CommandData>): String {
+        val header = CommandData("Commands", "Arguments", "Description")
+        val longestName = commandData.maxLength(header.name) { it.name }
+        val longestArgs = commandData.maxLength(header.args) { it.args }
+        val longestDesc = commandData.maxLength(header.desc) { it.desc }
+        val formatString = "| %-${longestName}s | %-${longestArgs}s | %-${longestDesc}s |"
 
-        commandData.add(headerData)
-        val longestName = commandData.map { it.name.length }.max() ?: 0
-        val longestArgs = commandData.map { it.args.length }.max() ?: 0
-        val longestDescription = commandData.map { it.description.length }.max() ?: 0
-        commandData.remove(headerData)
-
-        val formatString = "| %-${longestName}s | %-${longestArgs}s | %-${longestDescription}s |"
-        val headerString = headerData.format(formatString)
-        val separator = formatString.format("-".repeat(longestName), "-".repeat(longestArgs), "-".repeat(longestDescription))
+        val headerString = header.format(formatString)
+        val separator = formatString.format("-".repeat(longestName), "-".repeat(longestArgs), "-".repeat(longestDesc))
         val commandString = commandData.sortedBy { it.name }.joinToString("\n") { it.format(formatString) }
 
         return "$headerString\n$separator\n$commandString\n"
     }
 
-    fun generateCategoryDoc(name: String, commands: List<Command>): CategoryDocs {
-        val commandData = commands.map { extractCommandData(it) }
-        val docs = formatDocs(commandData.toMutableList())
+    val keyString = buildString {
+        with(commands) {
+            if (any { it.arguments.any { it.isOptional } })
+                appendln("| (Argument)  | Argument is not required.      |")
 
-        return CategoryDocs(name, docs)
+            if (any { it.arguments.any { it is MultipleArg<*> } })
+                appendln("| Argument... | Accepts many of this argument. |")
+
+            if (any { it.isFlexible })
+                appendln("| *Command    | Argument can be in any order.  |")
+        }
     }
 
-    fun outputDocs(rawDocs: List<CategoryDocs>) {
-        val docString = "# Commands\n\n" +
-            "## Key\n" +
-            "| Symbol     | Meaning                    |\n" +
-            "| ---------- | -------------------------- |\n" +
-            "| (Argument) | This argument is optional. |\n\n" +
-            rawDocs.joinToString("") { "## ${it.name}\n${it.docString}\n" }
+    val key =
+        if (keyString.isNotBlank())
+            """
+                ## Key 
+                | Symbol      | Meaning                        |
+                | ----------- | ------------------------------ |
+            """.trimIndent() + "\n$keyString\n"
+        else
+            ""
 
-        File("commands.md").writeText(docString)
-    }
-
-    val docs = container.commands
+    val docs = commands
         .groupBy { it.category }
-        .map { generateCategoryDoc(it.key, it.value) }
-        .sortedBy { it.name }
+        .map { it.key to formatDocs(it.value.map { extractCommandData(it) }) }
+        .sortedBy { it.first }
+        .joinToString("") { "## ${it.first}\n${it.second}\n" }
 
-    outputDocs(docs)
+    File("commands.md").writeText("# Commands\n\n$key$docs")
 }

@@ -2,13 +2,14 @@ package me.jakejmattson.discordkt.internal.utils
 
 import com.google.common.eventbus.EventBus
 import me.jakejmattson.discordkt.api.*
-import me.jakejmattson.discordkt.api.annotations.*
+import me.jakejmattson.discordkt.api.annotations.Service
 import me.jakejmattson.discordkt.api.dsl.command.CommandsContainer
 import me.jakejmattson.discordkt.api.dsl.configuration.*
 import me.jakejmattson.discordkt.api.dsl.data.Data
 import me.jakejmattson.discordkt.api.dsl.preconditions.Precondition
 import me.jakejmattson.discordkt.api.extensions.stdlib.pluralize
 import me.jakejmattson.discordkt.api.services.ConversationService
+import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.command.CommandRecommender
 import me.jakejmattson.discordkt.internal.listeners.*
 import me.jakejmattson.discordkt.internal.services.*
@@ -41,8 +42,8 @@ class Bot(private val token: String, private val globalPath: String) {
         diService.inject(discord)
 
         InternalLogger.shouldLogStartup = loggingConfiguration.showStartupLog
-        InternalLogger.startup("--------------- DiscordKt ${discord.properties.libraryVersion} ---------------")
-        InternalLogger.startup("GlobalPath: $globalPath")
+        val header = "------- DiscordKt ${discord.properties.libraryVersion} -------"
+        InternalLogger.startup(header)
 
         val data = registerData()
         val conversationService = ConversationService(discord).apply { diService.inject(this) }
@@ -68,7 +69,7 @@ class Bot(private val token: String, private val globalPath: String) {
         Validator.validateCommandMeta(container)
         Validator.validateReaction(botConfiguration)
 
-        InternalLogger.startup("----------------------------------------------")
+        InternalLogger.startup("-".repeat(header.length))
     }
 
     internal fun buildBot() {
@@ -154,9 +155,10 @@ class Bot(private val token: String, private val globalPath: String) {
                 if (file.exists()) {
                     readFromFile()
                 } else {
+                    writeToFile()
+
                     if (killIfGenerated) {
                         InternalLogger.error("Please fill in the following file before re-running: ${file.absolutePath}")
-                        writeToFile()
                         exitProcess(-1)
                     }
 

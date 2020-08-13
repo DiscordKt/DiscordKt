@@ -31,10 +31,19 @@ private val propFile = Properties::class.java.getResource("/library-properties.j
  * @property properties Properties for the core library.
  */
 abstract class Discord {
-    @Deprecated("I'm gonna remove this I swear.")
+    @Deprecated("Almost gone.")
     abstract val jda: JDA
     abstract val configuration: BotConfiguration
     val properties = Gson().fromJson(propFile, Properties::class.java)!!
+
+    /**
+     * Retrieve a Discord entity from a snowflake ID.
+     */
+    fun <T> retrieveEntity(action: (JDA) -> T?) = try {
+        action(jda)
+    } catch (e: RuntimeException) {
+        null
+    }
 
     /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any> getInjectionObjects(a: KClass<A>) = diService[A::class]

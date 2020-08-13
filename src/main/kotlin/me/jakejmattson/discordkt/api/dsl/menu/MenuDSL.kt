@@ -2,8 +2,8 @@
 
 package me.jakejmattson.discordkt.api.dsl.menu
 
-import me.jakejmattson.discordkt.api.annotations.BuilderDSL
 import me.jakejmattson.discordkt.api.dsl.embed.*
+import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.utils.*
 import net.dv8tion.jda.api.entities.*
 import net.dv8tion.jda.api.events.GenericEvent
@@ -17,8 +17,8 @@ import net.dv8tion.jda.api.hooks.EventListener
  * @property rightReact Reaction used to move to the next page.
  */
 class MenuDSL {
-    private var embeds = mutableListOf<MessageEmbed>()
-    private var reactions = hashMapOf<String, ReactionAction>()
+    private val pages = mutableListOf<MessageEmbed>()
+    private val reactions = mutableMapOf<String, ReactionAction>()
     var leftReact: String = "⬅"
     var rightReact: String = "➡"
 
@@ -28,7 +28,7 @@ class MenuDSL {
     fun page(construct: EmbedDSL.() -> Unit) {
         val handle = EmbedDSL()
         handle.construct()
-        embeds.add(handle.build())
+        pages.add(handle.build())
     }
 
     /**
@@ -38,7 +38,7 @@ class MenuDSL {
         reactions[reaction] = action
     }
 
-    internal fun build() = Menu(embeds, leftReact, rightReact, reactions)
+    internal fun build() = Menu(pages, reactions, leftReact, rightReact)
 }
 
 /**
@@ -50,9 +50,9 @@ class MenuDSL {
  * @property customReactions All custom reactions and their actions.
  */
 data class Menu(val pages: MutableList<MessageEmbed>,
+                val customReactions: Map<String, ReactionAction>,
                 val leftReact: String,
-                val rightReact: String,
-                val customReactions: Map<String, ReactionAction>) {
+                val rightReact: String) {
     internal fun build(channel: MessageChannel) {
         if (channel is PrivateChannel)
             return InternalLogger.error("Cannot use menus within a private context.")
@@ -60,22 +60,18 @@ data class Menu(val pages: MutableList<MessageEmbed>,
         if (pages.isEmpty())
             return InternalLogger.error("A menu must have at least one page.")
 
-        val firstPage = pages.first()
+        channel.sendMessage(pages.first()).queue { message ->
+            val multiPage = pages.size != 1
 
-        if (pages.size == 1) {
-            channel.sendMessage(firstPage).queue()
-            return
-        }
-
-        channel.sendMessage(firstPage).queue { message ->
-            message.addReaction(leftReact).queue()
-            message.addReaction(rightReact).queue()
-
-            customReactions.keys.forEach {
-                message.addReaction(it).queue()
+            if (multiPage) {
+                message.addReaction(leftReact).queue()
+                message.addReaction(rightReact).queue()
             }
 
-            channel.jda.addEventListener(ReactionListener(message, this))
+            customReactions.keys.forEach { message.addReaction(it).queue() }
+
+            if (multiPage || customReactions.isNotEmpty())
+                channel.jda.addEventListener(ReactionListener(message, this))
         }
     }
 }
@@ -90,44 +86,45 @@ fun menu(construct: MenuDSL.() -> Unit): Menu {
 
 private class ReactionListener(message: Message, private val menu: Menu) : EventListener {
     private var index = 0
-    private val messageId = message.id
+    private val menuId = message.id
 
     override fun onEvent(event: GenericEvent) {
         if (event !is GuildMessageReactionAddEvent)
             return
 
-        if (event.member.user.isBot) return
-        if (event.messageId != messageId) return
+        val user = event.member.user.takeUnless { it.isBot } ?: return
+        if (event.messageId != menuId) return
 
-        event.reaction.removeReaction(event.member.user).queue()
+        event.reaction.removeReaction(user).queue()
 
         val reactionString = event.reaction.reactionEmote.emoji
 
-        fun editEmbed() = event.channel.editMessageById(event.messageId, menu.pages[index]).queue()
+        fun updateEmbed() = event.channel.editMessageById(event.messageId, menu.pages[index]).queue()
 
         when (reactionString) {
             menu.leftReact -> {
-                if (index != 0) {
+                if (index != 0)
                     index--
-                    editEmbed()
-                    return
-                }
+                else
+                    index = menu.pages.lastIndex
             }
 
             menu.rightReact -> {
-                if (index != menu.pages.lastIndex) {
+                if (index != menu.pages.lastIndex)
                     index++
-                    editEmbed()
-                    return
-                }
+                else
+                    index = 0
+            }
+
+            else -> {
+                val action = menu.customReactions[reactionString] ?: return
+                val exposedBuilder = menu.pages[index].toEmbedBuilder()
+
+                action.invoke(exposedBuilder)
+                menu.pages[index] = exposedBuilder.build()
             }
         }
 
-        val action = menu.customReactions[reactionString] ?: return
-        val exposedBuilder = menu.pages[index].toEmbedBuilder()
-
-        action.invoke(exposedBuilder)
-        menu.pages[index] = exposedBuilder.build()
-        editEmbed()
+        updateEmbed()
     }
 }

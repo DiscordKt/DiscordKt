@@ -29,7 +29,7 @@ data class RawInputs(
  * @property channel The MessageChannel this command was invoked in.
  * @property relevantPrefix The prefix used to invoke this command.
  */
-data class DiscordContext(val discord: Discord,
+data class DiscordContext(override val discord: Discord,
                           val message: Message,
                           val author: User = message.author,
                           val guild: Guild? = if (message.isFromGuild) message.guild else null,
@@ -55,7 +55,7 @@ data class DiscordContext(val discord: Discord,
 data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
                                               val container: CommandsContainer,
                                               private val discordContext: DiscordContext) : Responder {
-    val discord = discordContext.discord
+    override val discord = discordContext.discord
     val author = discordContext.author
     val message = discordContext.message
     override val channel = discordContext.channel

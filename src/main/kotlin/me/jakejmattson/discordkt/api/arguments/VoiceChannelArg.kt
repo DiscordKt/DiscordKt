@@ -2,7 +2,6 @@ package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.jda.tryRetrieveSnowflake
 import me.jakejmattson.discordkt.api.extensions.stdlib.trimToID
 import net.dv8tion.jda.api.entities.*
 
@@ -18,9 +17,9 @@ open class VoiceChannelArg(override val name: String = "Voice Channel", private 
     companion object : VoiceChannelArg()
 
     override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<VoiceChannel> {
-        val channel = event.discord.jda.tryRetrieveSnowflake {
+        val channel = event.discord.retrieveEntity {
             it.getVoiceChannelById(arg.trimToID())
-        } as VoiceChannel? ?: return Error("Not found")
+        } ?: return Error("Not found")
 
         if (!allowsGlobal && channel.guild.id != event.guild?.id)
             return Error("Must be from this guild")

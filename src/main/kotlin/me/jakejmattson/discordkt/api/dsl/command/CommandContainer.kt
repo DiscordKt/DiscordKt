@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.api.dsl.command
 
-import me.jakejmattson.discordkt.api.annotations.BuilderDSL
+import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 
 /**
  * Create a container where multiple commands can be created.

@@ -10,18 +10,18 @@ The best source for learning the framework is by joining the Discord, or checkin
 <dependency>
     <groupId>me.jakejmattson</groupId>
     <artifactId>DiscordKt</artifactId>
-    <version>0.19.0</version>
+    <version>0.19.1</version>
 </dependency>
 ```
 
 #### Gradle
 ```groovy
 dependencies {
-    implementation 'me.jakejmattson:DiscordKt:0.19.0'
+    implementation 'me.jakejmattson:DiscordKt:0.19.1'
 }
 ```
 ```kotlin
 dependencies {
-    implementation("me.jakejmattson:DiscordKt:0.19.0")
+    implementation("me.jakejmattson:DiscordKt:0.19.1")
 }
 ```
