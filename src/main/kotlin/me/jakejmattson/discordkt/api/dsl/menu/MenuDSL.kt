@@ -17,8 +17,8 @@ import net.dv8tion.jda.api.hooks.EventListener
  * @property rightReact Reaction used to move to the next page.
  */
 class MenuDSL {
-    private var embeds = mutableListOf<MessageEmbed>()
-    private var reactions = hashMapOf<String, ReactionAction>()
+    private val pages = mutableListOf<MessageEmbed>()
+    private val reactions = mutableMapOf<String, ReactionAction>()
     var leftReact: String = "⬅"
     var rightReact: String = "➡"
 
@@ -28,7 +28,7 @@ class MenuDSL {
     fun page(construct: EmbedDSL.() -> Unit) {
         val handle = EmbedDSL()
         handle.construct()
-        embeds.add(handle.build())
+        pages.add(handle.build())
     }
 
     /**
@@ -38,7 +38,7 @@ class MenuDSL {
         reactions[reaction] = action
     }
 
-    internal fun build() = Menu(embeds, leftReact, rightReact, reactions)
+    internal fun build() = Menu(pages, reactions, leftReact, rightReact)
 }
 
 /**
@@ -50,9 +50,9 @@ class MenuDSL {
  * @property customReactions All custom reactions and their actions.
  */
 data class Menu(val pages: MutableList<MessageEmbed>,
+                val customReactions: Map<String, ReactionAction>,
                 val leftReact: String,
-                val rightReact: String,
-                val customReactions: Map<String, ReactionAction>) {
+                val rightReact: String) {
     internal fun build(channel: MessageChannel) {
         if (channel is PrivateChannel)
             return InternalLogger.error("Cannot use menus within a private context.")
@@ -86,20 +86,20 @@ fun menu(construct: MenuDSL.() -> Unit): Menu {
 
 private class ReactionListener(message: Message, private val menu: Menu) : EventListener {
     private var index = 0
-    private val messageId = message.id
+    private val menuId = message.id
 
     override fun onEvent(event: GenericEvent) {
         if (event !is GuildMessageReactionAddEvent)
             return
 
-        if (event.member.user.isBot) return
-        if (event.messageId != messageId) return
+        val user = event.member.user.takeUnless { it.isBot } ?: return
+        if (event.messageId != menuId) return
 
-        event.reaction.removeReaction(event.member.user).queue()
+        event.reaction.removeReaction(user).queue()
 
         val reactionString = event.reaction.reactionEmote.emoji
 
-        fun editEmbed() = event.channel.editMessageById(event.messageId, menu.pages[index]).queue()
+        fun updateEmbed() = event.channel.editMessageById(event.messageId, menu.pages[index]).queue()
 
         when (reactionString) {
             menu.leftReact -> {
@@ -107,9 +107,6 @@ private class ReactionListener(message: Message, private val menu: Menu) : Event
                     index--
                 else
                     index = menu.pages.lastIndex
-
-                editEmbed()
-                return
             }
 
             menu.rightReact -> {
@@ -117,17 +114,17 @@ private class ReactionListener(message: Message, private val menu: Menu) : Event
                     index++
                 else
                     index = 0
+            }
 
-                editEmbed()
-                return
+            else -> {
+                val action = menu.customReactions[reactionString] ?: return
+                val exposedBuilder = menu.pages[index].toEmbedBuilder()
+
+                action.invoke(exposedBuilder)
+                menu.pages[index] = exposedBuilder.build()
             }
         }
 
-        val action = menu.customReactions[reactionString] ?: return
-        val exposedBuilder = menu.pages[index].toEmbedBuilder()
-
-        action.invoke(exposedBuilder)
-        menu.pages[index] = exposedBuilder.build()
-        editEmbed()
+        updateEmbed()
     }
 }
