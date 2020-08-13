@@ -13,7 +13,7 @@ object Versions {
     const val gson = "2.8.6"
     const val guava = "29.0-jre"
     const val slf4j = "1.7.30"
-    const val jda = "4.2.0_187"
+    const val jda = "4.2.0_189"
 
     //Test Dependencies
     const val mockk = "1.10.0"
