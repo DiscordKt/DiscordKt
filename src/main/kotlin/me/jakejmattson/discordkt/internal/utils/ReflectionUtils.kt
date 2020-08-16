@@ -1,6 +1,5 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import com.google.common.eventbus.Subscribe
 import me.jakejmattson.discordkt.api.annotations.CommandSet
 import me.jakejmattson.discordkt.api.dsl.command.CommandsContainer
 import me.jakejmattson.discordkt.api.extensions.stdlib.pluralize
@@ -29,11 +28,6 @@ internal object ReflectionUtils {
 
         return CommandsContainer(allCommands)
     }
-
-    fun detectListeners(path: String) = detectMethodsWith<Subscribe>(path)
-        .map { it.declaringClass }
-        .distinct()
-        .map { diService.invokeConstructor(it) }
 
     private inline fun <reified T : Annotation> Method.getAnnotation() = getAnnotation(T::class.java)
     inline fun <reified T : Annotation> detectClassesWith(path: String): Set<Class<*>> = Reflections(path).getTypesAnnotatedWith(T::class.java)

@@ -2,6 +2,7 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
+import kotlinx.coroutines.*
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.utils.Bot
 
@@ -15,7 +16,9 @@ import me.jakejmattson.discordkt.internal.utils.Bot
 fun bot(token: String, operate: Bot.() -> Unit) =
     Bot(token, detectGlobalPath(Exception())).apply {
         operate()
-        buildBot()
+        GlobalScope.launch {
+            buildBot()
+        }
     }
 
 private fun detectGlobalPath(exception: Exception): String {

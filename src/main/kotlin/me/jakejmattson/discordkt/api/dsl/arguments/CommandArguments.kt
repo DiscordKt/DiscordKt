@@ -78,7 +78,7 @@ abstract class ArgumentType<T> : Cloneable {
      * @param event The CommandEvent triggered by the execution of the command.
      * @return ArgumentResult subtype [Success] or [Error].
      */
-    abstract fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
+    abstract suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
 
     /**
      * A function called whenever an example of this type is needed.

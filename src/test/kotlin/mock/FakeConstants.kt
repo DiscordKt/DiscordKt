@@ -1,14 +1,15 @@
 package mock
 
+import com.gitlab.kordlib.common.entity.Snowflake
+
 class FakeIds {
     companion object {
-        const val Category = "1"
-        const val Message = "2"
-        const val Channel = "3"
-        const val Guild = "4"
-        const val Role = "5"
-        const val User = "6"
-        const val Bot = "7"
+        val Category = Snowflake("1")
+        val Message = Snowflake("2")
+        val Channel = Snowflake("3")
+        val Guild = Snowflake("4")
+        val Role = Snowflake("5")
+        val User = Snowflake("6")
 
         const val Nothing = "-1"
     }

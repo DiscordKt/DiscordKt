@@ -1,9 +1,9 @@
 package me.jakejmattson.discordkt.api.arguments
 
+import com.gitlab.kordlib.core.entity.channel.VoiceChannel
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.stdlib.trimToID
-import net.dv8tion.jda.api.entities.*
+import me.jakejmattson.discordkt.api.extensions.stdlib.trimToSnowflake
 
 /**
  * Accepts a Discord VoiceChannel entity as an ID or mention.
@@ -16,21 +16,15 @@ open class VoiceChannelArg(override val name: String = "Voice Channel", private 
      */
     companion object : VoiceChannelArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<VoiceChannel> {
-        val channel = event.discord.retrieveEntity {
-            it.getVoiceChannelById(arg.trimToID())
-        } ?: return Error("Not found")
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<VoiceChannel> {
+        val channel = event.discord.kord.getChannel(arg.trimToSnowflake()) as? VoiceChannel ?: return Error("Not found")
 
-        if (!allowsGlobal && channel.guild.id != event.guild?.id)
+        if (!allowsGlobal && channel.id != event.guild?.id)
             return Error("Must be from this guild")
 
         return Success(channel)
     }
 
-    override fun generateExamples(event: CommandEvent<*>): List<String> {
-        val channel = event.guild?.channels?.firstOrNull { it.type == ChannelType.VOICE } as? VoiceChannel
-        return listOf(channel?.id ?: "582168201979494421")
-    }
-
+    override fun generateExamples(event: CommandEvent<*>) = listOf("Voice Channel ID")
     override fun formatData(data: VoiceChannel) = data.name
 }

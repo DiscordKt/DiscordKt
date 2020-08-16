@@ -2,48 +2,34 @@
 
 package me.jakejmattson.discordkt.api
 
-import com.google.common.eventbus.EventBus
+import com.gitlab.kordlib.core.Kord
 import com.google.gson.Gson
 import me.jakejmattson.discordkt.api.dsl.command.*
 import me.jakejmattson.discordkt.api.dsl.configuration.BotConfiguration
 import me.jakejmattson.discordkt.internal.utils.diService
-import net.dv8tion.jda.api.*
-import net.dv8tion.jda.api.events.GenericEvent
-import net.dv8tion.jda.api.hooks.EventListener
 import kotlin.reflect.KClass
 
 /**
  * @param repository The repository URL for DiscordKt.
  * @param libraryVersion The current DiscordKt version.
  * @param kotlinVersion The version of Kotlin used by DiscordKt.
- * @param jdaVersion The version of JDA used by DiscordKt.
+ * @param kordVersion The version of Kord used by DiscordKt.
  */
 data class Properties(val repository: String,
                       val libraryVersion: String,
                       val kotlinVersion: String,
-                      val jdaVersion: String)
+                      val kordVersion: String)
 
 private val propFile = Properties::class.java.getResource("/library-properties.json").readText()
 
 /**
- * @property jda An instance of JDA that allows access to the Discord API.
  * @property configuration All of the current configuration details for this bot.
  * @property properties Properties for the core library.
  */
 abstract class Discord {
-    @Deprecated("Almost gone.")
-    abstract val jda: JDA
+    abstract val kord: Kord
     abstract val configuration: BotConfiguration
     val properties = Gson().fromJson(propFile, Properties::class.java)!!
-
-    /**
-     * Retrieve a Discord entity from a snowflake ID.
-     */
-    fun <T> retrieveEntity(action: (JDA) -> T?) = try {
-        action(jda)
-    } catch (e: RuntimeException) {
-        null
-    }
 
     /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any> getInjectionObjects(a: KClass<A>) = diService[A::class]
@@ -69,16 +55,8 @@ abstract class Discord {
         Args5(getInjectionObjects(a), getInjectionObjects(b), getInjectionObjects(c), getInjectionObjects(d), getInjectionObjects(e))
 }
 
-internal fun buildDiscordClient(jdaBuilder: JDABuilder, botConfiguration: BotConfiguration, eventBus: EventBus) =
+internal fun buildDiscordClient(api: Kord, botConfiguration: BotConfiguration) =
     object : Discord() {
         override val configuration = botConfiguration
-
-        override val jda = jdaBuilder
-            .build()
-            .apply {
-                addEventListener(object : EventListener {
-                    override fun onEvent(event: GenericEvent) = eventBus.post(event)
-                })
-            }
-            .apply { awaitReady() }
+        override val kord = api
     }

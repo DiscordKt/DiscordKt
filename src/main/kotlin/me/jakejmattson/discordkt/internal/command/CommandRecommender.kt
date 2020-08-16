@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.internal.command
 
-import me.jakejmattson.discordkt.api.dsl.command.Command
-import me.jakejmattson.discordkt.api.dsl.embed.embed
+import me.jakejmattson.discordkt.api.dsl.command.*
+import java.awt.Color
 
 internal object CommandRecommender {
     private val possibilities = mutableListOf<Command>()
@@ -12,17 +12,19 @@ internal object CommandRecommender {
             .filter(predicate)
             .flatMap { it.names }
             .map { it to calculateLevenshteinDistance(input, it) }
-            .minBy { it.second }!!
+            .minByOrNull { it.second }!!
 
         return closestMatch.takeUnless { distance > input.length / 2 + 2 }
     }
 
-    fun buildRecommendationEmbed(input: String, predicate: (Command) -> Boolean = { true }) = embed {
+    fun sendRecommendationEmbed(event: CommandEvent<*>, input: String, predicate: (Command) -> Boolean = { true }) {
         val recommendation = recommendCommand(input, predicate) ?: "<none>"
 
-        simpleTitle = "Unknown Command"
-        description = "Recommendation: $recommendation"
-        color = failureColor
+        event.respond {
+            title = "Unknown Command"
+            description = "Recommendation: $recommendation"
+            color = Color.RED
+        }
     }
 
     fun addAll(list: List<Command>) = possibilities.addAll(list)

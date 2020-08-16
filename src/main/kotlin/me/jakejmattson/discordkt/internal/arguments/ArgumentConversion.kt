@@ -12,7 +12,7 @@ internal data class SuccessData<T>(private val arg: ArgumentType<Any>, val value
 internal data class ErrorData(private val arg: ArgumentType<Any>, val error: String) : DataMap(arg)
 
 private fun formatDataMap(successData: List<DataMap>): String {
-    val length = successData.map { it.argument.name.length }.max() ?: 0
+    val length = successData.map { it.argument.name.length }.maxOrNull() ?: 0
 
     return successData.joinToString("\n") {
         val arg = it.argument
@@ -26,7 +26,7 @@ private fun formatDataMap(successData: List<DataMap>): String {
     }
 }
 
-internal fun convertArguments(actual: List<String>, expected: List<ArgumentType<Any>>, event: CommandEvent<*>): ConversionResult {
+internal suspend fun convertArguments(actual: List<String>, expected: List<ArgumentType<Any>>, event: CommandEvent<*>): ConversionResult {
     val remainingArgs = actual.filter { it.isNotBlank() }.toMutableList()
     var hasFatalError = false
 

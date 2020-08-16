@@ -33,20 +33,24 @@ class Command(val names: List<String>,
      *
      * @param args The raw string arguments to be provided to the command.
      * @return The result of the parsing operation as a [ParseResult].
+     *
+     * TODO See if this is still possible
      */
-    fun manualParseInput(args: List<String>, event: CommandEvent<GenericContainer>) = parseInputToBundle(this, args, event)
+    //suspend fun manualParseInput(args: List<String>, event: CommandEvent<GenericContainer>) = parseInputToBundle(this, args, event)
 
     /**
      * Invoke this command manually with the parsed output from [manualParseInput].
      *
      * @param parsedData String arguments parsed into their respective types and bundled into a GenericContainer.
      */
+    /**
     fun manualInvoke(parsedData: GenericContainer, event: CommandEvent<GenericContainer>) {
-        GlobalScope.launch {
-            event.args = parsedData
-            execute.invoke(event)
-        }
+    GlobalScope.launch {
+    event.args = parsedData
+    execute.invoke(event)
     }
+    }
+     */
 
     /**
      * Invoke this command "blindly" with the given arguments and context. Use [manualParseInput] and [manualInvoke] for a manual approach.
@@ -60,13 +64,7 @@ class Command(val names: List<String>,
                     event.args = result.argumentContainer
                     execute.invoke(event)
                 }
-                is ParseResult.Error -> {
-                    val error = result.reason
-
-                    with(event) {
-                        if (discord.configuration.deleteErrors) respondTimed(error) else respond(error)
-                    }
-                }
+                is ParseResult.Error -> event.respond(result.reason)
             }
         }
     }
@@ -80,7 +78,7 @@ class Command(val names: List<String>,
     fun execute(execute: execute0) = setExecute(listOf(), execute)
 
     /** The logic run when this command is invoked */
-    fun <A> execute(a1: Arg<A>, execute: execute1<A>) = setExecute(listOf(a1), execute)
+    fun <A> execute(a1: Arg<A>, execute: execute1<A>) = GlobalScope.launch { setExecute(listOf(a1), execute) }
 
     /** The logic run when this command is invoked */
     fun <A, B> execute(a1: Arg<A>, a2: Arg<B>, execute: execute2<A, B>) = setExecute(listOf(a1, a2), execute)

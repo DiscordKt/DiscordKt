@@ -2,8 +2,8 @@
 
 package me.jakejmattson.discordkt.api.extensions.stdlib
 
+import com.gitlab.kordlib.common.entity.Snowflake
 import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.extensions.jda.fullName
 
 private val urlRegexes = listOf(
     "[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)",
@@ -41,7 +41,7 @@ fun String.isBooleanValue() =
 /**
  * Sanitize all mentions and replace them with their resolved discord names.
  */
-fun String.sanitiseMentions(discord: Discord) = cleanseRoles(discord)
+suspend fun String.sanitiseMentions(discord: Discord) = cleanseRoles(discord)
     .cleanseUsers(discord)
     .cleanseHere()
     .cleanseEveryone()
@@ -53,19 +53,20 @@ fun String.sanitiseMentions(discord: Discord) = cleanseRoles(discord)
 fun String.trimToID() = takeUnless { startsWith("<") && endsWith(">") }
     ?: replaceAll(listOf("<", ">", "@", "!", "&", "#").zip(listOf("", "", "", "", "", "")))
 
+fun String.trimToSnowflake() = Snowflake(trimToID())
+
 private fun String.replaceAll(replacements: List<Pair<String, String>>): String {
     var result = this
     replacements.forEach { (l, r) -> result = result.replace(l, r) }
     return result
 }
 
-private fun String.cleanseRoles(discord: Discord): String {
+private suspend fun String.cleanseRoles(discord: Discord): String {
     val roleMentions = roleRegex.findAll(this).map {
         val mention = it.value
 
-        val resolvedName = discord.retrieveEntity { jda ->
-            jda.getRoleById(mention.trimToID())?.name
-        } ?: mention
+        val name = discord.kord
+        val resolvedName = "" //TODO Figure out roles
 
         mention to resolvedName
     }.toList()
@@ -73,15 +74,12 @@ private fun String.cleanseRoles(discord: Discord): String {
     return replaceAll(roleMentions)
 }
 
-private fun String.cleanseUsers(discord: Discord): String {
+private suspend fun String.cleanseUsers(discord: Discord): String {
     val userMentions = userRegex.findAll(this).map {
         val mention = it.value
+        val name = "" //TODO Figure out suspends; discord.kord.getUser(mention.trimToSnowflake())?.tag ?: ""
 
-        val resolvedName = discord.retrieveEntity { jda ->
-            jda.retrieveUserById(mention.trimToID()).complete()?.fullName()
-        } ?: mention
-
-        mention to resolvedName
+        mention to name
     }.toList()
 
     return replaceAll(userMentions)

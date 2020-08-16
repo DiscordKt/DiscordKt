@@ -2,25 +2,25 @@
 
 package me.jakejmattson.discordkt.api.dsl.configuration
 
+import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
+import com.gitlab.kordlib.core.entity.*
+import com.gitlab.kordlib.kordx.emoji.*
+import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.dsl.command.*
-import me.jakejmattson.discordkt.api.dsl.embed.EmbedDSL
 import me.jakejmattson.discordkt.internal.annotations.BotConfigurationDSL
-import net.dv8tion.jda.api.entities.*
 
 /**
  * @property allowMentionPrefix Allow mentioning the bot to be used as a prefix '@Bot'.
  * @property commandReaction The reaction added to a message when a command is received.
- * @property deleteErrors Whether or not error messages should be deleted over time.
  * @property requiresGuild Whether or not commands are required to be executed in a guild.
  */
 data class BotConfiguration(
     internal var prefix: (DiscordContext) -> String = { "+" },
     var allowMentionPrefix: Boolean = false,
-    var commandReaction: String? = "\uD83D\uDC40",
-    var deleteErrors: Boolean = false,
+    var commandReaction: DiscordEmoji? = Emojis.eyes,
     var requiresGuild: Boolean = true,
-    internal var mentionEmbed: ((DiscordContext) -> MessageEmbed)? = null,
-    internal var visibilityPredicate: (command: Command, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _ -> true }
+    internal var mentionEmbed: (EmbedBuilder.(DiscordContext) -> Unit)? = null,
+    internal var visibilityPredicate: (command: Command, User, MessageChannelBehavior, Guild?) -> Boolean = { _, _, _, _ -> true }
 ) {
     /**
      * Predicate to dynamically determine the prefix in a given context.
@@ -34,12 +34,8 @@ data class BotConfiguration(
      * An embed that will be sent anytime someone (solely) mentions the bot.
      */
     @BotConfigurationDSL
-    fun mentionEmbed(construct: EmbedDSL.(DiscordContext) -> Unit) {
-        mentionEmbed = {
-            val embed = EmbedDSL()
-            embed.construct(it)
-            embed.build()
-        }
+    fun mentionEmbed(construct: EmbedBuilder.(DiscordContext) -> Unit) {
+        mentionEmbed = construct
     }
 
     /**
@@ -64,8 +60,5 @@ data class BotConfiguration(
     fun colors(construct: ColorConfiguration.() -> Unit) {
         val colors = ColorConfiguration()
         colors.construct()
-        EmbedDSL.successColor = colors.successColor
-        EmbedDSL.failureColor = colors.failureColor
-        EmbedDSL.infoColor = colors.infoColor
     }
 }

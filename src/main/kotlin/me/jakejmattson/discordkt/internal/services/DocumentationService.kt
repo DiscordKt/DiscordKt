@@ -12,7 +12,7 @@ internal fun createDocumentation(container: CommandsContainer) {
     }
 
     fun String.sanitizePipe() = replace("|", "\\|")
-    fun List<CommandData>.maxLength(header: String, field: (CommandData) -> String) = (map { field.invoke(it).length } + header.length).max()!!
+    fun List<CommandData>.maxLength(header: String, field: (CommandData) -> String) = (map { field.invoke(it).length } + header.length).maxOrNull()!!
 
     fun extractCommandData(command: Command): CommandData {
         val nameString = (if (command.isFlexible) "*" else "") + command.names.joinToString().sanitizePipe()
@@ -41,13 +41,13 @@ internal fun createDocumentation(container: CommandsContainer) {
     val keyString = buildString {
         with(commands) {
             if (any { it.arguments.any { it.isOptional } })
-                appendln("| (Argument)  | Argument is not required.      |")
+                appendLine("| (Argument)  | Argument is not required.      |")
 
             if (any { it.arguments.any { it is MultipleArg<*> } })
-                appendln("| Argument... | Accepts many of this argument. |")
+                appendLine("| Argument... | Accepts many of this argument. |")
 
             if (any { it.isFlexible })
-                appendln("| *Command    | Argument can be in any order.  |")
+                appendLine("| *Command    | Argument can be in any order.  |")
         }
     }
 

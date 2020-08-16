@@ -1,101 +1,90 @@
 package me.jakejmattson.discordkt.internal.listeners
 
-import com.google.common.eventbus.Subscribe
+import com.gitlab.kordlib.core.behavior.channel.createEmbed
+import com.gitlab.kordlib.core.event.message.MessageCreateEvent
+import com.gitlab.kordlib.core.on
+import com.gitlab.kordlib.kordx.emoji.toReaction
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.dsl.command.*
-import me.jakejmattson.discordkt.api.dsl.configuration.BotConfiguration
 import me.jakejmattson.discordkt.api.dsl.preconditions.*
 import me.jakejmattson.discordkt.api.extensions.stdlib.trimToID
 import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.command.*
-import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent
 
-internal class CommandListener(private val container: CommandsContainer,
-                               private val discord: Discord,
-                               private val preconditions: List<Precondition>) {
+suspend fun registerCommandListener(container: CommandsContainer, discord: Discord, preconditions: List<Precondition>) = discord.kord.on<MessageCreateEvent> {
+    val config = discord.configuration
+    val author = message.author?.takeUnless { it.isBot ?: false } ?: return@on
+    val channel = message.channel
+    val content = message.content
+    val discordContext = DiscordContext(discord, message, guild = message.getGuildOrNull())
+    val prefix = config.prefix.invoke(discordContext)
+    val conversationService = discord.getInjectionObjects(ConversationService::class)
 
-    private val config: BotConfiguration = discord.configuration
+    fun isPrefixInvocation(message: String, prefix: String) = message.startsWith(prefix)
 
-    @Subscribe
-    fun guildMessageHandler(e: GuildMessageReceivedEvent) = handleMessage(e.message)
-
-    @Subscribe
-    fun privateMessageHandler(e: PrivateMessageReceivedEvent) = handleMessage(e.message)
-
-    private fun handleMessage(message: Message) {
-        val author = message.author.takeUnless { it.isBot } ?: return
-        val channel = message.channel
-        val content = message.contentRaw
-        val discordContext = DiscordContext(discord, message)
-        val prefix = config.prefix.invoke(discordContext)
-        val conversationService = discord.getInjectionObjects(ConversationService::class)
-
-        val rawInputs = when {
-            isPrefixInvocation(content, prefix) -> stripPrefixInvocation(content, prefix)
-            content.trimToID() == channel.jda.selfUser.id -> {
-                val embed = config.mentionEmbed?.invoke(discordContext) ?: return
-                return channel.sendMessage(embed).queue()
-            }
-            isMentionInvocation(content) -> stripMentionInvocation(content)
-            else -> return conversationService.handleMessage(message)
-        }
-
-        val (_, commandName, actualArgs, _) = rawInputs
-
-        if (commandName.isEmpty()) return
-
-        val event = CommandEvent<GenericContainer>(rawInputs, container, discordContext)
-        val errors = getPreconditionErrors(event)
-
-        if (errors.isNotEmpty()) {
-            val errorMessage = errors.firstOrNull { it.isNotBlank() }
-
-            if (errorMessage != null)
-                if (config.deleteErrors) event.respondTimed(errorMessage) else event.respond(errorMessage)
-
-            return
-        }
-
-        val command = container[commandName]
-
-        if (command == null) {
-            val guild = if (message.isFromGuild) message.guild else null
-
-            val errorEmbed = CommandRecommender.buildRecommendationEmbed(commandName) {
-                config.visibilityPredicate(it, author, channel, guild)
-            }
-
-            if (config.deleteErrors) event.respondTimed(errorEmbed)
-            else event.respond(errorEmbed)
-            return
-        }
-
-        if (!message.isFromGuild)
-            if (command.requiresGuild ?: config.requiresGuild)
-                return
-
-        if (config.commandReaction != null)
-            message.addReaction(config.commandReaction!!).queue()
-
-        command.invoke(actualArgs, event)
-    }
-
-    private fun isPrefixInvocation(message: String, prefix: String) = message.startsWith(prefix)
-
-    private fun isMentionInvocation(message: String): Boolean {
+    suspend fun isMentionInvocation(message: String): Boolean {
         if (!config.allowMentionPrefix)
             return false
 
-        val id = discord.jda.selfUser.id
+        val id = discord.kord.getSelf().id
 
         return message.startsWith("<@!$id>") || message.startsWith("<@$id>")
     }
 
-    private fun getPreconditionErrors(event: CommandEvent<*>) =
+    fun getPreconditionErrors(event: CommandEvent<*>) =
         preconditions
             .map { it.evaluate(event) }
             .filterIsInstance<Fail>()
             .map { it.reason }
+
+    val rawInputs = when {
+        isPrefixInvocation(content, prefix) -> stripPrefixInvocation(content, prefix)
+        content.trimToID() == channel.kord.getSelf().id.toString() -> {
+            val embed = config.mentionEmbed ?: return@on
+
+            channel.createEmbed {
+                embed.invoke(this, discordContext)
+            }
+
+            return@on
+        }
+        isMentionInvocation(content) -> stripMentionInvocation(content)
+        else -> return@on conversationService.handleMessage(message)
+    }
+
+    val (_, commandName, actualArgs, _) = rawInputs
+
+    if (commandName.isEmpty()) return@on
+
+    val event = CommandEvent<GenericContainer>(rawInputs, container, discordContext)
+    val errors = getPreconditionErrors(event)
+
+    if (errors.isNotEmpty()) {
+        val errorMessage = errors.firstOrNull { it.isNotBlank() }
+
+        if (errorMessage != null)
+            event.respond(errorMessage)
+
+        return@on
+    }
+
+    val command = container[commandName]
+
+    if (command == null) {
+        val guild = message.getGuildOrNull()
+
+        return@on CommandRecommender.sendRecommendationEmbed(event, commandName) {
+            config.visibilityPredicate(it, author, channel, guild)
+        }
+    }
+
+    if (message.getGuildOrNull() == null)
+        if (command.requiresGuild ?: config.requiresGuild)
+            return@on
+
+    config.commandReaction.let {
+        message.addReaction(it!!.toReaction())
+    }
+
+    command.invoke(actualArgs, event)
 }

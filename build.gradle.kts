@@ -22,18 +22,18 @@ plugins {
 repositories {
     mavenCentral()
     jcenter()
+    maven(url = "https://dl.bintray.com/kordlib/Kord")
 }
 
 dependencies {
     //Internal Dependencies
-    implementation(kotlin("stdlib-jdk8"))
     implementation(Dependencies.coroutines)
     implementation(Dependencies.reflections)
     implementation(Dependencies.slf4j)
 
     //Library Dependencies
-    api(Dependencies.jda)
-    api(Dependencies.guava)
+    api(Dependencies.kord)
+    api(Dependencies.emojis)
     api(Dependencies.gson)
 
     //Test Dependencies
@@ -74,7 +74,7 @@ tasks {
             "projectRepo" to Constants.projectUrl,
             "projectVersion" to version,
             "kotlinVersion" to Versions.kotlin,
-            "jdaVersion" to Versions.jda
+            "kordVersion" to Versions.kord
         )
     }
 

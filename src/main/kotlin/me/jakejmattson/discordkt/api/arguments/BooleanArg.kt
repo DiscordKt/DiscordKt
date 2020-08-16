@@ -20,7 +20,7 @@ open class BooleanArg(override val name: String = "Boolean", private val truthVa
         require(truthValue.toLowerCase() != falseValue.toLowerCase()) { "Custom BooleanArg ($name) options cannot be the same!" }
     }
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Boolean> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Boolean> {
         return when (arg.toLowerCase()) {
             truthValue.toLowerCase() -> Success(true)
             falseValue.toLowerCase() -> Success(false)

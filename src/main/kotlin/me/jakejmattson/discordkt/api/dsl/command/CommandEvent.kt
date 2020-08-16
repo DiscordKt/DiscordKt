@@ -1,8 +1,9 @@
 package me.jakejmattson.discordkt.api.dsl.command
 
+import com.gitlab.kordlib.core.entity.*
+import com.gitlab.kordlib.core.entity.channel.MessageChannel
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.internal.utils.Responder
-import net.dv8tion.jda.api.entities.*
 
 /**
  * Data class containing the raw information from the command execution.
@@ -24,16 +25,16 @@ data class RawInputs(
  *
  * @property discord The [Discord] instance.
  * @property message The Message that invoked this command.
- * @property author The User who invoked this command.
  * @property guild The Guild this command was invoked in.
+ * @property author The User who invoked this command.
  * @property channel The MessageChannel this command was invoked in.
  * @property relevantPrefix The prefix used to invoke this command.
  */
 data class DiscordContext(override val discord: Discord,
                           val message: Message,
-                          val author: User = message.author,
-                          val guild: Guild? = if (message.isFromGuild) message.guild else null,
-                          override val channel: MessageChannel = message.channel) : Responder {
+                          val guild: Guild?,
+                          val author: User = message.author!!,
+                          override val channel: MessageChannel = message.channel as MessageChannel) : Responder {
     val relevantPrefix: String = discord.configuration.prefix.invoke(this)
 }
 

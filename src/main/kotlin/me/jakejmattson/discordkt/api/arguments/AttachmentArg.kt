@@ -1,29 +1,27 @@
 package me.jakejmattson.discordkt.api.arguments
 
+import com.gitlab.kordlib.core.entity.Attachment
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import java.io.File
 
 /**
  * Accepts a file as a message attachment.
  */
-open class FileArg(override val name: String = "File") : ArgumentType<File>() {
+open class AttachmentArg(override val name: String = "File") : ArgumentType<Attachment>() {
     /**
      * Accepts a file as a message attachment.
      */
-    companion object : FileArg()
+    companion object : AttachmentArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<File> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Attachment> {
         val attachments = event.message.attachments
 
         if (attachments.isEmpty())
             return Error("No attachments")
 
-        val file = attachments.first().downloadToFile().get()
-
-        return Success(file, 0)
+        return Success(attachments.first(), 0)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("File")
-    override fun formatData(data: File) = data.name
+    override fun formatData(data: Attachment) = data.filename
 }

@@ -12,9 +12,9 @@ open class IntegerArg(override val name: String = "Integer") : ArgumentType<Int>
      */
     companion object : IntegerArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toIntOrNull()) {
-            null -> Error<Int>("Invalid format")
+            null -> Error("Invalid format")
             else -> Success(result)
         }
 

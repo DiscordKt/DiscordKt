@@ -2,9 +2,6 @@ package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.api.arguments.EitherArg
 import me.jakejmattson.discordkt.api.dsl.command.CommandsContainer
-import me.jakejmattson.discordkt.api.dsl.configuration.BotConfiguration
-
-internal val emojiRegex = "[^\\x00-\\x7F]+ *(?:[^\\x00-\\x7F]| )*".toRegex()
 
 internal class Validator {
     companion object {
@@ -53,16 +50,6 @@ internal class Validator {
                             InternalLogger.error("Flexible commands must accept distinct arguments ($commandName)")
                     }
                 }
-            }
-        }
-
-        fun validateReaction(config: BotConfiguration) {
-            val currentReaction = config.commandReaction ?: return
-            val isValid = emojiRegex.matches(currentReaction)
-
-            if (!isValid) {
-                InternalLogger.error("Provided command reaction is not valid. Falling back to no-reaction mode.")
-                config.commandReaction = null
             }
         }
     }

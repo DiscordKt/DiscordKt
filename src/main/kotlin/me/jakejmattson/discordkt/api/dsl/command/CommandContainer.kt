@@ -29,6 +29,9 @@ data class CommandsContainer(val commands: MutableList<Command> = mutableListOf(
     }
 
     /** @suppress operator */
+    operator fun plus(command: Command) = apply { commands.add(command) }
+
+    /** @suppress operator */
     operator fun plus(container: CommandsContainer) = apply { commands.addAll(container.commands) }
 
     /** @suppress operator **/

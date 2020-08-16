@@ -86,14 +86,14 @@ internal class DIService {
     }
 
     private fun generateBadInjectionReport(failedInjections: List<FailureBundle>) = buildString {
-        appendln("Dependency injection error!")
-        appendln("Unable to build the following:")
+        appendLine("Dependency injection error!")
+        appendLine("Unable to build the following:")
 
         val failedDependencyList = failedInjections.joinToString("\n") { (clazz, types) ->
             "${clazz.simplerName}(${types.joinToString { it.simplerName }})"
         }
 
-        appendln(failedDependencyList)
+        appendLine(failedDependencyList)
 
         val failedClasses = failedInjections.map { it.clazz }
 
@@ -107,9 +107,9 @@ internal class DIService {
             .partition { it in failedClasses }
 
         if (missing.isNotEmpty()) {
-            appendln()
-            appendln("Missing base dependencies:")
-            appendln(missing.joinToString("\n") { it.simplerName })
+            appendLine()
+            appendLine("Missing base dependencies:")
+            appendLine(missing.joinToString("\n") { it.simplerName })
         }
 
         if (failed.isNotEmpty()) {
@@ -118,8 +118,8 @@ internal class DIService {
                 .distinctBy { it.toSet() }
                 .joinToString("\n") { it.joinToString(" -> ") { it.simplerName } }
 
-            appendln()
-            appendln("Infinite loop detected:")
+            appendLine()
+            appendLine("Infinite loop detected:")
             append(failPaths)
         }
     }

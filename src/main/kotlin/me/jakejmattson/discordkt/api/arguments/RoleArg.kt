@@ -1,9 +1,11 @@
 package me.jakejmattson.discordkt.api.arguments
 
+import com.gitlab.kordlib.common.entity.Snowflake
+import com.gitlab.kordlib.core.entity.Role
+import kotlinx.coroutines.flow.*
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.stdlib.trimToID
-import net.dv8tion.jda.api.entities.Role
+import me.jakejmattson.discordkt.api.extensions.stdlib.*
 
 /**
  * Accepts a Discord Role entity as an ID, a mention, or by name.
@@ -11,17 +13,17 @@ import net.dv8tion.jda.api.entities.Role
  * @param guildId The guild ID used to determine which guild to search in.
  * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
  */
-open class RoleArg(override val name: String = "Role", private val guildId: String = "", private val allowsGlobal: Boolean = false) : ArgumentType<Role>() {
+open class RoleArg(override val name: String = "Role", private val guildId: Snowflake? = null, private val allowsGlobal: Boolean = false) : ArgumentType<Role>() {
     /**
      * Accepts a Discord Role entity as an ID, a mention, or by name from within this guild.
      */
     companion object : RoleArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
-        val resolvedGuildId = guildId.ifBlank { event.guild?.id }.takeUnless { it.isNullOrBlank() }
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
+        val resolvedGuildId = guildId ?: event.guild?.id
 
         if (arg.trimToID().toLongOrNull() != null) {
-            val role = event.discord.jda.getRoleById(arg.trimToID())
+            val role = event.discord.kord.guilds.toList().flatMap { it.roles.toList() }.firstOrNull { it.id == arg.trimToSnowflake() }
 
             if (!allowsGlobal && resolvedGuildId != role?.guild?.id)
                 return Error("Must be from this guild")
@@ -30,18 +32,20 @@ open class RoleArg(override val name: String = "Role", private val guildId: Stri
                 return Success(role)
         }
 
-        resolvedGuildId
-            ?: return Error("Please invoke in a guild or use an ID")
+        resolvedGuildId ?: return Error("Please invoke in a guild or use an ID")
 
-        val guild = event.discord.jda.getGuildById(resolvedGuildId)
+        val guild = event.discord.kord.getGuild(resolvedGuildId)
             ?: return Error("Guild not found")
+
         val argString = args.joinToString(" ").toLowerCase()
+
         val viableNames = guild.roles
             .filter { argString.startsWith(it.name.toLowerCase()) }
+            .toList()
             .sortedBy { it.name.length }
 
         val longestMatch = viableNames.lastOrNull()?.takeUnless { it.name.length < arg.length }
-        val result = longestMatch?.let { viableNames.filter { it.name == longestMatch.name } } ?: emptyList()
+        val result = longestMatch.let { viableNames.filter { it.name == longestMatch?.name } }
 
         return when (result.size) {
             0 -> Error("Not found")
@@ -54,8 +58,7 @@ open class RoleArg(override val name: String = "Role", private val guildId: Stri
         }
     }
 
-    override fun generateExamples(event: CommandEvent<*>) =
-        event.guild?.roles?.map { it.name }?.takeIf { !it.isNullOrEmpty() } ?: listOf("Staff")
+    override fun generateExamples(event: CommandEvent<*>) = listOf("@everyone")
 
     override fun formatData(data: Role) = data.name
 }

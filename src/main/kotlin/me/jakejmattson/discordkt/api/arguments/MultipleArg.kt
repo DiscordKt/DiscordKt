@@ -11,7 +11,7 @@ import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
 class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentType<List<T>>() {
     override val name = if (name.isNotBlank()) name else "${base.name}..."
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<T>> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<T>> {
         val totalResult = mutableListOf<T>()
         var totalConsumed = 0
         val remainingArgs = args.toMutableList()
