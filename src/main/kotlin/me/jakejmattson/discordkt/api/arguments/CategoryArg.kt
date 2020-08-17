@@ -23,7 +23,7 @@ open class CategoryArg(override val name: String = "Category", private val guild
         val resolvedGuildId = guildId ?: event.guild?.id
 
         if (arg.trimToID().toLongOrNull() != null) {
-            val category = event.discord.kord.getChannel(arg.trimToSnowflake()) as? Category
+            val category = event.discord.kord.getChannel(arg.toSnowflake()) as? Category
 
             if (!allowsGlobal && resolvedGuildId != category?.id)
                 return Error("Must be from this guild")

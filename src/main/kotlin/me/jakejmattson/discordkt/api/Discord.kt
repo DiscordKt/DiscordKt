@@ -24,6 +24,7 @@ private val propFile = Properties::class.java.getResource("/library-properties.j
 
 /**
  * @property configuration All of the current configuration details for this bot.
+ * @property kord A Kord instance used to access the Discord API.
  * @property properties Properties for the core library.
  */
 abstract class Discord {

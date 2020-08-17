@@ -3,7 +3,7 @@ package me.jakejmattson.discordkt.api.arguments
 import com.gitlab.kordlib.core.entity.channel.VoiceChannel
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.stdlib.trimToSnowflake
+import me.jakejmattson.discordkt.api.extensions.stdlib.toSnowflake
 
 /**
  * Accepts a Discord VoiceChannel entity as an ID or mention.
@@ -17,7 +17,7 @@ open class VoiceChannelArg(override val name: String = "Voice Channel", private 
     companion object : VoiceChannelArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<VoiceChannel> {
-        val channel = event.discord.kord.getChannel(arg.trimToSnowflake()) as? VoiceChannel ?: return Error("Not found")
+        val channel = event.discord.kord.getChannel(arg.toSnowflake()) as? VoiceChannel ?: return Error("Not found")
 
         if (!allowsGlobal && channel.id != event.guild?.id)
             return Error("Must be from this guild")

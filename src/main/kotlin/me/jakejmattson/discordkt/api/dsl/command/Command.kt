@@ -29,37 +29,22 @@ class Command(val names: List<String>,
         get() = arguments.size
 
     /**
-     * Manually parse args into an intermediate bundle to allow verifying the result, then execute it with [manualInvoke].
+     * Whether or not the command can parse the given arguments into a container.
      *
      * @param args The raw string arguments to be provided to the command.
-     * @return The result of the parsing operation as a [ParseResult].
      *
-     * TODO See if this is still possible
+     * @return The result of the parsing operation.
      */
-    //suspend fun manualParseInput(args: List<String>, event: CommandEvent<GenericContainer>) = parseInputToBundle(this, args, event)
+    suspend fun canParse(args: List<String>, event: CommandEvent<GenericContainer>) = parseInputToBundle(this, event, args) is ParseResult.Success
 
     /**
-     * Invoke this command manually with the parsed output from [manualParseInput].
-     *
-     * @param parsedData String arguments parsed into their respective types and bundled into a GenericContainer.
-     */
-    /**
-    fun manualInvoke(parsedData: GenericContainer, event: CommandEvent<GenericContainer>) {
-    GlobalScope.launch {
-    event.args = parsedData
-    execute.invoke(event)
-    }
-    }
-     */
-
-    /**
-     * Invoke this command "blindly" with the given arguments and context. Use [manualParseInput] and [manualInvoke] for a manual approach.
+     * Invoke this command "blindly" with the given arguments and context.
      *
      * @param args The raw string arguments to be provided to the command.
      */
-    fun invoke(args: List<String>, event: CommandEvent<GenericContainer>) {
+    fun invoke(event: CommandEvent<GenericContainer>, args: List<String>) {
         GlobalScope.launch {
-            when (val result = parseInputToBundle(this@Command, args, event)) {
+            when (val result = parseInputToBundle(this@Command, event, args)) {
                 is ParseResult.Success -> {
                     event.args = result.argumentContainer
                     execute.invoke(event)
@@ -78,7 +63,7 @@ class Command(val names: List<String>,
     fun execute(execute: execute0) = setExecute(listOf(), execute)
 
     /** The logic run when this command is invoked */
-    fun <A> execute(a1: Arg<A>, execute: execute1<A>) = GlobalScope.launch { setExecute(listOf(a1), execute) }
+    fun <A> execute(a1: Arg<A>, execute: execute1<A>) = setExecute(listOf(a1), execute)
 
     /** The logic run when this command is invoked */
     fun <A, B> execute(a1: Arg<A>, a2: Arg<B>, execute: execute2<A, B>) = setExecute(listOf(a1, a2), execute)

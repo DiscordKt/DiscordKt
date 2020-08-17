@@ -5,7 +5,7 @@ import me.jakejmattson.discordkt.api.dsl.command.*
 import me.jakejmattson.discordkt.internal.command.CommandRecommender
 import java.awt.Color
 
-fun produceHelpCommandContainer(container: CommandsContainer, embedColor: Color) = commands {
+internal fun produceHelpCommandContainer(container: CommandsContainer, embedColor: Color) = commands {
     command("Help") {
         description = "Display a help menu."
         category = "Utility"

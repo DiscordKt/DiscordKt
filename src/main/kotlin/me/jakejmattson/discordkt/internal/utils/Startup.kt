@@ -61,22 +61,19 @@ class Bot(private val token: String, private val globalPath: String) {
     }
 
     internal suspend fun buildBot() {
-        val (configureFun,
-            injectionFun,
-            loggingFun
-        ) = startupBundle
+        val (configureFun, injectionFun, loggingFun) = startupBundle
 
         val loggingConfiguration = LoggingConfiguration()
         loggingFun.invoke(loggingConfiguration)
 
-        val kord = Kord(token)
-
         val injection = InjectionConfiguration()
         injectionFun.invoke(injection)
 
-        val discord = buildDiscordClient(kord, botConfiguration)
+        val discord = buildDiscordClient(Kord(token), botConfiguration)
         initCore(discord, loggingConfiguration)
         configureFun.invoke(botConfiguration, discord)
+
+        discord.kord.login()
     }
 
     /**
@@ -109,7 +106,7 @@ class Bot(private val token: String, private val globalPath: String) {
         startupBundle.logging = config
     }
 
-    private suspend fun registerCommands(): CommandsContainer {
+    private fun registerCommands(): CommandsContainer {
         val localContainer = ReflectionUtils.detectCommands(globalPath)
 
         //Add help command if a command named "Help" is not already provided

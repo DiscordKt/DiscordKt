@@ -23,7 +23,7 @@ open class RoleArg(override val name: String = "Role", private val guildId: Snow
         val resolvedGuildId = guildId ?: event.guild?.id
 
         if (arg.trimToID().toLongOrNull() != null) {
-            val role = event.discord.kord.guilds.toList().flatMap { it.roles.toList() }.firstOrNull { it.id == arg.trimToSnowflake() }
+            val role = event.discord.kord.guilds.toList().flatMap { it.roles.toList() }.firstOrNull { it.id == arg.toSnowflake() }
 
             if (!allowsGlobal && resolvedGuildId != role?.guild?.id)
                 return Error("Must be from this guild")

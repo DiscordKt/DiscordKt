@@ -53,7 +53,10 @@ suspend fun String.sanitiseMentions(discord: Discord) = cleanseRoles(discord)
 fun String.trimToID() = takeUnless { startsWith("<") && endsWith(">") }
     ?: replaceAll(listOf("<", ">", "@", "!", "&", "#").zip(listOf("", "", "", "", "", "")))
 
-fun String.trimToSnowflake() = Snowflake(trimToID())
+/**
+ * Convert an ID or mention to a Snowflake.
+ */
+fun String.toSnowflake() = Snowflake(trimToID())
 
 private fun String.replaceAll(replacements: List<Pair<String, String>>): String {
     var result = this

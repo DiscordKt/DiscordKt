@@ -11,7 +11,7 @@ import me.jakejmattson.discordkt.api.extensions.stdlib.trimToID
 import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.command.*
 
-suspend fun registerCommandListener(container: CommandsContainer, discord: Discord, preconditions: List<Precondition>) = discord.kord.on<MessageCreateEvent> {
+internal suspend fun registerCommandListener(container: CommandsContainer, discord: Discord, preconditions: List<Precondition>) = discord.kord.on<MessageCreateEvent> {
     val config = discord.configuration
     val author = message.author?.takeUnless { it.isBot ?: false } ?: return@on
     val channel = message.channel
@@ -86,5 +86,5 @@ suspend fun registerCommandListener(container: CommandsContainer, discord: Disco
         message.addReaction(it!!.toReaction())
     }
 
-    command.invoke(actualArgs, event)
+    command.invoke(event, actualArgs)
 }
