@@ -10,7 +10,6 @@ import me.jakejmattson.discordkt.api.dsl.preconditions.Precondition
 import me.jakejmattson.discordkt.api.extensions.stdlib.pluralize
 import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
-import me.jakejmattson.discordkt.internal.command.CommandRecommender
 import me.jakejmattson.discordkt.internal.listeners.*
 import me.jakejmattson.discordkt.internal.services.*
 import java.awt.Color
@@ -112,8 +111,6 @@ class Bot(private val token: String, private val globalPath: String) {
         //Add help command if a command named "Help" is not already provided
         val helpService = produceHelpCommandContainer(localContainer, Color.BLUE)
         localContainer["Help"] ?: localContainer + helpService
-
-        CommandRecommender.addAll(localContainer.commands)
 
         return localContainer
     }

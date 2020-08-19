@@ -15,7 +15,7 @@ open class DoubleArg(override val name: String = "Double") : ArgumentType<Double
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toDoubleOrNull()) {
-            null -> Error<Double>("Invalid format")
+            null -> Error("Invalid format")
             else -> Success(result)
         }
 

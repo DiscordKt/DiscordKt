@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.internal.services
 
 import me.jakejmattson.discordkt.api.arguments.AnyArg
 import me.jakejmattson.discordkt.api.dsl.command.*
-import me.jakejmattson.discordkt.internal.command.CommandRecommender
+import me.jakejmattson.discordkt.internal.utils.Recommender
 import java.awt.Color
 
 internal fun produceHelpCommandContainer(container: CommandsContainer, embedColor: Color) = commands {
@@ -15,7 +15,7 @@ internal fun produceHelpCommandContainer(container: CommandsContainer, embedColo
             when {
                 query.isEmpty() -> sendDefaultEmbed(event, embedColor)
                 query.isCommand(event) -> sendCommandEmbed(container[query]!!, event, query, embedColor)
-                else -> CommandRecommender.sendRecommendationEmbed(event, query) { it.isVisible(event) }
+                else -> Recommender.sendRecommendation(event, query, fetchVisibleCommands(event).flatMap { it.names })
             }
         }
     }
@@ -76,10 +76,8 @@ private fun generateExample(command: Command, event: CommandEvent<*>) =
 private fun String.isCommand(event: CommandEvent<*>) = fetchVisibleCommands(event)
     .any { toLowerCase() in it.names.map { it.toLowerCase() } }
 
-private fun fetchVisibleCommands(event: CommandEvent<*>) = event.container.commands.filter { it.isVisible(event) }
-
-private fun Command.isVisible(event: CommandEvent<*>) =
-    event.discord.configuration.visibilityPredicate(this, event.author, event.channel, event.guild)
+private fun fetchVisibleCommands(event: CommandEvent<*>) = event.container.commands
+    .filter { event.discord.configuration.hasPermission(it, event.author, event.channel) }
 
 private fun generateStructure(command: Command) =
     command.arguments.joinToString(" ") {

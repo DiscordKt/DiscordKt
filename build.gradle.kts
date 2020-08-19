@@ -13,7 +13,7 @@ plugins {
     //Publishing
     signing
     `maven-publish`
-    id("io.codearte.nexus-staging") version "0.21.2"
+    id("io.codearte.nexus-staging") version "0.22.0"
 
     //Misc
     id("com.github.ben-manes.versions") version "0.29.0"

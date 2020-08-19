@@ -132,7 +132,7 @@ data class ConversationStateContainer(override val discord: Discord,
         retrieveTextResponse(argumentType) ?: retrieveValidTextResponse(argumentType, prompt)
     }
 
-    private fun <T> retrieveValidReactionResponse(reactions: Map<ReactionEmoji, T>): T = runBlocking<T> {
+    private fun <T> retrieveValidReactionResponse(reactions: Map<ReactionEmoji, T>): T = runBlocking {
         retrieveReactionResponse(reactions) ?: retrieveValidReactionResponse(reactions)
     }
 

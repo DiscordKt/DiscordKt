@@ -10,6 +10,7 @@ import me.jakejmattson.discordkt.api.dsl.preconditions.*
 import me.jakejmattson.discordkt.api.extensions.stdlib.trimToID
 import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.command.*
+import me.jakejmattson.discordkt.internal.utils.Recommender
 
 internal suspend fun registerCommandListener(container: CommandsContainer, discord: Discord, preconditions: List<Precondition>) = discord.kord.on<MessageCreateEvent> {
     val config = discord.configuration
@@ -68,14 +69,16 @@ internal suspend fun registerCommandListener(container: CommandsContainer, disco
         return@on
     }
 
-    val command = container[commandName]
+    val command = container[commandName]?.takeUnless { !config.hasPermission(it, author, channel) }
 
     if (command == null) {
         val guild = message.getGuildOrNull()
 
-        return@on CommandRecommender.sendRecommendationEmbed(event, commandName) {
-            config.visibilityPredicate(it, author, channel, guild)
-        }
+        val validCommands = container.commands
+            .filter { config.hasPermission(it, author, channel) }
+            .flatMap { it.names }
+
+        return@on Recommender.sendRecommendation(event, commandName, validCommands)
     }
 
     if (message.getGuildOrNull() == null)

@@ -3,7 +3,7 @@
 package me.jakejmattson.discordkt.api.dsl.configuration
 
 import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
-import com.gitlab.kordlib.core.entity.*
+import com.gitlab.kordlib.core.entity.User
 import com.gitlab.kordlib.kordx.emoji.*
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.dsl.command.*
@@ -20,10 +20,10 @@ data class BotConfiguration(
     var commandReaction: DiscordEmoji? = Emojis.eyes,
     var requiresGuild: Boolean = true,
     internal var mentionEmbed: (EmbedBuilder.(DiscordContext) -> Unit)? = null,
-    internal var visibilityPredicate: (command: Command, User, MessageChannelBehavior, Guild?) -> Boolean = { _, _, _, _ -> true }
+    internal var hasPermission: (command: Command, User, MessageChannelBehavior) -> Boolean = { _, _, _ -> true }
 ) {
     /**
-     * Predicate to dynamically determine the prefix in a given context.
+     * Determine the prefix in a given context.
      */
     @BotConfigurationDSL
     fun prefix(construct: (DiscordContext) -> String) {
@@ -39,14 +39,14 @@ data class BotConfiguration(
     }
 
     /**
-     * Function to dynamically determine if a command is visible in a given context.
+     * Determine if the given command has permission to be run in this context.
      *
-     * @sample VisibilityContext
+     * @sample PermissionContext
      */
     @BotConfigurationDSL
-    fun visibilityPredicate(predicate: (VisibilityContext) -> Boolean = { _ -> true }) {
-        visibilityPredicate = { command, user, messageChannel, guild ->
-            val context = VisibilityContext(command, user, messageChannel, guild)
+    fun hasPermission(predicate: (PermissionContext) -> Boolean = { _ -> true }) {
+        hasPermission = { command, user, messageChannel ->
+            val context = PermissionContext(command, user, messageChannel)
             predicate.invoke(context)
         }
     }

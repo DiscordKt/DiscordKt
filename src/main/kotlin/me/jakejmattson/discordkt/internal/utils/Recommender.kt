@@ -1,24 +1,22 @@
-package me.jakejmattson.discordkt.internal.command
+package me.jakejmattson.discordkt.internal.utils
 
-import me.jakejmattson.discordkt.api.dsl.command.*
+import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
 import java.awt.Color
 
-internal object CommandRecommender {
-    private val possibilities = mutableListOf<Command>()
+internal object Recommender {
+    private fun recommend(input: String, possibilities: List<String>): String? {
+        if (possibilities.isEmpty())
+            return null
 
-    // only commands that satisfy the predicate will be considered for recommendation
-    private fun recommendCommand(input: String, predicate: (Command) -> Boolean): String? {
         val (closestMatch, distance) = possibilities
-            .filter(predicate)
-            .flatMap { it.names }
             .map { it to calculateLevenshteinDistance(input, it) }
             .minByOrNull { it.second }!!
 
         return closestMatch.takeUnless { distance > input.length / 2 + 2 }
     }
 
-    fun sendRecommendationEmbed(event: CommandEvent<*>, input: String, predicate: (Command) -> Boolean = { true }) {
-        val recommendation = recommendCommand(input, predicate) ?: "<none>"
+    fun sendRecommendation(event: CommandEvent<*>, input: String, possibilities: List<String>) {
+        val recommendation = recommend(input, possibilities) ?: "<none>"
 
         event.respond {
             title = "Unknown Command"
@@ -26,8 +24,6 @@ internal object CommandRecommender {
             color = Color.RED
         }
     }
-
-    fun addAll(list: List<Command>) = possibilities.addAll(list)
 }
 
 private fun calculateLevenshteinDistance(left: String, right: String): Int {
@@ -40,13 +36,11 @@ private fun calculateLevenshteinDistance(left: String, right: String): Int {
     val v0 = IntArray(right.length + 1) { it }
     val v1 = IntArray(right.length + 1)
 
-    var cost: Int
-
     for (i in left.indices) {
         v1[0] = i + 1
 
         for (j in right.indices) {
-            cost = if (left[i] == right[j]) 0 else 1
+            val cost = if (left[i] == right[j]) 0 else 1
             v1[j + 1] = (v1[j] + 1).coerceAtMost((v0[j + 1] + 1).coerceAtMost(v0[j] + cost))
         }
 
