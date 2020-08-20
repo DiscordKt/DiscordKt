@@ -12,7 +12,7 @@ import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.command.*
 import me.jakejmattson.discordkt.internal.utils.Recommender
 
-internal suspend fun registerCommandListener(discord: Discord, preconditions: List<Precondition>) = discord.kord.on<MessageCreateEvent> {
+internal suspend fun registerCommandListener(discord: Discord, preconditions: List<Precondition>) = discord.api.on<MessageCreateEvent> {
     val config = discord.configuration
     val author = message.author?.takeUnless { it.isBot ?: false } ?: return@on
     val channel = message.channel
@@ -27,7 +27,7 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
         if (!config.allowMentionPrefix)
             return false
 
-        val id = discord.kord.getSelf().id
+        val id = discord.api.getSelf().id
 
         return message.startsWith("<@!$id>") || message.startsWith("<@$id>")
     }
@@ -72,8 +72,6 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
     val command = discord.commands[commandName]?.takeUnless { !config.hasPermission(it, author, channel) }
 
     if (command == null) {
-        val guild = message.getGuildOrNull()
-
         val validCommands = discord.commands
             .filter { config.hasPermission(it, author, channel) }
             .flatMap { it.names }

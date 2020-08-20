@@ -21,7 +21,7 @@ open class MessageArg(override val name: String = "Message", private val allowsG
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Message> {
         val regex = "https://discordapp.com/channels/\\d+/\\d+/\\d+".toRegex()
         val isLink = regex.matches(arg)
-        val kord = event.discord.kord
+        val kord = event.discord.api
 
         val message = if (isLink) {
             val (guildId, channelId, messageId) = arg.split("/").takeLast(3).map { it.toSnowflake() }

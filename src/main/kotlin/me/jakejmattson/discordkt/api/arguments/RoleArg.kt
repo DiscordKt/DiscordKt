@@ -23,7 +23,7 @@ open class RoleArg(override val name: String = "Role", private val guildId: Snow
         val resolvedGuildId = guildId ?: event.guild?.id
 
         if (arg.trimToID().toLongOrNull() != null) {
-            val role = event.discord.kord.guilds.toList().flatMap { it.roles.toList() }.firstOrNull { it.id == arg.toSnowflake() }
+            val role = event.discord.api.guilds.toList().flatMap { it.roles.toList() }.firstOrNull { it.id == arg.toSnowflake() }
 
             if (!allowsGlobal && resolvedGuildId != role?.guild?.id)
                 return Error("Must be from this guild")
@@ -34,7 +34,7 @@ open class RoleArg(override val name: String = "Role", private val guildId: Snow
 
         resolvedGuildId ?: return Error("Please invoke in a guild or use an ID")
 
-        val guild = event.discord.kord.getGuild(resolvedGuildId)
+        val guild = event.discord.api.getGuild(resolvedGuildId)
             ?: return Error("Guild not found")
 
         val argString = args.joinToString(" ").toLowerCase()

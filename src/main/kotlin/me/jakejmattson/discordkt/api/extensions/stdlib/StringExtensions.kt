@@ -68,7 +68,7 @@ private suspend fun String.cleanseRoles(discord: Discord): String {
     val roleMentions = roleRegex.findAll(this).map {
         val mention = it.value
 
-        val name = discord.kord
+        val name = discord.api
         val resolvedName = "" //TODO Figure out roles
 
         mention to resolvedName

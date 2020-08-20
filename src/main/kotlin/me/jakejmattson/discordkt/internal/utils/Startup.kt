@@ -39,11 +39,12 @@ class Bot(private val token: String, private val globalPath: String) {
         val data = registerData()
         val conversationService = ConversationService(discord).apply { diService.inject(this) }
         val services = registerServices()
-        val container = registerCommands()
+        val commands = registerCommands()
         val preconditions = buildPreconditions().sortedBy { it.priority }
 
+        discord.commands.addAll(commands)
         registerCommandListener(discord, preconditions)
-        registerReactionListener(discord.kord, conversationService)
+        registerReactionListener(discord.api, conversationService)
 
         InternalLogger.startup(data.size.pluralize("Data"))
         InternalLogger.startup(services.size.pluralize("Service"))
@@ -52,9 +53,9 @@ class Bot(private val token: String, private val globalPath: String) {
         conversationService.registerConversations(globalPath)
 
         if (loggingConfiguration.generateCommandDocs)
-            createDocumentation(container)
+            createDocumentation(commands)
 
-        Validator.validateCommandMeta(container)
+        Validator.validateCommandMeta(commands)
 
         InternalLogger.startup("-".repeat(header.length))
     }
@@ -72,7 +73,7 @@ class Bot(private val token: String, private val globalPath: String) {
         initCore(discord, loggingConfiguration)
         configureFun.invoke(botConfiguration, discord)
 
-        discord.kord.login()
+        discord.api.login()
     }
 
     /**

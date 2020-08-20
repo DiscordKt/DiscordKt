@@ -4,7 +4,6 @@ import me.jakejmattson.discordkt.api.arguments.AnyArg
 import me.jakejmattson.discordkt.api.dsl.command.*
 import me.jakejmattson.discordkt.internal.utils.Recommender
 import java.awt.Color
-import java.lang.Compiler.command
 
 internal fun produceHelpCommand(embedColor: Color) = commands {
     command("Help") {

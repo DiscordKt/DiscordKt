@@ -16,7 +16,7 @@ open class GuildArg(override val name: String = "Guild") : ArgumentType<Guild>()
     companion object : GuildArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Guild> {
-        val guild = event.discord.kord.guilds.firstOrNull { it.id == arg.toSnowflake() }
+        val guild = event.discord.api.guilds.firstOrNull { it.id == arg.toSnowflake() }
             ?: return Error("Not found")
 
         return Success(guild)

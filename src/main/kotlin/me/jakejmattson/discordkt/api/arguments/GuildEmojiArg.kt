@@ -29,7 +29,7 @@ open class GuildEmojiArg(override val name: String = "Guild Emote", private val 
 
         val availableEmotes =
             if (allowsGlobal)
-                event.discord.kord.guilds.toList().flatMap { it.emojis }
+                event.discord.api.guilds.toList().flatMap { it.emojis }
             else
                 event.guild?.emojis ?: emptyList()
 

@@ -98,4 +98,7 @@ fun MutableList<Command>.command(vararg names: String, body: Command.() -> Unit)
     add(command)
 }
 
+/**
+ * Get a command by its name (case insensitive).
+ */
 operator fun MutableList<Command>.get(name: String) = firstOrNull { name.toLowerCase() in it.names.map { it.toLowerCase() } }

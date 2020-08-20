@@ -15,7 +15,7 @@ open class UserArg(override val name: String = "User") : ArgumentType<User>() {
     companion object : UserArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {
-        val user = event.discord.kord.getUser(arg.toSnowflake())
+        val user = event.discord.api.getUser(arg.toSnowflake())
             ?: return Error("Not found")
 
         return Success(user)

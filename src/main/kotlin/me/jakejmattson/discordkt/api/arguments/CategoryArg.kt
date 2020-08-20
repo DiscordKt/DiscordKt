@@ -23,7 +23,7 @@ open class CategoryArg(override val name: String = "Category", private val guild
         val resolvedGuildId = guildId ?: event.guild?.id
 
         if (arg.trimToID().toLongOrNull() != null) {
-            val category = event.discord.kord.getChannel(arg.toSnowflake()) as? Category
+            val category = event.discord.api.getChannel(arg.toSnowflake()) as? Category
 
             if (!allowsGlobal && resolvedGuildId != category?.id)
                 return Error("Must be from this guild")
@@ -34,7 +34,7 @@ open class CategoryArg(override val name: String = "Category", private val guild
 
         resolvedGuildId ?: return Error("Please invoke in a guild or use an ID")
 
-        val guild = event.discord.kord.getGuild(resolvedGuildId)
+        val guild = event.discord.api.getGuild(resolvedGuildId)
             ?: return Error("Guild not found")
         val argString = args.joinToString(" ").toLowerCase()
 

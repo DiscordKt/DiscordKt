@@ -20,12 +20,13 @@ data class Properties(val repository: String, val libraryVersion: String, val ko
 private val propFile = Properties::class.java.getResource("/library-properties.json").readText()
 
 /**
+ * @property api A Kord instance used to access the Discord API.
  * @property configuration All of the current configuration details for this bot.
- * @property kord A Kord instance used to access the Discord API.
+ * @property commands All registered commands.
  * @property properties Properties for the core library.
  */
 abstract class Discord {
-    abstract val kord: Kord
+    abstract val api: Kord
     abstract val configuration: BotConfiguration
     abstract val commands: MutableList<Command>
     val properties = Gson().fromJson(propFile, Properties::class.java)!!
@@ -54,7 +55,7 @@ abstract class Discord {
 
 internal fun buildDiscordClient(api: Kord, botConfiguration: BotConfiguration) =
     object : Discord() {
-        override val kord = api
+        override val api = api
         override val configuration = botConfiguration
         override val commands = mutableListOf<Command>()
     }
