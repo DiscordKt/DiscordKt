@@ -3,6 +3,7 @@
 package me.jakejmattson.discordkt.api.dsl.command
 
 import kotlinx.coroutines.*
+import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.command.*
 import me.jakejmattson.discordkt.internal.utils.*
 
@@ -77,3 +78,24 @@ class Command(val names: List<String>,
     /** The logic run when this command is invoked */
     fun <A, B, C, D, E> execute(a1: Arg<A>, a2: Arg<B>, a3: Arg<C>, a4: Arg<D>, a5: Arg<E>, execute: execute5<A, B, C, D, E>) = setExecute(listOf(a1, a2, a3, a4, a5), execute)
 }
+
+/**
+ * Create a block where multiple commands can be created.
+ */
+@BuilderDSL
+fun commands(construct: MutableList<Command>.() -> Unit): MutableList<Command> {
+    val commands = mutableListOf<Command>()
+    commands.construct()
+    return commands
+}
+
+/**
+ * Create a new command in this list.
+ */
+fun MutableList<Command>.command(vararg names: String, body: Command.() -> Unit) {
+    val command = Command(names.toList())
+    command.body()
+    add(command)
+}
+
+operator fun MutableList<Command>.get(name: String) = firstOrNull { name.toLowerCase() in it.names.map { it.toLowerCase() } }

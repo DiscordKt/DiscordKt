@@ -39,10 +39,9 @@ data class DiscordContext(override val discord: Discord,
 }
 
 /**
- * A command execution event containing the [RawInputs], [CommandsContainer], and the relevant [DiscordContext].
+ * A command execution event containing the [RawInputs] and the relevant [DiscordContext].
  *
  * @param rawInputs The [RawInputs] of the command.
- * @param container The [CommandsContainer] containing commands within DiscordKt.
  *
  * @property discord The [Discord] instance.
  * @property author The User who invoked this command.
@@ -54,14 +53,13 @@ data class DiscordContext(override val discord: Discord,
  * @property args The [GenericContainer] containing the converted input.
  */
 data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
-                                              val container: CommandsContainer,
                                               private val discordContext: DiscordContext) : Responder {
     override val discord = discordContext.discord
     val author = discordContext.author
     val message = discordContext.message
     override val channel = discordContext.channel
     val guild = discordContext.guild
-    val command = container[rawInputs.commandName]
+    val command = discord.commands[rawInputs.commandName]
     val relevantPrefix = discordContext.relevantPrefix
 
     lateinit var args: T
@@ -69,8 +67,5 @@ data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
     /**
      * Clone this event with optional modifications.
      */
-    fun cloneToGeneric(input: RawInputs = rawInputs,
-                       commandsContainer: CommandsContainer = container,
-                       context: DiscordContext = discordContext) =
-        CommandEvent<GenericContainer>(input, commandsContainer, context)
+    fun cloneToGeneric(input: RawInputs = rawInputs, context: DiscordContext = discordContext) = CommandEvent<GenericContainer>(input, context)
 }

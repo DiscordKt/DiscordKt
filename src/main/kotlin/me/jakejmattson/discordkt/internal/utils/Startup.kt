@@ -3,7 +3,7 @@ package me.jakejmattson.discordkt.internal.utils
 import com.gitlab.kordlib.core.Kord
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.annotations.Service
-import me.jakejmattson.discordkt.api.dsl.command.CommandsContainer
+import me.jakejmattson.discordkt.api.dsl.command.*
 import me.jakejmattson.discordkt.api.dsl.configuration.*
 import me.jakejmattson.discordkt.api.dsl.data.Data
 import me.jakejmattson.discordkt.api.dsl.preconditions.Precondition
@@ -42,7 +42,7 @@ class Bot(private val token: String, private val globalPath: String) {
         val container = registerCommands()
         val preconditions = buildPreconditions().sortedBy { it.priority }
 
-        registerCommandListener(container, discord, preconditions)
+        registerCommandListener(discord, preconditions)
         registerReactionListener(discord.kord, conversationService)
 
         InternalLogger.startup(data.size.pluralize("Data"))
@@ -105,14 +105,13 @@ class Bot(private val token: String, private val globalPath: String) {
         startupBundle.logging = config
     }
 
-    private fun registerCommands(): CommandsContainer {
-        val localContainer = ReflectionUtils.detectCommands(globalPath)
+    private fun registerCommands(): MutableList<Command> {
+        val commands = ReflectionUtils.detectCommands(globalPath)
 
         //Add help command if a command named "Help" is not already provided
-        val helpService = produceHelpCommandContainer(localContainer, Color.BLUE)
-        localContainer["Help"] ?: localContainer + helpService
+        commands["Help"] ?: commands + produceHelpCommand(Color.BLUE).first()
 
-        return localContainer
+        return commands
     }
 
     private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(globalPath).apply { diService.buildAllRecursively(this) }

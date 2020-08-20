@@ -1,11 +1,12 @@
 package me.jakejmattson.discordkt.internal.services
 
 import me.jakejmattson.discordkt.api.arguments.MultipleArg
-import me.jakejmattson.discordkt.api.dsl.command.*
+import me.jakejmattson.discordkt.api.dsl.command.Command
 import java.io.File
 
-internal fun createDocumentation(container: CommandsContainer) {
-    val commands = container.commands.takeUnless { it.isEmpty() } ?: return
+internal fun createDocumentation(commands: List<Command>) {
+    if (commands.isEmpty())
+        return
 
     data class CommandData(val name: String, val args: String, val desc: String) {
         fun format(format: String) = String.format(format, name, args, desc)

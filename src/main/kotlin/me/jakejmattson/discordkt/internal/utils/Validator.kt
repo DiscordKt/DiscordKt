@@ -1,13 +1,11 @@
 package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.api.arguments.EitherArg
-import me.jakejmattson.discordkt.api.dsl.command.CommandsContainer
+import me.jakejmattson.discordkt.api.dsl.command.Command
 
 internal class Validator {
     companion object {
-        fun validateCommandMeta(commandsContainer: CommandsContainer) {
-            val commands = commandsContainer.commands
-
+        fun validateCommandMeta(commands: MutableList<Command>) {
             val duplicates = commands
                 .flatMap { it.names }
                 .groupingBy { it }

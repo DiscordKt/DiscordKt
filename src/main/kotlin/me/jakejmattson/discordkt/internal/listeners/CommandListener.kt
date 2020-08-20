@@ -12,7 +12,7 @@ import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.command.*
 import me.jakejmattson.discordkt.internal.utils.Recommender
 
-internal suspend fun registerCommandListener(container: CommandsContainer, discord: Discord, preconditions: List<Precondition>) = discord.kord.on<MessageCreateEvent> {
+internal suspend fun registerCommandListener(discord: Discord, preconditions: List<Precondition>) = discord.kord.on<MessageCreateEvent> {
     val config = discord.configuration
     val author = message.author?.takeUnless { it.isBot ?: false } ?: return@on
     val channel = message.channel
@@ -57,7 +57,7 @@ internal suspend fun registerCommandListener(container: CommandsContainer, disco
 
     if (commandName.isEmpty()) return@on
 
-    val event = CommandEvent<GenericContainer>(rawInputs, container, discordContext)
+    val event = CommandEvent<GenericContainer>(rawInputs, discordContext)
     val errors = getPreconditionErrors(event)
 
     if (errors.isNotEmpty()) {
@@ -69,12 +69,12 @@ internal suspend fun registerCommandListener(container: CommandsContainer, disco
         return@on
     }
 
-    val command = container[commandName]?.takeUnless { !config.hasPermission(it, author, channel) }
+    val command = discord.commands[commandName]?.takeUnless { !config.hasPermission(it, author, channel) }
 
     if (command == null) {
         val guild = message.getGuildOrNull()
 
-        val validCommands = container.commands
+        val validCommands = discord.commands
             .filter { config.hasPermission(it, author, channel) }
             .flatMap { it.names }
 

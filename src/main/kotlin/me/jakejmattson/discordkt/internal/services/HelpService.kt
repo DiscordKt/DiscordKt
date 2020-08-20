@@ -4,17 +4,19 @@ import me.jakejmattson.discordkt.api.arguments.AnyArg
 import me.jakejmattson.discordkt.api.dsl.command.*
 import me.jakejmattson.discordkt.internal.utils.Recommender
 import java.awt.Color
+import java.lang.Compiler.command
 
-internal fun produceHelpCommandContainer(container: CommandsContainer, embedColor: Color) = commands {
+internal fun produceHelpCommand(embedColor: Color) = commands {
     command("Help") {
         description = "Display a help menu."
         category = "Utility"
         execute(AnyArg("Command").makeOptional("")) { event ->
             val query = event.args.first
+            val commands = event.discord.commands
 
             when {
                 query.isEmpty() -> sendDefaultEmbed(event, embedColor)
-                query.isCommand(event) -> sendCommandEmbed(container[query]!!, event, query, embedColor)
+                query.isCommand(event) -> sendCommandEmbed(commands[query]!!, event, query, embedColor)
                 else -> Recommender.sendRecommendation(event, query, fetchVisibleCommands(event).flatMap { it.names })
             }
         }
@@ -76,7 +78,7 @@ private fun generateExample(command: Command, event: CommandEvent<*>) =
 private fun String.isCommand(event: CommandEvent<*>) = fetchVisibleCommands(event)
     .any { toLowerCase() in it.names.map { it.toLowerCase() } }
 
-private fun fetchVisibleCommands(event: CommandEvent<*>) = event.container.commands
+private fun fetchVisibleCommands(event: CommandEvent<*>) = event.discord.commands
     .filter { event.discord.configuration.hasPermission(it, event.author, event.channel) }
 
 private fun generateStructure(command: Command) =
