@@ -14,37 +14,30 @@ import me.jakejmattson.discordkt.internal.utils.Recommender
 
 internal suspend fun registerCommandListener(discord: Discord, preconditions: List<Precondition>) = discord.api.on<MessageCreateEvent> {
     val config = discord.configuration
-    val author = message.author?.takeUnless { it.isBot ?: false } ?: return@on
-    val channel = message.channel
-    val content = message.content
-    val discordContext = DiscordContext(discord, message, guild = message.getGuildOrNull())
-    val prefix = config.prefix.invoke(discordContext)
-    val conversationService = discord.getInjectionObjects(ConversationService::class)
 
-    fun isPrefixInvocation(message: String, prefix: String) = message.startsWith(prefix)
-
-    suspend fun isMentionInvocation(message: String): Boolean {
+    fun isMentionInvocation(message: String): Boolean {
         if (!config.allowMentionPrefix)
             return false
 
-        val id = discord.api.getSelf().id
+        val id = kord.selfId
 
         return message.startsWith("<@!$id>") || message.startsWith("<@$id>")
     }
 
-    fun getPreconditionErrors(event: CommandEvent<*>) =
-        preconditions
-            .map { it.evaluate(event) }
-            .filterIsInstance<Fail>()
-            .map { it.reason }
+    val author = message.author ?: return@on
+    val discordContext = DiscordContext(discord, message, getGuild())
+    val prefix = config.prefix.invoke(discordContext)
+    val conversationService = discord.getInjectionObjects(ConversationService::class)
+    val channel = message.channel
+    val content = message.content
 
     val rawInputs = when {
-        isPrefixInvocation(content, prefix) -> stripPrefixInvocation(content, prefix)
-        content.trimToID() == channel.kord.getSelf().id.toString() -> {
-            val embed = config.mentionEmbed ?: return@on
-
-            channel.createEmbed {
-                embed.invoke(this, discordContext)
+        content.startsWith(prefix) -> stripPrefixInvocation(content, prefix)
+        content.trimToID() == kord.selfId.toString() -> {
+            config.mentionEmbed?.let {
+                channel.createEmbed {
+                    it.invoke(this, discordContext)
+                }
             }
 
             return@on
@@ -58,7 +51,10 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
     if (commandName.isEmpty()) return@on
 
     val event = CommandEvent<GenericContainer>(rawInputs, discordContext)
-    val errors = getPreconditionErrors(event)
+    val errors = preconditions
+        .map { it.evaluate(event) }
+        .filterIsInstance<Fail>()
+        .map { it.reason }
 
     if (errors.isNotEmpty()) {
         val errorMessage = errors.firstOrNull { it.isNotBlank() }

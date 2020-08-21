@@ -1,5 +1,6 @@
 package me.jakejmattson.discordkt.api.dsl.command
 
+import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
 import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.entity.channel.MessageChannel
 import me.jakejmattson.discordkt.api.Discord
@@ -34,7 +35,7 @@ data class DiscordContext(override val discord: Discord,
                           val message: Message,
                           val guild: Guild?,
                           val author: User = message.author!!,
-                          override val channel: MessageChannel = message.channel as MessageChannel) : Responder {
+                          override val channel: MessageChannelBehavior = message.channel) : Responder {
     val relevantPrefix: String = discord.configuration.prefix.invoke(this)
 }
 

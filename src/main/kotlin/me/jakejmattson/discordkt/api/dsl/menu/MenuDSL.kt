@@ -2,15 +2,13 @@
 
 package me.jakejmattson.discordkt.api.dsl.menu
 
-import com.gitlab.kordlib.common.entity.*
+import com.gitlab.kordlib.common.entity.Snowflake
 import com.gitlab.kordlib.core.*
-import com.gitlab.kordlib.core.behavior.channel.createEmbed
+import com.gitlab.kordlib.core.behavior.channel.*
 import com.gitlab.kordlib.core.behavior.edit
 import com.gitlab.kordlib.core.entity.ReactionEmoji
-import com.gitlab.kordlib.core.entity.channel.MessageChannel
 import com.gitlab.kordlib.core.event.message.ReactionAddEvent
 import com.gitlab.kordlib.kordx.emoji.*
-import com.gitlab.kordlib.kordx.emoji.DiscordEmoji
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
@@ -56,9 +54,10 @@ data class Menu(val pages: MutableList<EmbedBuilder.() -> Unit>,
                 val customReactions: MutableMap<ReactionEmoji, EmbedBuilder.() -> Unit>,
                 val leftReact: ReactionEmoji,
                 val rightReact: ReactionEmoji) {
-    internal suspend fun build(channel: MessageChannel) {
-        if (channel.type == ChannelType.DM)
-            return InternalLogger.error("Cannot use menus within a private context.")
+    internal suspend fun build(channel: MessageChannelBehavior) {
+        //TODO Disallow menus in private channels
+        //if (channel.type == ChannelType.DM)
+            //return InternalLogger.error("Cannot use menus within a private context.")
 
         if (pages.isEmpty())
             return InternalLogger.error("A menu must have at least one page.")

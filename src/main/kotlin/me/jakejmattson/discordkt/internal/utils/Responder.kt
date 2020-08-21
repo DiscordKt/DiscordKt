@@ -3,7 +3,6 @@
 package me.jakejmattson.discordkt.internal.utils
 
 import com.gitlab.kordlib.core.behavior.channel.*
-import com.gitlab.kordlib.core.entity.channel.MessageChannel
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.Discord
@@ -12,7 +11,7 @@ import me.jakejmattson.discordkt.api.extensions.stdlib.sanitiseMentions
 
 internal interface Responder {
     val discord: Discord
-    val channel: MessageChannel
+    val channel: MessageChannelBehavior
 
     fun unsafeRespond(message: String) = runBlocking { chunkRespond(message) }
     fun respond(message: String) = runBlocking { chunkRespond(message.sanitiseMentions(discord)) }

@@ -110,7 +110,7 @@ class Bot(private val token: String, private val globalPath: String) {
         val commands = ReflectionUtils.detectCommands(globalPath)
 
         //Add help command if a command named "Help" is not already provided
-        commands["Help"] ?: commands + produceHelpCommand(Color.BLUE).first()
+        commands["Help"] ?: commands.add(produceHelpCommand(Color.BLUE).first())
 
         return commands
     }
