@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.api.extensions.stdlib
+package me.jakejmattson.discordkt.api.extensions
 
 import com.gitlab.kordlib.common.entity.Snowflake
 import me.jakejmattson.discordkt.api.Discord

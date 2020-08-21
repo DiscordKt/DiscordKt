@@ -5,7 +5,7 @@ import com.gitlab.kordlib.core.entity.Role
 import kotlinx.coroutines.flow.*
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.stdlib.*
+import me.jakejmattson.discordkt.api.extensions.*
 
 /**
  * Accepts a Discord Role entity as an ID, a mention, or by name.

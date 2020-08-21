@@ -1,10 +1,9 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.api.extensions.jda
+package me.jakejmattson.discordkt.api.extensions
 
 import com.gitlab.kordlib.core.entity.Message
 import kotlinx.coroutines.flow.count
-import me.jakejmattson.discordkt.api.extensions.stdlib.*
 
 /**
  * Checks whether or not this message's raw content contains an invite.

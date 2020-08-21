@@ -2,7 +2,6 @@ package me.jakejmattson.discordkt.api.dsl.command
 
 import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
 import com.gitlab.kordlib.core.entity.*
-import com.gitlab.kordlib.core.entity.channel.MessageChannel
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.internal.utils.Responder
 

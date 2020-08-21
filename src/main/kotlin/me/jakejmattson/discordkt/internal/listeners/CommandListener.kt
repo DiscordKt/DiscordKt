@@ -7,7 +7,7 @@ import com.gitlab.kordlib.kordx.emoji.toReaction
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.dsl.command.*
 import me.jakejmattson.discordkt.api.dsl.preconditions.*
-import me.jakejmattson.discordkt.api.extensions.stdlib.trimToID
+import me.jakejmattson.discordkt.api.extensions.trimToID
 import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.command.*
 import me.jakejmattson.discordkt.internal.utils.Recommender

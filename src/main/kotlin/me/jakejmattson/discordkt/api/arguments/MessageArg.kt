@@ -5,7 +5,7 @@ import com.gitlab.kordlib.core.entity.channel.TextChannel
 import kotlinx.coroutines.flow.firstOrNull
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.stdlib.toSnowflake
+import me.jakejmattson.discordkt.api.extensions.toSnowflake
 
 /**
  * Accepts a Discord Message entity as an ID or a link.

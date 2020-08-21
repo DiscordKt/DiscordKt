@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.api.extensions.jda
+package me.jakejmattson.discordkt.api.extensions
 
 import com.gitlab.kordlib.core.entity.User
 

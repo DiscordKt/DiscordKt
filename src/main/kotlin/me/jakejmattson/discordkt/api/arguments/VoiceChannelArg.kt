@@ -3,7 +3,7 @@ package me.jakejmattson.discordkt.api.arguments
 import com.gitlab.kordlib.core.entity.channel.VoiceChannel
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.stdlib.toSnowflake
+import me.jakejmattson.discordkt.api.extensions.toSnowflake
 
 /**
  * Accepts a Discord VoiceChannel entity as an ID or mention.

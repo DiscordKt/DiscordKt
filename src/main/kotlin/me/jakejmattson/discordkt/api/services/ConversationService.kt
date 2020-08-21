@@ -10,7 +10,7 @@ import com.gitlab.kordlib.core.event.message.ReactionAddEvent
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.dsl.conversation.*
-import me.jakejmattson.discordkt.api.extensions.stdlib.pluralize
+import me.jakejmattson.discordkt.api.extensions.pluralize
 import me.jakejmattson.discordkt.api.services.ConversationResult.*
 import me.jakejmattson.discordkt.internal.utils.*
 import java.lang.reflect.Method

@@ -7,7 +7,7 @@ import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.dsl.menu.Menu
-import me.jakejmattson.discordkt.api.extensions.stdlib.sanitiseMentions
+import me.jakejmattson.discordkt.api.extensions.sanitiseMentions
 
 internal interface Responder {
     val discord: Discord

@@ -4,7 +4,7 @@ import com.gitlab.kordlib.core.entity.GuildEmoji
 import kotlinx.coroutines.flow.toList
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.stdlib.*
+import me.jakejmattson.discordkt.api.extensions.*
 
 /**
  * Accepts a guild emote.
