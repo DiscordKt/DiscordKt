@@ -1,8 +1,9 @@
 package me.jakejmattson.discordkt.api.dsl.command
 
+import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
+import com.gitlab.kordlib.core.entity.*
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.internal.utils.Responder
-import net.dv8tion.jda.api.entities.*
 
 /**
  * Data class containing the raw information from the command execution.
@@ -24,24 +25,23 @@ data class RawInputs(
  *
  * @property discord The [Discord] instance.
  * @property message The Message that invoked this command.
- * @property author The User who invoked this command.
  * @property guild The Guild this command was invoked in.
+ * @property author The User who invoked this command.
  * @property channel The MessageChannel this command was invoked in.
  * @property relevantPrefix The prefix used to invoke this command.
  */
 data class DiscordContext(override val discord: Discord,
                           val message: Message,
-                          val author: User = message.author,
-                          val guild: Guild? = if (message.isFromGuild) message.guild else null,
-                          override val channel: MessageChannel = message.channel) : Responder {
+                          val guild: Guild?,
+                          val author: User = message.author!!,
+                          override val channel: MessageChannelBehavior = message.channel) : Responder {
     val relevantPrefix: String = discord.configuration.prefix.invoke(this)
 }
 
 /**
- * A command execution event containing the [RawInputs], [CommandsContainer], and the relevant [DiscordContext].
+ * A command execution event containing the [RawInputs] and the relevant [DiscordContext].
  *
  * @param rawInputs The [RawInputs] of the command.
- * @param container The [CommandsContainer] containing commands within DiscordKt.
  *
  * @property discord The [Discord] instance.
  * @property author The User who invoked this command.
@@ -53,14 +53,13 @@ data class DiscordContext(override val discord: Discord,
  * @property args The [GenericContainer] containing the converted input.
  */
 data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
-                                              val container: CommandsContainer,
                                               private val discordContext: DiscordContext) : Responder {
     override val discord = discordContext.discord
     val author = discordContext.author
     val message = discordContext.message
     override val channel = discordContext.channel
     val guild = discordContext.guild
-    val command = container[rawInputs.commandName]
+    val command = discord.commands[rawInputs.commandName]
     val relevantPrefix = discordContext.relevantPrefix
 
     lateinit var args: T
@@ -68,8 +67,5 @@ data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
     /**
      * Clone this event with optional modifications.
      */
-    fun cloneToGeneric(input: RawInputs = rawInputs,
-                       commandsContainer: CommandsContainer = container,
-                       context: DiscordContext = discordContext) =
-        CommandEvent<GenericContainer>(input, commandsContainer, context)
+    fun cloneToGeneric(input: RawInputs = rawInputs, context: DiscordContext = discordContext) = CommandEvent<GenericContainer>(input, context)
 }

@@ -1,9 +1,9 @@
 package me.jakejmattson.discordkt.api.arguments
 
+import com.gitlab.kordlib.core.entity.channel.TextChannel
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.stdlib.trimToID
-import net.dv8tion.jda.api.entities.TextChannel
+import me.jakejmattson.discordkt.api.extensions.toSnowflake
 
 /**
  * Accepts a Discord TextChannel entity as an ID or mention.
@@ -16,18 +16,16 @@ open class TextChannelArg(override val name: String = "Text Channel", private va
      */
     companion object : TextChannelArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<TextChannel> {
-        val channel = event.discord.retrieveEntity {
-            it.getTextChannelById(arg.trimToID())
-        } ?: return Error("Not found")
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<TextChannel> {
+        val channel = event.discord.api.getChannel(arg.toSnowflake()) as? TextChannel ?: return Error("Not found")
 
-        if (!allowsGlobal && channel.guild.id != event.guild?.id)
+        if (!allowsGlobal && channel.id != event.guild?.id)
             return Error("Must be from this guild.")
 
         return Success(channel)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id)
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id.toString())
 
     override fun formatData(data: TextChannel) = "#${data.name}"
 }

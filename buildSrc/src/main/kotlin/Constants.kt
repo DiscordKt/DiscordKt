@@ -7,13 +7,13 @@ object Constants {
 }
 
 object Versions {
-    const val kotlin = "1.3.72"
-    const val coroutines = "1.3.7"
+    const val kotlin = "1.4.0"
+    const val coroutines = "1.3.9"
     const val reflections = "0.9.12"
     const val gson = "2.8.6"
-    const val guava = "29.0-jre"
     const val slf4j = "1.7.30"
-    const val jda = "4.2.0_189"
+    const val kord = "0.6.0"
+    const val emojis = "0.2.0"
 
     //Test Dependencies
     const val mockk = "1.10.0"
@@ -27,8 +27,8 @@ object Dependencies {
     const val slf4j = "org.slf4j:slf4j-nop:${Versions.slf4j}"
 
     //Library Dependencies
-    const val jda = "net.dv8tion:JDA:${Versions.jda}"
-    const val guava = "com.google.guava:guava:${Versions.guava}"
+    const val kord = "com.gitlab.kordlib.kord:kord-core:${Versions.kord}"
+    const val emojis = "com.gitlab.kordlib:kordx.emoji:${Versions.emojis}"
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
 
     //Test Dependencies

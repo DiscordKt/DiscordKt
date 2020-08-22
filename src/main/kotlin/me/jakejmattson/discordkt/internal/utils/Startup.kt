@@ -1,21 +1,18 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import com.google.common.eventbus.EventBus
+import com.gitlab.kordlib.core.Kord
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.annotations.Service
-import me.jakejmattson.discordkt.api.dsl.command.CommandsContainer
+import me.jakejmattson.discordkt.api.dsl.command.*
 import me.jakejmattson.discordkt.api.dsl.configuration.*
 import me.jakejmattson.discordkt.api.dsl.data.Data
 import me.jakejmattson.discordkt.api.dsl.preconditions.Precondition
-import me.jakejmattson.discordkt.api.extensions.stdlib.pluralize
+import me.jakejmattson.discordkt.api.extensions.pluralize
 import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
-import me.jakejmattson.discordkt.internal.command.CommandRecommender
 import me.jakejmattson.discordkt.internal.listeners.*
 import me.jakejmattson.discordkt.internal.services.*
-import net.dv8tion.jda.api.JDABuilder
-import net.dv8tion.jda.api.requests.GatewayIntent
-import net.dv8tion.jda.api.utils.MemberCachePolicy
+import java.awt.Color
 import kotlin.system.exitProcess
 
 @PublishedApi
@@ -25,20 +22,14 @@ internal val diService = DIService()
  * Backing class for [bot][me.jakejmattson.discordkt.api.dsl.bot] function.
  */
 class Bot(private val token: String, private val globalPath: String) {
-    private val jdaDefault = JDABuilder.createDefault(token)
-        .setMemberCachePolicy(MemberCachePolicy.ALL)
-        .enableIntents(GatewayIntent.GUILD_MEMBERS)
-
-    private data class StartupFunctions(var client: (String) -> JDABuilder,
-                                        var configure: BotConfiguration.(Discord) -> Unit = { BotConfiguration() },
-                                        var injecton: InjectionConfiguration.() -> Unit = { InjectionConfiguration() },
+    private data class StartupFunctions(var configure: BotConfiguration.(Discord) -> Unit = { BotConfiguration() },
+                                        var injection: InjectionConfiguration.() -> Unit = { InjectionConfiguration() },
                                         var logging: LoggingConfiguration.() -> Unit = { LoggingConfiguration() })
 
-    private val startupBundle = StartupFunctions({ jdaDefault })
+    private val startupBundle = StartupFunctions()
     private val botConfiguration = BotConfiguration()
-    private val eventBus = EventBus()
 
-    private fun initCore(discord: Discord, loggingConfiguration: LoggingConfiguration) {
+    private suspend fun initCore(discord: Discord, loggingConfiguration: LoggingConfiguration) {
         diService.inject(discord)
 
         InternalLogger.shouldLogStartup = loggingConfiguration.showStartupLog
@@ -48,56 +39,41 @@ class Bot(private val token: String, private val globalPath: String) {
         val data = registerData()
         val conversationService = ConversationService(discord).apply { diService.inject(this) }
         val services = registerServices()
-        val container = registerCommands()
-        val listeners = detectListeners()
+        val commands = registerCommands()
         val preconditions = buildPreconditions().sortedBy { it.priority }
-        val commandListener = CommandListener(container, discord, preconditions)
-        val reactionListener = ReactionListener(conversationService)
-        val allListeners = listeners + listOf(commandListener, reactionListener)
+
+        discord.commands.addAll(commands)
+        registerCommandListener(discord, preconditions)
+        registerReactionListener(discord.api, conversationService)
 
         InternalLogger.startup(data.size.pluralize("Data"))
         InternalLogger.startup(services.size.pluralize("Service"))
-        InternalLogger.startup(listeners.size.pluralize("Listener"))
         InternalLogger.startup(preconditions.size.pluralize("Precondition"))
 
-        allListeners.forEach { eventBus.register(it) }
         conversationService.registerConversations(globalPath)
 
         if (loggingConfiguration.generateCommandDocs)
-            createDocumentation(container)
+            createDocumentation(commands)
 
-        Validator.validateCommandMeta(container)
-        Validator.validateReaction(botConfiguration)
+        Validator.validateCommandMeta(commands)
 
         InternalLogger.startup("-".repeat(header.length))
     }
 
-    internal fun buildBot() {
-        val (clientFun,
-            configureFun,
-            injectionFun,
-            loggingFun
-        ) = startupBundle
+    internal suspend fun buildBot() {
+        val (configureFun, injectionFun, loggingFun) = startupBundle
 
         val loggingConfiguration = LoggingConfiguration()
         loggingFun.invoke(loggingConfiguration)
 
-        val jdaBuilder = clientFun.invoke(token)
-
         val injection = InjectionConfiguration()
         injectionFun.invoke(injection)
 
-        val discord = buildDiscordClient(jdaBuilder, botConfiguration, eventBus)
+        val discord = buildDiscordClient(Kord(token), botConfiguration)
         initCore(discord, loggingConfiguration)
         configureFun.invoke(botConfiguration, discord)
-    }
 
-    /**
-     * Modify client configuration.
-     */
-    @ConfigurationDSL
-    fun client(config: (String) -> JDABuilder) {
-        startupBundle.client = config
+        discord.api.login()
     }
 
     /**
@@ -117,7 +93,7 @@ class Bot(private val token: String, private val globalPath: String) {
      */
     @ConfigurationDSL
     fun injection(config: InjectionConfiguration.() -> Unit) {
-        startupBundle.injecton = config
+        startupBundle.injection = config
     }
 
     /**
@@ -130,19 +106,15 @@ class Bot(private val token: String, private val globalPath: String) {
         startupBundle.logging = config
     }
 
-    private fun registerCommands(): CommandsContainer {
-        val localContainer = ReflectionUtils.detectCommands(globalPath)
+    private fun registerCommands(): MutableList<Command> {
+        val commands = ReflectionUtils.detectCommands(globalPath)
 
         //Add help command if a command named "Help" is not already provided
-        val helpService = HelpService(localContainer, botConfiguration)
-        localContainer["Help"] ?: localContainer + helpService.produceHelpCommandContainer()
+        commands["Help"] ?: commands.add(produceHelpCommand(Color.BLUE).first())
 
-        CommandRecommender.addAll(localContainer.commands)
-
-        return localContainer
+        return commands
     }
 
-    private fun detectListeners() = ReflectionUtils.detectListeners(globalPath)
     private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(globalPath).apply { diService.buildAllRecursively(this) }
     private fun buildPreconditions() = ReflectionUtils.detectSubtypesOf<Precondition>(globalPath).map { diService.invokeConstructor(it) }
 

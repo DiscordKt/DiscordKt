@@ -14,7 +14,7 @@ open class SplitterArg(override val name: String = "TextWithSplitter", private v
      */
     companion object : SplitterArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<String>> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<String>> {
         val joined = args.joinToString(" ")
 
         if (!joined.contains(splitter))

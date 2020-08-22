@@ -1,33 +1,39 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "me.jakejmattson"
-version = "0.19.1"
+version = "0.20.0-SNAPSHOT"
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
+    //Core
     kotlin("jvm") version Versions.kotlin
-    `maven-publish`
-    signing
-    id("io.codearte.nexus-staging") version "0.21.2"
-    id("com.github.ben-manes.versions") version "0.29.0"
+    kotlin("plugin.serialization") version Versions.kotlin
     id("org.jetbrains.dokka") version "0.10.1"
+
+    //Publishing
+    signing
+    `maven-publish`
+    id("io.codearte.nexus-staging") version "0.22.0"
+
+    //Misc
+    id("com.github.ben-manes.versions") version "0.29.0"
 }
 
 repositories {
     mavenCentral()
     jcenter()
+    maven(url = "https://dl.bintray.com/kordlib/Kord")
 }
 
 dependencies {
     //Internal Dependencies
-    implementation(kotlin("stdlib-jdk8"))
     implementation(Dependencies.coroutines)
     implementation(Dependencies.reflections)
     implementation(Dependencies.slf4j)
 
     //Library Dependencies
-    api(Dependencies.jda)
-    api(Dependencies.guava)
+    api(Dependencies.kord)
+    api(Dependencies.emojis)
     api(Dependencies.gson)
 
     //Test Dependencies
@@ -52,7 +58,7 @@ tasks {
 
         from(file(path))
         into(file("."))
-        rename{ "README.md" }
+        rename { "README.md" }
         expand(
             "group" to group,
             "project" to Constants.projectName,
@@ -63,12 +69,12 @@ tasks {
     copy {
         from(file("$resourcePath/templates/properties-template.json"))
         into(file(resourcePath))
-        rename{ "library-properties.json" }
+        rename { "library-properties.json" }
         expand(
             "projectRepo" to Constants.projectUrl,
             "projectVersion" to version,
             "kotlinVersion" to Versions.kotlin,
-            "jdaVersion" to Versions.jda
+            "kordVersion" to Versions.kord
         )
     }
 
@@ -83,6 +89,28 @@ tasks {
 
             targets = listOf("JVM")
             platform = "JVM"
+        }
+    }
+
+    register("dependencySizes") {
+        description = "Print dependency sizes for the default configuration"
+        doLast {
+            val sizes = buildString {
+                val configuration = configurations["default"]
+                val size = configuration.map { it.length() / (1024 * 1024) }.sum()
+                val longestName = configuration.map { it.name.length }.max()
+                val formatStr = "%-${longestName}s   %5d KB"
+
+                appendln("Total Size: $size MB\n")
+
+                configuration
+                    .sortedBy { -it.length() }
+                    .forEach {
+                        appendln(formatStr.format(it.name, it.length() / 1024))
+                    }
+            }
+
+            println(sizes)
         }
     }
 }

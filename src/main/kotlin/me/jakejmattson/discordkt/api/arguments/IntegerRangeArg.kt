@@ -12,7 +12,7 @@ open class IntegerRangeArg(private val min: Int, private val max: Int, override 
         require(max > min) { "Maximum value must be greater than minimum value." }
     }
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Int> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Int> {
         val int = arg.toIntOrNull()
             ?: return Error("Invalid format")
 

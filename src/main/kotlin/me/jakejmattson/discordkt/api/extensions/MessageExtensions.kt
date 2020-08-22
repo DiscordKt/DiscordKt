@@ -1,31 +1,31 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.api.extensions.jda
+package me.jakejmattson.discordkt.api.extensions
 
-import me.jakejmattson.discordkt.api.extensions.stdlib.*
-import net.dv8tion.jda.api.entities.Message
+import com.gitlab.kordlib.core.entity.Message
+import kotlinx.coroutines.flow.count
 
 /**
  * Checks whether or not this message's raw content contains an invite.
  */
-fun Message.containsInvite() = contentRaw.containsInvite()
+fun Message.containsInvite() = content.containsInvite()
 
 /**
  * Checks whether or not this message's raw content contains a URL.
  */
-fun Message.containsURL() = contentRaw.containsURl()
+fun Message.containsURL() = content.containsURl()
 
 /**
  * Checks whether or not this message's raw content mentions a user or role.
  */
-fun Message.mentionsSomeone() = (mentionsEveryone() || mentionedUsers.size > 0 || mentionedRoles.size > 0)
+suspend fun Message.mentionsSomeone() = (mentionsEveryone || mentionedUsers.count() > 0 || mentionedRoles.count() > 0)
 
 /**
  * Checks whether or not this message has an attached image and has no text.
  */
 fun Message.isImagePost() =
     if (attachments.isNotEmpty()) {
-        attachments.first().isImage && contentRaw.isBlank()
+        attachments.first().isImage && content.isBlank()
     } else {
         false
     }

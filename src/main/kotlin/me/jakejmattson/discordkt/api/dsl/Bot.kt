@@ -7,16 +7,17 @@ import me.jakejmattson.discordkt.internal.utils.Bot
 
 /**
  * Create an instance of your Discord bot! You can use the following blocks to modify bot configuration:
- * [configure][Bot.configure], [injection][Bot.injection], [client][Bot.client], [logging][Bot.logging]
+ * [configure][Bot.configure], [injection][Bot.injection], [logging][Bot.logging]
  *
  * @param token Your Discord bot token.
  */
 @ConfigurationDSL
-fun bot(token: String, operate: Bot.() -> Unit) =
-    Bot(token, detectGlobalPath(Exception())).apply {
-        operate()
-        buildBot()
-    }
+suspend fun bot(token: String, operate: Bot.() -> Unit) {
+    val bot = Bot(token, detectGlobalPath(Exception()))
+
+    bot.operate()
+    bot.buildBot()
+}
 
 private fun detectGlobalPath(exception: Exception): String {
     val full = exception.stackTrace[1].className

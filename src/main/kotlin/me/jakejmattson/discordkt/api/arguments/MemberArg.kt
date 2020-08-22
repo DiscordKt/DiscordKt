@@ -1,10 +1,9 @@
 package me.jakejmattson.discordkt.api.arguments
 
+import com.gitlab.kordlib.core.entity.Member
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.jda.fullName
-import me.jakejmattson.discordkt.api.extensions.stdlib.trimToID
-import net.dv8tion.jda.api.entities.Member
+import me.jakejmattson.discordkt.api.extensions.toSnowflake
 
 /**
  * Accepts a Discord Member entity as an ID or mention.
@@ -17,20 +16,17 @@ open class MemberArg(override val name: String = "Member", private val allowsBot
      */
     companion object : MemberArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Member> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Member> {
         val guild = event.guild ?: return Error("No guild found")
-        val id = arg.trimToID()
 
-        val member = event.discord.retrieveEntity {
-            guild.getMemberById(id)
-        } ?: return Error("Not found")
+        val member = guild.getMemberOrNull(arg.toSnowflake()) ?: return Error("Not found")
 
-        if (!allowsBot && member.user.isBot)
+        if (!allowsBot && member.isBot == true)
             return Error("Cannot be a bot")
 
         return Success(member)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.id)
-    override fun formatData(data: Member) = "@${data.user.fullName()}"
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.id.toString())
+    override fun formatData(data: Member) = "@${data.tag}"
 }

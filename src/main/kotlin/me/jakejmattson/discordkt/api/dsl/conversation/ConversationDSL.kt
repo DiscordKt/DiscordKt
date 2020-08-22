@@ -2,17 +2,21 @@
 
 package me.jakejmattson.discordkt.api.dsl.conversation
 
+import com.gitlab.kordlib.common.entity.Snowflake
+import com.gitlab.kordlib.core.behavior.channel.createEmbed
+import com.gitlab.kordlib.core.entity.*
+import com.gitlab.kordlib.core.entity.channel.MessageChannel
+import com.gitlab.kordlib.core.event.message.ReactionAddEvent
+import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.dsl.arguments.*
 import me.jakejmattson.discordkt.api.dsl.command.*
-import me.jakejmattson.discordkt.api.dsl.embed.*
 import me.jakejmattson.discordkt.api.services.ConversationResult
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.utils.Responder
-import net.dv8tion.jda.api.entities.*
 
 private class ExitException : Exception("Conversation exited early.")
 private class DmException : Exception("Message failed to deliver.")
@@ -24,17 +28,17 @@ data class ConversationStateContainer(override val discord: Discord,
                                       var exitString: String? = null) : Responder {
 
     private val messageBuffer = Channel<Message>()
-    private val reactionBuffer = Channel<MessageReaction>()
+    private val reactionBuffer = Channel<ReactionAddEvent>()
 
     /**
      * All ID's of messages sent by the bot in this conversation.
      */
-    val botMessageIds = mutableListOf<String>()
+    val botMessageIds = mutableListOf<Snowflake>()
 
     /**
      * All ID's of messages sent by the user in this conversation.
      */
-    val userMessageIds = mutableListOf<String>()
+    val userMessageIds = mutableListOf<Snowflake>()
 
     /**
      * The ID of the most recent message sent by the bot in this conversation.
@@ -49,7 +53,7 @@ data class ConversationStateContainer(override val discord: Discord,
         get() = userMessageIds.last()
 
     internal suspend fun acceptMessage(message: Message) = messageBuffer.send(message)
-    internal suspend fun acceptReaction(reaction: MessageReaction) = reactionBuffer.send(reaction)
+    internal suspend fun acceptReaction(reaction: ReactionAddEvent) = reactionBuffer.send(reaction)
 
     /**
      * Prompt the user with a String. Re-prompt until the response converts correctly. Then apply a custom predicate as an additional check.
@@ -60,11 +64,11 @@ data class ConversationStateContainer(override val discord: Discord,
      * @param isValid A predicate to determine whether or not the input is accepted.
      */
     @Throws(DmException::class)
-    fun <T> promptUntil(argumentType: ArgumentType<T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
+    suspend fun <T> promptUntil(argumentType: ArgumentType<T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
         var value: T = promptMessage(argumentType, prompt)
 
         while (!isValid.invoke(value)) {
-            sendPrompt(error)
+            channel.createMessage(error).also { botMessageIds.add(it.id) }
             value = promptMessage(argumentType, prompt)
         }
 
@@ -90,9 +94,16 @@ data class ConversationStateContainer(override val discord: Discord,
      * @param prompt The embed sent to the user as a prompt for information.
      */
     @Throws(DmException::class)
-    fun <T> promptEmbed(argumentType: ArgumentType<T>, prompt: EmbedDSL.() -> Unit): T {
+    suspend fun <T> promptEmbed(argumentType: ArgumentType<T>, prompt: EmbedBuilder.() -> Unit): T {
         require(!argumentType.isOptional) { "Conversation arguments cannot be optional" }
-        return retrieveValidTextResponse(argumentType, embed(prompt))
+
+        val message = channel.createEmbed {
+            prompt.invoke(this)
+        }
+
+        botMessageIds.add(message.id)
+
+        return retrieveValidTextResponse(argumentType, null)
     }
 
     /**
@@ -102,24 +113,26 @@ data class ConversationStateContainer(override val discord: Discord,
      * @param prompt The embed sent to the user as a prompt for information.
      */
     @Throws(DmException::class)
-    fun <T> promptReaction(reactionMap: Map<String, T>, prompt: EmbedDSL.() -> Unit): T {
-        channel.sendMessage(embed(prompt)).queue { message ->
-            botMessageIds.add(message.id)
+    suspend fun <T> promptReaction(reactionMap: Map<ReactionEmoji, T>, prompt: EmbedBuilder.() -> Unit): T {
+        val message = channel.createEmbed {
+            prompt.invoke(this)
+        }
 
-            reactionMap.forEach {
-                message.addReaction(it.key).queue()
-            }
+        botMessageIds.add(message.id)
+
+        reactionMap.forEach {
+            message.addReaction(it.key)
         }
 
         return retrieveValidReactionResponse(reactionMap)
     }
 
-    private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<*>, prompt: Any): T = runBlocking<T> {
-        sendPrompt(prompt)
+    private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<*>, prompt: String?): T = runBlocking {
+        prompt?.let { channel.createMessage(it) }?.also { botMessageIds.add(it.id) }
         retrieveTextResponse(argumentType) ?: retrieveValidTextResponse(argumentType, prompt)
     }
 
-    private fun <T> retrieveValidReactionResponse(reactions: Map<String, T>): T = runBlocking<T> {
+    private fun <T> retrieveValidReactionResponse(reactions: Map<ReactionEmoji, T>): T = runBlocking {
         retrieveReactionResponse(reactions) ?: retrieveValidReactionResponse(reactions)
     }
 
@@ -127,7 +140,7 @@ data class ConversationStateContainer(override val discord: Discord,
         messageBuffer.onReceive { input ->
             userMessageIds.add(input.id)
 
-            if (input.contentStripped == exitString)
+            if (input.content == exitString)
                 throw ExitException()
 
             when (val result = parseResponse(argumentType, input)) {
@@ -140,29 +153,22 @@ data class ConversationStateContainer(override val discord: Discord,
         }
     }
 
-    private suspend fun <T> retrieveReactionResponse(reactions: Map<String, T>) = select<T?> {
+    private suspend fun <T> retrieveReactionResponse(reactions: Map<ReactionEmoji, T>) = select<T?> {
         reactionBuffer.onReceive { input ->
             if (input.messageId != previousBotMessageId)
                 return@onReceive null
 
-            val emoji = input.reactionEmote.emoji
+            val emoji = input.emoji
 
             reactions[emoji]
         }
     }
 
-    private fun parseResponse(argumentType: ArgumentType<*>, message: Message): ArgumentResult<*> {
-        val rawInputs = RawInputs(message.contentRaw, "", message.contentStripped.split(" "), 0)
-        val commandEvent = CommandEvent<Nothing>(rawInputs, CommandsContainer(), DiscordContext(discord, message))
-        return argumentType.convert(message.contentStripped, commandEvent.rawInputs.commandArgs, commandEvent)
+    private suspend fun parseResponse(argumentType: ArgumentType<*>, message: Message): ArgumentResult<*> {
+        val rawInputs = RawInputs(message.content, "", message.content.split(" "), 0)
+        val commandEvent = CommandEvent<Nothing>(rawInputs, DiscordContext(discord, message, guild = message.getGuildOrNull()))
+        return argumentType.convert(message.content, commandEvent.rawInputs.commandArgs, commandEvent)
     }
-
-    private fun sendPrompt(prompt: Any) =
-        when (prompt) {
-            is String -> channel.sendMessage(prompt).queue { botMessageIds.add(it.id) }
-            is MessageEmbed -> channel.sendMessage(prompt).queue { botMessageIds.add(it.id) }
-            else -> Unit
-        }
 }
 
 /** @suppress Intermediate return type */
@@ -190,7 +196,7 @@ class ConversationBuilder(private val exitString: String?, private val block: (C
     internal suspend fun acceptMessage(message: Message) = stateContainer.acceptMessage(message)
 
     @PublishedApi
-    internal suspend fun acceptReaction(reaction: MessageReaction) = stateContainer.acceptReaction(reaction)
+    internal suspend fun acceptReaction(reaction: ReactionAddEvent) = stateContainer.acceptReaction(reaction)
 }
 
 /**

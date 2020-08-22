@@ -3,6 +3,7 @@
 package me.jakejmattson.discordkt.api.dsl.command
 
 import kotlinx.coroutines.*
+import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.command.*
 import me.jakejmattson.discordkt.internal.utils.*
 
@@ -29,44 +30,27 @@ class Command(val names: List<String>,
         get() = arguments.size
 
     /**
-     * Manually parse args into an intermediate bundle to allow verifying the result, then execute it with [manualInvoke].
+     * Whether or not the command can parse the given arguments into a container.
      *
      * @param args The raw string arguments to be provided to the command.
-     * @return The result of the parsing operation as a [ParseResult].
-     */
-    fun manualParseInput(args: List<String>, event: CommandEvent<GenericContainer>) = parseInputToBundle(this, args, event)
-
-    /**
-     * Invoke this command manually with the parsed output from [manualParseInput].
      *
-     * @param parsedData String arguments parsed into their respective types and bundled into a GenericContainer.
+     * @return The result of the parsing operation.
      */
-    fun manualInvoke(parsedData: GenericContainer, event: CommandEvent<GenericContainer>) {
-        GlobalScope.launch {
-            event.args = parsedData
-            execute.invoke(event)
-        }
-    }
+    suspend fun canParse(args: List<String>, event: CommandEvent<GenericContainer>) = parseInputToBundle(this, event, args) is ParseResult.Success
 
     /**
-     * Invoke this command "blindly" with the given arguments and context. Use [manualParseInput] and [manualInvoke] for a manual approach.
+     * Invoke this command "blindly" with the given arguments and context.
      *
      * @param args The raw string arguments to be provided to the command.
      */
-    fun invoke(args: List<String>, event: CommandEvent<GenericContainer>) {
+    fun invoke(event: CommandEvent<GenericContainer>, args: List<String>) {
         GlobalScope.launch {
-            when (val result = parseInputToBundle(this@Command, args, event)) {
+            when (val result = parseInputToBundle(this@Command, event, args)) {
                 is ParseResult.Success -> {
                     event.args = result.argumentContainer
                     execute.invoke(event)
                 }
-                is ParseResult.Error -> {
-                    val error = result.reason
-
-                    with(event) {
-                        if (discord.configuration.deleteErrors) respondTimed(error) else respond(error)
-                    }
-                }
+                is ParseResult.Error -> event.respond(result.reason)
             }
         }
     }
@@ -94,3 +78,27 @@ class Command(val names: List<String>,
     /** The logic run when this command is invoked */
     fun <A, B, C, D, E> execute(a1: Arg<A>, a2: Arg<B>, a3: Arg<C>, a4: Arg<D>, a5: Arg<E>, execute: execute5<A, B, C, D, E>) = setExecute(listOf(a1, a2, a3, a4, a5), execute)
 }
+
+/**
+ * Create a block where multiple commands can be created.
+ */
+@BuilderDSL
+fun commands(construct: MutableList<Command>.() -> Unit): MutableList<Command> {
+    val commands = mutableListOf<Command>()
+    commands.construct()
+    return commands
+}
+
+/**
+ * Create a new command in this list.
+ */
+fun MutableList<Command>.command(vararg names: String, body: Command.() -> Unit) {
+    val command = Command(names.toList())
+    command.body()
+    add(command)
+}
+
+/**
+ * Get a command by its name (case insensitive).
+ */
+operator fun MutableList<Command>.get(name: String) = firstOrNull { name.toLowerCase() in it.names.map { it.toLowerCase() } }

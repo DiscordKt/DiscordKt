@@ -2,28 +2,28 @@
 
 package me.jakejmattson.discordkt.api.dsl.configuration
 
+import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
+import com.gitlab.kordlib.core.entity.User
+import com.gitlab.kordlib.kordx.emoji.*
+import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.dsl.command.*
-import me.jakejmattson.discordkt.api.dsl.embed.EmbedDSL
 import me.jakejmattson.discordkt.internal.annotations.BotConfigurationDSL
-import net.dv8tion.jda.api.entities.*
 
 /**
  * @property allowMentionPrefix Allow mentioning the bot to be used as a prefix '@Bot'.
  * @property commandReaction The reaction added to a message when a command is received.
- * @property deleteErrors Whether or not error messages should be deleted over time.
  * @property requiresGuild Whether or not commands are required to be executed in a guild.
  */
 data class BotConfiguration(
     internal var prefix: (DiscordContext) -> String = { "+" },
     var allowMentionPrefix: Boolean = false,
-    var commandReaction: String? = "\uD83D\uDC40",
-    var deleteErrors: Boolean = false,
+    var commandReaction: DiscordEmoji? = Emojis.eyes,
     var requiresGuild: Boolean = true,
-    internal var mentionEmbed: ((DiscordContext) -> MessageEmbed)? = null,
-    internal var visibilityPredicate: (command: Command, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _ -> true }
+    internal var mentionEmbed: (EmbedBuilder.(DiscordContext) -> Unit)? = null,
+    internal var hasPermission: (command: Command, User, MessageChannelBehavior) -> Boolean = { _, _, _ -> true }
 ) {
     /**
-     * Predicate to dynamically determine the prefix in a given context.
+     * Determine the prefix in a given context.
      */
     @BotConfigurationDSL
     fun prefix(construct: (DiscordContext) -> String) {
@@ -34,23 +34,19 @@ data class BotConfiguration(
      * An embed that will be sent anytime someone (solely) mentions the bot.
      */
     @BotConfigurationDSL
-    fun mentionEmbed(construct: EmbedDSL.(DiscordContext) -> Unit) {
-        mentionEmbed = {
-            val embed = EmbedDSL()
-            embed.construct(it)
-            embed.build()
-        }
+    fun mentionEmbed(construct: EmbedBuilder.(DiscordContext) -> Unit) {
+        mentionEmbed = construct
     }
 
     /**
-     * Function to dynamically determine if a command is visible in a given context.
+     * Determine if the given command has permission to be run in this context.
      *
-     * @sample VisibilityContext
+     * @sample PermissionContext
      */
     @BotConfigurationDSL
-    fun visibilityPredicate(predicate: (VisibilityContext) -> Boolean = { _ -> true }) {
-        visibilityPredicate = { command, user, messageChannel, guild ->
-            val context = VisibilityContext(command, user, messageChannel, guild)
+    fun hasPermission(predicate: (PermissionContext) -> Boolean = { _ -> true }) {
+        hasPermission = { command, user, messageChannel ->
+            val context = PermissionContext(command, user, messageChannel)
             predicate.invoke(context)
         }
     }
@@ -64,8 +60,5 @@ data class BotConfiguration(
     fun colors(construct: ColorConfiguration.() -> Unit) {
         val colors = ColorConfiguration()
         colors.construct()
-        EmbedDSL.successColor = colors.successColor
-        EmbedDSL.failureColor = colors.failureColor
-        EmbedDSL.infoColor = colors.infoColor
     }
 }
