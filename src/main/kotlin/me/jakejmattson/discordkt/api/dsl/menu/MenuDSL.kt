@@ -2,16 +2,25 @@
 
 package me.jakejmattson.discordkt.api.dsl.menu
 
-import com.gitlab.kordlib.common.entity.Snowflake
+import com.gitlab.kordlib.common.entity.*
 import com.gitlab.kordlib.core.*
 import com.gitlab.kordlib.core.behavior.channel.*
 import com.gitlab.kordlib.core.behavior.edit
 import com.gitlab.kordlib.core.entity.ReactionEmoji
 import com.gitlab.kordlib.core.event.message.ReactionAddEvent
 import com.gitlab.kordlib.kordx.emoji.*
+import com.gitlab.kordlib.kordx.emoji.DiscordEmoji
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
+
+/** @suppress DSL Builder */
+@BuilderDSL
+fun menu(construct: MenuDSL.() -> Unit): Menu {
+    val handle = MenuDSL()
+    handle.construct()
+    return handle.build()
+}
 
 /**
  * Type-safe builder for creating paginated embeds with custom reactions.
@@ -20,7 +29,7 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
  * @property rightReact Reaction used to move to the next page.
  */
 class MenuDSL {
-    private val pages = mutableListOf<EmbedBuilder.() -> Unit>()
+    private val pages = mutableListOf<EmbedBuilder>()
     private val reactions = mutableMapOf<ReactionEmoji, EmbedBuilder.() -> Unit>()
     var leftReact = Emojis.arrowLeft
     var rightReact = Emojis.arrowRight
@@ -29,7 +38,9 @@ class MenuDSL {
      * Add a new page to this menu using the EmbedDSL.
      */
     fun page(construct: EmbedBuilder.() -> Unit) {
-        pages.add(construct)
+        val embed = EmbedBuilder()
+        construct.invoke(embed)
+        pages.add(embed)
     }
 
     /**
@@ -50,20 +61,42 @@ class MenuDSL {
  * @property rightReact Reaction used to move to the next page.
  * @property customReactions All custom reactions and their actions.
  */
-data class Menu(val pages: MutableList<EmbedBuilder.() -> Unit>,
-                val customReactions: MutableMap<ReactionEmoji, EmbedBuilder.() -> Unit>,
+data class Menu(private val pages: MutableList<EmbedBuilder>,
+                val customReactions: Map<ReactionEmoji, EmbedBuilder.() -> Unit>,
                 val leftReact: ReactionEmoji,
                 val rightReact: ReactionEmoji) {
+    private var index = 0
+
+    private fun currentPage() = pages[index]
+
+    fun updatePage(embed: EmbedBuilder) {
+        pages[index] = embed
+    }
+
+    fun nextPage() = navigate(1)
+    fun previousPage() = navigate(-1)
+
+    private fun navigate(direction: Int): EmbedBuilder {
+        index += direction
+
+        index = when {
+            index > pages.lastIndex -> 0
+            index < 0 -> pages.lastIndex
+            else -> index
+        }
+
+        return currentPage()
+    }
+
     internal suspend fun build(channel: MessageChannelBehavior) {
-        //TODO Disallow menus in private channels
-        //if (channel.type == ChannelType.DM)
-            //return InternalLogger.error("Cannot use menus within a private context.")
+        if (channel.asChannel().type == ChannelType.DM)
+            return InternalLogger.error("Cannot use menus within a private context.")
 
         if (pages.isEmpty())
             return InternalLogger.error("A menu must have at least one page.")
 
-        val message = channel.createEmbed {
-            pages.first().invoke(this)
+        val message = channel.createMessage {
+            embed = pages.first()
         }
 
         val multiPage = pages.size != 1
@@ -80,43 +113,26 @@ data class Menu(val pages: MutableList<EmbedBuilder.() -> Unit>,
     }
 }
 
-/** @suppress DSL Builder */
-@BuilderDSL
-fun menu(construct: MenuDSL.() -> Unit): Menu {
-    val handle = MenuDSL()
-    handle.construct()
-    return handle.build()
-}
-
 private suspend fun registerReactionListener(kord: Kord, menu: Menu, menuId: Snowflake) = kord.on<ReactionAddEvent> {
-    var index = 0
-
     if (messageId != menuId) return@on
+    if (userId == kord.selfId) return@on
 
     message.deleteReaction(user.id, emoji)
 
-    when (emoji) {
-        menu.leftReact -> {
-            if (index != 0)
-                index--
-            else
-                index = menu.pages.lastIndex
-        }
-
-        menu.rightReact -> {
-            if (index != menu.pages.lastIndex)
-                index++
-            else
-                index = 0
-        }
-
+    val newEmbed = when (emoji.mention) {
+        menu.leftReact.mention -> menu.previousPage()
+        menu.rightReact.mention -> menu.nextPage()
         else -> {
-            val action = menu.customReactions[emoji] ?: return@on
-            menu.pages[index] = action
+            val activeEmbed = EmbedBuilder()
+            val action = menu.customReactions.map { it.key.mention to it.value }.toMap()[emoji.mention] ?: return@on
+
+            message.asMessage().embeds.first().apply(activeEmbed)
+            action.invoke(activeEmbed)
+            activeEmbed.apply { menu.updatePage(this) }
         }
     }
 
     message.edit {
-        menu.pages[index].invoke(this.embed!!)
+        embed = newEmbed
     }
 }

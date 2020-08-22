@@ -15,12 +15,8 @@ import me.jakejmattson.discordkt.internal.utils.Recommender
 internal suspend fun registerCommandListener(discord: Discord, preconditions: List<Precondition>) = discord.api.on<MessageCreateEvent> {
     val config = discord.configuration
 
-    fun isMentionInvocation(message: String): Boolean {
-        if (!config.allowMentionPrefix)
-            return false
-
-        val id = kord.selfId
-
+    fun mentionsSelf(message: String): Boolean {
+        val id = kord.selfId.longValue
         return message.startsWith("<@!$id>") || message.startsWith("<@$id>")
     }
 
@@ -33,7 +29,7 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
 
     val rawInputs = when {
         content.startsWith(prefix) -> stripPrefixInvocation(content, prefix)
-        content.trimToID() == kord.selfId.toString() -> {
+        content.trimToID() == kord.selfId.longValue.toString() -> {
             config.mentionEmbed?.let {
                 channel.createEmbed {
                     it.invoke(this, discordContext)
@@ -42,11 +38,11 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
 
             return@on
         }
-        isMentionInvocation(content) -> stripMentionInvocation(content)
+        mentionsSelf(content) && config.allowMentionPrefix -> stripMentionInvocation(content)
         else -> return@on conversationService.handleMessage(message)
     }
 
-    val (_, commandName, actualArgs, _) = rawInputs
+    val (_, commandName, commandArgs, _) = rawInputs
 
     if (commandName.isEmpty()) return@on
 
@@ -83,5 +79,5 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
         message.addReaction(it!!.toReaction())
     }
 
-    command.invoke(event, actualArgs)
+    command.invoke(event, commandArgs)
 }
