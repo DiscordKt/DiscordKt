@@ -16,7 +16,7 @@ import java.awt.Color
 import kotlin.system.exitProcess
 
 @PublishedApi
-internal val diService = DIService()
+internal val diService = InjectionService()
 
 /**
  * Backing class for [bot][me.jakejmattson.discordkt.api.dsl.bot] function.

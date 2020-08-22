@@ -67,14 +67,12 @@ data class Menu(private val pages: MutableList<EmbedBuilder>,
                 val rightReact: ReactionEmoji) {
     private var index = 0
 
-    private fun currentPage() = pages[index]
+    internal fun previousPage() = navigate(-1)
+    internal fun nextPage() = navigate(1)
 
-    fun updatePage(embed: EmbedBuilder) {
+    internal fun updatePage(embed: EmbedBuilder) {
         pages[index] = embed
     }
-
-    fun nextPage() = navigate(1)
-    fun previousPage() = navigate(-1)
 
     private fun navigate(direction: Int): EmbedBuilder {
         index += direction
@@ -85,7 +83,7 @@ data class Menu(private val pages: MutableList<EmbedBuilder>,
             else -> index
         }
 
-        return currentPage()
+        return pages[index]
     }
 
     internal suspend fun build(channel: MessageChannelBehavior) {
@@ -119,16 +117,17 @@ private suspend fun registerReactionListener(kord: Kord, menu: Menu, menuId: Sno
 
     message.deleteReaction(user.id, emoji)
 
-    val newEmbed = when (emoji.mention) {
-        menu.leftReact.mention -> menu.previousPage()
-        menu.rightReact.mention -> menu.nextPage()
+    val newEmbed = when (emoji) {
+        menu.leftReact -> menu.previousPage()
+        menu.rightReact -> menu.nextPage()
         else -> {
-            val activeEmbed = EmbedBuilder()
-            val action = menu.customReactions.map { it.key.mention to it.value }.toMap()[emoji.mention] ?: return@on
+            EmbedBuilder().apply {
+                val action = menu.customReactions[emoji] ?: return@on
 
-            message.asMessage().embeds.first().apply(activeEmbed)
-            action.invoke(activeEmbed)
-            activeEmbed.apply { menu.updatePage(this) }
+                message.asMessage().embeds.first().apply(this)
+                action.invoke(this)
+                menu.updatePage(this)
+            }
         }
     }
 

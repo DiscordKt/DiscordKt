@@ -12,7 +12,7 @@ object Versions {
     const val reflections = "0.9.12"
     const val gson = "2.8.6"
     const val slf4j = "1.7.30"
-    const val kord = "0.6.0"
+    const val kord = "0.6.1"
     const val emojis = "0.2.0"
 
     //Test Dependencies

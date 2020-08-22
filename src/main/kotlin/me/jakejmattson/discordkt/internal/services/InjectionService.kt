@@ -9,7 +9,7 @@ import kotlin.system.exitProcess
 internal data class FailureBundle(val clazz: Class<*>, val parameters: List<Class<*>>)
 
 @PublishedApi
-internal class DIService {
+internal class InjectionService {
     private val elementMap = HashMap<Class<*>, Any>()
 
     fun inject(element: Any) {
