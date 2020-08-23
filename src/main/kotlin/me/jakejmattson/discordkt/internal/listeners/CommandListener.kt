@@ -61,11 +61,11 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
         return@on
     }
 
-    val command = discord.commands[commandName]?.takeUnless { !config.hasPermission(it, author, channel) }
+    val command = discord.commands[commandName]?.takeUnless { !config.permissions(it, author, channel, getGuild()) }
 
     if (command == null) {
         val validCommands = discord.commands
-            .filter { config.hasPermission(it, author, channel) }
+            .filter { config.permissions(it, author, channel, getGuild()) }
             .flatMap { it.names }
 
         return@on Recommender.sendRecommendation(event, commandName, validCommands)

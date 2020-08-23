@@ -3,7 +3,7 @@
 package me.jakejmattson.discordkt.api.dsl.configuration
 
 import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
-import com.gitlab.kordlib.core.entity.User
+import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.kordx.emoji.*
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.dsl.command.*
@@ -20,7 +20,7 @@ data class BotConfiguration(
     var commandReaction: DiscordEmoji? = Emojis.eyes,
     var requiresGuild: Boolean = true,
     internal var mentionEmbed: (EmbedBuilder.(DiscordContext) -> Unit)? = null,
-    internal var hasPermission: (command: Command, User, MessageChannelBehavior) -> Boolean = { _, _, _ -> true }
+    internal var permissions: (command: Command, User, MessageChannelBehavior, Guild?) -> Boolean = { _, _, _, _ -> true }
 ) {
     /**
      * Determine the prefix in a given context.
@@ -44,9 +44,9 @@ data class BotConfiguration(
      * @sample PermissionContext
      */
     @BotConfigurationDSL
-    fun hasPermission(predicate: (PermissionContext) -> Boolean = { _ -> true }) {
-        hasPermission = { command, user, messageChannel ->
-            val context = PermissionContext(command, user, messageChannel)
+    fun permissions(predicate: (PermissionContext) -> Boolean = { _ -> true }) {
+        permissions = { command, user, messageChannel, guild ->
+            val context = PermissionContext(command, user, messageChannel, guild)
             predicate.invoke(context)
         }
     }
