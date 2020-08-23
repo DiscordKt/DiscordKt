@@ -3,9 +3,16 @@
 package me.jakejmattson.discordkt.api.dsl.command
 
 import kotlinx.coroutines.*
+import me.jakejmattson.discordkt.api.dsl.arguments.ArgumentType
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.command.*
-import me.jakejmattson.discordkt.internal.utils.*
+
+internal typealias execute0 = (CommandEvent<NoArgs>) -> Unit
+internal typealias execute1<A> = (CommandEvent<Args1<A>>) -> Unit
+internal typealias execute2<A, B> = (CommandEvent<Args2<A, B>>) -> Unit
+internal typealias execute3<A, B, C> = (CommandEvent<Args3<A, B, C>>) -> Unit
+internal typealias execute4<A, B, C, D> = (CommandEvent<Args4<A, B, C, D>>) -> Unit
+internal typealias execute5<A, B, C, D, E> = (CommandEvent<Args5<A, B, C, D, E>>) -> Unit
 
 /**
  * @param names The name(s) this command can be executed by (case insensitive).
@@ -23,7 +30,7 @@ class Command(val names: List<String>,
               var category: String = "",
               var requiresGuild: Boolean? = null,
               var isFlexible: Boolean = false,
-              var arguments: List<Arg<*>> = emptyList(),
+              var arguments: List<ArgumentType<*>> = emptyList(),
               private var execute: (CommandEvent<*>) -> Unit = {}) {
 
     val parameterCount: Int
@@ -55,7 +62,7 @@ class Command(val names: List<String>,
         }
     }
 
-    private fun <T : GenericContainer> setExecute(argTypes: List<Arg<*>>, event: (CommandEvent<T>) -> Unit) {
+    private fun <T : GenericContainer> setExecute(argTypes: List<ArgumentType<*>>, event: (CommandEvent<T>) -> Unit) {
         arguments = argTypes
         execute = event as (CommandEvent<*>) -> Unit
     }
@@ -64,19 +71,19 @@ class Command(val names: List<String>,
     fun execute(execute: execute0) = setExecute(listOf(), execute)
 
     /** The logic run when this command is invoked */
-    fun <A> execute(a1: Arg<A>, execute: execute1<A>) = setExecute(listOf(a1), execute)
+    fun <A> execute(a1: ArgumentType<A>, execute: execute1<A>) = setExecute(listOf(a1), execute)
 
     /** The logic run when this command is invoked */
-    fun <A, B> execute(a1: Arg<A>, a2: Arg<B>, execute: execute2<A, B>) = setExecute(listOf(a1, a2), execute)
+    fun <A, B> execute(a1: ArgumentType<A>, a2: ArgumentType<B>, execute: execute2<A, B>) = setExecute(listOf(a1, a2), execute)
 
     /** The logic run when this command is invoked */
-    fun <A, B, C> execute(a1: Arg<A>, a2: Arg<B>, a3: Arg<C>, execute: execute3<A, B, C>) = setExecute(listOf(a1, a2, a3), execute)
+    fun <A, B, C> execute(a1: ArgumentType<A>, a2: ArgumentType<B>, a3: ArgumentType<C>, execute: execute3<A, B, C>) = setExecute(listOf(a1, a2, a3), execute)
 
     /** The logic run when this command is invoked */
-    fun <A, B, C, D> execute(a1: Arg<A>, a2: Arg<B>, a3: Arg<C>, a4: Arg<D>, execute: execute4<A, B, C, D>) = setExecute(listOf(a1, a2, a3, a4), execute)
+    fun <A, B, C, D> execute(a1: ArgumentType<A>, a2: ArgumentType<B>, a3: ArgumentType<C>, a4: ArgumentType<D>, execute: execute4<A, B, C, D>) = setExecute(listOf(a1, a2, a3, a4), execute)
 
     /** The logic run when this command is invoked */
-    fun <A, B, C, D, E> execute(a1: Arg<A>, a2: Arg<B>, a3: Arg<C>, a4: Arg<D>, a5: Arg<E>, execute: execute5<A, B, C, D, E>) = setExecute(listOf(a1, a2, a3, a4, a5), execute)
+    fun <A, B, C, D, E> execute(a1: ArgumentType<A>, a2: ArgumentType<B>, a3: ArgumentType<C>, a4: ArgumentType<D>, a5: ArgumentType<E>, execute: execute5<A, B, C, D, E>) = setExecute(listOf(a1, a2, a3, a4, a5), execute)
 }
 
 /**
