@@ -1,6 +1,5 @@
 {
-  "repository": "https://github.com/JakeJMattson/DiscordKt/",
-  "libraryVersion": "0.20.0-SNAPSHOT",
-  "kotlinVersion": "1.4.0",
-  "kordVersion": "0.6.1"
+  "library": "0.20.0-SNAPSHOT",
+  "kotlin": "1.4.0",
+  "kord": "0.6.1"
 }

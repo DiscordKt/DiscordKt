@@ -15,6 +15,8 @@ import me.jakejmattson.discordkt.internal.services.*
 import java.awt.Color
 import kotlin.system.exitProcess
 
+private val injectionService = InjectionService()
+
 @PublishedApi
 internal val diService = InjectionService()
 
@@ -33,7 +35,7 @@ class Bot(private val token: String, private val globalPath: String) {
         diService.inject(discord)
 
         InternalLogger.shouldLogStartup = loggingConfiguration.showStartupLog
-        val header = "------- DiscordKt ${discord.properties.libraryVersion} -------"
+        val header = "------- DiscordKt ${discord.versions.library} -------"
         InternalLogger.startup(header)
 
         val data = registerData()

@@ -10,26 +10,25 @@ import me.jakejmattson.discordkt.internal.utils.diService
 import kotlin.reflect.KClass
 
 /**
- * @param repository The repository URL for DiscordKt.
- * @param libraryVersion The current DiscordKt version.
- * @param kotlinVersion The version of Kotlin used by DiscordKt.
- * @param kordVersion The version of Kord used by DiscordKt.
+ * @param library The current DiscordKt version.
+ * @param kotlin The version of Kotlin used by DiscordKt.
+ * @param kord The version of Kord used by DiscordKt.
  */
-data class Properties(val repository: String, val libraryVersion: String, val kotlinVersion: String, val kordVersion: String)
+data class Versions(val library: String, val kotlin: String, val kord: String)
 
-private val propFile = Properties::class.java.getResource("/library-properties.json").readText()
+private val versionFile = Versions::class.java.getResource("/library-properties.json").readText()
 
 /**
  * @property api A Kord instance used to access the Discord API.
  * @property configuration All of the current configuration details for this bot.
  * @property commands All registered commands.
- * @property properties Properties for the core library.
+ * @property versions Properties for the core library.
  */
 abstract class Discord {
     abstract val api: Kord
     abstract val configuration: BotConfiguration
     abstract val commands: MutableList<Command>
-    val properties = Gson().fromJson(propFile, Properties::class.java)!!
+    val versions = Gson().fromJson(versionFile, Versions::class.java)!!
 
     /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any> getInjectionObjects(a: KClass<A>) = diService[a]
