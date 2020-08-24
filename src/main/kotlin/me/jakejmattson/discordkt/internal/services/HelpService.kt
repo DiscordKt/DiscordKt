@@ -9,14 +9,13 @@ internal fun produceHelpCommand(embedColor: Color) = commands {
     command("Help") {
         description = "Display a help menu."
         category = "Utility"
-        execute(AnyArg("Command").makeOptional("")) { event ->
-            val query = event.args.first
-            val commands = event.discord.commands
+        execute(AnyArg("Command").makeOptional("")) {
+            val query = args.first
 
             when {
-                query.isEmpty() -> sendDefaultEmbed(event, embedColor)
-                query.isCommand(event) -> sendCommandEmbed(commands[query]!!, event, query, embedColor)
-                else -> Recommender.sendRecommendation(event, query, fetchVisibleCommands(event).flatMap { it.names })
+                query.isEmpty() -> sendDefaultEmbed(this, embedColor)
+                query.isCommand(this) -> sendCommandEmbed(discord.commands[query]!!, this, query, embedColor)
+                else -> Recommender.sendRecommendation(this, query, fetchVisibleCommands(this).flatMap { it.names })
             }
         }
     }
