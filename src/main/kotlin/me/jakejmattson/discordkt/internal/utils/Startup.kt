@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.internal.utils
 
 import com.gitlab.kordlib.core.Kord
+import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.annotations.Service
 import me.jakejmattson.discordkt.api.dsl.command.*
@@ -14,8 +15,6 @@ import me.jakejmattson.discordkt.internal.listeners.*
 import me.jakejmattson.discordkt.internal.services.*
 import java.awt.Color
 import kotlin.system.exitProcess
-
-private val injectionService = InjectionService()
 
 @PublishedApi
 internal val diService = InjectionService()
@@ -106,6 +105,46 @@ class Bot(private val token: String, private val globalPath: String) {
     @ConfigurationDSL
     fun logging(config: LoggingConfiguration.() -> Unit) {
         startupBundle.logging = config
+    }
+
+    /**
+     * Determine the prefix in a given context.
+     */
+    @ConfigurationDSL
+    fun prefix(construct: (DiscordContext) -> String) {
+        botConfiguration.prefix = construct
+    }
+
+    /**
+     * An embed that will be sent anytime someone (solely) mentions the bot.
+     */
+    @ConfigurationDSL
+    fun mentionEmbed(construct: EmbedBuilder.(DiscordContext) -> Unit) {
+        botConfiguration.mentionEmbed = construct
+    }
+
+    /**
+     * Determine if the given command has permission to be run in this context.
+     *
+     * @sample PermissionContext
+     */
+    @ConfigurationDSL
+    fun permissions(predicate: (PermissionContext) -> Boolean = { _ -> true }) {
+        botConfiguration.permissions = { command, user, messageChannel, guild ->
+            val context = PermissionContext(command, user, messageChannel, guild)
+            predicate.invoke(context)
+        }
+    }
+
+    /**
+     * Block to set global color constants, specifically for embeds.
+     *
+     * @sample ColorConfiguration
+     */
+    @ConfigurationDSL
+    fun colors(construct: ColorConfiguration.() -> Unit) {
+        val colors = ColorConfiguration()
+        colors.construct()
     }
 
     private fun registerCommands(): MutableList<Command> {

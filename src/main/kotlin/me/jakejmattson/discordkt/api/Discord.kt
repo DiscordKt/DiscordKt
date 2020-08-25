@@ -3,7 +3,8 @@
 package me.jakejmattson.discordkt.api
 
 import com.gitlab.kordlib.core.Kord
-import com.google.gson.Gson
+import kotlinx.serialization.*
+import kotlinx.serialization.json.Json
 import me.jakejmattson.discordkt.api.dsl.command.*
 import me.jakejmattson.discordkt.api.dsl.configuration.BotConfiguration
 import me.jakejmattson.discordkt.internal.utils.diService
@@ -14,9 +15,8 @@ import kotlin.reflect.KClass
  * @param kotlin The version of Kotlin used by DiscordKt.
  * @param kord The version of Kord used by DiscordKt.
  */
+@Serializable
 data class Versions(val library: String, val kotlin: String, val kord: String)
-
-private val versionFile = Versions::class.java.getResource("/library-properties.json").readText()
 
 /**
  * @property api A Kord instance used to access the Discord API.
@@ -28,7 +28,7 @@ abstract class Discord {
     abstract val api: Kord
     abstract val configuration: BotConfiguration
     abstract val commands: MutableList<Command>
-    val versions = Gson().fromJson(versionFile, Versions::class.java)!!
+    val versions = Json.decodeFromString<Versions>(this::class.java.getResource("/library-properties.json").readText())
 
     /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any> getInjectionObjects(a: KClass<A>) = diService[a]
@@ -52,9 +52,9 @@ abstract class Discord {
         Args5(diService[a], diService[b], diService[c], diService[d], diService[e])
 }
 
-internal fun buildDiscordClient(api: Kord, botConfiguration: BotConfiguration) =
+internal fun buildDiscordClient(api: Kord, configuration: BotConfiguration) =
     object : Discord() {
         override val api = api
-        override val configuration = botConfiguration
+        override val configuration = configuration
         override val commands = mutableListOf<Command>()
     }
