@@ -40,10 +40,12 @@ class Bot(private val token: String, private val globalPath: String) {
         val data = registerData()
         val conversationService = ConversationService(discord).apply { diService.inject(this) }
         val services = registerServices()
-        val commands = registerCommands()
         val preconditions = buildPreconditions().sortedBy { it.priority }
 
-        discord.commands.addAll(commands)
+        ReflectionUtils.fireRegisteredFunctions(globalPath, discord)
+
+        discord.commands["Help"] ?: produceHelpCommand(Color.BLUE).registerCommands(discord)
+
         registerCommandListener(discord, preconditions)
         registerReactionListener(discord.api, conversationService)
 
@@ -54,9 +56,9 @@ class Bot(private val token: String, private val globalPath: String) {
         conversationService.registerConversations(globalPath)
 
         if (loggingConfiguration.generateCommandDocs)
-            createDocumentation(commands)
+            createDocumentation(discord.commands)
 
-        Validator.validateCommandMeta(commands)
+        Validator.validateCommandMeta(discord.commands)
 
         InternalLogger.startup("-".repeat(header.length))
     }
@@ -145,15 +147,6 @@ class Bot(private val token: String, private val globalPath: String) {
     fun colors(construct: ColorConfiguration.() -> Unit) {
         val colors = ColorConfiguration()
         colors.construct()
-    }
-
-    private fun registerCommands(): MutableList<Command> {
-        val commands = ReflectionUtils.detectCommands(globalPath)
-
-        //Add help command if a command named "Help" is not already provided
-        commands["Help"] ?: commands.add(produceHelpCommand(Color.BLUE).first())
-
-        return commands
     }
 
     private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(globalPath).apply { diService.buildAllRecursively(this) }

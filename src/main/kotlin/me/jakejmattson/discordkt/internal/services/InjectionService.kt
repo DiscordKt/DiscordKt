@@ -1,6 +1,5 @@
 package me.jakejmattson.discordkt.internal.services
 
-import me.jakejmattson.discordkt.api.annotations.CommandSet
 import me.jakejmattson.discordkt.internal.utils.*
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
@@ -20,14 +19,7 @@ internal class InjectionService {
 
     internal inline fun <reified T> invokeMethod(method: Method): T {
         val objects = determineArguments(method.parameterTypes)
-        val result = method.invoke(null, *objects) as? T
-
-        if (result == null) {
-            displayReturnError(method)
-            exitProcess(-1)
-        }
-
-        return result
+        return method.invoke(null, *objects) as T
     }
 
     internal fun <T> invokeConstructor(clazz: Class<T>): T {
@@ -63,27 +55,6 @@ internal class InjectionService {
             elementMap.entries.find { arg.isAssignableFrom(it.key) }?.value
                 ?: throw IllegalStateException("Couldn't inject of type '$arg' from registered objects.")
         }.toTypedArray()
-
-    private fun displayReturnError(method: Method) {
-        val signatureBase = with(method) {
-            "$name(${parameterTypes.joinToString(",") { it.name }}) = "
-        }
-
-        val annotation = method.annotations.firstOrNull()
-        val annotationName = "@${annotation?.annotationClass?.simpleName}"
-
-        val (invocationInfo, expectedReturn) = when (annotation) {
-            is CommandSet -> "$annotationName(\"${annotation.category}\") fun $signatureBase" to "commands { ... }"
-            else -> annotationName to "<Unknown>"
-        }
-
-        val currentSignature = invocationInfo + method.returnType
-        val suggestedSignature = invocationInfo + expectedReturn
-
-        InternalLogger.error("An annotated function didn't return the correct type.\n" +
-            "Signature: $currentSignature\n" +
-            "Suggested: $suggestedSignature")
-    }
 
     private fun generateBadInjectionReport(failedInjections: List<FailureBundle>) = buildString {
         appendLine("Dependency injection error!")

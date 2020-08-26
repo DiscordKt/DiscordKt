@@ -4,7 +4,6 @@ package me.jakejmattson.discordkt.api.dsl.command
 
 import kotlinx.coroutines.*
 import me.jakejmattson.discordkt.api.dsl.arguments.ArgumentType
-import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.command.*
 
 /**
@@ -77,25 +76,6 @@ class Command(val names: List<String>,
 
     /** The logic run when this command is invoked */
     fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: CommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = setExecute(listOf(a, b, c, d, e), execute)
-}
-
-/**
- * Create a block where multiple commands can be created.
- */
-@BuilderDSL
-fun commands(construct: MutableList<Command>.() -> Unit): MutableList<Command> {
-    val commands = mutableListOf<Command>()
-    commands.construct()
-    return commands
-}
-
-/**
- * Create a new command in this list.
- */
-fun MutableList<Command>.command(vararg names: String, body: Command.() -> Unit) {
-    val command = Command(names.toList())
-    command.body()
-    add(command)
 }
 
 /**
