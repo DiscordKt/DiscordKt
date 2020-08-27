@@ -23,7 +23,7 @@ class Command(val names: List<String>,
               var requiresGuild: Boolean? = null,
               var isFlexible: Boolean = false,
               var arguments: List<ArgumentType<*>> = emptyList(),
-              private var execute: (CommandEvent<*>) -> Unit = {}) {
+              private var execute: suspend (CommandEvent<*>) -> Unit = {}) {
 
     val parameterCount: Int
         get() = arguments.size
@@ -56,7 +56,7 @@ class Command(val names: List<String>,
 
     private fun <T : GenericContainer> setExecute(argTypes: List<ArgumentType<*>>, event: suspend (CommandEvent<T>) -> Unit) {
         arguments = argTypes
-        execute = event as (CommandEvent<*>) -> Unit
+        execute = event as suspend (CommandEvent<*>) -> Unit
     }
 
     /** The logic run when this command is invoked */

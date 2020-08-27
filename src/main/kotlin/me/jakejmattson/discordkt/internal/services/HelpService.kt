@@ -9,7 +9,6 @@ import java.awt.Color
 internal fun produceHelpCommand(embedColor: Color?) = commands("Utility") {
     command("Help") {
         description = "Display a help menu."
-        category = "Utility"
         execute(AnyArg("Command").makeOptional("")) {
             val query = args.first
 
@@ -78,7 +77,7 @@ private suspend fun String.isCommand(event: CommandEvent<*>) = fetchVisibleComma
     .any { toLowerCase() in it.names.map { it.toLowerCase() } }
 
 private suspend fun fetchVisibleCommands(event: CommandEvent<*>) = event.discord.commands
-    .filter { event.discord.configuration.permissions.invoke(it, event.author, event.channel, event.guild) }
+    .filter { event.discord.configuration.permissions.invoke(it, event.discord, event.author, event.channel, event.guild) }
 
 private fun generateStructure(command: Command) =
     command.arguments.joinToString(" ") {

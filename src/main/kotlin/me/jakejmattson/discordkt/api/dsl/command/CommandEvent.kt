@@ -35,6 +35,10 @@ data class DiscordContext(override val discord: Discord,
                           val guild: Guild?,
                           val author: User = message.author!!,
                           override val channel: MessageChannelBehavior = message.channel) : Responder {
+
+    /**
+     * Determine the relevant prefix from the configured prefix block.
+     */
     suspend fun prefix() = discord.configuration.prefix.invoke(this)
 }
 
@@ -61,6 +65,9 @@ data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
     val guild = discordContext.guild
     val command = discord.commands[rawInputs.commandName]
 
+    /**
+     * Determine the relevant prefix from the configured prefix block.
+     */
     suspend fun prefix() = discordContext.prefix()
 
     lateinit var args: T

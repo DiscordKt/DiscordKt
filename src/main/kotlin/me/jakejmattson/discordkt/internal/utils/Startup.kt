@@ -13,7 +13,6 @@ import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.listeners.*
 import me.jakejmattson.discordkt.internal.services.*
-import java.awt.Color
 import kotlin.system.exitProcess
 
 @PublishedApi
@@ -21,9 +20,11 @@ internal val diService = InjectionService()
 
 /**
  * Backing class for [bot][me.jakejmattson.discordkt.api.dsl.bot] function.
+ *
+ * @param api A Kord instance exposed to the bot builder.
  */
 class Bot(val api: Kord, private val globalPath: String) {
-    private data class StartupFunctions(var configure: BotConfiguration.(Discord) -> Unit = { BotConfiguration() },
+    private data class StartupFunctions(var configure: suspend BotConfiguration.(Discord) -> Unit = { BotConfiguration() },
                                         var injection: InjectionConfiguration.() -> Unit = { InjectionConfiguration() },
                                         var logging: LoggingConfiguration.() -> Unit = { LoggingConfiguration() })
 
@@ -85,7 +86,7 @@ class Bot(val api: Kord, private val globalPath: String) {
      * @sample BotConfiguration
      */
     @ConfigurationDSL
-    fun configure(config: BotConfiguration.(Discord) -> Unit) {
+    fun configure(config: suspend BotConfiguration.(Discord) -> Unit) {
         startupBundle.configure = config
     }
 
@@ -132,8 +133,8 @@ class Bot(val api: Kord, private val globalPath: String) {
      */
     @ConfigurationDSL
     fun permissions(predicate: suspend PermissionContext.() -> Boolean = { true }) {
-        botConfiguration.permissions = { command, user, messageChannel, guild ->
-            val context = PermissionContext(command, user, messageChannel, guild)
+        botConfiguration.permissions = { command, discord, user, messageChannel, guild ->
+            val context = PermissionContext(command, discord, user, messageChannel, guild)
             predicate.invoke(context)
         }
     }
