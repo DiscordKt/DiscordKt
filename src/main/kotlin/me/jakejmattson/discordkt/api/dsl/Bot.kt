@@ -14,13 +14,8 @@ import me.jakejmattson.discordkt.internal.utils.Bot
  */
 @ConfigurationDSL
 suspend fun bot(token: String, operate: suspend Bot.() -> Unit) {
-    val bot = Bot(Kord(token), detectGlobalPath(Exception()))
+    val path = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
+    val bot = Bot(Kord(token), path)
     bot.operate()
     bot.buildBot()
-}
-
-private fun detectGlobalPath(exception: Exception): String {
-    val full = exception.stackTrace[1].className
-    val lastIndex = full.lastIndexOf(".").takeIf { it != -1 } ?: full.lastIndex
-    return full.substring(0, lastIndex)
 }

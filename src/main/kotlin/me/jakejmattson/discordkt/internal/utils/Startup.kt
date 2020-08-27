@@ -38,22 +38,23 @@ class Bot(val api: Kord, private val globalPath: String) {
         val header = "------- DiscordKt ${discord.versions.library} -------"
         InternalLogger.startup(header)
 
-        val data = registerData()
+        val dataSize = registerData()
         val conversationService = ConversationService(discord).apply { diService.inject(this) }
         val services = registerServices()
         val preconditions = buildPreconditions().sortedBy { it.priority }
 
         ReflectionUtils.fireRegisteredFunctions(globalPath, discord)
-
-        discord.commands["Help"] ?: produceHelpCommand(botConfiguration.theme).registerCommands(discord)
-
-        registerCommandListener(discord, preconditions)
         registerReactionListener(discord.api, conversationService)
+        registerCommandListener(discord, preconditions)
 
-        InternalLogger.startup(data.size.pluralize("Data"))
+        val commandSets = discord.commands.groupBy { it.category }.keys.size
+
+        InternalLogger.startup(commandSets.pluralize("CommandSet") + " -> " + discord.commands.size.pluralize("Command"))
+        InternalLogger.startup(dataSize.pluralize("Data"))
         InternalLogger.startup(services.size.pluralize("Service"))
         InternalLogger.startup(preconditions.size.pluralize("Precondition"))
 
+        registerHelpCommand(discord)
         conversationService.registerConversations(globalPath)
 
         if (loggingConfiguration.generateCommandDocs)
@@ -139,8 +140,11 @@ class Bot(val api: Kord, private val globalPath: String) {
         }
     }
 
-    private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(globalPath).apply { diService.buildAllRecursively(this) }
     private fun buildPreconditions() = ReflectionUtils.detectSubtypesOf<Precondition>(globalPath).map { diService.invokeConstructor(it) }
+    private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(globalPath).apply { diService.buildAllRecursively(this) }
+    private fun registerHelpCommand(discord: Discord) = discord.commands["Help"]
+        ?: produceHelpCommand(botConfiguration.theme).registerCommands(discord)
+
 
     private fun registerData() = ReflectionUtils
         .detectSubtypesOf<Data>(globalPath)
@@ -163,5 +167,5 @@ class Bot(val api: Kord, private val globalPath: String) {
             }
 
             diService.inject(data)
-        }
+        }.size
 }
