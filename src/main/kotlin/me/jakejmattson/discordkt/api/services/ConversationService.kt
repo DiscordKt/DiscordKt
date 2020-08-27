@@ -87,7 +87,7 @@ class ConversationService(val discord: Discord) {
     fun hasConversation(user: User, channel: MessageChannelBehavior) = getConversation(user, channel) != null
 
     @PublishedApi
-    internal inline fun <reified T : Conversation> startConversation(stateContainer: ConversationStateContainer, vararg arguments: Any): ConversationResult {
+    internal suspend inline fun <reified T : Conversation> startConversation(stateContainer: ConversationStateContainer, vararg arguments: Any): ConversationResult {
         val (_, user, channel) = stateContainer
         val context = ConversationContext(user.id, channel.id)
 
@@ -134,7 +134,7 @@ class ConversationService(val discord: Discord) {
      * @return The result of the conversation indicated by an enum.
      * @sample ConversationResult
      */
-    inline fun <reified T : Conversation> startPublicConversation(user: User, channel: MessageChannel, vararg arguments: Any): ConversationResult {
+    suspend inline fun <reified T : Conversation> startPublicConversation(user: User, channel: MessageChannel, vararg arguments: Any): ConversationResult {
         if (user.isBot == true)
             return INVALID_USER
 

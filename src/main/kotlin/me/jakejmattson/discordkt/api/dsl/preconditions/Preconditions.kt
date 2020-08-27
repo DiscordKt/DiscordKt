@@ -13,7 +13,7 @@ abstract class Precondition(val priority: Int = 5) {
     /**
      * A function that will either [Pass] or [Fail].
      */
-    abstract fun evaluate(event: CommandEvent<*>): PreconditionResult
+    abstract suspend fun evaluate(event: CommandEvent<*>): PreconditionResult
 }
 
 /** @suppress Redundant doc */

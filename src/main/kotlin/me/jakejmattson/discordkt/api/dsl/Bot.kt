@@ -2,6 +2,7 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
+import com.gitlab.kordlib.core.Kord
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.utils.Bot
 
@@ -12,9 +13,8 @@ import me.jakejmattson.discordkt.internal.utils.Bot
  * @param token Your Discord bot token.
  */
 @ConfigurationDSL
-suspend fun bot(token: String, operate: Bot.() -> Unit) {
-    val bot = Bot(token, detectGlobalPath(Exception()))
-
+suspend fun bot(token: String, operate: suspend Bot.() -> Unit) {
+    val bot = Bot(Kord(token), detectGlobalPath(Exception()))
     bot.operate()
     bot.buildBot()
 }

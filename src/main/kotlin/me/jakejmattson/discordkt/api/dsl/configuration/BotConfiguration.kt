@@ -7,6 +7,7 @@ import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.kordx.emoji.*
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.dsl.command.*
+import java.awt.Color
 
 /**
  * @property allowMentionPrefix Allow mentioning the bot to be used as a prefix '@Bot'.
@@ -17,7 +18,8 @@ data class BotConfiguration(
     var allowMentionPrefix: Boolean = false,
     var commandReaction: DiscordEmoji? = Emojis.eyes,
     var requiresGuild: Boolean = true,
-    internal var prefix: (DiscordContext) -> String = { "+" },
-    internal var mentionEmbed: (EmbedBuilder.(DiscordContext) -> Unit)? = null,
-    internal var permissions: (command: Command, User, MessageChannelBehavior, Guild?) -> Boolean = { _, _, _, _ -> true }
+    var theme: Color? = null,
+    internal var prefix: suspend (DiscordContext) -> String = { "+" },
+    internal var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
+    internal var permissions: suspend (command: Command, User, MessageChannelBehavior, Guild?) -> Boolean = { _, _, _, _ -> true }
 )

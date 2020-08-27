@@ -54,28 +54,28 @@ class Command(val names: List<String>,
         }
     }
 
-    private fun <T : GenericContainer> setExecute(argTypes: List<ArgumentType<*>>, event: (CommandEvent<T>) -> Unit) {
+    private fun <T : GenericContainer> setExecute(argTypes: List<ArgumentType<*>>, event: suspend (CommandEvent<T>) -> Unit) {
         arguments = argTypes
         execute = event as (CommandEvent<*>) -> Unit
     }
 
     /** The logic run when this command is invoked */
-    fun execute(execute: CommandEvent<NoArgs>.() -> Unit) = setExecute(listOf(), execute)
+    fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit) = setExecute(listOf(), execute)
 
     /** The logic run when this command is invoked */
-    fun <A> execute(a: ArgumentType<A>, execute: CommandEvent<Args1<A>>.() -> Unit) = setExecute(listOf(a), execute)
+    fun <A> execute(a: ArgumentType<A>, execute: suspend CommandEvent<Args1<A>>.() -> Unit) = setExecute(listOf(a), execute)
 
     /** The logic run when this command is invoked */
-    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: CommandEvent<Args2<A, B>>.() -> Unit) = setExecute(listOf(a, b), execute)
+    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend CommandEvent<Args2<A, B>>.() -> Unit) = setExecute(listOf(a, b), execute)
 
     /** The logic run when this command is invoked */
-    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: CommandEvent<Args3<A, B, C>>.() -> Unit) = setExecute(listOf(a, b, c), execute)
+    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend CommandEvent<Args3<A, B, C>>.() -> Unit) = setExecute(listOf(a, b, c), execute)
 
     /** The logic run when this command is invoked */
-    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: CommandEvent<Args4<A, B, C, D>>.() -> Unit) = setExecute(listOf(a, b, c, d), execute)
+    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend CommandEvent<Args4<A, B, C, D>>.() -> Unit) = setExecute(listOf(a, b, c, d), execute)
 
     /** The logic run when this command is invoked */
-    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: CommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = setExecute(listOf(a, b, c, d, e), execute)
+    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend CommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = setExecute(listOf(a, b, c, d, e), execute)
 }
 
 /**

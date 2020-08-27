@@ -172,11 +172,11 @@ data class ConversationStateContainer(override val discord: Discord,
 }
 
 /** @suppress Intermediate return type */
-class ConversationBuilder(private val exitString: String?, private val block: (ConversationStateContainer) -> Unit) {
+class ConversationBuilder(private val exitString: String?, private val block: suspend ConversationStateContainer.() -> Unit) {
     private lateinit var stateContainer: ConversationStateContainer
 
     @PublishedApi
-    internal fun start(conversationStateContainer: ConversationStateContainer, onEnd: () -> Unit): ConversationResult {
+    internal suspend fun start(conversationStateContainer: ConversationStateContainer, onEnd: () -> Unit): ConversationResult {
         conversationStateContainer.exitString = exitString
         stateContainer = conversationStateContainer
 
@@ -205,4 +205,4 @@ class ConversationBuilder(private val exitString: String?, private val block: (C
  * @param exitString If this String is entered by the user, the conversation is exited.
  */
 @BuilderDSL
-fun conversation(exitString: String? = null, block: ConversationStateContainer.() -> Unit) = ConversationBuilder(exitString, block)
+fun conversation(exitString: String? = null, block: suspend ConversationStateContainer.() -> Unit) = ConversationBuilder(exitString, block)

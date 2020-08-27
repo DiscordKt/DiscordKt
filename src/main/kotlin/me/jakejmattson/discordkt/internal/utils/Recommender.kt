@@ -15,7 +15,7 @@ internal object Recommender {
         return closestMatch.takeUnless { distance > input.length / 2 + 2 }
     }
 
-    fun sendRecommendation(event: CommandEvent<*>, input: String, possibilities: List<String>) {
+    suspend fun sendRecommendation(event: CommandEvent<*>, input: String, possibilities: List<String>) {
         val recommendation = recommend(input, possibilities) ?: "<none>"
 
         event.respond {

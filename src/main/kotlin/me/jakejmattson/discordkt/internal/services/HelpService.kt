@@ -6,7 +6,7 @@ import me.jakejmattson.discordkt.api.dsl.command.*
 import me.jakejmattson.discordkt.internal.utils.Recommender
 import java.awt.Color
 
-internal fun produceHelpCommand(embedColor: Color) = commands("Utility") {
+internal fun produceHelpCommand(embedColor: Color?) = commands("Utility") {
     command("Help") {
         description = "Display a help menu."
         category = "Utility"
@@ -22,10 +22,10 @@ internal fun produceHelpCommand(embedColor: Color) = commands("Utility") {
     }
 }
 
-private fun sendDefaultEmbed(event: CommandEvent<*>, embedColor: Color) =
+private suspend fun sendDefaultEmbed(event: CommandEvent<*>, embedColor: Color?) =
     event.respond {
         title = "Help menu"
-        description = "Use `${event.relevantPrefix}help <command>` for more information."
+        description = "Use `${event.prefix()}help <command>` for more information."
         color = embedColor
 
         fetchVisibleCommands(event)
@@ -46,13 +46,13 @@ private fun sendDefaultEmbed(event: CommandEvent<*>, embedColor: Color) =
             }
     }
 
-private fun sendCommandEmbed(command: Command, event: CommandEvent<*>, input: String, embedColor: Color) =
+private suspend fun sendCommandEmbed(command: Command, event: CommandEvent<*>, input: String, embedColor: Color?) =
     event.respond {
         title = command.names.joinToString()
         description = command.description
         color = embedColor
 
-        val commandInvocation = "${event.relevantPrefix}$input"
+        val commandInvocation = "${event.prefix()}$input"
 
         field {
             name = "Structure"
@@ -74,10 +74,10 @@ private fun generateExample(command: Command, event: CommandEvent<*>) =
         if (it.isOptional) "($example)" else "[$example]"
     }
 
-private fun String.isCommand(event: CommandEvent<*>) = fetchVisibleCommands(event)
+private suspend fun String.isCommand(event: CommandEvent<*>) = fetchVisibleCommands(event)
     .any { toLowerCase() in it.names.map { it.toLowerCase() } }
 
-private fun fetchVisibleCommands(event: CommandEvent<*>) = event.discord.commands
+private suspend fun fetchVisibleCommands(event: CommandEvent<*>) = event.discord.commands
     .filter { event.discord.configuration.permissions.invoke(it, event.author, event.channel, event.guild) }
 
 private fun generateStructure(command: Command) =

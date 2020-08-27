@@ -16,7 +16,7 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
 
 /** @suppress DSL Builder */
 @BuilderDSL
-fun menu(construct: MenuDSL.() -> Unit): Menu {
+suspend fun menu(construct: suspend MenuDSL.() -> Unit): Menu {
     val handle = MenuDSL()
     handle.construct()
     return handle.build()

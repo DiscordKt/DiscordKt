@@ -28,14 +28,14 @@ data class RawInputs(
  * @property guild The Guild this command was invoked in.
  * @property author The User who invoked this command.
  * @property channel The MessageChannel this command was invoked in.
- * @property relevantPrefix The prefix used to invoke this command.
+ * @property prefix The prefix used to invoke this command.
  */
 data class DiscordContext(override val discord: Discord,
                           val message: Message,
                           val guild: Guild?,
                           val author: User = message.author!!,
                           override val channel: MessageChannelBehavior = message.channel) : Responder {
-    val relevantPrefix: String = discord.configuration.prefix.invoke(this)
+    suspend fun prefix() = discord.configuration.prefix.invoke(this)
 }
 
 /**
@@ -49,7 +49,7 @@ data class DiscordContext(override val discord: Discord,
  * @property channel The MessageChannel this command was invoked in.
  * @property guild The Guild this command was invoked in.
  * @property command The [Command] that is resolved from the invocation.
- * @property relevantPrefix The prefix used to invoke this command.
+ * @property prefix The prefix used to invoke this command.
  * @property args The [GenericContainer] containing the converted input.
  */
 data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
@@ -60,7 +60,8 @@ data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
     override val channel = discordContext.channel
     val guild = discordContext.guild
     val command = discord.commands[rawInputs.commandName]
-    val relevantPrefix = discordContext.relevantPrefix
+
+    suspend fun prefix() = discordContext.prefix()
 
     lateinit var args: T
 

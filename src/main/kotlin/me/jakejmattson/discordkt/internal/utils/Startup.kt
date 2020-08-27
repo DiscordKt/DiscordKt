@@ -22,7 +22,7 @@ internal val diService = InjectionService()
 /**
  * Backing class for [bot][me.jakejmattson.discordkt.api.dsl.bot] function.
  */
-class Bot(private val token: String, private val globalPath: String) {
+class Bot(val api: Kord, private val globalPath: String) {
     private data class StartupFunctions(var configure: BotConfiguration.(Discord) -> Unit = { BotConfiguration() },
                                         var injection: InjectionConfiguration.() -> Unit = { InjectionConfiguration() },
                                         var logging: LoggingConfiguration.() -> Unit = { LoggingConfiguration() })
@@ -44,7 +44,7 @@ class Bot(private val token: String, private val globalPath: String) {
 
         ReflectionUtils.fireRegisteredFunctions(globalPath, discord)
 
-        discord.commands["Help"] ?: produceHelpCommand(Color.BLUE).registerCommands(discord)
+        discord.commands["Help"] ?: produceHelpCommand(botConfiguration.theme).registerCommands(discord)
 
         registerCommandListener(discord, preconditions)
         registerReactionListener(discord.api, conversationService)
@@ -72,7 +72,7 @@ class Bot(private val token: String, private val globalPath: String) {
         val injection = InjectionConfiguration()
         injectionFun.invoke(injection)
 
-        val discord = buildDiscordClient(Kord(token), botConfiguration)
+        val discord = buildDiscordClient(api, botConfiguration)
         initCore(discord, loggingConfiguration)
         configureFun.invoke(botConfiguration, discord)
 
@@ -113,7 +113,7 @@ class Bot(private val token: String, private val globalPath: String) {
      * Determine the prefix in a given context.
      */
     @ConfigurationDSL
-    fun prefix(construct: (DiscordContext) -> String) {
+    fun prefix(construct: suspend DiscordContext.() -> String) {
         botConfiguration.prefix = construct
     }
 
@@ -121,7 +121,7 @@ class Bot(private val token: String, private val globalPath: String) {
      * An embed that will be sent anytime someone (solely) mentions the bot.
      */
     @ConfigurationDSL
-    fun mentionEmbed(construct: EmbedBuilder.(DiscordContext) -> Unit) {
+    fun mentionEmbed(construct: suspend EmbedBuilder.(DiscordContext) -> Unit) {
         botConfiguration.mentionEmbed = construct
     }
 
@@ -131,22 +131,11 @@ class Bot(private val token: String, private val globalPath: String) {
      * @sample PermissionContext
      */
     @ConfigurationDSL
-    fun permissions(predicate: (PermissionContext) -> Boolean = { _ -> true }) {
+    fun permissions(predicate: suspend PermissionContext.() -> Boolean = { true }) {
         botConfiguration.permissions = { command, user, messageChannel, guild ->
             val context = PermissionContext(command, user, messageChannel, guild)
             predicate.invoke(context)
         }
-    }
-
-    /**
-     * Block to set global color constants, specifically for embeds.
-     *
-     * @sample ColorConfiguration
-     */
-    @ConfigurationDSL
-    fun colors(construct: ColorConfiguration.() -> Unit) {
-        val colors = ColorConfiguration()
-        colors.construct()
     }
 
     private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(globalPath).apply { diService.buildAllRecursively(this) }
