@@ -17,7 +17,7 @@ open class TextChannelArg(override val name: String = "Text Channel", private va
     companion object : TextChannelArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<TextChannel> {
-        val channel = event.discord.api.getChannel(arg.toSnowflake()) as? TextChannel ?: return Error("Not found")
+        val channel = arg.toSnowflake()?.let { event.discord.api.getChannel(it) } as? TextChannel ?: return Error("Not found")
 
         if (!allowsGlobal && channel.id != event.guild?.id)
             return Error("Must be from this guild.")
@@ -25,7 +25,7 @@ open class TextChannelArg(override val name: String = "Text Channel", private va
         return Success(channel)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id.toString())
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id.longValue.toString())
 
     override fun formatData(data: TextChannel) = "#${data.name}"
 }

@@ -56,7 +56,7 @@ fun String.trimToID() = takeUnless { startsWith("<") && endsWith(">") }
 /**
  * Convert an ID or mention to a Snowflake.
  */
-fun String.toSnowflake() = Snowflake(trimToID())
+fun String.toSnowflake() = trimToID().toLongOrNull()?.let { Snowflake(it) }
 
 private fun String.replaceAll(replacements: List<Pair<String, String>>): String {
     var result = this

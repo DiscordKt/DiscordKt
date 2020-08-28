@@ -23,7 +23,7 @@ open class CategoryArg(override val name: String = "Category", private val guild
         val resolvedGuildId = guildId ?: event.guild?.id
 
         if (arg.trimToID().toLongOrNull() != null) {
-            val category = event.discord.api.getChannel(arg.toSnowflake()) as? Category
+            val category = arg.toSnowflake()?.let { event.discord.api.getChannel(it) } as? Category
 
             if (!allowsGlobal && resolvedGuildId != category?.id)
                 return Error("Must be from this guild")
@@ -57,6 +57,6 @@ open class CategoryArg(override val name: String = "Category", private val guild
         }
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id.toString())
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id.longValue.toString())
     override fun formatData(data: Category) = data.name
 }

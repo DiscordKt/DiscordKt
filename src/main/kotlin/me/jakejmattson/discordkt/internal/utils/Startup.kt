@@ -1,6 +1,9 @@
 package me.jakejmattson.discordkt.internal.utils
 
 import com.gitlab.kordlib.core.Kord
+import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
+import com.gitlab.kordlib.core.entity.*
+import com.gitlab.kordlib.gateway.builder.PresenceBuilder
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.annotations.Service
@@ -24,19 +27,24 @@ internal val diService = InjectionService()
  * @param api A Kord instance exposed to the bot builder.
  */
 class Bot(val api: Kord, private val globalPath: String) {
-    private data class StartupFunctions(var configure: suspend BotConfiguration.(Discord) -> Unit = { BotConfiguration() },
+    private data class StartupFunctions(var configure: suspend Configuration.() -> Unit = { Configuration() },
                                         var injection: InjectionConfiguration.() -> Unit = { InjectionConfiguration() },
-                                        var logging: LoggingConfiguration.() -> Unit = { LoggingConfiguration() })
+                                        var logging: LoggingConfiguration.() -> Unit = { LoggingConfiguration() },
+                                        var prefix: suspend DiscordContext.() -> String = { "+" },
+                                        var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
+                                        var permissions: suspend (Command, Discord, User, MessageChannelBehavior, Guild?) -> Boolean = { _, _, _, _, _ -> true },
+                                        var presence: PresenceBuilder.() -> Unit = {})
 
     private val startupBundle = StartupFunctions()
-    private val botConfiguration = BotConfiguration()
 
-    private suspend fun initCore(discord: Discord, loggingConfiguration: LoggingConfiguration) {
+    private suspend fun initCore(discord: Discord) {
         diService.inject(discord)
-
-        InternalLogger.shouldLogStartup = loggingConfiguration.showStartupLog
+        val showStartupLog = discord.configuration.showStartupLog
+        val generateCommandDocs = discord.configuration.generateCommandDocs
         val header = "------- DiscordKt ${discord.versions.library} -------"
-        InternalLogger.startup(header)
+
+        if (showStartupLog)
+            InternalLogger.log(header)
 
         val dataSize = registerData()
         val conversationService = ConversationService(discord).apply { diService.inject(this) }
@@ -49,24 +57,36 @@ class Bot(val api: Kord, private val globalPath: String) {
 
         val commandSets = discord.commands.groupBy { it.category }.keys.size
 
-        InternalLogger.startup(commandSets.pluralize("CommandSet") + " -> " + discord.commands.size.pluralize("Command"))
-        InternalLogger.startup(dataSize.pluralize("Data"))
-        InternalLogger.startup(services.size.pluralize("Service"))
-        InternalLogger.startup(preconditions.size.pluralize("Precondition"))
+        if (showStartupLog) {
+            InternalLogger.log(commandSets.pluralize("CommandSet") + " -> " + discord.commands.size.pluralize("Command"))
+            InternalLogger.log(dataSize.pluralize("Data"))
+            InternalLogger.log(services.size.pluralize("Service"))
+            InternalLogger.log(preconditions.size.pluralize("Precondition"))
+        }
 
         registerHelpCommand(discord)
-        conversationService.registerConversations(globalPath)
+        val conversationSize = conversationService.registerConversations(globalPath)
 
-        if (loggingConfiguration.generateCommandDocs)
+        if (showStartupLog)
+            InternalLogger.log(conversationSize.pluralize("Conversation"))
+
+        if (generateCommandDocs)
             createDocumentation(discord.commands)
 
         Validator.validateCommandMeta(discord.commands)
 
-        InternalLogger.startup("-".repeat(header.length))
+        if (showStartupLog)
+            InternalLogger.log("-".repeat(header.length))
     }
 
     internal suspend fun buildBot() {
-        val (configureFun, injectionFun, loggingFun) = startupBundle
+        val (configureFun,
+            injectionFun,
+            loggingFun,
+            prefixFun,
+            mentionEmbedFun,
+            permissionsFun,
+            presenceFun) = startupBundle
 
         val loggingConfiguration = LoggingConfiguration()
         loggingFun.invoke(loggingConfiguration)
@@ -74,20 +94,36 @@ class Bot(val api: Kord, private val globalPath: String) {
         val injection = InjectionConfiguration()
         injectionFun.invoke(injection)
 
-        val discord = buildDiscordClient(api, botConfiguration)
-        initCore(discord, loggingConfiguration)
-        configureFun.invoke(botConfiguration, discord)
+        val simpleConfiguration = Configuration()
+        configureFun.invoke(simpleConfiguration)
 
-        discord.api.login()
+        val botConfiguration = BotConfiguration(
+            simpleConfiguration.allowMentionPrefix,
+            simpleConfiguration.commandReaction,
+            simpleConfiguration.requiresGuild,
+            simpleConfiguration.theme,
+
+            loggingConfiguration.showStartupLog,
+            loggingConfiguration.generateCommandDocs,
+
+            prefixFun,
+            mentionEmbedFun,
+            permissionsFun
+        )
+
+        val discord = buildDiscordClient(api, botConfiguration)
+
+        initCore(discord)
+        discord.api.login(presenceFun)
     }
 
     /**
-     * Modify core configuration.
+     * Modify simple configuration options.
      *
-     * @sample BotConfiguration
+     * @sample Configuration
      */
     @ConfigurationDSL
-    fun configure(config: suspend BotConfiguration.(Discord) -> Unit) {
+    fun configure(config: suspend Configuration.() -> Unit) {
         startupBundle.configure = config
     }
 
@@ -116,7 +152,7 @@ class Bot(val api: Kord, private val globalPath: String) {
      */
     @ConfigurationDSL
     fun prefix(construct: suspend DiscordContext.() -> String) {
-        botConfiguration.prefix = construct
+        startupBundle.prefix = construct
     }
 
     /**
@@ -124,7 +160,7 @@ class Bot(val api: Kord, private val globalPath: String) {
      */
     @ConfigurationDSL
     fun mentionEmbed(construct: suspend EmbedBuilder.(DiscordContext) -> Unit) {
-        botConfiguration.mentionEmbed = construct
+        startupBundle.mentionEmbed = construct
     }
 
     /**
@@ -134,17 +170,24 @@ class Bot(val api: Kord, private val globalPath: String) {
      */
     @ConfigurationDSL
     fun permissions(predicate: suspend PermissionContext.() -> Boolean = { true }) {
-        botConfiguration.permissions = { command, discord, user, messageChannel, guild ->
+        startupBundle.permissions = { command, discord, user, messageChannel, guild ->
             val context = PermissionContext(command, discord, user, messageChannel, guild)
             predicate.invoke(context)
         }
     }
 
+    /**
+     * Configure the Discord presence for this bot.
+     */
+    @ConfigurationDSL
+    fun presence(presence: PresenceBuilder.() -> Unit) {
+        startupBundle.presence = presence
+    }
+
     private fun buildPreconditions() = ReflectionUtils.detectSubtypesOf<Precondition>(globalPath).map { diService.invokeConstructor(it) }
     private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(globalPath).apply { diService.buildAllRecursively(this) }
     private fun registerHelpCommand(discord: Discord) = discord.commands["Help"]
-        ?: produceHelpCommand(botConfiguration.theme).registerCommands(discord)
-
+        ?: produceHelpCommand(discord.configuration.theme).registerCommands(discord)
 
     private fun registerData() = ReflectionUtils
         .detectSubtypesOf<Data>(globalPath)

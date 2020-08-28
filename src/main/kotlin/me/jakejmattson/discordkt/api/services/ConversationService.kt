@@ -10,7 +10,6 @@ import com.gitlab.kordlib.core.event.message.ReactionAddEvent
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.dsl.conversation.*
-import me.jakejmattson.discordkt.api.extensions.pluralize
 import me.jakejmattson.discordkt.api.services.ConversationResult.*
 import me.jakejmattson.discordkt.internal.utils.*
 import java.lang.reflect.Method
@@ -50,7 +49,7 @@ class ConversationService(val discord: Discord) {
     @PublishedApi
     internal val activeConversations = mutableMapOf<ConversationContext, ConversationBuilder>()
 
-    internal fun registerConversations(path: String) {
+    internal fun registerConversations(path: String): Int {
         val startFunctions = ReflectionUtils.detectMethodsWith<Conversation.Start>(path)
 
         ReflectionUtils.detectSubtypesOf<Conversation>(path)
@@ -76,7 +75,7 @@ class ConversationService(val discord: Discord) {
                 availableConversations[conversationClass] = instance to starter
             }
 
-        InternalLogger.startup(availableConversations.size.pluralize("Conversation"))
+        return availableConversations.size
     }
 
     private fun getConversation(user: User, channel: MessageChannelBehavior) = activeConversations[ConversationContext(user.id, channel.id)]

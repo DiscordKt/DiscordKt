@@ -29,18 +29,18 @@ open class MessageArg(override val name: String = "Message", private val allowsG
             if (!allowsGlobal && guildId != event.guild?.id)
                 return Error("Must be from this guild")
 
-            val guild = kord.getGuild(guildId) ?: return Error("Invalid guild")
+            val guild = guildId?.let { kord.getGuild(it) } ?: return Error("Invalid guild")
 
             val channel = guild.channels.firstOrNull { it.id == channelId } as? TextChannel
                 ?: return Error("Invalid channel")
 
-            channel.getMessageOrNull(messageId) ?: return Error("Invalid message")
+            messageId?.let { channel.getMessageOrNull(it) } ?: return Error("Invalid message")
         } else {
-            event.channel.getMessageOrNull(arg.toSnowflake()) ?: return Error("Invalid ID")
+            arg.toSnowflake()?.let { event.channel.getMessageOrNull(it) } ?: return Error("Invalid ID")
         }
 
         return Success(message)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.message.id.toString())
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.message.id.longValue.toString())
 }

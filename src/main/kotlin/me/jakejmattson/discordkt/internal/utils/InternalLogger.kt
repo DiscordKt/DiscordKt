@@ -2,11 +2,8 @@ package me.jakejmattson.discordkt.internal.utils
 
 internal class InternalLogger {
     companion object {
-        var shouldLogStartup = true
-
-        fun startup(message: String) {
-            if (shouldLogStartup)
-                println(message)
+        fun log(message: String) {
+            println(message)
         }
 
         fun error(message: String) {

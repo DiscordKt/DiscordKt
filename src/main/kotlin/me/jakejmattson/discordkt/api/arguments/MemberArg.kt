@@ -19,7 +19,7 @@ open class MemberArg(override val name: String = "Member", private val allowsBot
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Member> {
         val guild = event.guild ?: return Error("No guild found")
 
-        val member = guild.getMemberOrNull(arg.toSnowflake()) ?: return Error("Not found")
+        val member = arg.toSnowflake()?.let { guild.getMemberOrNull(it) } ?: return Error("Not found")
 
         if (!allowsBot && member.isBot == true)
             return Error("Cannot be a bot")
@@ -27,6 +27,6 @@ open class MemberArg(override val name: String = "Member", private val allowsBot
         return Success(member)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.id.toString())
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.id.longValue.toString())
     override fun formatData(data: Member) = "@${data.tag}"
 }
