@@ -14,12 +14,7 @@ import me.jakejmattson.discordkt.internal.utils.Recommender
 
 internal suspend fun registerCommandListener(discord: Discord, preconditions: List<Precondition>) = discord.api.on<MessageCreateEvent> {
     val config = discord.configuration
-
-    fun mentionsSelf(message: String): Boolean {
-        val id = kord.selfId.longValue
-        return message.startsWith("<@!$id>") || message.startsWith("<@$id>")
-    }
-
+    val self = kord.selfId.longValue
     val author = message.author ?: return@on
     val discordContext = DiscordContext(discord, message, getGuild())
     val prefix = config.prefix.invoke(discordContext)
@@ -27,9 +22,11 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
     val channel = message.channel
     val content = message.content
 
+    fun String.mentionsSelf() = startsWith("<@!$self>") || startsWith("<@$self>")
+
     val rawInputs = when {
         content.startsWith(prefix) -> stripPrefixInvocation(content, prefix)
-        content.trimToID() == kord.selfId.longValue.toString() -> {
+        content.trimToID() == self.toString() -> {
             config.mentionEmbed?.let {
                 channel.createEmbed {
                     it.invoke(this, discordContext)
@@ -38,7 +35,7 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
 
             return@on
         }
-        mentionsSelf(content) && config.allowMentionPrefix -> stripMentionInvocation(content)
+        content.mentionsSelf() && config.allowMentionPrefix -> stripMentionInvocation(content)
         else -> return@on conversationService.handleMessage(message)
     }
 
@@ -53,11 +50,7 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
         .map { it.reason }
 
     if (errors.isNotEmpty()) {
-        val errorMessage = errors.firstOrNull { it.isNotBlank() }
-
-        if (errorMessage != null)
-            event.respond(errorMessage)
-
+        errors.firstOrNull { it.isNotBlank() }?.let { event.respond(it) }
         return@on
     }
 
@@ -75,8 +68,8 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
         if (command.requiresGuild ?: config.requiresGuild)
             return@on
 
-    config.commandReaction.let {
-        message.addReaction(it!!.toReaction())
+    config.commandReaction?.let {
+        message.addReaction(it.toReaction())
     }
 
     command.invoke(event, commandArgs)

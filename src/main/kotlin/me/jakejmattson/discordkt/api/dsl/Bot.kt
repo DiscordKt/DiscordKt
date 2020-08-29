@@ -8,7 +8,8 @@ import me.jakejmattson.discordkt.internal.utils.Bot
 
 /**
  * Create an instance of your Discord bot! You can use the following blocks to modify bot configuration:
- * [configure][Bot.configure], [injection][Bot.injection], [logging][Bot.logging]
+ * [configure][Bot.configure], [injection][Bot.injection], [logging][Bot.logging],
+ * [prefix][Bot.prefix], [mentionEmbed][Bot.mentionEmbed], [permissions][Bot.permissions], [presence][Bot.presence]
  *
  * @param token Your Discord bot token.
  */
