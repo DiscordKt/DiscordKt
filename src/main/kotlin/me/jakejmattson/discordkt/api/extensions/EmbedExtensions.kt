@@ -20,4 +20,4 @@ fun EmbedBuilder.addInlineField(name: String, value: String) = field {
     this.inline = true
 }
 
-private fun String.validOrBlank() = takeUnless { it.isNullOrBlank() } ?: "\u200E" //Zero-width Space
+private fun String.validOrBlank() = takeUnless { it.isBlank() } ?: "\u200E" //Zero-width Space

@@ -3,6 +3,8 @@
 package me.jakejmattson.discordkt.api.extensions
 
 import com.gitlab.kordlib.common.entity.Snowflake
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.Discord
 
 private val urlRegexes = listOf(
@@ -66,12 +68,13 @@ private fun String.replaceAll(replacements: List<Pair<String, String>>): String 
 
 private suspend fun String.cleanseRoles(discord: Discord): String {
     val roleMentions = roleRegex.findAll(this).map {
-        val mention = it.value
+        runBlocking {
+            val mention = it.value
+            val roles = discord.api.guilds.toList().flatMap { it.roles.toList() }.map { it.mention to it.name }.toMap()
+            val resolvedName = roles[mention] ?: ""
 
-        val name = discord.api
-        val resolvedName = "" //TODO Figure out roles
-
-        mention to resolvedName
+            mention to resolvedName
+        }
     }.toList()
 
     return replaceAll(roleMentions)
@@ -79,10 +82,12 @@ private suspend fun String.cleanseRoles(discord: Discord): String {
 
 private suspend fun String.cleanseUsers(discord: Discord): String {
     val userMentions = userRegex.findAll(this).map {
-        val mention = it.value
-        val name = "" //TODO Figure out suspends; discord.kord.getUser(mention.trimToSnowflake())?.tag ?: ""
+        runBlocking {
+            val mention = it.value
+            val replacement = mention.toSnowflake()?.let { discord.api.getUser(it)?.tag } ?: ""
 
-        mention to name
+            mention to replacement
+        }
     }.toList()
 
     return replaceAll(userMentions)
