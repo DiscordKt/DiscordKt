@@ -1,9 +1,10 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.api.dsl.command
+package me.jakejmattson.discordkt.api.dsl
 
 import kotlinx.coroutines.*
-import me.jakejmattson.discordkt.api.dsl.arguments.ArgumentType
+import me.jakejmattson.discordkt.api.*
+import me.jakejmattson.discordkt.api.arguments.ArgumentType
 import me.jakejmattson.discordkt.internal.command.*
 
 /**

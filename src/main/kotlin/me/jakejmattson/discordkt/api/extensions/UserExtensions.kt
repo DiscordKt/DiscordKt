@@ -9,7 +9,7 @@ import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 /**
  * Send the user a private string message.
  */
-suspend fun User.sendPrivateMessage(msg: String) = getDmChannel().createMessage(msg)
+suspend fun User.sendPrivateMessage(message: String) = getDmChannel().createMessage(message)
 
 /**
  * Send the user a private embed message.

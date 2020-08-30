@@ -3,8 +3,7 @@ package me.jakejmattson.discordkt.api.arguments
 import com.gitlab.kordlib.core.entity.Message
 import com.gitlab.kordlib.core.entity.channel.TextChannel
 import kotlinx.coroutines.flow.firstOrNull
-import me.jakejmattson.discordkt.api.dsl.arguments.*
-import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import me.jakejmattson.discordkt.api.extensions.toSnowflake
 
 /**

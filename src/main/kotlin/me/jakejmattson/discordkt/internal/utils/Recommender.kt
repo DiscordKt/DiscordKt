@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import java.awt.Color
 
 internal object Recommender {

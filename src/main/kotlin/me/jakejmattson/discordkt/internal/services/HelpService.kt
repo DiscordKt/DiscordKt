@@ -1,8 +1,7 @@
 package me.jakejmattson.discordkt.internal.services
 
 import me.jakejmattson.discordkt.api.arguments.AnyArg
-import me.jakejmattson.discordkt.api.dsl.builders.commands
-import me.jakejmattson.discordkt.api.dsl.command.*
+import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.internal.utils.Recommender
 import java.awt.Color
 

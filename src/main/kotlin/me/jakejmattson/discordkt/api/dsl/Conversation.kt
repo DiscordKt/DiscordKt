@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.api.dsl.conversation
+package me.jakejmattson.discordkt.api.dsl
 
 import com.gitlab.kordlib.common.entity.Snowflake
 import com.gitlab.kordlib.core.behavior.channel.createEmbed
@@ -12,14 +12,32 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.dsl.arguments.*
-import me.jakejmattson.discordkt.api.dsl.command.*
+import me.jakejmattson.discordkt.api.arguments.*
 import me.jakejmattson.discordkt.api.services.ConversationResult
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.utils.Responder
 
 private class ExitException : Exception("Conversation exited early.")
 private class DmException : Exception("Message failed to deliver.")
+
+/**
+ * This block builds a conversation.
+ *
+ * @param exitString If this String is entered by the user, the conversation is exited.
+ */
+@BuilderDSL
+fun conversation(exitString: String? = null, block: suspend ConversationStateContainer.() -> Unit) = ConversationBuilder(exitString, block)
+
+/**
+ * A class that represent a conversation.
+ */
+abstract class Conversation {
+    /**
+     * This marks the function used to start your function
+     */
+    @Target(AnnotationTarget.FUNCTION)
+    annotation class Start
+}
 
 /** @suppress DSL backing */
 data class ConversationStateContainer(override val discord: Discord,
@@ -198,11 +216,3 @@ class ConversationBuilder(private val exitString: String?, private val block: su
     @PublishedApi
     internal suspend fun acceptReaction(reaction: ReactionAddEvent) = stateContainer.acceptReaction(reaction)
 }
-
-/**
- * This block builds a conversation.
- *
- * @param exitString If this String is entered by the user, the conversation is exited.
- */
-@BuilderDSL
-fun conversation(exitString: String? = null, block: suspend ConversationStateContainer.() -> Unit) = ConversationBuilder(exitString, block)

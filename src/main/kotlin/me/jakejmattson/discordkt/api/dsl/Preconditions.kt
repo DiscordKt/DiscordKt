@@ -1,8 +1,6 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.api.dsl.preconditions
-
-import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
+package me.jakejmattson.discordkt.api.dsl
 
 /**
  * A class that represents some condition that must Pass before a command can be executed.

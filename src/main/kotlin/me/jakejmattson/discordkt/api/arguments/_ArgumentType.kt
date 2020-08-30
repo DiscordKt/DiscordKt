@@ -1,29 +1,9 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.api.dsl.arguments
+package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import me.jakejmattson.discordkt.internal.utils.simplerName
-
-/**
- * The result of an argument conversion.
- */
-sealed class ArgumentResult<T>
-
-/**
- * ArgumentResult indicating that a conversion was successful.
- *
- * @param result The conversion result of the appropriate type.
- * @param consumed The number of arguments consumed in this operation.
- */
-data class Success<T>(val result: T, val consumed: Int = 1) : ArgumentResult<T>()
-
-/**
- * ArgumentResult indicating that a conversion was failed.
- *
- * @param error The reason why the conversion failed.
- */
-data class Error<T>(val error: String) : ArgumentResult<T>()
 
 /**
  * An object that represents a type and contains the logic to convert string arguments to the desired type.
@@ -95,3 +75,23 @@ abstract class ArgumentType<T> : Cloneable {
      */
     open fun formatData(data: T): String = data.toString()
 }
+
+/**
+ * The result of an argument conversion.
+ */
+sealed class ArgumentResult<T>
+
+/**
+ * ArgumentResult indicating that a conversion was successful.
+ *
+ * @param result The conversion result of the appropriate type.
+ * @param consumed The number of arguments consumed in this operation.
+ */
+data class Success<T>(val result: T, val consumed: Int = 1) : ArgumentResult<T>()
+
+/**
+ * ArgumentResult indicating that a conversion was failed.
+ *
+ * @param error The reason why the conversion failed.
+ */
+data class Error<T>(val error: String) : ArgumentResult<T>()

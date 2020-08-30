@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.internal.services
 
 import me.jakejmattson.discordkt.api.arguments.MultipleArg
-import me.jakejmattson.discordkt.api.dsl.command.Command
+import me.jakejmattson.discordkt.api.dsl.Command
 import java.io.File
 
 internal fun createDocumentation(commands: List<Command>) {

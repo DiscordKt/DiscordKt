@@ -1,7 +1,8 @@
 package me.jakejmattson.discordkt.internal.command
 
-import me.jakejmattson.discordkt.api.dsl.arguments.ArgumentType
-import me.jakejmattson.discordkt.api.dsl.command.*
+import me.jakejmattson.discordkt.api.*
+import me.jakejmattson.discordkt.api.arguments.ArgumentType
+import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.internal.arguments.*
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
 

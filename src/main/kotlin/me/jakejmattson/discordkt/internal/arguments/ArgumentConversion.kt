@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.internal.arguments
 
-import me.jakejmattson.discordkt.api.dsl.arguments.*
-import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
+import me.jakejmattson.discordkt.api.arguments.*
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 
 internal sealed class ConversionResult
 internal data class ConversionSuccess(val results: List<Any?>) : ConversionResult()
@@ -14,12 +14,12 @@ internal data class ErrorData(private val arg: ArgumentType<Any>, val error: Str
 private fun formatDataMap(successData: List<DataMap>): String {
     val length = successData.map { it.argument.name.length }.maxOrNull() ?: 0
 
-    return successData.joinToString("\n") {
-        val arg = it.argument
+    return successData.joinToString("\n") { data ->
+        val arg = data.argument
 
-        val value = when (it) {
-            is SuccessData<*> -> it.value?.let { arg.formatData(it) }
-            is ErrorData -> it.error
+        val value = when (data) {
+            is SuccessData<*> -> data.value?.let { arg.formatData(it) }
+            is ErrorData -> data.error
         }
 
         "%-${length}s = %s".format(arg.name, value)
@@ -35,9 +35,8 @@ internal suspend fun convertArguments(actual: List<String>, expected: List<Argum
             return@map ErrorData(expectedArg, "")
 
         val firstArg = remainingArgs.firstOrNull() ?: ""
-        val conversionResult = expectedArg.convert(firstArg, remainingArgs, event)
 
-        when (conversionResult) {
+        when (val conversionResult = expectedArg.convert(firstArg, remainingArgs, event)) {
             is Success -> {
                 if (conversionResult.consumed > remainingArgs.size)
                     throw IllegalArgumentException("ArgumentType ${expectedArg.name} consumed more arguments than available.")

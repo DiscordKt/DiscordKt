@@ -1,8 +1,18 @@
-package me.jakejmattson.discordkt.api.dsl.builders
+@file:Suppress("unused")
+
+package me.jakejmattson.discordkt.api.dsl
 
 import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.dsl.command.Command
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
+
+/**
+ * Create a block for registering commands.
+ *
+ * @param category The category these commands will be under.
+ * @param construct The builder function.
+ */
+@BuilderDSL
+fun commands(category: String, construct: CommandSetBuilder.() -> Unit) = CommandSet(category, construct)
 
 /**
  * @suppress Used in DSL
@@ -34,12 +44,3 @@ data class CommandSet(private val category: String, private val collector: Comma
         commandSetBuilder.registerCommands()
     }
 }
-
-/**
- * Create a block for registering commands.
- *
- * @param category The category these commands will be under.
- * @param construct The builder function.
- */
-@BuilderDSL
-fun commands(category: String, construct: CommandSetBuilder.() -> Unit) = CommandSet(category, construct)

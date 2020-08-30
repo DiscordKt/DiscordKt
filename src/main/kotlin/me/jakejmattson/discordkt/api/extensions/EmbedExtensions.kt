@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.jakejmattson.discordkt.api.extensions
 
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder

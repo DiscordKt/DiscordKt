@@ -7,7 +7,7 @@ import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.kordx.emoji.DiscordEmoji
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.dsl.command.*
+import me.jakejmattson.discordkt.api.dsl.*
 import java.awt.Color
 
 /**

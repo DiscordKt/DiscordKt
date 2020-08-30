@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.api.dsl
+package me.jakejmattson.discordkt.api.dsl.configuration
 
 import com.gitlab.kordlib.core.Kord
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL

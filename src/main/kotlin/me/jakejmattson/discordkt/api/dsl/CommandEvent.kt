@@ -1,8 +1,8 @@
-package me.jakejmattson.discordkt.api.dsl.command
+package me.jakejmattson.discordkt.api.dsl
 
 import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
 import com.gitlab.kordlib.core.entity.*
-import me.jakejmattson.discordkt.api.Discord
+import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.internal.utils.Responder
 
 /**

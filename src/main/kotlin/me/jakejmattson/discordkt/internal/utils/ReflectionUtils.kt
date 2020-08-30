@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.annotations.Register
-import me.jakejmattson.discordkt.api.dsl.builders.*
+import me.jakejmattson.discordkt.api.dsl.*
 import org.reflections8.Reflections
 import org.reflections8.scanners.MethodAnnotationsScanner
 import java.lang.reflect.Method

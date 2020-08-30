@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.api.arguments.EitherArg
-import me.jakejmattson.discordkt.api.dsl.command.Command
+import me.jakejmattson.discordkt.api.dsl.Command
 
 internal class Validator {
     companion object {

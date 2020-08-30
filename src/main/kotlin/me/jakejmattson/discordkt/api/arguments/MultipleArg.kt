@@ -1,7 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.arguments.*
-import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 
 /**
  * Accepts multiple arguments of the given type. Returns a list.
@@ -17,10 +16,7 @@ class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentTyp
         val remainingArgs = args.toMutableList()
 
         complete@ while (remainingArgs.isNotEmpty()) {
-            val currentArg = remainingArgs.first()
-            val conversion = base.convert(currentArg, remainingArgs, event)
-
-            when (conversion) {
+            when (val conversion = base.convert(remainingArgs.first(), remainingArgs, event)) {
                 is Success -> {
                     totalResult.add(conversion.result)
                     val consumed = conversion.consumed

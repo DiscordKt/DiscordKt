@@ -1,9 +1,19 @@
-package me.jakejmattson.discordkt.api.dsl.builders
+@file:Suppress("unused")
+
+package me.jakejmattson.discordkt.api.dsl
 
 import com.gitlab.kordlib.core.event.Event
 import com.gitlab.kordlib.core.on
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
+
+/**
+ * Create a block for registering listeners.
+ *
+ * @param construct The builder function.
+ */
+@BuilderDSL
+fun listeners(construct: ListenerBuilder.() -> Unit) = Listeners(construct)
 
 /**
  * @suppress Used in DSL
@@ -27,11 +37,3 @@ data class Listeners(private val collector: ListenerBuilder.() -> Unit) {
         collector.invoke(ListenerBuilder(discord))
     }
 }
-
-/**
- * Create a block for registering listeners.
- *
- * @param construct The builder function.
- */
-@BuilderDSL
-fun listeners(construct: ListenerBuilder.() -> Unit) = Listeners(construct)

@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.api.dsl.menu
+package me.jakejmattson.discordkt.api.dsl
 
 import com.gitlab.kordlib.common.entity.*
 import com.gitlab.kordlib.core.*

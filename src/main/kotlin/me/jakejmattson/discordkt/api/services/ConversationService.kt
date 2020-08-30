@@ -9,7 +9,7 @@ import com.gitlab.kordlib.core.entity.channel.MessageChannel
 import com.gitlab.kordlib.core.event.message.ReactionAddEvent
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.dsl.conversation.*
+import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.services.ConversationResult.*
 import me.jakejmattson.discordkt.internal.utils.*
 import java.lang.reflect.Method
@@ -25,7 +25,7 @@ enum class ConversationResult {
     CANNOT_DM,
 
     /** The target user already has a conversation. */
-    HAS_CONVO,
+    HAS_CONVERSATION,
 
     /** The conversation has completed successfully. */
     COMPLETE,
@@ -116,7 +116,7 @@ class ConversationService(val discord: Discord) {
         val channel = user.getDmChannel()
 
         if (hasConversation(user, channel))
-            return HAS_CONVO
+            return HAS_CONVERSATION
 
         val state = ConversationStateContainer(discord, user, channel)
 
@@ -138,7 +138,7 @@ class ConversationService(val discord: Discord) {
             return INVALID_USER
 
         if (hasConversation(user, channel))
-            return HAS_CONVO
+            return HAS_CONVERSATION
 
         val state = ConversationStateContainer(discord, user, channel)
 

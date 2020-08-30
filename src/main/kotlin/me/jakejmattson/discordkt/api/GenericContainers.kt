@@ -1,4 +1,4 @@
-package me.jakejmattson.discordkt.api.dsl.command
+package me.jakejmattson.discordkt.api
 
 /** A container for generic data that saves type information. */
 open class GenericContainer

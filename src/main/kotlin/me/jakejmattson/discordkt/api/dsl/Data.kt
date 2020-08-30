@@ -1,4 +1,4 @@
-package me.jakejmattson.discordkt.api.dsl.data
+package me.jakejmattson.discordkt.api.dsl
 
 import com.google.gson.*
 import me.jakejmattson.discordkt.internal.utils.diService

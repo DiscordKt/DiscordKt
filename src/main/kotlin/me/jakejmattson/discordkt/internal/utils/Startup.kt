@@ -7,10 +7,8 @@ import com.gitlab.kordlib.gateway.builder.PresenceBuilder
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.annotations.Service
-import me.jakejmattson.discordkt.api.dsl.command.*
+import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.dsl.configuration.*
-import me.jakejmattson.discordkt.api.dsl.data.Data
-import me.jakejmattson.discordkt.api.dsl.preconditions.Precondition
 import me.jakejmattson.discordkt.api.extensions.pluralize
 import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL

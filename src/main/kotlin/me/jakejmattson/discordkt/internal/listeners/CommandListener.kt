@@ -4,9 +4,8 @@ import com.gitlab.kordlib.core.behavior.channel.createEmbed
 import com.gitlab.kordlib.core.event.message.MessageCreateEvent
 import com.gitlab.kordlib.core.on
 import com.gitlab.kordlib.kordx.emoji.toReaction
-import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.dsl.command.*
-import me.jakejmattson.discordkt.api.dsl.preconditions.*
+import me.jakejmattson.discordkt.api.*
+import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.trimToID
 import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.command.*
