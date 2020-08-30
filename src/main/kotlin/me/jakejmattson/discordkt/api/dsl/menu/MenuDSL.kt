@@ -30,14 +30,14 @@ suspend fun menu(construct: suspend MenuDSL.() -> Unit): Menu {
  */
 class MenuDSL {
     private val pages = mutableListOf<EmbedBuilder>()
-    private val reactions = mutableMapOf<ReactionEmoji, EmbedBuilder.() -> Unit>()
+    private val reactions = mutableMapOf<ReactionEmoji, suspend EmbedBuilder.() -> Unit>()
     var leftReact = Emojis.arrowLeft
     var rightReact = Emojis.arrowRight
 
     /**
      * Add a new page to this menu using the EmbedDSL.
      */
-    fun page(construct: EmbedBuilder.() -> Unit) {
+    suspend fun page(construct: suspend EmbedBuilder.() -> Unit) {
         val embed = EmbedBuilder()
         construct.invoke(embed)
         pages.add(embed)
@@ -46,7 +46,7 @@ class MenuDSL {
     /**
      * Add a reaction to the menu and the action to execute when it is clicked.
      */
-    fun reaction(reaction: DiscordEmoji.Generic, action: EmbedBuilder.() -> Unit) {
+    fun reaction(reaction: DiscordEmoji.Generic, action: suspend EmbedBuilder.() -> Unit) {
         reactions[reaction.toReaction()] = action
     }
 
@@ -62,7 +62,7 @@ class MenuDSL {
  * @property customReactions All custom reactions and their actions.
  */
 data class Menu(private val pages: MutableList<EmbedBuilder>,
-                val customReactions: Map<ReactionEmoji, EmbedBuilder.() -> Unit>,
+                val customReactions: Map<ReactionEmoji, suspend EmbedBuilder.() -> Unit>,
                 val leftReact: ReactionEmoji,
                 val rightReact: ReactionEmoji) {
     private var index = 0

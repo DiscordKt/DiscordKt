@@ -94,7 +94,7 @@ data class ConversationStateContainer(override val discord: Discord,
      * @param prompt The embed sent to the user as a prompt for information.
      */
     @Throws(DmException::class)
-    suspend fun <T> promptEmbed(argumentType: ArgumentType<T>, prompt: EmbedBuilder.() -> Unit): T {
+    suspend fun <T> promptEmbed(argumentType: ArgumentType<T>, prompt: suspend EmbedBuilder.() -> Unit): T {
         require(!argumentType.isOptional) { "Conversation arguments cannot be optional" }
 
         val message = channel.createEmbed {
@@ -113,7 +113,7 @@ data class ConversationStateContainer(override val discord: Discord,
      * @param prompt The embed sent to the user as a prompt for information.
      */
     @Throws(DmException::class)
-    suspend fun <T> promptReaction(reactionMap: Map<ReactionEmoji, T>, prompt: EmbedBuilder.() -> Unit): T {
+    suspend fun <T> promptReaction(reactionMap: Map<ReactionEmoji, T>, prompt: suspend EmbedBuilder.() -> Unit): T {
         val message = channel.createEmbed {
             prompt.invoke(this)
         }
