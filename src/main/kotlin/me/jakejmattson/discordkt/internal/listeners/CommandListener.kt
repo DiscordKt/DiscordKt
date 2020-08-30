@@ -42,7 +42,7 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
 
     if (commandName.isEmpty()) return@on
 
-    val event = CommandEvent<GenericContainer>(rawInputs, discordContext)
+    val event = CommandEvent<GenericContainer>(rawInputs, discord, message, getGuild())
     val errors = preconditions
         .map { it.evaluate(event) }
         .filterIsInstance<Fail>()

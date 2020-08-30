@@ -20,14 +20,12 @@ import kotlin.system.exitProcess
 internal val diService = InjectionService()
 
 /**
- * Backing class for [bot][me.jakejmattson.discordkt.api.dsl.bot] function.
+ * Backing class for [bot] function.
  *
  * @param api A Kord instance exposed to the bot builder.
  */
 class Bot(val api: Kord, private val globalPath: String) {
     private data class StartupFunctions(var configure: suspend Configuration.() -> Unit = { Configuration() },
-                                        var injection: InjectionConfiguration.() -> Unit = { InjectionConfiguration() },
-                                        var logging: LoggingConfiguration.() -> Unit = { LoggingConfiguration() },
                                         var prefix: suspend DiscordContext.() -> String = { "+" },
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
                                         var permissions: suspend (Command, Discord, User, MessageChannelBehavior, Guild?) -> Boolean = { _, _, _, _, _ -> true },
@@ -79,30 +77,21 @@ class Bot(val api: Kord, private val globalPath: String) {
 
     internal suspend fun buildBot() {
         val (configureFun,
-            injectionFun,
-            loggingFun,
             prefixFun,
             mentionEmbedFun,
             permissionsFun,
             presenceFun) = startupBundle
-
-        val loggingConfiguration = LoggingConfiguration()
-        loggingFun.invoke(loggingConfiguration)
-
-        val injection = InjectionConfiguration()
-        injectionFun.invoke(injection)
 
         val simpleConfiguration = Configuration()
         configureFun.invoke(simpleConfiguration)
 
         val botConfiguration = BotConfiguration(
             simpleConfiguration.allowMentionPrefix,
-            simpleConfiguration.commandReaction,
             simpleConfiguration.requiresGuild,
+            simpleConfiguration.showStartupLog,
+            simpleConfiguration.generateCommandDocs,
+            simpleConfiguration.commandReaction,
             simpleConfiguration.theme,
-
-            loggingConfiguration.showStartupLog,
-            loggingConfiguration.generateCommandDocs,
 
             prefixFun,
             mentionEmbedFun,
@@ -127,23 +116,9 @@ class Bot(val api: Kord, private val globalPath: String) {
 
     /**
      * Inject objects into the dependency injection pool.
-     *
-     * @sample InjectionConfiguration
      */
     @ConfigurationDSL
-    fun injection(config: InjectionConfiguration.() -> Unit) {
-        startupBundle.injection = config
-    }
-
-    /**
-     * Modify logging configuration.
-     *
-     * @sample LoggingConfiguration
-     */
-    @ConfigurationDSL
-    fun logging(config: LoggingConfiguration.() -> Unit) {
-        startupBundle.logging = config
-    }
+    fun inject(vararg injectionObjects: Any) = injectionObjects.forEach { diService.inject(it) }
 
     /**
      * Determine the prefix in a given context.

@@ -14,23 +14,20 @@ import java.awt.Color
  * Contains all properties configured when the bot is created.
  *
  * @property allowMentionPrefix Allow mentioning the bot to be used as a prefix '@Bot'.
- * @property commandReaction The reaction added to a message when a command is received.
  * @property requiresGuild Whether or not commands are required to be executed in a guild.
- * @property theme The color theme of internal embeds (i.e. Help).
- *
  * @property showStartupLog Whether or not to display log information when the bot starts.
  * @property generateCommandDocs Whether or not command documentation should be generated.
+ * @property commandReaction The reaction added to a message when a command is received.
+ * @property theme The color theme of internal embeds (i.e. Help).
  */
 data class BotConfiguration(
     //Simple
-    var allowMentionPrefix: Boolean,
-    var commandReaction: DiscordEmoji?,
-    var requiresGuild: Boolean,
-    var theme: Color?,
-
-    //Logging
+    val allowMentionPrefix: Boolean,
+    val requiresGuild: Boolean,
     val showStartupLog: Boolean,
     val generateCommandDocs: Boolean,
+    val commandReaction: DiscordEmoji?,
+    val theme: Color?,
 
     //Predicates
     internal var prefix: suspend (DiscordContext) -> String,

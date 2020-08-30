@@ -1,6 +1,5 @@
 package me.jakejmattson.discordkt.api.dsl
 
-import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
 import com.gitlab.kordlib.core.entity.*
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.internal.utils.Responder
@@ -30,11 +29,11 @@ data class RawInputs(
  * @property channel The MessageChannel this command was invoked in.
  * @property prefix The prefix used to invoke this command.
  */
-data class DiscordContext(override val discord: Discord,
-                          val message: Message,
-                          val guild: Guild?,
-                          val author: User = message.author!!,
-                          override val channel: MessageChannelBehavior = message.channel) : Responder {
+open class DiscordContext(override val discord: Discord,
+                          open val message: Message,
+                          open val guild: Guild?) : Responder {
+    val author = message.author!!
+    override val channel = message.channel
 
     /**
      * Determine the relevant prefix from the configured prefix block.
@@ -45,35 +44,25 @@ data class DiscordContext(override val discord: Discord,
 /**
  * A command execution event containing the [RawInputs] and the relevant [DiscordContext].
  *
- * @param rawInputs The [RawInputs] of the command.
- *
+ * @property rawInputs The [RawInputs] of the command.
  * @property discord The [Discord] instance.
  * @property author The User who invoked this command.
  * @property message The Message that invoked this command.
  * @property channel The MessageChannel this command was invoked in.
  * @property guild The Guild this command was invoked in.
  * @property command The [Command] that is resolved from the invocation.
- * @property prefix The prefix used to invoke this command.
  * @property args The [GenericContainer] containing the converted input.
  */
 data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
-                                              private val discordContext: DiscordContext) : Responder {
-    override val discord = discordContext.discord
-    val author = discordContext.author
-    val message = discordContext.message
-    override val channel = discordContext.channel
-    val guild = discordContext.guild
+                                              override val discord: Discord,
+                                              override val message: Message,
+                                              override val guild: Guild?) : DiscordContext(discord, message, guild) {
     val command = discord.commands[rawInputs.commandName]
-
-    /**
-     * Determine the relevant prefix from the configured prefix block.
-     */
-    suspend fun prefix() = discordContext.prefix()
 
     lateinit var args: T
 
     /**
      * Clone this event with optional modifications.
      */
-    fun cloneToGeneric(input: RawInputs = rawInputs, context: DiscordContext = discordContext) = CommandEvent<GenericContainer>(input, context)
+    fun cloneToGeneric(input: RawInputs = rawInputs) = CommandEvent<GenericContainer>(input, discord, message, guild)
 }
