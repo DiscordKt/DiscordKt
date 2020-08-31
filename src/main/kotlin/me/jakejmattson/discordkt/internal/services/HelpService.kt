@@ -5,15 +5,16 @@ import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.internal.utils.Recommender
 import java.awt.Color
 
-internal fun produceHelpCommand(embedColor: Color?) = commands("Utility") {
+internal fun produceHelpCommand() = commands("Utility") {
     command("Help") {
         description = "Display a help menu."
         execute(AnyArg("Command").makeOptional("")) {
             val query = args.first
+            val color = discord.configuration.theme
 
             when {
-                query.isEmpty() -> sendDefaultEmbed(this, embedColor)
-                query.isCommand(this) -> sendCommandEmbed(discord.commands[query]!!, this, query, embedColor)
+                query.isEmpty() -> sendDefaultEmbed(this, color)
+                query.isCommand(this) -> sendCommandEmbed(discord.commands[query]!!, this, query, color)
                 else -> Recommender.sendRecommendation(this, query, fetchVisibleCommands(this).flatMap { it.names })
             }
         }

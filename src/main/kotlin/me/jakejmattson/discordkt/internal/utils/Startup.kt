@@ -85,18 +85,19 @@ class Bot(val api: Kord, private val globalPath: String) {
         val simpleConfiguration = Configuration()
         configureFun.invoke(simpleConfiguration)
 
-        val botConfiguration = BotConfiguration(
-            simpleConfiguration.allowMentionPrefix,
-            simpleConfiguration.requiresGuild,
-            simpleConfiguration.showStartupLog,
-            simpleConfiguration.generateCommandDocs,
-            simpleConfiguration.commandReaction,
-            simpleConfiguration.theme,
-
-            prefixFun,
-            mentionEmbedFun,
-            permissionsFun
-        )
+        val botConfiguration = with(simpleConfiguration) {
+            BotConfiguration(
+                allowMentionPrefix = allowMentionPrefix,
+                requiresGuild = requiresGuild,
+                showStartupLog = showStartupLog,
+                generateCommandDocs = generateCommandDocs,
+                commandReaction = commandReaction,
+                theme = theme,
+                prefix = prefixFun,
+                mentionEmbed = mentionEmbedFun,
+                permissions = permissionsFun
+            )
+        }
 
         val discord = buildDiscordClient(api, botConfiguration)
 
@@ -160,7 +161,7 @@ class Bot(val api: Kord, private val globalPath: String) {
     private fun buildPreconditions() = ReflectionUtils.detectSubtypesOf<Precondition>(globalPath).map { diService.invokeConstructor(it) }
     private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(globalPath).apply { diService.buildAllRecursively(this) }
     private fun registerHelpCommand(discord: Discord) = discord.commands["Help"]
-        ?: produceHelpCommand(discord.configuration.theme).registerCommands(discord)
+        ?: produceHelpCommand().registerCommands(discord)
 
     private fun registerData() = ReflectionUtils
         .detectSubtypesOf<Data>(globalPath)
