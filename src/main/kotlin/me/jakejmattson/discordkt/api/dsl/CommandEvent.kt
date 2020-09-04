@@ -1,5 +1,6 @@
 package me.jakejmattson.discordkt.api.dsl
 
+import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
 import com.gitlab.kordlib.core.entity.*
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.internal.utils.Responder
@@ -31,10 +32,9 @@ data class RawInputs(
  */
 open class DiscordContext(override val discord: Discord,
                           open val message: Message,
-                          open val guild: Guild?) : Responder {
-    val author = message.author!!
-    override val channel = message.channel
-
+                          open val guild: Guild?,
+                          val author: User = message.author!!,
+                          override val channel: MessageChannelBehavior = message.channel) : Responder {
     /**
      * Determine the relevant prefix from the configured prefix block.
      */

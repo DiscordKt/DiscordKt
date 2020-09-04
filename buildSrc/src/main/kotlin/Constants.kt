@@ -11,28 +11,17 @@ object Versions {
     const val coroutines = "1.3.9"
     const val reflections = "0.11.7"
     const val gson = "2.8.6"
-    const val slf4j = "1.7.30"
     const val kord = "0.6.1"
     const val emojis = "0.2.0"
-
-    //Test Dependencies
-    const val mockk = "1.10.0"
-    const val junit = "5.7.0-M1"
 }
 
 object Dependencies {
     //Internal Dependencies
     const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     const val reflections = "net.oneandone.reflections8:reflections8:${Versions.reflections}"
-    const val slf4j = "org.slf4j:slf4j-nop:${Versions.slf4j}"
 
     //Library Dependencies
     const val kord = "com.gitlab.kordlib.kord:kord-core:${Versions.kord}"
     const val emojis = "com.gitlab.kordlib:kordx.emoji:${Versions.emojis}"
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
-
-    //Test Dependencies
-    const val mockk = "io.mockk:mockk:${Versions.mockk}"
-    const val junit_api = "org.junit.jupiter:junit-jupiter-api:${Versions.junit}"
-    const val junit_engine = "org.junit.jupiter:junit-jupiter-engine:${Versions.junit}"
 }

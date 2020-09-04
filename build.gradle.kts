@@ -29,17 +29,11 @@ dependencies {
     //Internal Dependencies
     implementation(Dependencies.coroutines)
     implementation(Dependencies.reflections)
-    implementation(Dependencies.slf4j)
 
     //Library Dependencies
     api(Dependencies.kord)
     api(Dependencies.emojis)
     api(Dependencies.gson)
-
-    //Test Dependencies
-    testImplementation(Dependencies.mockk)
-    testImplementation(Dependencies.junit_api)
-    testRuntimeOnly(Dependencies.junit_engine)
 }
 
 tasks {
@@ -47,10 +41,6 @@ tasks {
 
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
-    }
-
-    test {
-        useJUnitPlatform()
     }
 
     copy {
