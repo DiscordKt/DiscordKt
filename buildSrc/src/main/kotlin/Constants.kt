@@ -11,7 +11,8 @@ object Versions {
     const val coroutines = "1.3.9"
     const val reflections = "0.11.7"
     const val gson = "2.8.6"
-    const val kord = "0.6.1"
+    const val slf4j = "2.0.0-alpha1"
+    const val kord = "0.6.2"
     const val emojis = "0.2.0"
 }
 
@@ -19,9 +20,10 @@ object Dependencies {
     //Internal Dependencies
     const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     const val reflections = "net.oneandone.reflections8:reflections8:${Versions.reflections}"
+    const val gson = "com.google.code.gson:gson:${Versions.gson}"
+    const val slf4j = "org.slf4j:slf4j-nop:${Versions.slf4j}"
 
     //Library Dependencies
     const val kord = "com.gitlab.kordlib.kord:kord-core:${Versions.kord}"
     const val emojis = "com.gitlab.kordlib:kordx.emoji:${Versions.emojis}"
-    const val gson = "com.google.code.gson:gson:${Versions.gson}"
 }

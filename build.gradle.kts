@@ -29,11 +29,12 @@ dependencies {
     //Internal Dependencies
     implementation(Dependencies.coroutines)
     implementation(Dependencies.reflections)
+    implementation(Dependencies.slf4j)
+    implementation(Dependencies.gson)
 
     //Library Dependencies
     api(Dependencies.kord)
     api(Dependencies.emojis)
-    api(Dependencies.gson)
 }
 
 tasks {
