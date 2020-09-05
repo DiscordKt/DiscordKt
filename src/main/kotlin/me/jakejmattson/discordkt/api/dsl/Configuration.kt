@@ -48,9 +48,9 @@ data class BotConfiguration(
     val commandReaction: DiscordEmoji?,
     val theme: Color?,
 
-    internal var prefix: suspend (DiscordContext) -> String,
-    internal var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
-    internal var permissions: suspend (Command, Discord, User, MessageChannelBehavior, Guild?) -> Boolean
+    internal val prefix: suspend (DiscordContext) -> String,
+    internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
+    internal val permissions: suspend (Command, Discord, User, MessageChannelBehavior, Guild?) -> Boolean
 )
 
 /**

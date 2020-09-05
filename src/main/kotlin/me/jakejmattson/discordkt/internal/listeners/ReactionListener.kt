@@ -7,6 +7,6 @@ import me.jakejmattson.discordkt.api.services.ConversationService
 internal fun registerReactionListener(kord: Kord, conversationService: ConversationService) = kord.on<ReactionAddEvent> {
     val user = getUser().takeUnless { it.isBot ?: false } ?: return@on
 
-    if (!conversationService.hasConversation(user, channel))
+    if (conversationService.hasConversation(user, channel))
         conversationService.handleReaction(user, channel, this)
 }

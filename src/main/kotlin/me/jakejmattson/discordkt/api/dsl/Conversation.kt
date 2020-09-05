@@ -145,7 +145,7 @@ data class ConversationStateContainer(override val discord: Discord,
         return retrieveValidReactionResponse(reactionMap)
     }
 
-    private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<*>, prompt: String?): T = runBlocking {
+    private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<T>, prompt: String?): T = runBlocking {
         prompt?.let { channel.createMessage(it) }?.also { botMessageIds.add(it.id) }
         retrieveTextResponse(argumentType) ?: retrieveValidTextResponse(argumentType, prompt)
     }
@@ -154,7 +154,7 @@ data class ConversationStateContainer(override val discord: Discord,
         retrieveReactionResponse(reactions) ?: retrieveValidReactionResponse(reactions)
     }
 
-    private suspend fun <T> retrieveTextResponse(argumentType: ArgumentType<*>) = select<T?> {
+    private suspend fun <T> retrieveTextResponse(argumentType: ArgumentType<T>) = select<T?> {
         messageBuffer.onReceive { input ->
             userMessageIds.add(input.id)
 
@@ -162,8 +162,8 @@ data class ConversationStateContainer(override val discord: Discord,
                 throw ExitException()
 
             when (val result = parseResponse(argumentType, input)) {
-                is Success<*> -> result.result as T
-                is Error<*> -> {
+                is Success<T> -> result.result
+                is Error<T> -> {
                     respond(result.error)
                     null
                 }
@@ -176,13 +176,11 @@ data class ConversationStateContainer(override val discord: Discord,
             if (input.messageId != previousBotMessageId)
                 return@onReceive null
 
-            val emoji = input.emoji
-
-            reactions[emoji]
+            reactions[input.emoji]
         }
     }
 
-    private suspend fun parseResponse(argumentType: ArgumentType<*>, message: Message): ArgumentResult<*> {
+    private suspend fun <T> parseResponse(argumentType: ArgumentType<T>, message: Message): ArgumentResult<T> {
         val rawInputs = RawInputs(message.content, "", message.content.split(" "), 0)
         val commandEvent = CommandEvent<Nothing>(rawInputs, discord, message, guild = message.getGuildOrNull())
         return argumentType.convert(message.content, commandEvent.rawInputs.commandArgs, commandEvent)
