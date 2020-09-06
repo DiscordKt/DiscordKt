@@ -5,7 +5,7 @@ package me.jakejmattson.discordkt.internal.utils
 import com.gitlab.kordlib.core.behavior.channel.*
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.dsl.Menu
+import me.jakejmattson.discordkt.api.dsl.MenuBuilder
 import me.jakejmattson.discordkt.api.extensions.sanitiseMentions
 
 internal interface Responder {
@@ -21,7 +21,11 @@ internal interface Responder {
             construct.invoke(embed!!)
         }
 
-    suspend fun respond(menu: Menu) = menu.build(channel)
+    suspend fun respondMenu(construct: suspend MenuBuilder.() -> Unit) {
+        val handle = MenuBuilder()
+        handle.construct()
+        handle.build().send(channel)
+    }
 
     private suspend fun chunkRespond(message: String) {
         require(message.isNotEmpty()) { "Cannot send an empty message." }

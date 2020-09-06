@@ -26,10 +26,9 @@ sealed class ParseResult {
 }
 
 internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<GenericContainer>, actualArgs: List<String>): ParseResult {
-    val expected = command.arguments
-    val initialConversion = convertArguments(actualArgs, expected as List<ArgumentType<Any>>, event)
+    val expected = command.arguments as List<ArgumentType<Any>>
 
-    val error = when (initialConversion) {
+    val error = when (val initialConversion = convertArguments(actualArgs, expected , event)) {
         is ConversionSuccess -> return ParseResult.Success(bundleToArgContainer(initialConversion.results))
         is ConversionError -> ParseResult.Error(initialConversion.error)
     }

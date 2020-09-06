@@ -11,16 +11,7 @@ import com.gitlab.kordlib.core.event.message.ReactionAddEvent
 import com.gitlab.kordlib.kordx.emoji.*
 import com.gitlab.kordlib.kordx.emoji.DiscordEmoji
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
-import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
-
-/** @suppress DSL Builder */
-@BuilderDSL
-suspend fun menu(construct: suspend MenuDSL.() -> Unit): Menu {
-    val handle = MenuDSL()
-    handle.construct()
-    return handle.build()
-}
 
 /**
  * Type-safe builder for creating paginated embeds with custom reactions.
@@ -28,7 +19,7 @@ suspend fun menu(construct: suspend MenuDSL.() -> Unit): Menu {
  * @property leftReact Reaction used to move to the previous page.
  * @property rightReact Reaction used to move to the next page.
  */
-class MenuDSL {
+class MenuBuilder {
     private val pages = mutableListOf<EmbedBuilder>()
     private val reactions = mutableMapOf<ReactionEmoji, suspend EmbedBuilder.() -> Unit>()
     var leftReact = Emojis.arrowLeft
@@ -86,7 +77,7 @@ data class Menu(private val pages: MutableList<EmbedBuilder>,
         return pages[index]
     }
 
-    internal suspend fun build(channel: MessageChannelBehavior) {
+    internal suspend fun send(channel: MessageChannelBehavior) {
         if (channel.asChannel().type == ChannelType.DM)
             return InternalLogger.error("Cannot use menus within a private context.")
 
