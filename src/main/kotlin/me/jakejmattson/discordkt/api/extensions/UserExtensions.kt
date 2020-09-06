@@ -14,9 +14,7 @@ suspend fun User.sendPrivateMessage(message: String) = getDmChannel().createMess
 /**
  * Send the user a private embed message.
  */
-suspend fun User.sendPrivateMessage(embed: EmbedBuilder.() -> Unit) = getDmChannel().createEmbed {
-    embed.invoke(this)
-}
+suspend fun User.sendPrivateMessage(embed: suspend EmbedBuilder.() -> Unit) = getDmChannel().createEmbed { embed.invoke(this) }
 
 /**
  * A Discord profile link for this user.

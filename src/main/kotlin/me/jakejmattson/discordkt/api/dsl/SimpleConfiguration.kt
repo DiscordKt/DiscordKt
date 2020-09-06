@@ -56,12 +56,12 @@ data class BotConfiguration(
 /**
  * @suppress Used in sample
  */
-data class Configuration(var allowMentionPrefix: Boolean = false,
-                         var requiresGuild: Boolean = true,
-                         var showStartupLog: Boolean = true,
-                         var generateCommandDocs: Boolean = true,
-                         var commandReaction: DiscordEmoji? = Emojis.eyes,
-                         var theme: Color? = null)
+data class SimpleConfiguration(var allowMentionPrefix: Boolean = false,
+                               var requiresGuild: Boolean = true,
+                               var showStartupLog: Boolean = true,
+                               var generateCommandDocs: Boolean = true,
+                               var commandReaction: DiscordEmoji? = Emojis.eyes,
+                               var theme: Color? = null)
 
 /**
  * @suppress Used in sample

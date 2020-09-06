@@ -24,7 +24,7 @@ internal val diService = InjectionService()
  * @param api A Kord instance exposed to the bot builder.
  */
 class Bot(val api: Kord, private val globalPath: String) {
-    private data class StartupFunctions(var configure: suspend Configuration.() -> Unit = { Configuration() },
+    private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
                                         var prefix: suspend DiscordContext.() -> String = { "+" },
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
                                         var permissions: suspend (Command, Discord, User, MessageChannelBehavior, Guild?) -> Boolean = { _, _, _, _, _ -> true },
@@ -81,7 +81,7 @@ class Bot(val api: Kord, private val globalPath: String) {
             permissionsFun,
             presenceFun) = startupBundle
 
-        val simpleConfiguration = Configuration()
+        val simpleConfiguration = SimpleConfiguration()
         configureFun.invoke(simpleConfiguration)
 
         val botConfiguration = with(simpleConfiguration) {
@@ -107,10 +107,10 @@ class Bot(val api: Kord, private val globalPath: String) {
     /**
      * Modify simple configuration options.
      *
-     * @sample Configuration
+     * @sample SimpleConfiguration
      */
     @ConfigurationDSL
-    fun configure(config: suspend Configuration.() -> Unit) {
+    fun configure(config: suspend SimpleConfiguration.() -> Unit) {
         startupBundle.configure = config
     }
 
