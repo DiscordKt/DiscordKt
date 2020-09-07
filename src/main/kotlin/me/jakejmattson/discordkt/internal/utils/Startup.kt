@@ -46,7 +46,7 @@ class Bot(val api: Kord, private val globalPath: String) {
         val services = registerServices()
         val preconditions = buildPreconditions().sortedBy { it.priority }
 
-        ReflectionUtils.fireRegisteredFunctions(globalPath, discord)
+        ReflectionUtils.registerFunctions(globalPath, discord)
         registerReactionListener(discord.api, conversationService)
         registerCommandListener(discord, preconditions)
 
