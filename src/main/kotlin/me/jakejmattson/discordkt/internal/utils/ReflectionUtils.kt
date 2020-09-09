@@ -2,8 +2,8 @@ package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.dsl.*
-import org.reflections8.Reflections
-import org.reflections8.scanners.*
+import org.reflections.Reflections
+import org.reflections.scanners.*
 import java.lang.reflect.Method
 
 internal object ReflectionUtils {
