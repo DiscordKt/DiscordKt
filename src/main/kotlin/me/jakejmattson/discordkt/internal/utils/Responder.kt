@@ -12,8 +12,8 @@ internal interface Responder {
     val discord: Discord
     val channel: MessageChannelBehavior
 
-    suspend fun unsafeRespond(message: String) = chunkRespond(message)
-    suspend fun respond(message: String) = chunkRespond(message.sanitiseMentions(discord))
+    suspend fun unsafeRespond(message: Any) = chunkRespond(message.toString())
+    suspend fun respond(message: Any) = chunkRespond(message.toString().sanitiseMentions(discord))
     suspend fun respond(construct: suspend EmbedBuilder.() -> Unit) = channel.createEmbed { construct.invoke(this) }
     suspend fun respond(message: String, construct: suspend EmbedBuilder.() -> Unit) =
         channel.createMessage {
