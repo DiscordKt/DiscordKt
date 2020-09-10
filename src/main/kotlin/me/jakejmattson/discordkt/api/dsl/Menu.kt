@@ -3,7 +3,6 @@
 package me.jakejmattson.discordkt.api.dsl
 
 import com.gitlab.kordlib.common.entity.*
-import com.gitlab.kordlib.core.*
 import com.gitlab.kordlib.core.behavior.channel.*
 import com.gitlab.kordlib.core.behavior.edit
 import com.gitlab.kordlib.core.entity.ReactionEmoji
@@ -12,6 +11,8 @@ import com.gitlab.kordlib.kordx.emoji.*
 import com.gitlab.kordlib.kordx.emoji.DiscordEmoji
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
+
+private val menus = mutableMapOf<Snowflake, Menu>()
 
 /**
  * Type-safe builder for creating paginated embeds with custom reactions.
@@ -98,13 +99,12 @@ data class Menu(private val pages: MutableList<EmbedBuilder>,
         customReactions.keys.forEach { message.addReaction(it) }
 
         if (multiPage || customReactions.isNotEmpty())
-            registerReactionListener(message.kord, this, message.id)
+            menus[message.id] = this
     }
 }
 
-private suspend fun registerReactionListener(kord: Kord, menu: Menu, menuId: Snowflake) = kord.on<ReactionAddEvent> {
-    if (messageId != menuId) return@on
-    if (userId == kord.selfId) return@on
+internal suspend fun handleMenuReaction(event: ReactionAddEvent) = with(event) {
+    val menu = menus[messageId] ?: return@with
 
     message.deleteReaction(user.id, emoji)
 
@@ -113,7 +113,7 @@ private suspend fun registerReactionListener(kord: Kord, menu: Menu, menuId: Sno
         menu.rightReact -> menu.nextPage()
         else -> {
             EmbedBuilder().apply {
-                val action = menu.customReactions[emoji] ?: return@on
+                val action = menu.customReactions[emoji] ?: return@with
 
                 message.asMessage().embeds.first().apply(this)
                 action.invoke(this)
