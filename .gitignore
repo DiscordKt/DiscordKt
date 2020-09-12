@@ -1,8 +1,14 @@
-# IntelliJ
+# IDEs
 .idea/
 *.iml
+.classpath
+.project
 
 # Gradle
 .gradle/
 build/
 gradle.properties
+
+# Other
+*.hprof
+*.log
