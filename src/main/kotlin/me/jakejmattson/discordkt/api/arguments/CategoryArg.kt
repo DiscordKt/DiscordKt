@@ -56,6 +56,6 @@ open class CategoryArg(override val name: String = "Category", private val guild
         }
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id.longValue.toString())
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id.value)
     override fun formatData(data: Category) = data.name
 }
