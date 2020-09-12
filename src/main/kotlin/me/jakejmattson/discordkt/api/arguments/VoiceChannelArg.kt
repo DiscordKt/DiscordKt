@@ -19,7 +19,7 @@ open class VoiceChannelArg(override val name: String = "Voice Channel", private 
         val channel = arg.toSnowflake()?.let { event.discord.api.getChannel(it) } as? VoiceChannel
             ?: return Error("Not found")
 
-        if (!allowsGlobal && channel.id != event.guild?.id)
+        if (!allowsGlobal && channel.guild.id != event.guild?.id)
             return Error("Must be from this guild")
 
         return Success(channel)
