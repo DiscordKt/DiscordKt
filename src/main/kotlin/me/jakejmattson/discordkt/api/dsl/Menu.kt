@@ -23,11 +23,11 @@ private val menus = mutableMapOf<Snowflake, Menu>()
 class MenuBuilder {
     private val pages = mutableListOf<EmbedBuilder>()
     private val reactions = mutableMapOf<ReactionEmoji, suspend EmbedBuilder.() -> Unit>()
-    var leftReact = Emojis.arrowLeft
-    var rightReact = Emojis.arrowRight
+    var leftReact: DiscordEmoji = Emojis.arrowLeft
+    var rightReact: DiscordEmoji = Emojis.arrowRight
 
     /**
-     * Add a new page to this menu using the EmbedDSL.
+     * Add a new page to this menu using an EmbedBuilder.
      */
     suspend fun page(construct: suspend EmbedBuilder.() -> Unit) {
         val embed = EmbedBuilder()
@@ -38,7 +38,7 @@ class MenuBuilder {
     /**
      * Add a reaction to the menu and the action to execute when it is clicked.
      */
-    fun reaction(reaction: DiscordEmoji.Generic, action: suspend EmbedBuilder.() -> Unit) {
+    fun reaction(reaction: DiscordEmoji, action: suspend EmbedBuilder.() -> Unit) {
         reactions[reaction.toReaction()] = action
     }
 
@@ -89,16 +89,16 @@ data class Menu(private val pages: MutableList<EmbedBuilder>,
             embed = pages.first()
         }
 
-        val multiPage = pages.size != 1
+        val isMultiPage = pages.size != 1
 
-        if (multiPage) {
+        if (isMultiPage) {
             message.addReaction(leftReact)
             message.addReaction(rightReact)
         }
 
         customReactions.keys.forEach { message.addReaction(it) }
 
-        if (multiPage || customReactions.isNotEmpty())
+        if (isMultiPage || customReactions.isNotEmpty())
             menus[message.id] = this
     }
 }
