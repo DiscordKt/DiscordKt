@@ -1,17 +1,15 @@
 package me.jakejmattson.discordkt.internal.listeners
 
-import com.google.common.eventbus.Subscribe
+import com.gitlab.kordlib.core.*
+import com.gitlab.kordlib.core.event.message.ReactionAddEvent
+import me.jakejmattson.discordkt.api.dsl.handleMenuReaction
 import me.jakejmattson.discordkt.api.services.ConversationService
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent
 
-internal class ReactionListener(private val conversationService: ConversationService) {
-    @Subscribe
-    fun onReaction(event: MessageReactionAddEvent) {
-        val user = event.retrieveUser().complete().takeUnless { it.isBot } ?: return
+internal fun registerReactionListener(kord: Kord, conversationService: ConversationService) = kord.on<ReactionAddEvent> {
+    val user = getUser().takeUnless { it.isBot ?: false } ?: return@on
 
-        if (!conversationService.hasConversation(user, event.channel))
-            return
+    if (conversationService.hasConversation(user, channel))
+        conversationService.handleReaction(user, channel, this)
 
-        conversationService.handleReaction(user, event.channel, event.reaction)
-    }
+    handleMenuReaction(this)
 }

@@ -1,6 +1,5 @@
 {
-  "repository": "${projectRepo}",
-  "libraryVersion": "${projectVersion}",
-  "kotlinVersion": "${kotlinVersion}",
-  "jdaVersion": "${jdaVersion}"
+  "library": "${projectVersion}",
+  "kotlin": "${kotlinVersion}",
+  "kord": "${kordVersion}"
 }

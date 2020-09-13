@@ -2,48 +2,33 @@
 
 package me.jakejmattson.discordkt.internal.utils
 
-import kotlinx.coroutines.*
+import com.gitlab.kordlib.core.behavior.channel.*
+import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.dsl.embed.*
-import me.jakejmattson.discordkt.api.dsl.menu.Menu
-import me.jakejmattson.discordkt.api.extensions.stdlib.sanitiseMentions
-import net.dv8tion.jda.api.entities.*
+import me.jakejmattson.discordkt.api.dsl.MenuBuilder
+import me.jakejmattson.discordkt.api.extensions.sanitiseMentions
 
 internal interface Responder {
     val discord: Discord
-    val channel: MessageChannel
+    val channel: MessageChannelBehavior
 
-    fun unsafeRespond(message: String) = chunkRespond(message)
-    fun respond(message: String) = chunkRespond(message.sanitiseMentions(discord))
-    fun respond(embed: MessageEmbed) = channel.sendMessage(embed).queue()
-    fun respond(construct: EmbedDSL.() -> Unit) = respond(embed(construct))
-    fun respond(message: String, construct: EmbedDSL.() -> Unit) = channel.sendMessage(message).embed(embed(construct)).queue()
-    fun respond(menu: Menu) = menu.build(channel)
-
-    fun respondTimed(message: String, millis: Long = 5000) {
-        require(millis >= 0) { "RespondTimed: Delay cannot be negative." }
-
-        channel.sendMessage(message.sanitiseMentions(discord)).queue {
-            GlobalScope.launch {
-                delay(millis)
-                it.delete().queue()
-            }
+    suspend fun unsafeRespond(message: Any) = chunkRespond(message.toString())
+    suspend fun respond(message: Any) = chunkRespond(message.toString().sanitiseMentions(discord))
+    suspend fun respond(construct: suspend EmbedBuilder.() -> Unit) = channel.createEmbed { construct.invoke(this) }
+    suspend fun respond(message: String, construct: suspend EmbedBuilder.() -> Unit) =
+        channel.createMessage {
+            content = message
+            construct.invoke(embed!!)
         }
+
+    suspend fun respondMenu(construct: suspend MenuBuilder.() -> Unit) {
+        val handle = MenuBuilder()
+        handle.construct()
+        handle.build().send(channel)
     }
 
-    fun respondTimed(embed: MessageEmbed, millis: Long = 5000) {
-        require(millis >= 0) { "RespondTimed: Delay cannot be negative." }
-
-        channel.sendMessage(embed).queue {
-            GlobalScope.launch {
-                delay(millis)
-                it.delete().queue()
-            }
-        }
-    }
-
-    private fun chunkRespond(message: String) {
+    private suspend fun chunkRespond(message: String) {
         require(message.isNotEmpty()) { "Cannot send an empty message." }
-        message.chunked(2000).forEach { channel.sendMessage(it).queue() }
+        message.chunked(2000).forEach { channel.createMessage(it) }
     }
 }

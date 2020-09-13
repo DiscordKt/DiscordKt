@@ -1,18 +1,19 @@
 package me.jakejmattson.discordkt.internal.services
 
 import me.jakejmattson.discordkt.api.arguments.MultipleArg
-import me.jakejmattson.discordkt.api.dsl.command.*
+import me.jakejmattson.discordkt.api.dsl.Command
 import java.io.File
 
-internal fun createDocumentation(container: CommandsContainer) {
-    val commands = container.commands.takeUnless { it.isEmpty() } ?: return
+internal fun createDocumentation(commands: List<Command>) {
+    if (commands.isEmpty())
+        return
 
     data class CommandData(val name: String, val args: String, val desc: String) {
         fun format(format: String) = String.format(format, name, args, desc)
     }
 
     fun String.sanitizePipe() = replace("|", "\\|")
-    fun List<CommandData>.maxLength(header: String, field: (CommandData) -> String) = (map { field.invoke(it).length } + header.length).max()!!
+    fun List<CommandData>.maxLength(header: String, field: (CommandData) -> String) = (map { field.invoke(it).length } + header.length).maxOrNull()!!
 
     fun extractCommandData(command: Command): CommandData {
         val nameString = (if (command.isFlexible) "*" else "") + command.names.joinToString().sanitizePipe()
@@ -41,13 +42,13 @@ internal fun createDocumentation(container: CommandsContainer) {
     val keyString = buildString {
         with(commands) {
             if (any { it.arguments.any { it.isOptional } })
-                appendln("| (Argument)  | Argument is not required.      |")
+                appendLine("| (Argument)  | Argument is not required.      |")
 
             if (any { it.arguments.any { it is MultipleArg<*> } })
-                appendln("| Argument... | Accepts many of this argument. |")
+                appendLine("| Argument... | Accepts many of this argument. |")
 
             if (any { it.isFlexible })
-                appendln("| *Command    | Argument can be in any order.  |")
+                appendLine("| *Command    | Argument can be in any order.  |")
         }
     }
 

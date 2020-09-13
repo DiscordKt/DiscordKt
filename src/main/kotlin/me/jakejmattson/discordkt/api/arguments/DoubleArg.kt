@@ -1,7 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.arguments.*
-import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import kotlin.random.Random
 
 /**
@@ -13,9 +12,9 @@ open class DoubleArg(override val name: String = "Double") : ArgumentType<Double
      */
     companion object : DoubleArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toDoubleOrNull()) {
-            null -> Error<Double>("Invalid format")
+            null -> Error("Invalid format")
             else -> Success(result)
         }
 

@@ -1,7 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.arguments.*
-import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 
 /**
  * Accepts a group of arguments surrounded by quotation marks.
@@ -12,7 +11,7 @@ open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>(
      */
     companion object : QuoteArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         val quotationMark = '"'
 
         if (!arg.startsWith(quotationMark))

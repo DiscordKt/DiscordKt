@@ -1,7 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.arguments.*
-import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 
 /**
  * Consumes all remaining arguments. Does not accept empty strings.
@@ -12,7 +11,7 @@ open class EveryArg(override val name: String = "Text") : ArgumentType<String>()
      */
     companion object : EveryArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         if (args.size in 0..1 && arg.isEmpty())
             return Error("Cannot be empty")
 

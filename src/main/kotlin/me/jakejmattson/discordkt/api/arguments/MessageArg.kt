@@ -1,9 +1,10 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.arguments.*
-import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.stdlib.trimToID
-import net.dv8tion.jda.api.entities.*
+import com.gitlab.kordlib.core.entity.Message
+import com.gitlab.kordlib.core.entity.channel.TextChannel
+import kotlinx.coroutines.flow.firstOrNull
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.extensions.toSnowflake
 
 /**
  * Accepts a Discord Message entity as an ID or a link.
@@ -16,33 +17,29 @@ open class MessageArg(override val name: String = "Message", private val allowsG
      */
     companion object : MessageArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Message> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Message> {
         val regex = "https://discordapp.com/channels/\\d+/\\d+/\\d+".toRegex()
         val isLink = regex.matches(arg)
-        val jda = event.discord.jda
+        val kord = event.discord.api
 
         val message = if (isLink) {
-            val (guildId, channelId, messageId) = arg.split("/").takeLast(3)
+            val (guildId, channelId, messageId) = arg.split("/").takeLast(3).map { it.toSnowflake() }
 
             if (!allowsGlobal && guildId != event.guild?.id)
                 return Error("Must be from this guild")
 
-            val guild = jda.guilds.firstOrNull { it.id == guildId }
-                ?: return Error("Invalid guild")
+            val guild = guildId?.let { kord.getGuild(it) } ?: return Error("Invalid guild")
 
-            val channel = guild.channels.filterIsInstance<TextChannel>().firstOrNull { it.id == channelId }
+            val channel = guild.channels.firstOrNull { it.id == channelId } as? TextChannel
                 ?: return Error("Invalid channel")
 
-            channel.retrieveMessageById(messageId).complete()
-                ?: return Error("Invalid message")
+            messageId?.let { channel.getMessageOrNull(it) } ?: return Error("Invalid message")
         } else {
-            event.discord.retrieveEntity {
-                event.channel.retrieveMessageById(arg.trimToID()).complete()
-            } ?: return Error("Invalid ID")
+            arg.toSnowflake()?.let { event.channel.getMessageOrNull(it) } ?: return Error("Invalid ID")
         }
 
         return Success(message)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.message.id)
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.message.id.value)
 }

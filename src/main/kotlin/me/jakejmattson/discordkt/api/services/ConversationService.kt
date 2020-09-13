@@ -2,13 +2,16 @@
 
 package me.jakejmattson.discordkt.api.services
 
+import com.gitlab.kordlib.common.entity.Snowflake
+import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
+import com.gitlab.kordlib.core.entity.*
+import com.gitlab.kordlib.core.entity.channel.MessageChannel
+import com.gitlab.kordlib.core.event.message.ReactionAddEvent
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.dsl.conversation.*
-import me.jakejmattson.discordkt.api.extensions.stdlib.pluralize
+import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.services.ConversationResult.*
 import me.jakejmattson.discordkt.internal.utils.*
-import net.dv8tion.jda.api.entities.*
 import java.lang.reflect.Method
 
 /**
@@ -22,7 +25,7 @@ enum class ConversationResult {
     CANNOT_DM,
 
     /** The target user already has a conversation. */
-    HAS_CONVO,
+    HAS_CONVERSATION,
 
     /** The conversation has completed successfully. */
     COMPLETE,
@@ -32,7 +35,7 @@ enum class ConversationResult {
 }
 
 @PublishedApi
-internal data class ConversationContext(val userId: String, val channelId: String)
+internal data class ConversationContext(val userId: Snowflake, val channelId: Snowflake)
 
 /**
  * A service to keep track of registered and ongoing conversations, as well as start new ones.
@@ -46,7 +49,7 @@ class ConversationService(val discord: Discord) {
     @PublishedApi
     internal val activeConversations = mutableMapOf<ConversationContext, ConversationBuilder>()
 
-    internal fun registerConversations(path: String) {
+    internal fun registerConversations(path: String): Int {
         val startFunctions = ReflectionUtils.detectMethodsWith<Conversation.Start>(path)
 
         ReflectionUtils.detectSubtypesOf<Conversation>(path)
@@ -72,18 +75,18 @@ class ConversationService(val discord: Discord) {
                 availableConversations[conversationClass] = instance to starter
             }
 
-        InternalLogger.startup(availableConversations.size.pluralize("Conversation"))
+        return availableConversations.size
     }
 
-    private fun getConversation(user: User, channel: MessageChannel) = activeConversations[ConversationContext(user.id, channel.id)]
+    private fun getConversation(user: User, channel: MessageChannelBehavior) = activeConversations[ConversationContext(user.id, channel.id)]
 
     /**
      * Whether or not a conversation with the given context already exists.
      */
-    fun hasConversation(user: User, channel: MessageChannel) = getConversation(user, channel) != null
+    fun hasConversation(user: User, channel: MessageChannelBehavior) = getConversation(user, channel) != null
 
     @PublishedApi
-    internal inline fun <reified T : Conversation> startConversation(stateContainer: ConversationStateContainer, vararg arguments: Any): ConversationResult {
+    internal suspend inline fun <reified T : Conversation> startConversation(stateContainer: ConversationStateContainer, vararg arguments: Any): ConversationResult {
         val (_, user, channel) = stateContainer
         val context = ConversationContext(user.id, channel.id)
 
@@ -106,14 +109,14 @@ class ConversationService(val discord: Discord) {
      * @return The result of the conversation indicated by an enum.
      * @sample ConversationResult
      */
-    inline fun <reified T : Conversation> startPrivateConversation(user: User, vararg arguments: Any): ConversationResult {
-        if (user.mutualGuilds.isEmpty() || user.isBot)
+    suspend inline fun <reified T : Conversation> startPrivateConversation(user: User, vararg arguments: Any): ConversationResult {
+        if (user.isBot == true)
             return INVALID_USER
 
-        val channel = user.openPrivateChannel().complete()
+        val channel = user.getDmChannel()
 
         if (hasConversation(user, channel))
-            return HAS_CONVO
+            return HAS_CONVERSATION
 
         val state = ConversationStateContainer(discord, user, channel)
 
@@ -130,12 +133,12 @@ class ConversationService(val discord: Discord) {
      * @return The result of the conversation indicated by an enum.
      * @sample ConversationResult
      */
-    inline fun <reified T : Conversation> startPublicConversation(user: User, channel: MessageChannel, vararg arguments: Any): ConversationResult {
-        if (user.mutualGuilds.isEmpty() || user.isBot)
+    suspend inline fun <reified T : Conversation> startPublicConversation(user: User, channel: MessageChannel, vararg arguments: Any): ConversationResult {
+        if (user.isBot == true)
             return INVALID_USER
 
         if (hasConversation(user, channel))
-            return HAS_CONVO
+            return HAS_CONVERSATION
 
         val state = ConversationStateContainer(discord, user, channel)
 
@@ -144,12 +147,12 @@ class ConversationService(val discord: Discord) {
 
     internal fun handleMessage(message: Message) {
         runBlocking {
-            val conversation = getConversation(message.author, message.channel) ?: return@runBlocking
+            val conversation = getConversation(message.author!!, message.channel) ?: return@runBlocking
             conversation.acceptMessage(message)
         }
     }
 
-    internal fun handleReaction(author: User, channel: MessageChannel, reaction: MessageReaction) {
+    internal fun handleReaction(author: User, channel: MessageChannelBehavior, reaction: ReactionAddEvent) {
         runBlocking {
             val conversation = getConversation(author, channel) ?: return@runBlocking
             conversation.acceptReaction(reaction)

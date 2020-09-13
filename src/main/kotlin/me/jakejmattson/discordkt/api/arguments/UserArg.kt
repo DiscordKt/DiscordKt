@@ -1,10 +1,8 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.arguments.*
-import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.jda.fullName
-import me.jakejmattson.discordkt.api.extensions.stdlib.trimToID
-import net.dv8tion.jda.api.entities.User
+import com.gitlab.kordlib.core.entity.User
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.extensions.toSnowflake
 
 /**
  * Accepts a Discord User entity as an ID or mention.
@@ -15,14 +13,12 @@ open class UserArg(override val name: String = "User") : ArgumentType<User>() {
      */
     companion object : UserArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {
-        val user = event.discord.retrieveEntity {
-            it.retrieveUserById(arg.trimToID()).complete()
-        } ?: return Error("Not found")
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {
+        val user = arg.toSnowflake()?.let { event.discord.api.getUser(it) } ?: return Error("Not found")
 
         return Success(user)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.id)
-    override fun formatData(data: User) = "@${data.fullName()}"
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.id.value)
+    override fun formatData(data: User) = "@${data.tag}"
 }

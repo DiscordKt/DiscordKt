@@ -4,7 +4,4 @@ package me.jakejmattson.discordkt.internal.annotations
 internal annotation class ConfigurationDSL
 
 @DslMarker
-internal annotation class BotConfigurationDSL
-
-@DslMarker
 internal annotation class BuilderDSL

@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.internal.arguments
 
-import me.jakejmattson.discordkt.api.dsl.arguments.*
+import me.jakejmattson.discordkt.api.arguments.*
 
 private typealias Quantity = Double
 private typealias Quantifier = String

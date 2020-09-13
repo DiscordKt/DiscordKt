@@ -1,7 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.arguments.*
-import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import java.awt.Color
 
 /**
@@ -13,7 +12,7 @@ open class HexColorArg(override val name: String = "Hex Color") : ArgumentType<C
      */
     companion object : HexColorArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Color> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Color> {
         if (arg.length !in 6..7) return Error("Invalid format")
 
         val trimmedInput = arg.takeLast(6).toUpperCase()

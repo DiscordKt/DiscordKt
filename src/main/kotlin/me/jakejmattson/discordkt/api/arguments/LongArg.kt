@@ -1,7 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.arguments.*
-import me.jakejmattson.discordkt.api.dsl.command.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 
 /**
  * Accept a whole number in the long range.
@@ -12,9 +11,9 @@ open class LongArg(override val name: String = "Long") : ArgumentType<Long>() {
      */
     companion object : LongArg()
 
-    override fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toLongOrNull()) {
-            null -> Error<Long>("Invalid format")
+            null -> Error("Invalid format")
             else -> Success(result)
         }
 

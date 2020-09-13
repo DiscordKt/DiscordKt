@@ -7,32 +7,23 @@ object Constants {
 }
 
 object Versions {
-    const val kotlin = "1.3.72"
-    const val coroutines = "1.3.7"
+    const val kotlin = "1.4.10"
+    const val coroutines = "1.3.9"
     const val reflections = "0.9.12"
     const val gson = "2.8.6"
-    const val guava = "29.0-jre"
-    const val slf4j = "1.7.30"
-    const val jda = "4.2.0_189"
-
-    //Test Dependencies
-    const val mockk = "1.10.0"
-    const val junit = "5.7.0-M1"
+    const val slf4j = "2.0.0-alpha1"
+    const val kord = "0.6.3"
+    const val emojis = "0.2.0"
 }
 
 object Dependencies {
     //Internal Dependencies
     const val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     const val reflections = "org.reflections:reflections:${Versions.reflections}"
+    const val gson = "com.google.code.gson:gson:${Versions.gson}"
     const val slf4j = "org.slf4j:slf4j-nop:${Versions.slf4j}"
 
     //Library Dependencies
-    const val jda = "net.dv8tion:JDA:${Versions.jda}"
-    const val guava = "com.google.guava:guava:${Versions.guava}"
-    const val gson = "com.google.code.gson:gson:${Versions.gson}"
-
-    //Test Dependencies
-    const val mockk = "io.mockk:mockk:${Versions.mockk}"
-    const val junit_api = "org.junit.jupiter:junit-jupiter-api:${Versions.junit}"
-    const val junit_engine = "org.junit.jupiter:junit-jupiter-engine:${Versions.junit}"
+    const val kord = "com.gitlab.kordlib.kord:kord-core:${Versions.kord}"
+    const val emojis = "com.gitlab.kordlib:kordx.emoji:${Versions.emojis}"
 }

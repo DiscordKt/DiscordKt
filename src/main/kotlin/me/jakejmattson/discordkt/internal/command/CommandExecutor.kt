@@ -1,7 +1,8 @@
 package me.jakejmattson.discordkt.internal.command
 
-import me.jakejmattson.discordkt.api.dsl.arguments.ArgumentType
-import me.jakejmattson.discordkt.api.dsl.command.*
+import me.jakejmattson.discordkt.api.*
+import me.jakejmattson.discordkt.api.arguments.ArgumentType
+import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.internal.arguments.*
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
 
@@ -24,11 +25,10 @@ sealed class ParseResult {
     data class Error(val reason: String) : ParseResult()
 }
 
-internal fun parseInputToBundle(command: Command, actualArgs: List<String>, event: CommandEvent<GenericContainer>): ParseResult {
-    val expected = command.arguments
-    val initialConversion = convertArguments(actualArgs, expected as List<ArgumentType<Any>>, event)
+internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<GenericContainer>, actualArgs: List<String>): ParseResult {
+    val expected = command.arguments as List<ArgumentType<Any>>
 
-    val error = when (initialConversion) {
+    val error = when (val initialConversion = convertArguments(actualArgs, expected, event)) {
         is ConversionSuccess -> return ParseResult.Success(bundleToArgContainer(initialConversion.results))
         is ConversionError -> ParseResult.Error(initialConversion.error)
     }
