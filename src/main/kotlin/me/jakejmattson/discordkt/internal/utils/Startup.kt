@@ -142,7 +142,7 @@ class Bot(val api: Kord, private val globalPath: String) {
      * @sample PermissionContext
      */
     @ConfigurationDSL
-    fun permissions(predicate: suspend PermissionContext.() -> Boolean = { true }) {
+    fun permissions(predicate: suspend PermissionContext.() -> Boolean) {
         startupBundle.permissions = { command, discord, user, messageChannel, guild ->
             val context = PermissionContext(command, discord, user, messageChannel, guild)
             predicate.invoke(context)
