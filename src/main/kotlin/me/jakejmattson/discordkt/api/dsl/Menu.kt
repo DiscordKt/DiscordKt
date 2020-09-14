@@ -22,7 +22,7 @@ private val menus = mutableMapOf<Snowflake, Menu>()
  */
 class MenuBuilder {
     private val pages = mutableListOf<EmbedBuilder>()
-    private val reactions = mutableMapOf<ReactionEmoji, suspend EmbedBuilder.() -> Unit>()
+    private val reactions = mutableMapOf<DiscordEmoji, suspend EmbedBuilder.() -> Unit>()
     var leftReact: DiscordEmoji = Emojis.arrowLeft
     var rightReact: DiscordEmoji = Emojis.arrowRight
 
@@ -39,7 +39,7 @@ class MenuBuilder {
      * Add a reaction to the menu and the action to execute when it is clicked.
      */
     fun reaction(reaction: DiscordEmoji, action: suspend EmbedBuilder.() -> Unit) {
-        reactions[reaction.toReaction()] = action
+        reactions[reaction] = action
     }
 
     internal fun build() = Menu(pages, reactions, leftReact.toReaction(), rightReact.toReaction())
@@ -54,7 +54,7 @@ class MenuBuilder {
  * @property customReactions All custom reactions and their actions.
  */
 data class Menu(private val pages: MutableList<EmbedBuilder>,
-                val customReactions: Map<ReactionEmoji, suspend EmbedBuilder.() -> Unit>,
+                val customReactions: Map<DiscordEmoji, suspend EmbedBuilder.() -> Unit>,
                 val leftReact: ReactionEmoji,
                 val rightReact: ReactionEmoji) {
     private var index = 0
