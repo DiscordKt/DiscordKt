@@ -13,7 +13,7 @@ object Versions {
     const val gson = "2.8.6"
     const val slf4j = "2.0.0-alpha1"
     const val kord = "0.6.3"
-    const val emojis = "0.3.0"
+    const val emojis = "0.4.0"
 }
 
 object Dependencies {

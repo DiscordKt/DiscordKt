@@ -6,11 +6,11 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import me.jakejmattson.discordkt.api.extensions.*
 
 /**
- * Accepts a guild emote.
+ * Accepts a guild emoji.
  *
  * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
  */
-open class GuildEmojiArg(override val name: String = "Guild Emote", private val allowsGlobal: Boolean = false) : ArgumentType<GuildEmoji>() {
+open class GuildEmojiArg(override val name: String = "Guild Emoji", private val allowsGlobal: Boolean = false) : ArgumentType<GuildEmoji>() {
     /**
      * Accepts a guild emote from within this guild.
      */
@@ -26,15 +26,15 @@ open class GuildEmojiArg(override val name: String = "Guild Emote", private val 
             else -> return Error("Not found")
         }.toSnowflake()
 
-        val availableEmotes =
+        val availableEmojis =
             if (allowsGlobal)
                 event.discord.api.guilds.toList().flatMap { it.emojis }
             else
                 event.guild?.emojis ?: emptyList()
 
-        val emote = availableEmotes.firstOrNull { it.id == id } ?: return Error("Not found")
+        val emoji = availableEmojis.firstOrNull { it.id == id } ?: return Error("Not found")
 
-        return Success(emote)
+        return Success(emoji)
     }
 
     override fun generateExamples(event: CommandEvent<*>) = event.guild?.emojis?.map { it.mention } ?: emptyList()
