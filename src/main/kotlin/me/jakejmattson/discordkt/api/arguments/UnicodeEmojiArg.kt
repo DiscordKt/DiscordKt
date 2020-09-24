@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import com.gitlab.kordlib.kordx.emoji.*
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.*
 
 /**
  * Accepts a unicode emoji.
@@ -12,10 +12,10 @@ open class UnicodeEmojiArg(override val name: String = "Emoji") : ArgumentType<D
      */
     companion object : UnicodeEmojiArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<DiscordEmoji> {
+    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<DiscordEmoji> {
         val emoji = Emojis[arg.trim()] ?: return Error("Invalid format")
         return Success(emoji)
     }
 
-    override fun generateExamples(event: CommandEvent<*>): List<String> = listOf(Emojis.rainbow.unicode)
+    override fun generateExamples(event: GlobalCommandEvent<*>): List<String> = listOf(Emojis.rainbow.unicode)
 }

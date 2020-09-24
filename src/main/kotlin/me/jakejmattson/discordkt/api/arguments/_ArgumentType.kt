@@ -2,7 +2,7 @@
 
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.internal.utils.simplerName
 
 /**
@@ -58,14 +58,14 @@ abstract class ArgumentType<T> : Cloneable {
      * @param event The CommandEvent triggered by the execution of the command.
      * @return ArgumentResult subtype [Success] or [Error].
      */
-    abstract suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
+    abstract suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<T>
 
     /**
      * A function called whenever an example of this type is needed.
      *
      * @param event Allows the list result to be generated with the relevant discord context.
      */
-    abstract fun generateExamples(event: CommandEvent<*>): List<String>
+    abstract fun generateExamples(event: GlobalCommandEvent<*>): List<String>
 
     /** Determine the simpler name (just the class) and then remove the companion tag */
     override fun toString() = this::class.java.simplerName.substringBefore("$")

@@ -42,7 +42,8 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
 
     if (commandName.isEmpty()) return@on
 
-    val event = CommandEvent<GenericContainer>(rawInputs, discord, message, getGuild())
+    val event = GlobalCommandEvent<GenericContainer>(rawInputs, discord, message, author, channel.asChannel(), getGuild())
+
     val errors = preconditions
         .map { it.evaluate(event) }
         .filterIsInstance<Fail>()
@@ -62,10 +63,6 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
 
         return@on Recommender.sendRecommendation(event, commandName, validCommands)
     }
-
-    if (message.getGuildOrNull() == null)
-        if (command.requiresGuild ?: config.requiresGuild)
-            return@on
 
     config.commandReaction?.let {
         message.addReaction(it.toReaction())

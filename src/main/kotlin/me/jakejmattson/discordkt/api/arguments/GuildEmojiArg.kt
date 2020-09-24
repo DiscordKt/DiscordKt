@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.api.arguments
 
 import com.gitlab.kordlib.core.entity.GuildEmoji
 import kotlinx.coroutines.flow.toList
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.*
 
 /**
@@ -16,7 +16,7 @@ open class GuildEmojiArg(override val name: String = "Guild Emoji", private val 
      */
     companion object : GuildEmojiArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<GuildEmoji> {
+    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<GuildEmoji> {
         val trimmed = arg.trimToID()
         val split = trimmed.split(":")
 
@@ -37,5 +37,5 @@ open class GuildEmojiArg(override val name: String = "Guild Emoji", private val 
         return Success(emoji)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = event.guild?.emojis?.map { it.mention } ?: emptyList()
+    override fun generateExamples(event: GlobalCommandEvent<*>) = event.guild?.emojis?.map { it.mention } ?: emptyList()
 }

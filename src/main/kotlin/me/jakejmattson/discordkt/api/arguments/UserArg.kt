@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import com.gitlab.kordlib.core.entity.User
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.toSnowflake
 
 /**
@@ -13,12 +13,12 @@ open class UserArg(override val name: String = "User") : ArgumentType<User>() {
      */
     companion object : UserArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {
+    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<User> {
         val user = arg.toSnowflake()?.let { event.discord.api.getUser(it) } ?: return Error("Not found")
 
         return Success(user)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.id.value)
+    override fun generateExamples(event: GlobalCommandEvent<*>) = listOf(event.author.id.value)
     override fun formatData(data: User) = "@${data.tag}"
 }

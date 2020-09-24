@@ -87,7 +87,6 @@ class Bot(val api: Kord, private val globalPath: String) {
         val botConfiguration = with(simpleConfiguration) {
             BotConfiguration(
                 allowMentionPrefix = allowMentionPrefix,
-                requiresGuild = requiresGuild,
                 showStartupLog = showStartupLog,
                 generateCommandDocs = generateCommandDocs,
                 commandReaction = commandReaction,

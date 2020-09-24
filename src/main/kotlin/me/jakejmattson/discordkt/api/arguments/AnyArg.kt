@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.*
 
 /**
  * Accepts any (single) argument. Does not accept empty strings.
@@ -11,8 +11,8 @@ open class AnyArg(override val name: String = "Any") : ArgumentType<String>() {
      */
     companion object : AnyArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> =
+    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<String> =
         if (arg.isNotEmpty()) Success(arg) else Error("Cannot be empty")
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(name)
+    override fun generateExamples(event: GlobalCommandEvent<*>) = listOf(name)
 }

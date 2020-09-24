@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.*
 
 /**
  * Accepts an integer within a pre-defined range.
@@ -11,7 +11,7 @@ open class IntegerRangeArg(private val min: Int, private val max: Int, override 
         require(max > min) { "Maximum value must be greater than minimum value." }
     }
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Int> {
+    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<Int> {
         val int = arg.toIntOrNull()
             ?: return Error("Invalid format")
 
@@ -21,5 +21,5 @@ open class IntegerRangeArg(private val min: Int, private val max: Int, override 
         return Success(int)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf((min..max).random().toString())
+    override fun generateExamples(event: GlobalCommandEvent<*>) = listOf((min..max).random().toString())
 }

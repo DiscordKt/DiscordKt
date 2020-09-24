@@ -21,7 +21,7 @@ internal fun produceHelpCommand() = commands("Utility") {
     }
 }
 
-private suspend fun sendDefaultEmbed(event: CommandEvent<*>, embedColor: Color?) =
+private suspend fun sendDefaultEmbed(event: GlobalCommandEvent<*>, embedColor: Color?) =
     event.respond {
         title = "Help menu"
         description = "Use `${event.prefix()}help <command>` for more information."
@@ -45,7 +45,7 @@ private suspend fun sendDefaultEmbed(event: CommandEvent<*>, embedColor: Color?)
             }
     }
 
-private suspend fun sendCommandEmbed(command: Command, event: CommandEvent<*>, input: String, embedColor: Color?) =
+private suspend fun sendCommandEmbed(command: Command, event: GlobalCommandEvent<*>, input: String, embedColor: Color?) =
     event.respond {
         title = command.names.joinToString()
         description = command.description
@@ -65,7 +65,7 @@ private suspend fun sendCommandEmbed(command: Command, event: CommandEvent<*>, i
             }
     }
 
-private fun generateExample(command: Command, event: CommandEvent<*>) =
+private fun generateExample(command: Command, event: GlobalCommandEvent<*>) =
     command.arguments.joinToString(" ") {
         val examples = it.generateExamples(event)
         val example = if (examples.isNotEmpty()) examples.random() else "<Example>"
@@ -73,10 +73,10 @@ private fun generateExample(command: Command, event: CommandEvent<*>) =
         if (it.isOptional) "($example)" else "[$example]"
     }
 
-private suspend fun String.isCommand(event: CommandEvent<*>) = fetchVisibleCommands(event)
+private suspend fun String.isCommand(event: GlobalCommandEvent<*>) = fetchVisibleCommands(event)
     .any { toLowerCase() in it.names.map { it.toLowerCase() } }
 
-private suspend fun fetchVisibleCommands(event: CommandEvent<*>) = event.discord.commands
+private suspend fun fetchVisibleCommands(event: GlobalCommandEvent<*>) = event.discord.commands
     .filter { event.discord.configuration.permissions.invoke(it, event.discord, event.author, event.channel, event.guild) }
 
 private fun generateStructure(command: Command) =

@@ -182,7 +182,7 @@ data class ConversationStateContainer(override val discord: Discord,
 
     private suspend fun <T> parseResponse(argumentType: ArgumentType<T>, message: Message): ArgumentResult<T> {
         val rawInputs = RawInputs(message.content, "", message.content.split(" "), 0)
-        val commandEvent = CommandEvent<Nothing>(rawInputs, discord, message, guild = message.getGuildOrNull())
+        val commandEvent = GlobalCommandEvent<Nothing>(rawInputs, discord, message, message.author!!, message.channel.asChannel(), guild = message.getGuildOrNull())
         return argumentType.convert(message.content, commandEvent.rawInputs.commandArgs, commandEvent)
     }
 }

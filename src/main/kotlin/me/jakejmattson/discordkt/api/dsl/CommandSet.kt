@@ -23,8 +23,8 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
     /**
      * Create a new command in this list.
      */
-    fun command(vararg names: String, body: Command.() -> Unit) {
-        val command = Command(names.toList(), category = category)
+    fun command(vararg names: String, body: GlobalCommand.() -> Unit) {
+        val command = GlobalCommand(names.toList(), category = category)
         command.body()
         commands.add(command)
     }

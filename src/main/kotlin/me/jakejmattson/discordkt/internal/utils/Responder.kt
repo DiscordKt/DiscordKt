@@ -9,7 +9,7 @@ import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.dsl.MenuBuilder
 import me.jakejmattson.discordkt.api.extensions.sanitiseMentions
 
-internal interface Responder {
+interface Responder {
     val discord: Discord
     val channel: MessageChannelBehavior
 

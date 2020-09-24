@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import com.gitlab.kordlib.core.entity.Member
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.toSnowflake
 
 /**
@@ -15,7 +15,7 @@ open class MemberArg(override val name: String = "Member", private val allowsBot
      */
     companion object : MemberArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Member> {
+    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<Member> {
         val guild = event.guild ?: return Error("No guild found")
 
         val member = arg.toSnowflake()?.let { guild.getMemberOrNull(it) } ?: return Error("Not found")
@@ -26,6 +26,6 @@ open class MemberArg(override val name: String = "Member", private val allowsBot
         return Success(member)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.id.value)
+    override fun generateExamples(event: GlobalCommandEvent<*>) = listOf(event.author.id.value)
     override fun formatData(data: Member) = "@${data.tag}"
 }

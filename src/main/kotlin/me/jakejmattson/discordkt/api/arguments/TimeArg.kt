@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.internal.arguments.convertTimeString
 
 /**
@@ -12,9 +12,9 @@ open class TimeArg(override val name: String = "Time") : ArgumentType<Double>() 
      */
     companion object : TimeArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) = convertTimeString(args)
+    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>) = convertTimeString(args)
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf("5 seconds", "5s")
+    override fun generateExamples(event: GlobalCommandEvent<*>) = listOf("5 seconds", "5s")
 
     override fun formatData(data: Double) = "$data seconds"
 }

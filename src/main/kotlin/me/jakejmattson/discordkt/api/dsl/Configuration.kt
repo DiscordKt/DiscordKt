@@ -34,7 +34,6 @@ suspend fun bot(token: String, operate: suspend Bot.() -> Unit) {
  * Contains all properties configured when the bot is created.
  *
  * @property allowMentionPrefix Allow mentioning the bot to be used as a prefix '@Bot'.
- * @property requiresGuild Whether or not commands are required to be executed in a guild.
  * @property showStartupLog Whether or not to display log information when the bot starts.
  * @property generateCommandDocs Whether or not command documentation should be generated.
  * @property commandReaction The reaction added to a message when a command is received.
@@ -42,7 +41,6 @@ suspend fun bot(token: String, operate: suspend Bot.() -> Unit) {
  */
 data class BotConfiguration(
     val allowMentionPrefix: Boolean,
-    val requiresGuild: Boolean,
     val showStartupLog: Boolean,
     val generateCommandDocs: Boolean,
     val commandReaction: DiscordEmoji?,
@@ -57,7 +55,6 @@ data class BotConfiguration(
  * @suppress Used in sample
  */
 data class SimpleConfiguration(var allowMentionPrefix: Boolean = false,
-                               var requiresGuild: Boolean = true,
                                var showStartupLog: Boolean = true,
                                var generateCommandDocs: Boolean = true,
                                var commandReaction: DiscordEmoji? = Emojis.eyes,

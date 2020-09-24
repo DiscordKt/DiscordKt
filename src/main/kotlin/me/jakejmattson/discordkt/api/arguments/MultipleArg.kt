@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.*
 
 /**
  * Accepts multiple arguments of the given type. Returns a list.
@@ -10,7 +10,7 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
 class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentType<List<T>>() {
     override val name = if (name.isNotBlank()) name else "${base.name}..."
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<T>> {
+    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<List<T>> {
         val totalResult = mutableListOf<T>()
         var totalConsumed = 0
         val remainingArgs = args.toMutableList()
@@ -36,7 +36,7 @@ class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentTyp
         return Success(totalResult, totalConsumed)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) =
+    override fun generateExamples(event: GlobalCommandEvent<*>) =
         base.generateExamples(event).chunked(2).map { it.joinToString(" ") }
 
     override fun formatData(data: List<T>) = "[${data.joinToString { base.formatData(it) }}]"
