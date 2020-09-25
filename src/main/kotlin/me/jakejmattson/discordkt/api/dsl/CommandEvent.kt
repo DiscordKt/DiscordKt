@@ -86,6 +86,8 @@ class GlobalCommandEvent<T : GenericContainer>(
     override fun clone(input: RawInputs) = GlobalCommandEvent<GenericContainer>(input, discord, message, author, channel, guild)
     internal fun toGuildEvent() = GuildCommandEvent<GenericContainer>(rawInputs, discord, message, author, channel as TextChannel, guild!!)
     internal fun toDmEvent() = DmCommandEvent<GenericContainer>(rawInputs, discord, message, author, channel as DmChannel)
+    internal fun isGuildEvent() = guild != null
+    internal fun isDmEvent() = guild == null
 }
 
 data class GuildCommandEvent<T : GenericContainer>(

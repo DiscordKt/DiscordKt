@@ -77,7 +77,7 @@ private suspend fun String.isCommand(event: GlobalCommandEvent<*>) = fetchVisibl
     .any { toLowerCase() in it.names.map { it.toLowerCase() } }
 
 private suspend fun fetchVisibleCommands(event: GlobalCommandEvent<*>) = event.discord.commands
-    .filter { event.discord.configuration.permissions.invoke(it, event.discord, event.author, event.channel, event.guild) }
+    .filter { event.discord.configuration.hasPermission(it, event) }
 
 private fun generateStructure(command: Command) =
     command.arguments.joinToString(" ") {

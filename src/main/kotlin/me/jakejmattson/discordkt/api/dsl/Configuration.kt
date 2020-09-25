@@ -5,6 +5,7 @@ package me.jakejmattson.discordkt.api.dsl
 import com.gitlab.kordlib.core.Kord
 import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
 import com.gitlab.kordlib.core.entity.*
+import com.gitlab.kordlib.core.entity.channel.MessageChannel
 import com.gitlab.kordlib.kordx.emoji.*
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.Discord
@@ -48,8 +49,15 @@ data class BotConfiguration(
 
     internal val prefix: suspend (DiscordContext) -> String,
     internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
-    internal val permissions: suspend (Command, Discord, User, MessageChannelBehavior, Guild?) -> Boolean
-)
+    private val permissions: suspend (Command, Discord, User, MessageChannel, Guild?) -> Boolean
+) {
+    internal suspend fun hasPermission(command: Command, event: GlobalCommandEvent<*>) =
+        when {
+            command is GuildCommand && event.isDmEvent() -> false
+            command is DmCommand && event.isGuildEvent() -> false
+            else -> permissions.invoke(command, event.discord, event.author, event.channel, event.guild)
+        }
+}
 
 /**
  * @suppress Used in sample
