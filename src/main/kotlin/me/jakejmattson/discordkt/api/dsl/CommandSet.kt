@@ -21,10 +21,28 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
     private val commands = mutableListOf<Command>()
 
     /**
-     * Create a new command in this list.
+     * Create a global command.
      */
     fun command(vararg names: String, body: GlobalCommand.() -> Unit) {
         val command = GlobalCommand(names.toList(), category = category)
+        command.body()
+        commands.add(command)
+    }
+
+    /**
+     * Create a guild command.
+     */
+    fun guildCommand(vararg names: String, body: GuildCommand.() -> Unit) {
+        val command = GuildCommand(names.toList(), category = category)
+        command.body()
+        commands.add(command)
+    }
+
+    /**
+     * Create a dm command.
+     */
+    fun dmCommand(vararg names: String, body: DmCommand.() -> Unit) {
+        val command = DmCommand(names.toList(), category = category)
         command.body()
         commands.add(command)
     }

@@ -13,24 +13,40 @@ interface Responder {
     val discord: Discord
     val channel: MessageChannelBehavior
 
+    /**
+     * Send this message with no sanitization.
+     */
     suspend fun unsafeRespond(message: Any) = chunkRespond(message.toString())
+
+    /**
+     * Respond with a message and sanitize mentions.
+     */
     suspend fun respond(message: Any) = chunkRespond(message.toString().sanitiseMentions(discord))
 
+    /**
+     * Respond with an embed.
+     */
     suspend fun respond(construct: suspend EmbedBuilder.() -> Unit) = channel.createEmbed { construct.invoke(this) }
 
+    /**
+     * Respond with a message and an embed.
+     */
     suspend fun respond(message: String, construct: suspend EmbedBuilder.() -> Unit) = channel.createMessage {
         content = message
         construct.invoke(embed!!)
     }
 
+    /**
+     * Respond with a menu.
+     */
     suspend fun respondMenu(construct: suspend MenuBuilder.() -> Unit): Message? {
         val handle = MenuBuilder()
         handle.construct()
         return handle.build().send(channel)
     }
 
-    private suspend fun chunkRespond(message: String) {
+    private suspend fun chunkRespond(message: String): List<Message> {
         require(message.isNotEmpty()) { "Cannot send an empty message." }
-        message.chunked(2000).forEach { channel.createMessage(it) }
+        return message.chunked(2000).map { channel.createMessage(it) }
     }
 }
