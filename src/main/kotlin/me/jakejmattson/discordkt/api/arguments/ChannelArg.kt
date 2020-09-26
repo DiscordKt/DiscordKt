@@ -1,8 +1,8 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import com.gitlab.kordlib.core.entity.channel.*
-import me.jakejmattson.discordkt.api.dsl.*
-import me.jakejmattson.discordkt.api.extensions.toSnowflake
+import me.jakejmattson.discordkt.api.dsl.GlobalCommandEvent
+import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 
 /**
  * Accepts a Discord TextChannel entity as an ID or mention.
@@ -16,7 +16,7 @@ open class ChannelArg<T : GuildChannel>(override val name: String = "Text Channe
     companion object : ChannelArg<TextChannel>()
 
     override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<T> {
-        val channel = arg.toSnowflake()?.let { event.discord.api.getChannel(it) } as? T
+        val channel = arg.toSnowflakeOrNull()?.let { event.discord.api.getChannel(it) } as? T
             ?: return Error("Not found")
 
         if (!allowsGlobal && channel.guild.id != event.guild?.id)

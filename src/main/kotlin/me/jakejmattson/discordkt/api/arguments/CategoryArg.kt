@@ -3,8 +3,8 @@ package me.jakejmattson.discordkt.api.arguments
 import com.gitlab.kordlib.common.entity.Snowflake
 import com.gitlab.kordlib.core.entity.channel.Category
 import kotlinx.coroutines.flow.*
-import me.jakejmattson.discordkt.api.dsl.*
-import me.jakejmattson.discordkt.api.extensions.*
+import me.jakejmattson.discordkt.api.dsl.GlobalCommandEvent
+import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 
 /**
  * Accepts a Discord Category entity as an ID, a mention, or by name.
@@ -21,15 +21,13 @@ open class CategoryArg(override val name: String = "Category", private val guild
     override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<Category> {
         val resolvedGuildId = guildId ?: event.guild?.id
 
-        if (arg.trimToID().toLongOrNull() != null) {
-            val category = arg.toSnowflake()?.let { event.discord.api.getChannel(it) } as? Category
+        val categoryById = arg.toSnowflakeOrNull()?.let { event.discord.api.getChannel(it) } as? Category
 
-            if (!allowsGlobal && resolvedGuildId != category?.id)
-                return Error("Must be from this guild")
+        if (!allowsGlobal && resolvedGuildId != categoryById?.id)
+            return Error("Must be from this guild")
 
-            if (category != null)
-                return Success(category)
-        }
+        if (categoryById != null)
+            return Success(categoryById)
 
         resolvedGuildId ?: return Error("Please invoke in a guild or use an ID")
 

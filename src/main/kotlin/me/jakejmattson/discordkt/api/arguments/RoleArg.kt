@@ -3,8 +3,8 @@ package me.jakejmattson.discordkt.api.arguments
 import com.gitlab.kordlib.common.entity.Snowflake
 import com.gitlab.kordlib.core.entity.Role
 import kotlinx.coroutines.flow.*
-import me.jakejmattson.discordkt.api.dsl.*
-import me.jakejmattson.discordkt.api.extensions.*
+import me.jakejmattson.discordkt.api.dsl.GlobalCommandEvent
+import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 
 /**
  * Accepts a Discord Role entity as an ID, a mention, or by name.
@@ -21,15 +21,13 @@ open class RoleArg(override val name: String = "Role", private val guildId: Snow
     override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<Role> {
         val resolvedGuildId = guildId ?: event.guild?.id
 
-        if (arg.trimToID().toLongOrNull() != null) {
-            val role = event.discord.api.guilds.toList().flatMap { it.roles.toList() }.firstOrNull { it.id == arg.toSnowflake() }
+        val roleById = event.discord.api.guilds.toList().flatMap { it.roles.toList() }.firstOrNull { it.id == arg.toSnowflakeOrNull() }
 
-            if (!allowsGlobal && resolvedGuildId != role?.guild?.id)
-                return Error("Must be from this guild")
+        if (!allowsGlobal && resolvedGuildId != roleById?.guild?.id)
+            return Error("Must be from this guild")
 
-            if (role != null)
-                return Success(role)
-        }
+        if (roleById != null)
+            return Success(roleById)
 
         resolvedGuildId ?: return Error("Please invoke in a guild or use an ID")
 

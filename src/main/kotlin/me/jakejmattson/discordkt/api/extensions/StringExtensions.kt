@@ -2,7 +2,6 @@
 
 package me.jakejmattson.discordkt.api.extensions
 
-import com.gitlab.kordlib.common.entity.Snowflake
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.Discord
@@ -55,11 +54,6 @@ suspend fun String.sanitiseMentions(discord: Discord) = cleanseRoles(discord)
 fun String.trimToID() = takeUnless { startsWith("<") && endsWith(">") }
     ?: replaceAll(listOf("<", ">", "@", "!", "&", "#").zip(listOf("", "", "", "", "", "")))
 
-/**
- * Convert an ID or mention to a Snowflake.
- */
-fun String.toSnowflake() = trimToID().toLongOrNull()?.let { Snowflake(it) }
-
 private fun String.replaceAll(replacements: List<Pair<String, String>>): String {
     var result = this
     replacements.forEach { (l, r) -> result = result.replace(l, r) }
@@ -84,7 +78,7 @@ private suspend fun String.cleanseUsers(discord: Discord): String {
     val userMentions = userRegex.findAll(this).map {
         runBlocking {
             val mention = it.value
-            val replacement = mention.toSnowflake()?.let { discord.api.getUser(it)?.tag } ?: ""
+            val replacement = mention.toSnowflakeOrNull()?.let { discord.api.getUser(it)?.tag } ?: ""
 
             mention to replacement
         }

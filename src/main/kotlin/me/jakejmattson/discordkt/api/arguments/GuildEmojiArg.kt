@@ -24,7 +24,7 @@ open class GuildEmojiArg(override val name: String = "Guild Emoji", private val 
             1 -> split[0]
             3 -> split[2]
             else -> return Error("Not found")
-        }.toSnowflake()
+        }.toSnowflakeOrNull()
 
         val availableEmojis =
             if (allowsGlobal)
