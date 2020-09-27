@@ -40,7 +40,7 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
 
     val (_, commandName, commandArgs, _) = rawInputs
 
-    if (commandName.isEmpty()) return@on
+    if (commandName.isBlank()) return@on
 
     val event = GlobalCommandEvent<GenericContainer>(rawInputs, discord, message, author, channel.asChannel(), getGuild())
 

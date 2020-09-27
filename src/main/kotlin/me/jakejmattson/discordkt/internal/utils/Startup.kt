@@ -28,7 +28,8 @@ class Bot(val api: Kord, private val globalPath: String) {
                                         var prefix: suspend DiscordContext.() -> String = { "+" },
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
                                         var permissions: suspend (Command, Discord, User, MessageChannelBehavior, Guild?) -> Boolean = { _, _, _, _, _ -> true },
-                                        var presence: PresenceBuilder.() -> Unit = {})
+                                        var presence: PresenceBuilder.() -> Unit = {},
+                                        var onStart: suspend Discord.() -> Unit = {})
 
     private val startupBundle = StartupFunctions()
 
@@ -79,7 +80,8 @@ class Bot(val api: Kord, private val globalPath: String) {
             prefixFun,
             mentionEmbedFun,
             permissionsFun,
-            presenceFun) = startupBundle
+            presenceFun,
+            startupFun) = startupBundle
 
         val simpleConfiguration = SimpleConfiguration()
         configureFun.invoke(simpleConfiguration)
@@ -101,6 +103,8 @@ class Bot(val api: Kord, private val globalPath: String) {
 
         initCore(discord)
         discord.api.login(presenceFun)
+
+        startupFun.invoke(discord)
     }
 
     /**
@@ -154,6 +158,14 @@ class Bot(val api: Kord, private val globalPath: String) {
     @ConfigurationDSL
     fun presence(presence: PresenceBuilder.() -> Unit) {
         startupBundle.presence = presence
+    }
+
+    /**
+     * When setup is complete, execute these tasks.
+     */
+    @ConfigurationDSL
+    fun onStart(start: suspend Discord.() -> Unit) {
+        startupBundle.onStart = start
     }
 
     private fun buildPreconditions() = ReflectionUtils.detectSubtypesOf<Precondition>(globalPath).map { diService.invokeConstructor(it) }
