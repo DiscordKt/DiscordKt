@@ -103,7 +103,6 @@ class Bot(val api: Kord, private val globalPath: String) {
 
         initCore(discord)
         discord.api.login(presenceFun)
-
         startupFun.invoke(discord)
     }
 

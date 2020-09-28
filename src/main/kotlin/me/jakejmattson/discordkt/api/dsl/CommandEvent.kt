@@ -50,7 +50,6 @@ open class DiscordContext(override val discord: Discord,
  * @property author The User who invoked this command.
  * @property message The Message that invoked this command.
  * @property channel The MessageChannel this command was invoked in.
- * @property guild The Guild this command was invoked in.
  * @property command The [Command] that is resolved from the invocation.
  * @property args The [GenericContainer] containing the converted input.
  */

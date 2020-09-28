@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.GlobalCommandEvent
 import java.awt.Color
 
 internal object Recommender {
@@ -15,7 +15,7 @@ internal object Recommender {
         return closestMatch.takeUnless { distance > input.length / 2 + 2 }
     }
 
-    suspend fun sendRecommendation(event: CommandEvent<*>, input: String, possibilities: List<String>) {
+    suspend fun sendRecommendation(event: GlobalCommandEvent<*>, input: String, possibilities: List<String>) {
         val recommendation = recommend(input, possibilities) ?: "<none>"
 
         event.respond {

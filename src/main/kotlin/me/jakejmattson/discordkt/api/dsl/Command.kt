@@ -23,7 +23,6 @@ interface Command {
     var category: String
     var isFlexible: Boolean
     var arguments: List<ArgumentType<*>>
-    //var execute: suspend (CommandEvent<*>) -> Unit
 
     val parameterCount: Int
         get() = arguments.size
