@@ -3,7 +3,7 @@ package me.jakejmattson.discordkt.api.dsl
 import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
 import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.entity.channel.*
-import me.jakejmattson.discordkt.api.*
+import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.internal.utils.Responder
 
 /**
@@ -51,63 +51,37 @@ open class DiscordContext(override val discord: Discord,
  * @property message The Message that invoked this command.
  * @property channel The MessageChannel this command was invoked in.
  * @property command The [Command] that is resolved from the invocation.
- * @property args The [GenericContainer] containing the converted input.
  */
-interface CommandEvent<T : GenericContainer> : Responder {
-    override val discord: Discord
-    override val channel: MessageChannel
-    val rawInputs: RawInputs
-    val message: Message
-    val author: User
+open class CommandEvent(
+    open val rawInputs: RawInputs,
+    override val discord: Discord,
+    open val message: Message,
+    open val author: User,
+    override val channel: MessageChannel,
+    open val guild: Guild?) : Responder {
 
     val command
         get() = discord.commands[rawInputs.commandName]
 
-    var args: T
+    suspend fun prefix() = discord.configuration.prefix.invoke(DiscordContext(discord, message, guild, author, channel))
 
-    suspend fun prefix() = "" //TODO Find prefix discord.configuration.prefix.invoke(this)
-
-    /**
-     * Clone this event with optional modifications.
-     */
-    fun clone(input: RawInputs = rawInputs): CommandEvent<*>
+    open fun clone(input: RawInputs) = CommandEvent(input, discord, message, author, channel, guild)
+    internal fun isFromGuild() = guild != null
 }
 
-class GlobalCommandEvent<T : GenericContainer>(
-    override val rawInputs: RawInputs,
-    override val discord: Discord,
-    override val message: Message,
-    override val author: User,
-    override val channel: MessageChannel,
-    val guild: Guild?) : CommandEvent<T> {
-
-    override lateinit var args: T
-    override fun clone(input: RawInputs) = GlobalCommandEvent<GenericContainer>(input, discord, message, author, channel, guild)
-    internal fun toGuildEvent() = GuildCommandEvent<GenericContainer>(rawInputs, discord, message, author, channel as TextChannel, guild!!)
-    internal fun toDmEvent() = DmCommandEvent<GenericContainer>(rawInputs, discord, message, author, channel as DmChannel)
-    internal fun isGuildEvent() = guild != null
-    internal fun isDmEvent() = guild == null
-}
-
-data class GuildCommandEvent<T : GenericContainer>(
+data class GuildCommandEvent(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     override val message: Message,
     override val author: User,
     override val channel: TextChannel,
-    val guild: Guild) : CommandEvent<T> {
+    override val guild: Guild) : CommandEvent(rawInputs, discord, message, author, channel, guild)
 
-    override lateinit var args: T
-    override fun clone(input: RawInputs) = GuildCommandEvent<GenericContainer>(input, discord, message, author, channel, guild)
-}
-
-data class DmCommandEvent<T : GenericContainer>(
+data class DmCommandEvent(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     override val message: Message,
     override val author: User,
-    override val channel: DmChannel) : CommandEvent<T> {
-
-    override lateinit var args: T
-    override fun clone(input: RawInputs) = DmCommandEvent<GenericContainer>(input, discord, message, author, channel)
-}
+    override val channel: DmChannel,
+    @Deprecated("This field is always null in a DM. It only exists to fulfill the CommandEvent contract.", level = DeprecationLevel.ERROR)
+    override val guild: Guild? = null) : CommandEvent(rawInputs, discord, message, author, channel, null)

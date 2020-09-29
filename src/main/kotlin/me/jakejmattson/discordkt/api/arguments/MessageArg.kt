@@ -17,7 +17,7 @@ open class MessageArg(override val name: String = "Message", private val allowsG
      */
     companion object : MessageArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<Message> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult<Message> {
         val regex = "https://discordapp.com/channels/\\d+/\\d+/\\d+".toRegex()
         val isLink = regex.matches(arg)
         val kord = event.discord.api
@@ -41,5 +41,5 @@ open class MessageArg(override val name: String = "Message", private val allowsG
         return Success(message)
     }
 
-    override fun generateExamples(event: GlobalCommandEvent<*>) = listOf(event.message.id.value)
+    override fun generateExamples(event: CommandEvent) = listOf(event.message.id.value)
 }

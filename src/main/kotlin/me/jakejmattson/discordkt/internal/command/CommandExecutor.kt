@@ -25,7 +25,7 @@ sealed class ParseResult {
     data class Error(val reason: String) : ParseResult()
 }
 
-internal suspend fun parseInputToBundle(command: Command, event: GlobalCommandEvent<*>, actualArgs: List<String>): ParseResult {
+internal suspend fun parseInputToBundle(command: Command<*>, event: CommandEvent, actualArgs: List<String>): ParseResult {
     val expected = command.arguments as List<ArgumentType<Any>>
 
     val error = when (val initialConversion = convertArguments(actualArgs, expected, event)) {

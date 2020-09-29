@@ -1,10 +1,11 @@
 package me.jakejmattson.discordkt.internal.listeners
 
 import com.gitlab.kordlib.core.behavior.channel.createEmbed
+import com.gitlab.kordlib.core.entity.channel.*
 import com.gitlab.kordlib.core.event.message.MessageCreateEvent
 import com.gitlab.kordlib.core.on
 import com.gitlab.kordlib.kordx.emoji.toReaction
-import me.jakejmattson.discordkt.api.*
+import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.trimToID
 import me.jakejmattson.discordkt.api.services.ConversationService
@@ -18,7 +19,7 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
     val discordContext = DiscordContext(discord, message, getGuild())
     val prefix = config.prefix.invoke(discordContext)
     val conversationService = discord.getInjectionObjects(ConversationService::class)
-    val channel = message.channel
+    val channel = message.channel.asChannel()
     val content = message.content
 
     fun String.mentionsSelf() = startsWith("<@!$self>") || startsWith("<@$self>")
@@ -42,7 +43,12 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
 
     if (commandName.isBlank()) return@on
 
-    val event = GlobalCommandEvent<GenericContainer>(rawInputs, discord, message, author, channel.asChannel(), getGuild())
+    val guild = getGuild()
+
+    val event = if (guild != null)
+        GuildCommandEvent(rawInputs, discord, message, author, channel as TextChannel, guild)
+    else
+        DmCommandEvent(rawInputs, discord, message, author, channel as DmChannel)
 
     val errors = preconditions
         .map { it.evaluate(event) }
@@ -55,6 +61,8 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
     }
 
     val command = discord.commands[commandName]?.takeUnless { !config.hasPermission(it, event) }
+
+    println("Event: Guild(${event.isFromGuild()})")
 
     if (command == null) {
         val validCommands = discord.commands

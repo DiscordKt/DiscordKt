@@ -3,7 +3,7 @@ package me.jakejmattson.discordkt.api.arguments
 import com.gitlab.kordlib.common.entity.Snowflake
 import com.gitlab.kordlib.core.entity.channel.Category
 import kotlinx.coroutines.flow.*
-import me.jakejmattson.discordkt.api.dsl.GlobalCommandEvent
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 
 /**
@@ -18,7 +18,7 @@ open class CategoryArg(override val name: String = "Category", private val guild
      */
     companion object : CategoryArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<Category> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult<Category> {
         val resolvedGuildId = guildId ?: event.guild?.id
 
         val categoryById = arg.toSnowflakeOrNull()?.let { event.discord.api.getChannel(it) } as? Category
@@ -54,6 +54,6 @@ open class CategoryArg(override val name: String = "Category", private val guild
         }
     }
 
-    override fun generateExamples(event: GlobalCommandEvent<*>) = listOf(event.channel.id.value)
+    override fun generateExamples(event: CommandEvent) = listOf(event.channel.id.value)
     override fun formatData(data: Category) = data.name
 }

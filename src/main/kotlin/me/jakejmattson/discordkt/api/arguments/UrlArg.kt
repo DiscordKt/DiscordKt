@@ -12,12 +12,12 @@ open class UrlArg(override val name: String = "URL") : ArgumentType<String>() {
      */
     companion object : UrlArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<String> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult<String> {
         return if (arg.containsURl())
             Success(arg)
         else
             Error("Invalid format")
     }
 
-    override fun generateExamples(event: GlobalCommandEvent<*>) = listOf("http://www.google.com")
+    override fun generateExamples(event: CommandEvent) = listOf("http://www.google.com")
 }

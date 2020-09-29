@@ -17,12 +17,12 @@ open class ChoiceArg<T>(override val name: String, vararg choices: T) : Argument
             InternalLogger.error("ChoiceArg elements must be unique.")
     }
 
-    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<T> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult<T> {
         val selection = enumerations[arg.toLowerCase()]
             ?: return Error("Invalid selection")
 
         return Success(selection)
     }
 
-    override fun generateExamples(event: GlobalCommandEvent<*>) = options.toList()
+    override fun generateExamples(event: CommandEvent) = options.toList()
 }

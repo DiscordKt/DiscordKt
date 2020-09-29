@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.internal.arguments
 
 import me.jakejmattson.discordkt.api.arguments.*
-import me.jakejmattson.discordkt.api.dsl.GlobalCommandEvent
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 
 internal sealed class ConversionResult
 internal data class ConversionSuccess(val results: List<Any?>) : ConversionResult()
@@ -26,7 +26,7 @@ private fun formatDataMap(successData: List<DataMap>): String {
     }
 }
 
-internal suspend fun convertArguments(actual: List<String>, expected: List<ArgumentType<Any>>, event: GlobalCommandEvent<*>): ConversionResult {
+internal suspend fun convertArguments(actual: List<String>, expected: List<ArgumentType<Any>>, event: CommandEvent): ConversionResult {
     val remainingArgs = actual.filter { it.isNotBlank() }.toMutableList()
     var hasFatalError = false
 

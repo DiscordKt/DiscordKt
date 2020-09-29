@@ -16,7 +16,7 @@ open class GuildEmojiArg(override val name: String = "Guild Emoji", private val 
      */
     companion object : GuildEmojiArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<GuildEmoji> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult<GuildEmoji> {
         val trimmed = arg.trimToID()
         val split = trimmed.split(":")
 
@@ -37,5 +37,5 @@ open class GuildEmojiArg(override val name: String = "Guild Emoji", private val 
         return Success(emoji)
     }
 
-    override fun generateExamples(event: GlobalCommandEvent<*>) = event.guild?.emojis?.map { it.mention } ?: emptyList()
+    override fun generateExamples(event: CommandEvent) = event.guild?.emojis?.map { it.mention } ?: emptyList()
 }

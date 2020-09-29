@@ -5,7 +5,7 @@ import me.jakejmattson.discordkt.api.dsl.Command
 
 internal class Validator {
     companion object {
-        fun validateCommandMeta(commands: MutableList<Command>) {
+        fun validateCommandMeta(commands: MutableList<Command<*>>) {
             val duplicates = commands
                 .flatMap { it.names }
                 .groupingBy { it }

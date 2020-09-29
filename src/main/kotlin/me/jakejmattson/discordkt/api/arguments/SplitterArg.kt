@@ -13,7 +13,7 @@ open class SplitterArg(override val name: String = "TextWithSplitter", private v
      */
     companion object : SplitterArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<List<String>> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult<List<String>> {
         val joined = args.joinToString(" ")
 
         if (!joined.contains(splitter))
@@ -22,6 +22,6 @@ open class SplitterArg(override val name: String = "TextWithSplitter", private v
         return Success(joined.split(splitter).toList(), args.size)
     }
 
-    override fun generateExamples(event: GlobalCommandEvent<*>) = listOf("A${splitter}B${splitter}C")
+    override fun generateExamples(event: CommandEvent) = listOf("A${splitter}B${splitter}C")
     override fun formatData(data: List<String>) = data.joinToString(splitter)
 }

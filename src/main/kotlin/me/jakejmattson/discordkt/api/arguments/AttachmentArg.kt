@@ -12,7 +12,7 @@ open class AttachmentArg(override val name: String = "File") : ArgumentType<Atta
      */
     companion object : AttachmentArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<Attachment> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult<Attachment> {
         val attachments = event.message.attachments
 
         if (attachments.isEmpty())
@@ -21,6 +21,6 @@ open class AttachmentArg(override val name: String = "File") : ArgumentType<Atta
         return Success(attachments.first(), 0)
     }
 
-    override fun generateExamples(event: GlobalCommandEvent<*>) = listOf("File")
+    override fun generateExamples(event: CommandEvent) = listOf("File")
     override fun formatData(data: Attachment) = data.filename
 }

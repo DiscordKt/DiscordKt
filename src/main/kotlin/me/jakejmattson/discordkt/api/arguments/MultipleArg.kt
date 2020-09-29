@@ -10,7 +10,7 @@ import me.jakejmattson.discordkt.api.dsl.*
 class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentType<List<T>>() {
     override val name = if (name.isNotBlank()) name else "${base.name}..."
 
-    override suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<List<T>> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult<List<T>> {
         val totalResult = mutableListOf<T>()
         var totalConsumed = 0
         val remainingArgs = args.toMutableList()
@@ -36,7 +36,7 @@ class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentTyp
         return Success(totalResult, totalConsumed)
     }
 
-    override fun generateExamples(event: GlobalCommandEvent<*>) =
+    override fun generateExamples(event: CommandEvent) =
         base.generateExamples(event).chunked(2).map { it.joinToString(" ") }
 
     override fun formatData(data: List<T>) = "[${data.joinToString { base.formatData(it) }}]"

@@ -49,14 +49,17 @@ data class BotConfiguration(
 
     internal val prefix: suspend (DiscordContext) -> String,
     internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
-    private val permissions: suspend (Command, Discord, User, MessageChannel, Guild?) -> Boolean
+    private val permissions: suspend (Command<*>, Discord, User, MessageChannel, Guild?) -> Boolean
 ) {
-    internal suspend fun hasPermission(command: Command, event: GlobalCommandEvent<*>) =
-        when {
-            command is GuildCommand && event.isDmEvent() -> false
-            command is DmCommand && event.isGuildEvent() -> false
+    internal suspend fun hasPermission(command: Command<*>, event: CommandEvent) : Boolean {
+        println("Dm(${command.isDmViable()}) Guild(${command.isGuildViable()}) - ${command.names.first()}")
+
+        return when {
+            command.isDmViable() && event.isFromGuild() -> false
+            command.isGuildViable() && !event.isFromGuild() -> false
             else -> permissions.invoke(command, event.discord, event.author, event.channel, event.guild)
         }
+    }
 }
 
 /**
@@ -71,4 +74,4 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = false,
 /**
  * @suppress Used in sample
  */
-data class PermissionContext(val command: Command, val discord: Discord, val user: User, val channel: MessageChannelBehavior, val guild: Guild?)
+data class PermissionContext(val command: Command<*>, val discord: Discord, val user: User, val channel: MessageChannelBehavior, val guild: Guild?)

@@ -18,13 +18,16 @@ fun commands(category: String, construct: CommandSetBuilder.() -> Unit) = Comman
  * @suppress Used in DSL
  */
 data class CommandSetBuilder(val discord: Discord, val category: String) {
-    private val commands = mutableListOf<Command>()
+    private val commands = mutableListOf<Command<*>>()
 
     /**
      * Create a global command.
      */
-    fun command(vararg names: String, body: GlobalCommand.() -> Unit) {
-        val command = GlobalCommand(names.toList(), category = category)
+    fun command(vararg names: String, body: Command<CommandEvent>.() -> Unit) {
+        val command = Command(CommandEvent::class, names.toList()).apply {
+            this.category = this@CommandSetBuilder.category
+        }
+
         command.body()
         commands.add(command)
     }
@@ -32,8 +35,11 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
     /**
      * Create a guild command.
      */
-    fun guildCommand(vararg names: String, body: GuildCommand.() -> Unit) {
-        val command = GuildCommand(names.toList(), category = category)
+    fun guildCommand(vararg names: String, body: Command<GuildCommandEvent>.() -> Unit) {
+        val command = Command(GuildCommandEvent::class, names.toList()).apply {
+            this.category = this@CommandSetBuilder.category
+        }
+
         command.body()
         commands.add(command)
     }
@@ -41,8 +47,11 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
     /**
      * Create a dm command.
      */
-    fun dmCommand(vararg names: String, body: DmCommand.() -> Unit) {
-        val command = DmCommand(names.toList(), category = category)
+    fun dmCommand(vararg names: String, body: Command<DmCommandEvent>.() -> Unit) {
+        val command = Command(DmCommandEvent::class, names.toList()).apply {
+            this.category = this@CommandSetBuilder.category
+        }
+
         command.body()
         commands.add(command)
     }

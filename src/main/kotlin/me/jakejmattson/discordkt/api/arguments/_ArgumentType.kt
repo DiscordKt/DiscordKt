@@ -2,7 +2,7 @@
 
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.GlobalCommandEvent
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import me.jakejmattson.discordkt.internal.utils.simplerName
 
 /**
@@ -17,7 +17,7 @@ abstract class ArgumentType<T> : Cloneable {
     var isOptional: Boolean = false
         private set
 
-    internal lateinit var defaultValue: suspend (GlobalCommandEvent<*>) -> T
+    internal lateinit var defaultValue: suspend (CommandEvent) -> T
         private set
 
     private fun <T> cloneToOptional() = (clone() as ArgumentType<T>).apply { isOptional = true }
@@ -30,11 +30,11 @@ abstract class ArgumentType<T> : Cloneable {
     fun makeOptional(default: T) = cloneToOptional<T>().apply { defaultValue = { default } }
 
     /**
-     * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [GlobalCommandEvent].
+     * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type.
      */
-    fun makeOptional(default: suspend (GlobalCommandEvent<*>) -> T) = cloneToOptional<T>().apply { defaultValue = default }
+    fun makeOptional(default: suspend (CommandEvent) -> T) = cloneToOptional<T>().apply { defaultValue = default }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails.
@@ -44,11 +44,11 @@ abstract class ArgumentType<T> : Cloneable {
     fun makeNullableOptional(default: T? = null) = cloneToOptional<T?>().apply { defaultValue = { default } }
 
     /**
-     * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [GlobalCommandEvent].
+     * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    fun makeNullableOptional(default: suspend (GlobalCommandEvent<*>) -> T?) = cloneToOptional<T?>().apply { defaultValue = default }
+    fun makeNullableOptional(default: suspend (CommandEvent) -> T?) = cloneToOptional<T?>().apply { defaultValue = default }
 
     /**
      * Consumes an argument or multiple arguments and converts them into some desired type.
@@ -58,14 +58,14 @@ abstract class ArgumentType<T> : Cloneable {
      * @param event The CommandEvent triggered by the execution of the command.
      * @return ArgumentResult subtype [Success] or [Error].
      */
-    abstract suspend fun convert(arg: String, args: List<String>, event: GlobalCommandEvent<*>): ArgumentResult<T>
+    abstract suspend fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult<T>
 
     /**
      * A function called whenever an example of this type is needed.
      *
      * @param event Allows the list result to be generated with the relevant discord context.
      */
-    abstract fun generateExamples(event: GlobalCommandEvent<*>): List<String>
+    abstract fun generateExamples(event: CommandEvent): List<String>
 
     /** Determine the simpler name (just the class) and then remove the companion tag */
     override fun toString() = this::class.java.simplerName.substringBefore("$")
