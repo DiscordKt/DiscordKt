@@ -23,8 +23,8 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
     /**
      * Create a global command.
      */
-    fun command(vararg names: String, body: Command.() -> Unit) {
-        val command = Command(names.toList()).apply {
+    fun command(vararg names: String, body: GlobalCommand.() -> Unit) {
+        val command = GlobalCommand(names.toList()).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -35,30 +35,26 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
     /**
      * Create a guild command.
      */
-    /**
-    fun guildCommand(vararg names: String, body: Command<GuildCommandEvent>.() -> Unit) {
-        val command = Command(GuildCommandEvent::class, names.toList()).apply {
+    fun guildCommand(vararg names: String, body: GuildCommand.() -> Unit) {
+        val command = GuildCommand(names.toList()).apply {
             this.category = this@CommandSetBuilder.category
         }
 
         command.body()
         commands.add(command)
     }
-    **/
 
     /**
      * Create a dm command.
      */
-    /**
-    fun dmCommand(vararg names: String, body: Command<DmCommandEvent>.() -> Unit) {
-        val command = Command(DmCommandEvent::class, names.toList()).apply {
+    fun dmCommand(vararg names: String, body: DmCommand.() -> Unit) {
+        val command = DmCommand(names.toList()).apply {
             this.category = this@CommandSetBuilder.category
         }
 
         command.body()
         commands.add(command)
     }
-    **/
 
     internal fun registerCommands() {
         discord.commands.addAll(commands)
