@@ -62,8 +62,6 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
 
     val command = discord.commands[commandName]?.takeUnless { !config.hasPermission(it, event) }
 
-    println("Event: Guild(${event.isFromGuild()})")
-
     if (command == null) {
         val validCommands = discord.commands
             .filter { config.hasPermission(it, event) }
