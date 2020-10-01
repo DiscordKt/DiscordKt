@@ -17,7 +17,7 @@ abstract class ArgumentType<T> : Cloneable {
     var isOptional: Boolean = false
         private set
 
-    internal lateinit var defaultValue: suspend (CommandEvent) -> T
+    internal lateinit var defaultValue: suspend (CommandEvent<*>) -> T
         private set
 
     private fun <T> cloneToOptional() = (clone() as ArgumentType<T>).apply { isOptional = true }
@@ -34,7 +34,7 @@ abstract class ArgumentType<T> : Cloneable {
      *
      * @param default A default value matching the expected type.
      */
-    fun makeOptional(default: suspend (CommandEvent) -> T) = cloneToOptional<T>().apply { defaultValue = default }
+    fun makeOptional(default: suspend (CommandEvent<*>) -> T) = cloneToOptional<T>().apply { defaultValue = default }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails.
@@ -48,24 +48,24 @@ abstract class ArgumentType<T> : Cloneable {
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    fun makeNullableOptional(default: suspend (CommandEvent) -> T?) = cloneToOptional<T?>().apply { defaultValue = default }
+    fun makeNullableOptional(default: suspend (CommandEvent<*>) -> T?) = cloneToOptional<T?>().apply { defaultValue = default }
 
     /**
      * Consumes an argument or multiple arguments and converts them into some desired type.
      *
      * @param arg The next argument passed into the command.
      * @param args All remaining arguments passed into the command.
-     * @param event The CommandEvent triggered by the execution of the command.
+     * @param event The CommandEvent<*> triggered by the execution of the command.
      * @return ArgumentResult subtype [Success] or [Error].
      */
-    abstract suspend fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult<T>
+    abstract suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
 
     /**
      * A function called whenever an example of this type is needed.
      *
      * @param event Allows the list result to be generated with the relevant discord context.
      */
-    abstract fun generateExamples(event: CommandEvent): List<String>
+    abstract fun generateExamples(event: CommandEvent<*>): List<String>
 
     /** Determine the simpler name (just the class) and then remove the companion tag */
     override fun toString() = this::class.java.simplerName.substringBefore("$")

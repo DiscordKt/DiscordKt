@@ -26,7 +26,7 @@ private fun formatDataMap(successData: List<DataMap>): String {
     }
 }
 
-internal suspend fun convertArguments(actual: List<String>, expected: List<ArgumentType<Any>>, event: CommandEvent): ConversionResult {
+internal suspend fun convertArguments(actual: List<String>, expected: List<ArgumentType<Any>>, event: CommandEvent<*>): ConversionResult {
     val remainingArgs = actual.filter { it.isNotBlank() }.toMutableList()
     var hasFatalError = false
 

@@ -9,7 +9,7 @@ internal fun produceHelpCommand() = commands("Utility") {
     command("Help") {
         description = "Display a help menu."
         execute(AnyArg("Command").makeOptional("")) {
-            val query = it.first
+            val query = args.first
             val color = discord.configuration.theme
 
             when {
@@ -21,7 +21,7 @@ internal fun produceHelpCommand() = commands("Utility") {
     }
 }
 
-private suspend fun sendDefaultEmbed(event: CommandEvent, embedColor: Color?) =
+private suspend fun sendDefaultEmbed(event: CommandEvent<*>, embedColor: Color?) =
     event.respond {
         title = "Help menu"
         description = "Use `${event.prefix()}help <command>` for more information."
@@ -45,7 +45,7 @@ private suspend fun sendDefaultEmbed(event: CommandEvent, embedColor: Color?) =
             }
     }
 
-private suspend fun sendCommandEmbed(command: Command<*>, event: CommandEvent, input: String, embedColor: Color?) =
+private suspend fun sendCommandEmbed(command: Command, event: CommandEvent<*>, input: String, embedColor: Color?) =
     event.respond {
         title = command.names.joinToString()
         description = command.description
@@ -65,7 +65,7 @@ private suspend fun sendCommandEmbed(command: Command<*>, event: CommandEvent, i
             }
     }
 
-private fun generateExample(command: Command<*>, event: CommandEvent) =
+private fun generateExample(command: Command, event: CommandEvent<*>) =
     command.arguments.joinToString(" ") {
         val examples = it.generateExamples(event)
         val example = if (examples.isNotEmpty()) examples.random() else "<Example>"
@@ -73,13 +73,13 @@ private fun generateExample(command: Command<*>, event: CommandEvent) =
         if (it.isOptional) "($example)" else "[$example]"
     }
 
-private suspend fun String.isCommand(event: CommandEvent) = fetchVisibleCommands(event)
+private suspend fun String.isCommand(event: CommandEvent<*>) = fetchVisibleCommands(event)
     .any { toLowerCase() in it.names.map { it.toLowerCase() } }
 
-private suspend fun fetchVisibleCommands(event: CommandEvent) = event.discord.commands
+private suspend fun fetchVisibleCommands(event: CommandEvent<*>) = event.discord.commands
     .filter { event.discord.configuration.hasPermission(it, event) }
 
-private fun generateStructure(command: Command<*>) =
+private fun generateStructure(command: Command) =
     command.arguments.joinToString(" ") {
         val type = it.name
         if (it.isOptional) "($type)" else "[$type]"

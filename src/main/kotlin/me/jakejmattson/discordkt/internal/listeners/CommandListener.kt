@@ -5,7 +5,7 @@ import com.gitlab.kordlib.core.entity.channel.*
 import com.gitlab.kordlib.core.event.message.MessageCreateEvent
 import com.gitlab.kordlib.core.on
 import com.gitlab.kordlib.kordx.emoji.toReaction
-import me.jakejmattson.discordkt.api.Discord
+import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.trimToID
 import me.jakejmattson.discordkt.api.services.ConversationService
@@ -46,7 +46,7 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
     val guild = getGuild()
 
     val event = if (guild != null)
-        GuildCommandEvent(rawInputs, discord, message, author, channel as TextChannel, guild)
+        GuildCommandEvent<GenericContainer>(rawInputs, discord, message, author, channel as TextChannel, guild)
     else
         DmCommandEvent(rawInputs, discord, message, author, channel as DmChannel)
 

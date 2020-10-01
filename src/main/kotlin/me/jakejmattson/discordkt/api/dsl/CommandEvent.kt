@@ -3,7 +3,7 @@ package me.jakejmattson.discordkt.api.dsl
 import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
 import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.entity.channel.*
-import me.jakejmattson.discordkt.api.Discord
+import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.internal.utils.Responder
 
 /**
@@ -52,7 +52,7 @@ open class DiscordContext(override val discord: Discord,
  * @property channel The MessageChannel this command was invoked in.
  * @property command The [Command] that is resolved from the invocation.
  */
-open class CommandEvent(
+open class CommandEvent<T: GenericContainer>(
     open val rawInputs: RawInputs,
     override val discord: Discord,
     open val message: Message,
@@ -60,28 +60,30 @@ open class CommandEvent(
     override val channel: MessageChannel,
     open val guild: Guild?) : Responder {
 
+    lateinit var args : T
+
     val command
         get() = discord.commands[rawInputs.commandName]
 
     suspend fun prefix() = discord.configuration.prefix.invoke(DiscordContext(discord, message, guild, author, channel))
 
-    open fun clone(input: RawInputs) = CommandEvent(input, discord, message, author, channel, guild)
+    open fun clone(input: RawInputs) = CommandEvent<T>(input, discord, message, author, channel, guild)
     internal fun isFromGuild() = guild != null
 }
 
-data class GuildCommandEvent(
+data class GuildCommandEvent<T: GenericContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     override val message: Message,
     override val author: User,
     override val channel: TextChannel,
-    override val guild: Guild) : CommandEvent(rawInputs, discord, message, author, channel, guild)
+    override val guild: Guild) : CommandEvent<T>(rawInputs, discord, message, author, channel, guild)
 
-data class DmCommandEvent(
+data class DmCommandEvent<T: GenericContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     override val message: Message,
     override val author: User,
     override val channel: DmChannel,
-    @Deprecated("This field is always null in a DM. It only exists to fulfill the CommandEvent contract.", level = DeprecationLevel.ERROR)
-    override val guild: Guild? = null) : CommandEvent(rawInputs, discord, message, author, channel, null)
+    @Deprecated("This field is always null in a DM. It only exists to fulfill the CommandEvent<*> contract.", level = DeprecationLevel.ERROR)
+    override val guild: Guild? = null) : CommandEvent<T>(rawInputs, discord, message, author, channel, null)

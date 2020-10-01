@@ -18,7 +18,7 @@ open class CategoryArg(override val name: String = "Category", private val guild
      */
     companion object : CategoryArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult<Category> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
         val resolvedGuildId = guildId ?: event.guild?.id
 
         val categoryById = arg.toSnowflakeOrNull()?.let { event.discord.api.getChannel(it) } as? Category
@@ -54,6 +54,6 @@ open class CategoryArg(override val name: String = "Category", private val guild
         }
     }
 
-    override fun generateExamples(event: CommandEvent) = listOf(event.channel.id.value)
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id.value)
     override fun formatData(data: Category) = data.name
 }

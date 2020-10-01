@@ -4,7 +4,7 @@ import me.jakejmattson.discordkt.api.arguments.MultipleArg
 import me.jakejmattson.discordkt.api.dsl.Command
 import java.io.File
 
-internal fun createDocumentation(commands: List<Command<*>>) {
+internal fun createDocumentation(commands: List<Command>) {
     if (commands.isEmpty())
         return
 
@@ -15,7 +15,7 @@ internal fun createDocumentation(commands: List<Command<*>>) {
     fun String.sanitizePipe() = replace("|", "\\|")
     fun List<CommandData>.maxLength(header: String, field: (CommandData) -> String) = (map { field.invoke(it).length } + header.length).maxOrNull()!!
 
-    fun extractCommandData(command: Command<*>): CommandData {
+    fun extractCommandData(command: Command): CommandData {
         val nameString = (if (command.isFlexible) "*" else "") + command.names.joinToString().sanitizePipe()
 
         val expectedArgs = command.arguments.joinToString {

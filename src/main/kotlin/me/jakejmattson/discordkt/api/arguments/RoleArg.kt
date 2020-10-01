@@ -18,7 +18,7 @@ open class RoleArg(override val name: String = "Role", private val guildId: Snow
      */
     companion object : RoleArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult<Role> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
         val resolvedGuildId = guildId ?: event.guild?.id
 
         val roleById = event.discord.api.guilds.toList().flatMap { it.roles.toList() }.firstOrNull { it.id == arg.toSnowflakeOrNull() }
@@ -55,7 +55,7 @@ open class RoleArg(override val name: String = "Role", private val guildId: Snow
         }
     }
 
-    override fun generateExamples(event: CommandEvent) = listOf("@everyone")
+    override fun generateExamples(event: CommandEvent<*>) = listOf("@everyone")
 
     override fun formatData(data: Role) = data.name
 }

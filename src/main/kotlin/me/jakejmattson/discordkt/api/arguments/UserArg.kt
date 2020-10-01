@@ -13,12 +13,12 @@ open class UserArg(override val name: String = "User") : ArgumentType<User>() {
      */
     companion object : UserArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult<User> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {
         val user = arg.toSnowflakeOrNull()?.let { event.discord.api.getUser(it) } ?: return Error("Not found")
 
         return Success(user)
     }
 
-    override fun generateExamples(event: CommandEvent) = listOf(event.author.id.value)
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.id.value)
     override fun formatData(data: User) = "@${data.tag}"
 }

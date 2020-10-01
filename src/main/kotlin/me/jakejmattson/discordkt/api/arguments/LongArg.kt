@@ -11,11 +11,11 @@ open class LongArg(override val name: String = "Long") : ArgumentType<Long>() {
      */
     companion object : LongArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent) =
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toLongOrNull()) {
             null -> Error("Invalid format")
             else -> Success(result)
         }
 
-    override fun generateExamples(event: CommandEvent) = (0..10).map { it.toString() }
+    override fun generateExamples(event: CommandEvent<*>) = (0..10).map { it.toString() }
 }

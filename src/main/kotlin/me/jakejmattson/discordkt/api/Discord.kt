@@ -26,7 +26,7 @@ data class Versions(val library: String, val kotlin: String, val kord: String)
 abstract class Discord {
     abstract val api: Kord
     abstract val configuration: BotConfiguration
-    abstract val commands: MutableList<Command<*>>
+    abstract val commands: MutableList<Command>
     val versions = Json.decodeFromString<Versions>(this::class.java.getResource("/library-properties.json").readText())
 
     /** Fetch an object from the DI pool by its type */
@@ -55,5 +55,5 @@ internal fun buildDiscordClient(api: Kord, configuration: BotConfiguration) =
     object : Discord() {
         override val api = api
         override val configuration = configuration
-        override val commands = mutableListOf<Command<*>>()
+        override val commands = mutableListOf<Command>()
     }

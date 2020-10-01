@@ -12,11 +12,11 @@ open class DoubleArg(override val name: String = "Double") : ArgumentType<Double
      */
     companion object : DoubleArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent) =
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toDoubleOrNull()) {
             null -> Error("Invalid format")
             else -> Success(result)
         }
 
-    override fun generateExamples(event: CommandEvent) = listOf("%.2f".format(Random.nextDouble(0.00, 9.99)))
+    override fun generateExamples(event: CommandEvent<*>) = listOf("%.2f".format(Random.nextDouble(0.00, 9.99)))
 }

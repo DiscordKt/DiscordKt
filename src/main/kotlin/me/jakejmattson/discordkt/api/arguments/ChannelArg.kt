@@ -15,7 +15,7 @@ open class ChannelArg<T : GuildChannel>(override val name: String = "Text Channe
      */
     companion object : ChannelArg<TextChannel>()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent): ArgumentResult<T> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T> {
         val channel = arg.toSnowflakeOrNull()?.let { event.discord.api.getChannel(it) } as? T
             ?: return Error("Not found")
 
@@ -25,7 +25,7 @@ open class ChannelArg<T : GuildChannel>(override val name: String = "Text Channe
         return Success(channel)
     }
 
-    override fun generateExamples(event: CommandEvent) = listOf(event.channel.id.value)
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id.value)
 
     override fun formatData(data: T): String = "#${data.name}"
 }

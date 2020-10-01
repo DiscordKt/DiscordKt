@@ -6,7 +6,6 @@ import kotlinx.coroutines.*
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.arguments.ArgumentType
 import me.jakejmattson.discordkt.internal.command.*
-import kotlin.reflect.KClass
 
 /**
  * @property names The name(s) this command can be executed by (case insensitive).
@@ -18,17 +17,13 @@ import kotlin.reflect.KClass
  *
  * @property parameterCount The number of arguments this command accepts.
  */
-class Command<T : CommandEvent>(private val type: KClass<T>,
-                                val names: List<String>,
-                                var description: String = "<No Description>",
-                                var isFlexible: Boolean = false) {
-
-    internal fun isGuildViable() = type != DmCommandEvent::class
-    internal fun isDmViable() = type != GuildCommandEvent::class
+class Command(val names: List<String>,
+              var description: String = "<No Description>",
+              var isFlexible: Boolean = false) {
 
     var category: String = ""
     var arguments: List<ArgumentType<*>> = emptyList()
-    private var execute: suspend CommandEvent.(GenericContainer) -> Unit = {}
+    private var execute: suspend CommandEvent<*>.() -> Unit = {}
 
     val parameterCount: Int
         get() = arguments.size
@@ -40,31 +35,34 @@ class Command<T : CommandEvent>(private val type: KClass<T>,
      *
      * @return The result of the parsing operation.
      */
-    suspend fun canParse(args: List<String>, event: CommandEvent) = parseInputToBundle(this, event, args) is ParseResult.Success
+    suspend fun canParse(args: List<String>, event: CommandEvent<*>) = parseInputToBundle(this, event, args) is ParseResult.Success
 
-    fun invoke(event: CommandEvent, args: List<String>) {
+    fun invoke(event: CommandEvent<GenericContainer>, args: List<String>) {
         GlobalScope.launch {
             when (val result = parseInputToBundle(this@Command, event, args)) {
-                is ParseResult.Success -> execute.invoke(event, result.argumentContainer)
+                is ParseResult.Success -> {
+                    event.args = result.argumentContainer
+                    execute.invoke(event)
+                }
                 is ParseResult.Error -> event.respond(result.reason)
             }
         }
     }
 
-    private fun <C: GenericContainer> setExecute(argTypes: List<ArgumentType<*>>, event: suspend T.(C) -> Unit) {
+    private fun <T : GenericContainer> setExecute(argTypes: List<ArgumentType<*>>, event: suspend CommandEvent<T>.() -> Unit) {
         arguments = argTypes
-        execute = event as suspend CommandEvent.(GenericContainer) -> Unit
+        execute = event as suspend CommandEvent<*>.() -> Unit
     }
 
-    fun execute(execute: suspend T.(NoArgs) -> Unit) = setExecute(listOf(), execute)
-    fun <A> execute(a: ArgumentType<A>, execute: suspend T.(Args1<A>) -> Unit) = setExecute(listOf(a), execute)
-    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend T.(Args2<A, B>) -> Unit) = setExecute(listOf(a, b), execute)
-    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend T.(Args3<A, B, C>) -> Unit) = setExecute(listOf(a, b, c), execute)
-    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend T.(Args4<A, B, C, D>) -> Unit) = setExecute(listOf(a, b, c, d), execute)
-    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend T.(Args5<A, B, C, D, E>) -> Unit) = setExecute(listOf(a, b, c, d, e), execute)
+    fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit) = setExecute(listOf(), execute)
+    fun <A> execute(a: ArgumentType<A>, execute: suspend CommandEvent<Args1<A>>.() -> Unit) = setExecute(listOf(a), execute)
+    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend CommandEvent<Args2<A, B>>.() -> Unit) = setExecute(listOf(a, b), execute)
+    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend CommandEvent<Args3<A, B, C>>.() -> Unit) = setExecute(listOf(a, b, c), execute)
+    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend CommandEvent<Args4<A, B, C, D>>.() -> Unit) = setExecute(listOf(a, b, c, d), execute)
+    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend CommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = setExecute(listOf(a, b, c, d, e), execute)
 }
 
 /**
  * Get a command by its name (case insensitive).
  */
-operator fun MutableList<Command<*>>.get(name: String) = firstOrNull { name.toLowerCase() in it.names.map { it.toLowerCase() } }
+operator fun MutableList<Command>.get(name: String) = firstOrNull { name.toLowerCase() in it.names.map { it.toLowerCase() } }

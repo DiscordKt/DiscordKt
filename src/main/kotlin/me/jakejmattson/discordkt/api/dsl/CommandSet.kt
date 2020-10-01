@@ -18,13 +18,13 @@ fun commands(category: String, construct: CommandSetBuilder.() -> Unit) = Comman
  * @suppress Used in DSL
  */
 data class CommandSetBuilder(val discord: Discord, val category: String) {
-    private val commands = mutableListOf<Command<*>>()
+    private val commands = mutableListOf<Command>()
 
     /**
      * Create a global command.
      */
-    fun command(vararg names: String, body: Command<CommandEvent>.() -> Unit) {
-        val command = Command(CommandEvent::class, names.toList()).apply {
+    fun command(vararg names: String, body: Command.() -> Unit) {
+        val command = Command(names.toList()).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -35,6 +35,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
     /**
      * Create a guild command.
      */
+    /**
     fun guildCommand(vararg names: String, body: Command<GuildCommandEvent>.() -> Unit) {
         val command = Command(GuildCommandEvent::class, names.toList()).apply {
             this.category = this@CommandSetBuilder.category
@@ -43,10 +44,12 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
         command.body()
         commands.add(command)
     }
+    **/
 
     /**
      * Create a dm command.
      */
+    /**
     fun dmCommand(vararg names: String, body: Command<DmCommandEvent>.() -> Unit) {
         val command = Command(DmCommandEvent::class, names.toList()).apply {
             this.category = this@CommandSetBuilder.category
@@ -55,6 +58,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
         command.body()
         commands.add(command)
     }
+    **/
 
     internal fun registerCommands() {
         discord.commands.addAll(commands)

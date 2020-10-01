@@ -11,7 +11,7 @@ import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
-import me.jakejmattson.discordkt.api.Discord
+import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.arguments.*
 import me.jakejmattson.discordkt.api.services.ConversationResult
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
@@ -182,7 +182,7 @@ data class ConversationStateContainer(override val discord: Discord,
 
     private suspend fun <T> parseResponse(argumentType: ArgumentType<T>, message: Message): ArgumentResult<T> {
         val rawInputs = RawInputs(message.content, "", message.content.split(" "), 0)
-        val commandEvent = CommandEvent(rawInputs, discord, message, message.author!!, message.channel.asChannel(), guild = message.getGuildOrNull())
+        val commandEvent = CommandEvent<GenericContainer>(rawInputs, discord, message, message.author!!, message.channel.asChannel(), guild = message.getGuildOrNull())
         return argumentType.convert(message.content, commandEvent.rawInputs.commandArgs, commandEvent)
     }
 }
