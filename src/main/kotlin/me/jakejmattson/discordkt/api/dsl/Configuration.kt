@@ -53,9 +53,8 @@ data class BotConfiguration(
 ) {
     internal suspend fun hasPermission(command: Command, event: CommandEvent<*>) : Boolean {
         return when {
-            //TODO check viability
-            //command.isDmViable() && event.isFromGuild() -> false
-            //command.isGuildViable() && !event.isFromGuild() -> false
+            command is DmCommand && event.isFromGuild() -> false
+            command is GuildCommand && !event.isFromGuild() -> false
             else -> permissions.invoke(command, event.discord, event.author, event.channel, event.guild)
         }
     }
