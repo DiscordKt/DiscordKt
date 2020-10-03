@@ -91,6 +91,7 @@ class Bot(val api: Kord, private val globalPath: String) {
                 allowMentionPrefix = allowMentionPrefix,
                 showStartupLog = showStartupLog,
                 generateCommandDocs = generateCommandDocs,
+                recommendCommands = recommendCommands,
                 commandReaction = commandReaction,
                 theme = theme,
                 prefix = prefixFun,

@@ -16,6 +16,9 @@ internal object Recommender {
     }
 
     suspend fun sendRecommendation(event: CommandEvent<*>, input: String, possibilities: List<String>) {
+        if (!event.discord.configuration.recommendCommands)
+            return
+
         val recommendation = recommend(input, possibilities) ?: "<none>"
 
         event.respond {
@@ -29,23 +32,22 @@ internal object Recommender {
 private fun calculateLevenshteinDistance(left: String, right: String): Int {
     when {
         left == right -> return 0
-        left.isEmpty() -> right.length
-        right.isEmpty() -> left.length
+        left.isEmpty() -> return right.length
+        right.isEmpty() -> return left.length
     }
 
     val v0 = IntArray(right.length + 1) { it }
     val v1 = IntArray(right.length + 1)
 
-    for (i in left.indices) {
+    left.indices.forEach { i ->
         v1[0] = i + 1
 
-        for (j in right.indices) {
+        left.indices.forEach { j ->
             val cost = if (left[i] == right[j]) 0 else 1
-            v1[j + 1] = (v1[j] + 1).coerceAtMost((v0[j + 1] + 1).coerceAtMost(v0[j] + cost))
+            v1[j + 1] = maxOf(v1[j] + 1, v0[j + 1] + 1, v0[j] + cost)
         }
 
-        for (j in 0..right.length)
-            v0[j] = v1[j]
+        v1.copyInto(v0)
     }
 
     return v1[right.length]

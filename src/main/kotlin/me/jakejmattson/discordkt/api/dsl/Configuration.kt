@@ -44,6 +44,7 @@ data class BotConfiguration(
     val allowMentionPrefix: Boolean,
     val showStartupLog: Boolean,
     val generateCommandDocs: Boolean,
+    val recommendCommands: Boolean,
     val commandReaction: DiscordEmoji?,
     val theme: Color?,
 
@@ -66,6 +67,7 @@ data class BotConfiguration(
 data class SimpleConfiguration(var allowMentionPrefix: Boolean = false,
                                var showStartupLog: Boolean = true,
                                var generateCommandDocs: Boolean = true,
+                               var recommendCommands: Boolean = true,
                                var commandReaction: DiscordEmoji? = Emojis.eyes,
                                var theme: Color? = null)
 
