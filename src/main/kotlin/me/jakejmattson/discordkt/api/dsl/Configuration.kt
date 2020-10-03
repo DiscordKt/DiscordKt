@@ -64,7 +64,7 @@ data class BotConfiguration(
 /**
  * @suppress Used in sample
  */
-data class SimpleConfiguration(var allowMentionPrefix: Boolean = false,
+data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
                                var showStartupLog: Boolean = true,
                                var generateCommandDocs: Boolean = true,
                                var recommendCommands: Boolean = true,

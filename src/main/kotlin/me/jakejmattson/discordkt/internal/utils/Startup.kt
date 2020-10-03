@@ -103,8 +103,10 @@ class Bot(val api: Kord, private val globalPath: String) {
         val discord = buildDiscordClient(api, botConfiguration)
 
         initCore(discord)
-        discord.api.login(presenceFun)
-        startupFun.invoke(discord)
+        discord.api.login {
+            presenceFun.invoke(this)
+            startupFun.invoke(discord)
+        }
     }
 
     /**
