@@ -21,7 +21,7 @@ data class Args4<A, B, C, D>(val first: A, val second: B, val third: C, val four
 /** @suppress GenericContainer */
 data class Args5<A, B, C, D, E>(val first: A, val second: B, val third: C, val fourth: D, val fifth: E) : GenericContainer()
 
-internal fun bundleToArgContainer(arguments: List<Any?>) =
+internal fun bundleToContainer(arguments: List<Any?>) =
     when (arguments.size) {
         0 -> NoArgs()
         1 -> Args1(arguments[0])

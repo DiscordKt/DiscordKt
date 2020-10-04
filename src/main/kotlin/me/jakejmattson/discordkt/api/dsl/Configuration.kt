@@ -3,7 +3,6 @@
 package me.jakejmattson.discordkt.api.dsl
 
 import com.gitlab.kordlib.core.Kord
-import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
 import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.entity.channel.MessageChannel
 import com.gitlab.kordlib.kordx.emoji.*
@@ -37,6 +36,7 @@ suspend fun bot(token: String, operate: suspend Bot.() -> Unit) {
  * @property allowMentionPrefix Allow mentioning the bot to be used as a prefix '@Bot'.
  * @property showStartupLog Whether or not to display log information when the bot starts.
  * @property generateCommandDocs Whether or not command documentation should be generated.
+ * @property recommendCommands Whether or not to recommend the closest command when one fails.
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
  */
@@ -74,4 +74,4 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
 /**
  * @suppress Used in sample
  */
-data class PermissionContext(val command: Command, val discord: Discord, val user: User, val channel: MessageChannelBehavior, val guild: Guild?)
+data class PermissionContext(val command: Command, val discord: Discord, val user: User, val channel: MessageChannel, val guild: Guild?)

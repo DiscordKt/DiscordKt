@@ -9,8 +9,15 @@ import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.dsl.MenuBuilder
 import me.jakejmattson.discordkt.api.extensions.sanitiseMentions
 
+/**
+ * An interface for responding to input in a given context.
+ */
 interface Responder {
     val discord: Discord
+
+    /**
+     * The channel that this entity was invoked in.
+     */
     val channel: MessageChannelBehavior
 
     /**

@@ -29,7 +29,7 @@ internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<*>
     val expected = command.arguments as List<ArgumentType<Any>>
 
     val error = when (val initialConversion = convertArguments(actualArgs, expected, event)) {
-        is ConversionSuccess -> return ParseResult.Success(bundleToArgContainer(initialConversion.results))
+        is ConversionSuccess -> return ParseResult.Success(bundleToContainer(initialConversion.results))
         is ConversionError -> ParseResult.Error(initialConversion.error)
     }
 
@@ -62,7 +62,7 @@ internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<*>
 
     val orderedResult = expected.map { sortKey -> success.first { it.first == sortKey }.second }
 
-    return ParseResult.Success(bundleToArgContainer(orderedResult))
+    return ParseResult.Success(bundleToContainer(orderedResult))
 }
 
 private fun <E> MutableList<E>.generateAllPermutations(): List<List<E>> {

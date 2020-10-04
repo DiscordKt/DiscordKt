@@ -17,7 +17,7 @@ import me.jakejmattson.discordkt.internal.command.*
  *
  * @property parameterCount The number of arguments this command accepts.
  */
-open class Command(open val names: List<String>,
+sealed class Command(open val names: List<String>,
                    open var description: String = "<No Description>",
                    open var isFlexible: Boolean = false) {
 
@@ -35,8 +35,11 @@ open class Command(open val names: List<String>,
      *
      * @return The result of the parsing operation.
      */
-    suspend fun canParse(args: List<String>, event: CommandEvent<*>) = parseInputToBundle(this, event, args) is ParseResult.Success
+    suspend fun canParse(event: CommandEvent<*>, args: List<String>) = parseInputToBundle(this, event, args) is ParseResult.Success
 
+    /**
+     * Invoke this command with the given args.
+     */
     fun invoke(event: CommandEvent<GenericContainer>, args: List<String>) {
         GlobalScope.launch {
             when (val result = parseInputToBundle(this@Command, event, args)) {
@@ -49,12 +52,15 @@ open class Command(open val names: List<String>,
         }
     }
 
-    internal fun <T : CommandEvent<GenericContainer>> setExecute(argTypes: List<ArgumentType<*>>, event: suspend T.() -> Unit) {
+    protected fun <T : CommandEvent<GenericContainer>> setExecute(argTypes: List<ArgumentType<*>>, event: suspend T.() -> Unit) {
         arguments = argTypes
         execute = event as suspend CommandEvent<*>.() -> Unit
     }
 }
 
+/**
+ * A command that can be executed from anywhere.
+ */
 class GlobalCommand(override val names: List<String>,
                     override var description: String = "<No Description>",
                     override var isFlexible: Boolean = false) : Command(names, description, isFlexible) {
@@ -66,6 +72,9 @@ class GlobalCommand(override val names: List<String>,
     fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend CommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = setExecute(listOf(a, b, c, d, e), execute)
 }
 
+/**
+ * A command that can only be executed in a guild.
+ */
 class GuildCommand(override val names: List<String>,
                    override var description: String = "<No Description>",
                    override var isFlexible: Boolean = false) : Command(names, description, isFlexible) {
@@ -77,6 +86,9 @@ class GuildCommand(override val names: List<String>,
     fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend GuildCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = setExecute(listOf(a, b, c, d, e), execute)
 }
 
+/**
+ * A command that can only be executed in a DM.
+ */
 class DmCommand(override val names: List<String>,
                 override var description: String = "<No Description>",
                 override var isFlexible: Boolean = false) : Command(names, description, isFlexible) {

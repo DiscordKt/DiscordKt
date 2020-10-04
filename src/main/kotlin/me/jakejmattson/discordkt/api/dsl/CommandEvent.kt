@@ -43,13 +43,15 @@ open class DiscordContext(override val discord: Discord,
 }
 
 /**
- * A command execution event containing the [RawInputs] and the relevant [DiscordContext].
+ * A generic command execution event.
  *
  * @property rawInputs The [RawInputs] of the command.
  * @property discord The [Discord] instance.
- * @property author The User who invoked this command.
  * @property message The Message that invoked this command.
+ * @property author The User who invoked this command.
  * @property channel The MessageChannel this command was invoked in.
+ * @property guild The (nullable) guild this command was invoked in.
+ * @property args The parsed input to the command.
  * @property command The [Command] that is resolved from the invocation.
  */
 open class CommandEvent<T: GenericContainer>(
@@ -65,12 +67,22 @@ open class CommandEvent<T: GenericContainer>(
     val command
         get() = discord.commands[rawInputs.commandName]
 
+    /**
+     * Determine the relevant prefix in the current context.
+     */
     suspend fun prefix() = discord.configuration.prefix.invoke(DiscordContext(discord, message, guild, author, channel))
 
+    /**
+     * Clone this event's context data with new inputs.
+     */
     open fun clone(input: RawInputs) = CommandEvent<T>(input, discord, message, author, channel, guild)
+
     internal fun isFromGuild() = guild != null
 }
 
+/**
+ * An event that can only be fired in a guild.
+ */
 data class GuildCommandEvent<T: GenericContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
@@ -79,11 +91,14 @@ data class GuildCommandEvent<T: GenericContainer>(
     override val channel: TextChannel,
     override val guild: Guild) : CommandEvent<T>(rawInputs, discord, message, author, channel, guild)
 
+/**
+ * An event that can only be fired in a DM.
+ */
 data class DmCommandEvent<T: GenericContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     override val message: Message,
     override val author: User,
     override val channel: DmChannel,
-    @Deprecated("This field is always null in a DM. It only exists to fulfill the CommandEvent<*> contract.", level = DeprecationLevel.ERROR)
+    @Deprecated("There is no guild within a DmCommandEvent.", level = DeprecationLevel.ERROR)
     override val guild: Guild? = null) : CommandEvent<T>(rawInputs, discord, message, author, channel, null)
