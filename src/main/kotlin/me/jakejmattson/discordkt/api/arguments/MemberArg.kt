@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import com.gitlab.kordlib.core.entity.Member
-import me.jakejmattson.discordkt.api.dsl.*
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 
 /**

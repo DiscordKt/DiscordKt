@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.*
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 
 /**
  * Accepts an integer within a pre-defined range.

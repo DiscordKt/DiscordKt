@@ -6,7 +6,6 @@ import com.gitlab.kordlib.core.Kord
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import me.jakejmattson.discordkt.api.dsl.*
-import me.jakejmattson.discordkt.internal.utils.diService
 import kotlin.reflect.KClass
 
 /**

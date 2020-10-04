@@ -4,7 +4,6 @@ import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
 import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.entity.channel.*
 import me.jakejmattson.discordkt.api.*
-import me.jakejmattson.discordkt.internal.utils.Responder
 
 /**
  * Data class containing the raw information from the command execution.
@@ -54,7 +53,7 @@ open class DiscordContext(override val discord: Discord,
  * @property args The parsed input to the command.
  * @property command The [Command] that is resolved from the invocation.
  */
-open class CommandEvent<T: GenericContainer>(
+open class CommandEvent<T : GenericContainer>(
     open val rawInputs: RawInputs,
     override val discord: Discord,
     open val message: Message,
@@ -62,7 +61,7 @@ open class CommandEvent<T: GenericContainer>(
     override val channel: MessageChannel,
     open val guild: Guild?) : Responder {
 
-    lateinit var args : T
+    lateinit var args: T
 
     val command
         get() = discord.commands[rawInputs.commandName]
@@ -83,7 +82,7 @@ open class CommandEvent<T: GenericContainer>(
 /**
  * An event that can only be fired in a guild.
  */
-data class GuildCommandEvent<T: GenericContainer>(
+data class GuildCommandEvent<T : GenericContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     override val message: Message,
@@ -94,7 +93,7 @@ data class GuildCommandEvent<T: GenericContainer>(
 /**
  * An event that can only be fired in a DM.
  */
-data class DmCommandEvent<T: GenericContainer>(
+data class DmCommandEvent<T : GenericContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     override val message: Message,

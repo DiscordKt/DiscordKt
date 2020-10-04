@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import com.gitlab.kordlib.kordx.emoji.*
-import me.jakejmattson.discordkt.api.dsl.*
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 
 /**
  * Accepts a unicode emoji.

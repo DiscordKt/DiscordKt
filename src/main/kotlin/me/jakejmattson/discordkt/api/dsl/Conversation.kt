@@ -15,7 +15,6 @@ import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.arguments.*
 import me.jakejmattson.discordkt.api.services.ConversationResult
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
-import me.jakejmattson.discordkt.internal.utils.Responder
 
 private class ExitException : Exception("Conversation exited early.")
 private class DmException : Exception("Message failed to deliver.")

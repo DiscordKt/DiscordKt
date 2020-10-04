@@ -2,33 +2,12 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
-import com.gitlab.kordlib.core.Kord
 import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.entity.channel.MessageChannel
 import com.gitlab.kordlib.kordx.emoji.*
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
-import me.jakejmattson.discordkt.internal.utils.Bot
 import java.awt.Color
-
-/**
- * Create an instance of your Discord bot! You can use the following blocks to modify bot configuration:
- * [configure][Bot.configure],
- * [prefix][Bot.prefix],
- * [mentionEmbed][Bot.mentionEmbed],
- * [permissions][Bot.permissions],
- * [presence][Bot.presence]
- *
- * @param token Your Discord bot token.
- */
-@ConfigurationDSL
-suspend fun bot(token: String, operate: suspend Bot.() -> Unit) {
-    val path = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
-    val bot = Bot(Kord(token), path)
-    bot.operate()
-    bot.buildBot()
-}
 
 /**
  * Contains all properties configured when the bot is created.
@@ -52,7 +31,7 @@ data class BotConfiguration(
     internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
     private val permissions: suspend (Command, Discord, User, MessageChannel, Guild?) -> Boolean
 ) {
-    internal suspend fun hasPermission(command: Command, event: CommandEvent<*>) : Boolean {
+    internal suspend fun hasPermission(command: Command, event: CommandEvent<*>): Boolean {
         return when {
             command is DmCommand && event.isFromGuild() -> false
             command is GuildCommand && !event.isFromGuild() -> false

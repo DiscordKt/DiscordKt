@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.*
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 
 /**
  * Consumes all arguments and returns a list of the results (split by splitter character).

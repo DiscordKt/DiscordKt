@@ -9,7 +9,7 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
 /**
  * Intermediate result of manual parsing.
  */
-sealed class ParseResult {
+internal sealed class ParseResult {
     /**
      * The parsing succeeded.
      *

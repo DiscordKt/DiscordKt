@@ -13,7 +13,7 @@ internal fun produceHelpCommand() = commands("Utility") {
             val color = discord.configuration.theme
 
             when {
-                query.isEmpty() -> sendDefaultEmbed(this, color)
+                query.isEmpty -> sendDefaultEmbed(this, color)
                 query.isCommand(this) -> sendCommandEmbed(discord.commands[query]!!, this, query, color)
                 else -> Recommender.sendRecommendation(this, query, fetchVisibleCommands(this).flatMap { it.names })
             }

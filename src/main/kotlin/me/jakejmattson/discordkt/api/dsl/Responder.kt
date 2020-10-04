@@ -1,12 +1,11 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.internal.utils
+package me.jakejmattson.discordkt.api.dsl
 
 import com.gitlab.kordlib.core.behavior.channel.*
 import com.gitlab.kordlib.core.entity.Message
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.dsl.MenuBuilder
 import me.jakejmattson.discordkt.api.extensions.sanitiseMentions
 
 /**

@@ -32,8 +32,8 @@ internal object Recommender {
 private fun calculateLevenshteinDistance(left: String, right: String): Int {
     when {
         left == right -> return 0
-        left.isEmpty() -> return right.length
-        right.isEmpty() -> return left.length
+        left.isEmpty -> return right.length
+        right.isEmpty -> return left.length
     }
 
     val v0 = IntArray(right.length + 1) { it }

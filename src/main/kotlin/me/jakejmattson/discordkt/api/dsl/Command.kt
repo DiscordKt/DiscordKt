@@ -18,8 +18,8 @@ import me.jakejmattson.discordkt.internal.command.*
  * @property parameterCount The number of arguments this command accepts.
  */
 sealed class Command(open val names: List<String>,
-                   open var description: String = "<No Description>",
-                   open var isFlexible: Boolean = false) {
+                     open var description: String = "<No Description>",
+                     open var isFlexible: Boolean = false) {
 
     var category: String = ""
     var arguments: List<ArgumentType<*>> = emptyList()

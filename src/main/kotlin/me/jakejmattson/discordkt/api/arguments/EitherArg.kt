@@ -2,7 +2,7 @@
 
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.*
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 
 internal data class Left<out L>(val data: L) : Either<L, Nothing>()
 internal data class Right<out R>(val data: R) : Either<Nothing, R>()

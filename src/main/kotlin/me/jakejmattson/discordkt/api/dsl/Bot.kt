@@ -1,4 +1,4 @@
-package me.jakejmattson.discordkt.internal.utils
+package me.jakejmattson.discordkt.api.dsl
 
 import com.gitlab.kordlib.core.Kord
 import com.gitlab.kordlib.core.entity.*
@@ -7,16 +7,34 @@ import com.gitlab.kordlib.gateway.builder.PresenceBuilder
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.annotations.Service
-import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.pluralize
 import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.listeners.*
 import me.jakejmattson.discordkt.internal.services.*
+import me.jakejmattson.discordkt.internal.utils.*
 import kotlin.system.exitProcess
 
 @PublishedApi
 internal val diService = InjectionService()
+
+/**
+ * Create an instance of your Discord bot! You can use the following blocks to modify bot configuration:
+ * [configure][Bot.configure],
+ * [prefix][Bot.prefix],
+ * [mentionEmbed][Bot.mentionEmbed],
+ * [permissions][Bot.permissions],
+ * [presence][Bot.presence]
+ *
+ * @param token Your Discord bot token.
+ */
+@ConfigurationDSL
+suspend fun bot(token: String, operate: suspend Bot.() -> Unit) {
+    val path = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
+    val bot = Bot(Kord(token), path)
+    bot.operate()
+    bot.buildBot()
+}
 
 /**
  * Backing class for [bot] function.
@@ -175,8 +193,7 @@ class Bot(val api: Kord, private val globalPath: String) {
     private fun registerHelpCommand(discord: Discord) = discord.commands["Help"]
         ?: produceHelpCommand().registerCommands(discord)
 
-    private fun registerData() = ReflectionUtils
-        .detectSubtypesOf<Data>(globalPath)
+    private fun registerData() = ReflectionUtils.detectSubtypesOf<Data>(globalPath)
         .map {
             val default = it.getConstructor().newInstance()
 
