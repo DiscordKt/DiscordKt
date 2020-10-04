@@ -5,9 +5,6 @@ import java.awt.Color
 
 internal object Recommender {
     private fun recommend(input: String, possibilities: List<String>): String? {
-        if (possibilities.isEmpty())
-            return null
-
         val (closestMatch, distance) = possibilities
             .map { it to calculateLevenshteinDistance(input, it) }
             .minByOrNull { it.second }!!
@@ -16,7 +13,9 @@ internal object Recommender {
     }
 
     suspend fun sendRecommendation(event: CommandEvent<*>, input: String, possibilities: List<String>) {
-        if (!event.discord.configuration.recommendCommands)
+        val shouldRecommend = event.discord.configuration.recommendCommands
+
+        if (possibilities.isEmpty() || !shouldRecommend)
             return
 
         val recommendation = recommend(input, possibilities) ?: "<none>"

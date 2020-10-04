@@ -5,6 +5,7 @@ import me.jakejmattson.discordkt.api.dsl.*
 import org.reflections.Reflections
 import org.reflections.scanners.*
 import java.lang.reflect.Method
+import kotlin.reflect.KClass
 
 internal object ReflectionUtils {
     fun registerFunctions(path: String, discord: Discord) {
@@ -24,4 +25,7 @@ internal object ReflectionUtils {
 }
 
 internal val Class<*>.simplerName
-    get() = simpleName.substringAfterLast(".")
+    get() = simpleName.substringAfterLast(".").substringBefore("$")
+
+internal val KClass<*>.simplerName
+    get() = java.simplerName

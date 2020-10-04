@@ -3,7 +3,7 @@
 package me.jakejmattson.discordkt.api.dsl
 
 import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
+import me.jakejmattson.discordkt.internal.annotations.*
 
 /**
  * Create a block for registering commands.
@@ -23,6 +23,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
     /**
      * Create a global command.
      */
+    @InnerDSL
     fun command(vararg names: String, body: GlobalCommand.() -> Unit) {
         val command = GlobalCommand(names.toList()).apply {
             this.category = this@CommandSetBuilder.category
@@ -35,6 +36,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
     /**
      * Create a guild command.
      */
+    @InnerDSL
     fun guildCommand(vararg names: String, body: GuildCommand.() -> Unit) {
         val command = GuildCommand(names.toList()).apply {
             this.category = this@CommandSetBuilder.category
@@ -47,6 +49,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
     /**
      * Create a dm command.
      */
+    @InnerDSL
     fun dmCommand(vararg names: String, body: DmCommand.() -> Unit) {
         val command = DmCommand(names.toList()).apply {
             this.category = this@CommandSetBuilder.category

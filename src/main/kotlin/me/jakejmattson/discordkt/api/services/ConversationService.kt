@@ -55,7 +55,7 @@ class ConversationService(val discord: Discord) {
         ReflectionUtils.detectSubtypesOf<Conversation>(path)
             .forEach { conversationClass ->
                 val relevantStartFunctions = startFunctions.filter { it.declaringClass == conversationClass }
-                val conversationName = conversationClass.name.substringAfterLast(".")
+                val conversationName = conversationClass.simplerName
 
                 val starter = when (relevantStartFunctions.size) {
                     0 -> {

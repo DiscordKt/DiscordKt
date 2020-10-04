@@ -32,7 +32,7 @@ internal class Validator {
 
                 args.filterIsInstance<EitherArg<*, *>>().forEach {
                     if (it.left == it.right) {
-                        val arg = it.left::class.toString().substringAfterLast(".").substringBefore("$")
+                        val arg = it.left::class.simplerName
                         InternalLogger.error("Detected EitherArg with identical args ($arg) in command: $commandName")
                     }
                 }
