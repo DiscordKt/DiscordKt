@@ -6,7 +6,7 @@ import java.awt.Color
 internal object Recommender {
     private fun recommend(input: String, possibilities: List<String>): String? {
         val (closestMatch, distance) = possibilities
-            .map { it to calculateLevenshteinDistance(input, it) }
+            .map { it to input.levenshteinDistanceTo(it) }
             .minByOrNull { it.second }!!
 
         return closestMatch.takeUnless { distance > input.length / 2 + 2 }
@@ -28,26 +28,23 @@ internal object Recommender {
     }
 }
 
-private fun calculateLevenshteinDistance(left: String, right: String): Int {
-    when {
-        left == right -> return 0
-        left.isEmpty -> return right.length
-        right.isEmpty -> return left.length
+private fun String.levenshteinDistanceTo(other: String) = when {
+    this == other -> 0
+    this == "" -> other.length
+    other == "" -> this.length
+    else -> {
+        val initialRow = (0 until other.length + 1).map { it }
+
+        (indices).fold(initialRow, { previous, u ->
+            (other.indices).fold(mutableListOf(u + 1), { row, v ->
+                row.apply {
+                    add(minOf(
+                        row.last() + 1,
+                        previous[v + 1] + 1,
+                        previous[v] + if (this@levenshteinDistanceTo[u] == other[v]) 0 else 1
+                    ))
+                }
+            })
+        }).last()
     }
-
-    val v0 = IntArray(right.length + 1) { it }
-    val v1 = IntArray(right.length + 1)
-
-    left.indices.forEach { i ->
-        v1[0] = i + 1
-
-        left.indices.forEach { j ->
-            val cost = if (left[i] == right[j]) 0 else 1
-            v1[j + 1] = maxOf(v1[j] + 1, v0[j + 1] + 1, v0[j] + cost)
-        }
-
-        v1.copyInto(v0)
-    }
-
-    return v1[right.length]
 }
