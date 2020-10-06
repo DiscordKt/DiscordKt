@@ -9,7 +9,7 @@ import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
  *
  * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
  */
-open class ChannelArg<T : GuildChannel>(override val name: String = "Text Channel", private val allowsGlobal: Boolean = false) : ArgumentType<T>() {
+open class ChannelArg<T : GuildChannel>(override val name: String = "Channel", private val allowsGlobal: Boolean = false) : ArgumentType<T>() {
     /**
      * Accepts a Discord TextChannel entity as an ID or mention from within this guild.
      */
