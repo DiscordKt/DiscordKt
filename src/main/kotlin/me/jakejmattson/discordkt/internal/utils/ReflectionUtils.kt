@@ -7,19 +7,19 @@ import org.reflections.scanners.*
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
+internal interface BuilderRegister {
+    fun register(discord: Discord)
+}
+
 internal object ReflectionUtils {
     fun registerFunctions(path: String, discord: Discord) {
-        detectMethodsReturning<CommandSet>(path).forEach {
-            diService.invokeMethod<CommandSet>(it).registerCommands(discord)
-        }
+        register<CommandSet>(path, discord)
+        register<Listeners>(path, discord)
+        register<Preconditions>(path, discord)
+    }
 
-        detectMethodsReturning<Listeners>(path).forEach {
-            diService.invokeMethod<Listeners>(it).registerListeners(discord)
-        }
-
-        detectMethodsReturning<Preconditions>(path).forEach {
-            diService.invokeMethod<Preconditions>(it).register(discord)
-        }
+    private inline fun <reified T : BuilderRegister> register(path: String, discord: Discord) = detectMethodsReturning<T>(path).forEach {
+        diService.invokeMethod<T>(it).register(discord)
     }
 
     inline fun <reified T : Annotation> detectClassesWith(path: String): Set<Class<*>> = Reflections(path).getTypesAnnotatedWith(T::class.java)

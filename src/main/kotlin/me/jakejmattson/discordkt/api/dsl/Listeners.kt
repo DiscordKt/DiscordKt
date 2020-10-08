@@ -6,6 +6,7 @@ import com.gitlab.kordlib.core.event.Event
 import com.gitlab.kordlib.core.on
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.internal.annotations.*
+import me.jakejmattson.discordkt.internal.utils.BuilderRegister
 
 /**
  * Create a block for registering listeners.
@@ -33,8 +34,8 @@ data class ListenerBuilder(val discord: Discord) {
 /**
  * This is not for you...
  */
-data class Listeners(private val collector: ListenerBuilder.() -> Unit) {
-    internal fun registerListeners(discord: Discord) {
+data class Listeners(private val collector: ListenerBuilder.() -> Unit) :BuilderRegister {
+    override fun register(discord: Discord) {
         collector.invoke(ListenerBuilder(discord))
     }
 }

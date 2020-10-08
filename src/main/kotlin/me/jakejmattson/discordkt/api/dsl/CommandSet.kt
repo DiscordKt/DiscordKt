@@ -4,6 +4,7 @@ package me.jakejmattson.discordkt.api.dsl
 
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.internal.annotations.*
+import me.jakejmattson.discordkt.internal.utils.BuilderRegister
 
 /**
  * Create a block for registering commands.
@@ -67,8 +68,8 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
 /**
  * This is not for you...
  */
-data class CommandSet(private val category: String, private val collector: CommandSetBuilder.() -> Unit) {
-    internal fun registerCommands(discord: Discord) {
+data class CommandSet(private val category: String, private val collector: CommandSetBuilder.() -> Unit) : BuilderRegister {
+    override fun register(discord: Discord) {
         val commandSetBuilder = CommandSetBuilder(discord, category)
         collector.invoke(commandSetBuilder)
         commandSetBuilder.registerCommands()

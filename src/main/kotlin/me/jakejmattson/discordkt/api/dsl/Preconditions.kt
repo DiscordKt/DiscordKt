@@ -4,6 +4,7 @@ package me.jakejmattson.discordkt.api.dsl
 
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.internal.annotations.*
+import me.jakejmattson.discordkt.internal.utils.BuilderRegister
 
 /** @suppress Redundant doc */
 interface PreconditionResult
@@ -37,8 +38,8 @@ data class PreconditionBuilder(val discord: Discord) {
 /**
  * This is not for you...
  */
-data class Preconditions(private val collector: PreconditionBuilder.() -> Unit) {
-    internal fun register(discord: Discord) {
+data class Preconditions(private val collector: PreconditionBuilder.() -> Unit) : BuilderRegister {
+    override fun register(discord: Discord) {
         val preconditionBuilder = PreconditionBuilder(discord)
         collector.invoke(preconditionBuilder)
     }

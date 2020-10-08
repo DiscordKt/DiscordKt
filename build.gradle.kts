@@ -1,5 +1,4 @@
 import org.jetbrains.dokka.Platform
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "me.jakejmattson"
 version = "0.21.0-SNAPSHOT"
@@ -40,7 +39,7 @@ dependencies {
 tasks {
     val resourcePath = "src/main/resources"
 
-    withType<KotlinCompile> {
+    compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }
 

@@ -188,8 +188,7 @@ class Bot(val api: Kord, private val globalPath: String) {
     }
 
     private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(globalPath).apply { diService.buildAllRecursively(this) }
-    private fun registerHelpCommand(discord: Discord) = discord.commands["Help"]
-        ?: produceHelpCommand().registerCommands(discord)
+    private fun registerHelpCommand(discord: Discord) = discord.commands["Help"] ?: produceHelpCommand().register(discord)
 
     private fun registerData() = ReflectionUtils.detectSubtypesOf<Data>(globalPath)
         .map {
