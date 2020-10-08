@@ -47,7 +47,7 @@ sealed class Command(open val names: List<String>,
                     event.args = result.argumentContainer
                     execute.invoke(event)
                 }
-                is ParseResult.Error -> event.respond(result.reason)
+                is Fail -> event.respond(result.reason)
             }
         }
     }

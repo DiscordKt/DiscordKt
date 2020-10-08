@@ -15,16 +15,9 @@ abstract class Precondition(val priority: Int = 5) {
 }
 
 /** @suppress Redundant doc */
-sealed class PreconditionResult
+interface PreconditionResult
 
 /**
  * Object indicating that this precondition has passed.
  */
-object Pass : PreconditionResult()
-
-/**
- * Object indicating that this precondition has failed.
- *
- * @param reason The reason for failure.
- */
-data class Fail(val reason: String = "") : PreconditionResult()
+object Pass : PreconditionResult

@@ -9,20 +9,13 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
 /**
  * Intermediate result of manual parsing.
  */
-internal sealed class ParseResult {
+internal interface ParseResult {
     /**
      * The parsing succeeded.
      *
      * @param argumentContainer The parsing results.
      */
-    data class Success(val argumentContainer: GenericContainer) : ParseResult()
-
-    /**
-     * The parsing failed.
-     *
-     * @param reason The reason for the failure.
-     */
-    data class Error(val reason: String) : ParseResult()
+    data class Success(val argumentContainer: GenericContainer) : ParseResult
 }
 
 internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<*>, actualArgs: List<String>): ParseResult {
@@ -30,7 +23,7 @@ internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<*>
 
     val error = when (val initialConversion = convertArguments(actualArgs, expected, event)) {
         is ConversionSuccess -> return ParseResult.Success(bundleToContainer(initialConversion.results))
-        is ConversionError -> ParseResult.Error(initialConversion.error)
+        is ConversionError -> Fail(initialConversion.error)
     }
 
     if (!command.isFlexible || expected.size < 2)

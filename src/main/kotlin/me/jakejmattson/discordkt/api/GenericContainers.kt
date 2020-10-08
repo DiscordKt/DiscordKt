@@ -1,25 +1,28 @@
 package me.jakejmattson.discordkt.api
 
+import me.jakejmattson.discordkt.api.dsl.PreconditionResult
+import me.jakejmattson.discordkt.internal.command.ParseResult
+
 /** A container for generic data that saves type information. */
-open class GenericContainer
+interface GenericContainer
 
 /** @suppress GenericContainer */
-class NoArgs : GenericContainer()
+class NoArgs : GenericContainer
 
 /** @suppress GenericContainer */
-data class Args1<T>(val first: T) : GenericContainer()
+data class Args1<A>(val first: A) : GenericContainer
 
 /** @suppress GenericContainer */
-data class Args2<A, B>(val first: A, val second: B) : GenericContainer()
+data class Args2<A, B>(val first: A, val second: B) : GenericContainer
 
 /** @suppress GenericContainer */
-data class Args3<A, B, C>(val first: A, val second: B, val third: C) : GenericContainer()
+data class Args3<A, B, C>(val first: A, val second: B, val third: C) : GenericContainer
 
 /** @suppress GenericContainer */
-data class Args4<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D) : GenericContainer()
+data class Args4<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D) : GenericContainer
 
 /** @suppress GenericContainer */
-data class Args5<A, B, C, D, E>(val first: A, val second: B, val third: C, val fourth: D, val fifth: E) : GenericContainer()
+data class Args5<A, B, C, D, E>(val first: A, val second: B, val third: C, val fourth: D, val fifth: E) : GenericContainer
 
 internal fun bundleToContainer(arguments: List<Any?>) =
     when (arguments.size) {
@@ -31,3 +34,10 @@ internal fun bundleToContainer(arguments: List<Any?>) =
         5 -> Args5(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4])
         else -> throw IllegalArgumentException("Cannot handle (${arguments.size}) arguments.")
     }
+
+/**
+ * Object indicating that an operation has failed.
+ *
+ * @param reason The reason for failure.
+ */
+data class Fail(val reason: String = "") : PreconditionResult, ParseResult
