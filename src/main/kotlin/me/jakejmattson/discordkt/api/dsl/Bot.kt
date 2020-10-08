@@ -63,10 +63,10 @@ class Bot(val api: Kord, private val globalPath: String) {
         val dataSize = registerData()
         val conversationService = ConversationService(discord).apply { diService.inject(this) }
         val services = registerServices()
-        val preconditions = ReflectionUtils.registerFunctions(globalPath, discord)
 
+        ReflectionUtils.registerFunctions(globalPath, discord)
         registerReactionListener(discord.api, conversationService)
-        registerCommandListener(discord, preconditions)
+        registerCommandListener(discord)
 
         val commandSets = discord.commands.groupBy { it.category }.keys.size
 
@@ -74,7 +74,7 @@ class Bot(val api: Kord, private val globalPath: String) {
             InternalLogger.log(commandSets.pluralize("CommandSet") + " -> " + discord.commands.size.pluralize("Command"))
             InternalLogger.log(dataSize.pluralize("Data"))
             InternalLogger.log(services.size.pluralize("Service"))
-            InternalLogger.log(preconditions.size.pluralize("Precondition"))
+            InternalLogger.log(discord.preconditions.size.pluralize("Precondition"))
         }
 
         registerHelpCommand(discord)

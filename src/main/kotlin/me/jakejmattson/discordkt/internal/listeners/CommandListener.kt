@@ -12,7 +12,7 @@ import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.command.*
 import me.jakejmattson.discordkt.internal.utils.Recommender
 
-internal suspend fun registerCommandListener(discord: Discord, preconditions: List<Precondition>) = discord.api.on<MessageCreateEvent> {
+internal suspend fun registerCommandListener(discord: Discord) = discord.api.on<MessageCreateEvent> {
     val config = discord.configuration
     val self = kord.selfId.longValue
     val author = message.author ?: return@on
@@ -50,7 +50,7 @@ internal suspend fun registerCommandListener(discord: Discord, preconditions: Li
     else
         DmCommandEvent(rawInputs, discord, message, author, channel as DmChannel)
 
-    val errors = preconditions
+    val errors = discord.preconditions
         .map { it.evaluate(event) }
         .filterIsInstance<Fail>()
         .map { it.reason }
