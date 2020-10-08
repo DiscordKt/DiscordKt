@@ -63,9 +63,8 @@ class Bot(val api: Kord, private val globalPath: String) {
         val dataSize = registerData()
         val conversationService = ConversationService(discord).apply { diService.inject(this) }
         val services = registerServices()
-        val preconditions = buildPreconditions().sortedBy { it.priority }
+        val preconditions = ReflectionUtils.registerFunctions(globalPath, discord)
 
-        ReflectionUtils.registerFunctions(globalPath, discord)
         registerReactionListener(discord.api, conversationService)
         registerCommandListener(discord, preconditions)
 
@@ -188,7 +187,6 @@ class Bot(val api: Kord, private val globalPath: String) {
         startupBundle.onStart = start
     }
 
-    private fun buildPreconditions() = ReflectionUtils.detectSubtypesOf<Precondition>(globalPath).map { diService.invokeConstructor(it) }
     private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(globalPath).apply { diService.buildAllRecursively(this) }
     private fun registerHelpCommand(discord: Discord) = discord.commands["Help"]
         ?: produceHelpCommand().registerCommands(discord)

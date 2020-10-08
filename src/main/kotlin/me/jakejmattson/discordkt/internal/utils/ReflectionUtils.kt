@@ -8,13 +8,17 @@ import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
 internal object ReflectionUtils {
-    fun registerFunctions(path: String, discord: Discord) {
+    fun registerFunctions(path: String, discord: Discord): List<Precondition> {
         detectMethodsReturning<CommandSet>(path).forEach {
             diService.invokeMethod<CommandSet>(it).registerCommands(discord)
         }
 
         detectMethodsReturning<Listeners>(path).forEach {
             diService.invokeMethod<Listeners>(it).registerListeners(discord)
+        }
+
+        return detectMethodsReturning<Precondition>(path).map {
+            diService.invokeMethod(it)
         }
     }
 
