@@ -6,14 +6,6 @@ import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.internal.annotations.*
 import me.jakejmattson.discordkt.internal.utils.BuilderRegister
 
-/** @suppress Redundant doc */
-interface PreconditionResult
-
-/**
- * Object indicating that this precondition has passed.
- */
-object Pass : PreconditionResult
-
 /**
  * Create a block for registering preconditions.
  *
@@ -30,8 +22,17 @@ data class PreconditionBuilder(val discord: Discord) {
      * Create a new precondition.
      */
     @InnerDSL
-    fun evaluate(priority: Int = 5, condition: suspend CommandEvent<*>.() -> PreconditionResult) {
+    fun check(priority: Int = 5, condition: suspend CommandEvent<*>.() -> Unit) {
         discord.preconditions.add(Precondition(priority, condition))
+    }
+
+    /**
+     * Fail this precondition.
+     *
+     * @param reason The reason for failure.
+     */
+    fun fail(reason: String = "") {
+        throw Exception(reason)
     }
 }
 
@@ -48,6 +49,6 @@ data class Preconditions(private val collector: PreconditionBuilder.() -> Unit) 
 /**
  * This is not for you...
  */
-data class Precondition(val priority: Int, private val construct: suspend CommandEvent<*>.() -> PreconditionResult) {
-    internal suspend fun evaluate(event: CommandEvent<*>) = construct.invoke(event)
+data class Precondition(val priority: Int, private val construct: suspend CommandEvent<*>.() -> Unit) {
+    internal suspend fun check(event: CommandEvent<*>) = construct.invoke(event)
 }

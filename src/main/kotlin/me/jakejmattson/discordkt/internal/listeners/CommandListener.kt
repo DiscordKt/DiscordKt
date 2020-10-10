@@ -51,9 +51,15 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.api.on<
         DmCommandEvent(rawInputs, discord, message, author, channel as DmChannel)
 
     val errors = discord.preconditions
-        .map { it.evaluate(event) }
-        .filterIsInstance<Fail>()
-        .map { it.reason }
+        .mapNotNull {
+            try {
+                it.check(event)
+                null
+            }
+            catch (e: Exception) {
+                e.message ?: ""
+            }
+        }
 
     if (errors.isNotEmpty()) {
         errors.firstOrNull { it.isNotBlank() }?.let { event.respond(it) }

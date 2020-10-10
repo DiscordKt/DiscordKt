@@ -1,6 +1,5 @@
 package me.jakejmattson.discordkt.api
 
-import me.jakejmattson.discordkt.api.dsl.PreconditionResult
 import me.jakejmattson.discordkt.internal.command.ParseResult
 
 /** A container for generic data that saves type information. */
@@ -40,4 +39,4 @@ internal fun bundleToContainer(arguments: List<Any?>) =
  *
  * @param reason The reason for failure.
  */
-data class Fail(val reason: String = "") : PreconditionResult, ParseResult
+data class Fail(val reason: String = "") : ParseResult

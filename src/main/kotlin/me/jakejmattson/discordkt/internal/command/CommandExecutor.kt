@@ -32,9 +32,12 @@ internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<*>
     val successList = expected
         .toMutableList()
         .generateAllPermutations()
-        .map { it to convertArguments(actualArgs, it, event) }
-        .filter { it.second is ConversionSuccess }
-        .map { it.first to (it.second as ConversionSuccess).results }
+        .mapNotNull {
+            when (val conversion = convertArguments(actualArgs, it, event)) {
+                is ConversionSuccess -> it to conversion.results
+                else -> null
+            }
+        }
         .map { (argumentTypes, results) -> argumentTypes.zip(results) }
 
     val success = when (successList.size) {
