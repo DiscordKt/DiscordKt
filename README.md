@@ -19,7 +19,7 @@
 The documentation for this project is currently WIP. 
 The best source for learning the framework is by joining the Discord, or checking existing bots.
 
-#### Maven
+### Maven
 ```xml
 <repository>
     <id>Sonatype Snapshots</id>
@@ -32,8 +32,7 @@ The best source for learning the framework is by joining the Discord, or checkin
     <version>0.21.0-SNAPSHOT</version>
 </dependency>
 ```
-
-#### Gradle
+### Gradle
 ```groovy
 maven {
     url 'https://oss.sonatype.org/content/repositories/snapshots/'

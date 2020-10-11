@@ -51,7 +51,7 @@ tasks {
         rename { "README.md" }
         expand(
             "badges" to README.badges,
-            "imports" to README.createImport(group.toString(), version.toString())
+            "imports" to README.createImport(group.toString(), version.toString(), isSnapshot)
         )
     }
 
