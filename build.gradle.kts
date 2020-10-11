@@ -52,7 +52,9 @@ tasks {
         expand(
             "group" to group,
             "project" to Constants.projectName,
-            "version" to version
+            "version" to version,
+            "kotlin" to Versions.kotlin,
+            "kord" to Versions.kord
         )
     }
 
