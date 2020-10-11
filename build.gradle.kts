@@ -44,17 +44,14 @@ tasks {
     }
 
     copy {
-        val path = "$resourcePath/templates/readme-" + (if (isSnapshot) "snapshot" else "release") + ".md"
+        val path = "$resourcePath/templates/readme.md"
 
         from(file(path))
         into(file("."))
         rename { "README.md" }
         expand(
-            "group" to group,
-            "project" to Constants.projectName,
-            "version" to version,
-            "kotlin" to Versions.kotlin,
-            "kord" to Versions.kord
+            "badges" to README.badges,
+            "imports" to README.createImport(group.toString(), version.toString())
         )
     }
 
