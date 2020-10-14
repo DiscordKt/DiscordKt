@@ -30,7 +30,7 @@ data class RawInputs(
  * @property channel The MessageChannel this command was invoked in.
  * @property prefix The prefix used to invoke this command.
  */
-open class DiscordContext(override val discord: Discord,
+open class DiscordContext(val discord: Discord,
                           open val message: Message,
                           open val guild: Guild?,
                           val author: User = message.author!!,
@@ -55,7 +55,7 @@ open class DiscordContext(override val discord: Discord,
  */
 open class CommandEvent<T : GenericContainer>(
     open val rawInputs: RawInputs,
-    override val discord: Discord,
+    open val discord: Discord,
     open val message: Message,
     open val author: User,
     override val channel: MessageChannel,

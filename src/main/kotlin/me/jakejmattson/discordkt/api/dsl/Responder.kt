@@ -12,8 +12,6 @@ import me.jakejmattson.discordkt.api.extensions.sanitiseMentions
  * An interface for responding to input in a given context.
  */
 interface Responder {
-    val discord: Discord
-
     /**
      * The channel that this entity was invoked in.
      */
@@ -22,12 +20,12 @@ interface Responder {
     /**
      * Send this message with no sanitization.
      */
-    suspend fun unsafeRespond(message: Any) = chunkRespond(message.toString())
+    suspend fun respond(message: Any) = chunkRespond(message.toString())
 
     /**
      * Respond with a message and sanitize mentions.
      */
-    suspend fun respond(message: Any) = chunkRespond(message.toString().sanitiseMentions(discord))
+    suspend fun safeRespond(discord: Discord, message: Any) = chunkRespond(message.toString().sanitiseMentions(discord))
 
     /**
      * Respond with an embed.

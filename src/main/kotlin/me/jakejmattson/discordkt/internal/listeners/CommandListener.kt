@@ -8,7 +8,6 @@ import com.gitlab.kordlib.kordx.emoji.toReaction
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.trimToID
-import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.command.*
 import me.jakejmattson.discordkt.internal.utils.Recommender
 
@@ -18,7 +17,6 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.api.on<
     val author = message.author ?: return@on
     val discordContext = DiscordContext(discord, message, getGuild())
     val prefix = config.prefix.invoke(discordContext)
-    val conversationService = discord.getInjectionObjects(ConversationService::class)
     val channel = message.channel.asChannel()
     val content = message.content
 
@@ -36,19 +34,16 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.api.on<
             return@on
         }
         content.mentionsSelf() && config.allowMentionPrefix -> stripMentionInvocation(content)
-        else -> return@on conversationService.handleMessage(message)
+        else -> return@on Conversations.handleMessage(message)
     }
 
     val (_, commandName, commandArgs, _) = rawInputs
 
     if (commandName.isBlank()) return@on
 
-    val guild = getGuild()
-
-    val event = if (guild != null)
-        GuildCommandEvent<GenericContainer>(rawInputs, discord, message, author, channel as TextChannel, guild)
-    else
-        DmCommandEvent(rawInputs, discord, message, author, channel as DmChannel)
+    val event = getGuild()?.let {
+        GuildCommandEvent<GenericContainer>(rawInputs, discord, message, author, channel as TextChannel, it)
+    } ?: DmCommandEvent(rawInputs, discord, message, author, channel as DmChannel)
 
     val errors = discord.preconditions
         .mapNotNull {

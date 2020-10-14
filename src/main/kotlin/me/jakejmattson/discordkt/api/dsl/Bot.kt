@@ -8,7 +8,6 @@ import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.annotations.Service
 import me.jakejmattson.discordkt.api.extensions.pluralize
-import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.listeners.*
 import me.jakejmattson.discordkt.internal.services.*
@@ -61,11 +60,10 @@ class Bot(val api: Kord, private val globalPath: String) {
             InternalLogger.log(header)
 
         val dataSize = registerData()
-        val conversationService = ConversationService(discord).apply { diService.inject(this) }
         val services = registerServices()
 
         ReflectionUtils.registerFunctions(globalPath, discord)
-        registerReactionListener(discord.api, conversationService)
+        registerReactionListener(discord.api)
         registerCommandListener(discord)
 
         val commandSets = discord.commands.groupBy { it.category }.keys.size
@@ -78,10 +76,6 @@ class Bot(val api: Kord, private val globalPath: String) {
         }
 
         registerHelpCommand(discord)
-        val conversationSize = conversationService.registerConversations(globalPath)
-
-        if (showStartupLog)
-            InternalLogger.log(conversationSize.pluralize("Conversation"))
 
         if (generateCommandDocs)
             createDocumentation(discord.commands)
