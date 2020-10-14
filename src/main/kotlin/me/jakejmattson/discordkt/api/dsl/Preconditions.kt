@@ -2,8 +2,8 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
-import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.internal.annotations.*
+import me.jakejmattson.discordkt.api.*
+import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.utils.BuilderRegister
 
 /**
@@ -12,20 +12,12 @@ import me.jakejmattson.discordkt.internal.utils.BuilderRegister
  * @param construct The builder function.
  */
 @BuilderDSL
-fun preconditions(construct: PreconditionBuilder.() -> Unit) = Preconditions(construct)
+fun precondition(priority: Int = 5, construct: PreconditionBuilder.() -> Unit) = Precondition(priority, construct)
 
 /**
  * @suppress Used in DSL
  */
-data class PreconditionBuilder(val discord: Discord) {
-    /**
-     * Create a new precondition.
-     */
-    @InnerDSL
-    fun check(priority: Int = 5, condition: suspend CommandEvent<*>.() -> Unit) {
-        discord.preconditions.add(Precondition(priority, condition))
-    }
-
+data class PreconditionBuilder(private val event: CommandEvent<*>) : CommandEvent<GenericContainer>(event.rawInputs, event.discord, event.message, event.author, event.channel, event.guild) {
     /**
      * Fail this precondition.
      *
@@ -39,16 +31,9 @@ data class PreconditionBuilder(val discord: Discord) {
 /**
  * This is not for you...
  */
-data class Preconditions(private val collector: PreconditionBuilder.() -> Unit) : BuilderRegister {
+data class Precondition(val priority: Int, private val construct: PreconditionBuilder.() -> Unit) : BuilderRegister {
+    internal fun check(event: CommandEvent<*>) = construct.invoke(PreconditionBuilder(event))
     override fun register(discord: Discord) {
-        val preconditionBuilder = PreconditionBuilder(discord)
-        collector.invoke(preconditionBuilder)
+        discord.preconditions.add(this)
     }
-}
-
-/**
- * This is not for you...
- */
-data class Precondition(val priority: Int, private val construct: suspend CommandEvent<*>.() -> Unit) {
-    internal suspend fun check(event: CommandEvent<*>) = construct.invoke(event)
 }

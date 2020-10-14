@@ -46,6 +46,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.api.on<
     } ?: DmCommandEvent(rawInputs, discord, message, author, channel as DmChannel)
 
     val errors = discord.preconditions
+        .sortedBy { it.priority }
         .mapNotNull {
             try {
                 it.check(event)
