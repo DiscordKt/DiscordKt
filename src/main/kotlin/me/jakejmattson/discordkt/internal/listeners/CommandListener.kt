@@ -42,7 +42,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.api.on<
     if (commandName.isBlank()) return@on
 
     val event = getGuild()?.let {
-        GuildCommandEvent<GenericContainer>(rawInputs, discord, message, author, channel as TextChannel, it)
+        GuildCommandEvent<TypeContainer>(rawInputs, discord, message, author, channel as TextChannel, it)
     } ?: DmCommandEvent(rawInputs, discord, message, author, channel as DmChannel)
 
     val errors = discord.preconditions
@@ -51,8 +51,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.api.on<
             try {
                 it.check(event)
                 null
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 e.message ?: ""
             }
         }

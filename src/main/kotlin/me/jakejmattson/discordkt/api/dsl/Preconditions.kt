@@ -12,12 +12,12 @@ import me.jakejmattson.discordkt.internal.utils.BuilderRegister
  * @param construct The builder function.
  */
 @BuilderDSL
-fun precondition(priority: Int = 5, construct: PreconditionBuilder.() -> Unit) = Precondition(priority, construct)
+fun precondition(priority: Int = 5, construct: suspend PreconditionBuilder.() -> Unit) = Precondition(priority, construct)
 
 /**
  * @suppress Used in DSL
  */
-data class PreconditionBuilder(private val event: CommandEvent<*>) : CommandEvent<GenericContainer>(event.rawInputs, event.discord, event.message, event.author, event.channel, event.guild) {
+data class PreconditionBuilder(private val event: CommandEvent<*>) : CommandEvent<TypeContainer>(event.rawInputs, event.discord, event.message, event.author, event.channel, event.guild) {
     /**
      * Fail this precondition.
      *
@@ -31,8 +31,8 @@ data class PreconditionBuilder(private val event: CommandEvent<*>) : CommandEven
 /**
  * This is not for you...
  */
-data class Precondition(val priority: Int, private val construct: PreconditionBuilder.() -> Unit) : BuilderRegister {
-    internal fun check(event: CommandEvent<*>) = construct.invoke(PreconditionBuilder(event))
+data class Precondition(internal val priority: Int, private val construct: suspend PreconditionBuilder.() -> Unit) : BuilderRegister {
+    internal suspend fun check(event: CommandEvent<*>) = construct.invoke(PreconditionBuilder(event))
     override fun register(discord: Discord) {
         discord.preconditions.add(this)
     }

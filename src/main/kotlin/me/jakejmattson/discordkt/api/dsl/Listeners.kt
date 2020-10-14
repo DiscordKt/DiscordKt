@@ -34,7 +34,7 @@ data class ListenerBuilder(val discord: Discord) {
 /**
  * This is not for you...
  */
-data class Listeners(private val collector: ListenerBuilder.() -> Unit) :BuilderRegister {
+data class Listeners(private val collector: ListenerBuilder.() -> Unit) : BuilderRegister {
     override fun register(discord: Discord) {
         collector.invoke(ListenerBuilder(discord))
     }

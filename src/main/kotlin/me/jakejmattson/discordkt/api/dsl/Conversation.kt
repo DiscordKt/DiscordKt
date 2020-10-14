@@ -44,12 +44,12 @@ enum class ConversationResult {
  * @param exitString If this String is entered by the user, the conversation is exited.
  */
 @BuilderDSL
-fun conversation(discord: Discord, exitString: String? = null, block: suspend ConversationStateContainer.() -> Unit) = Conversation(discord, exitString, block)
+fun conversation(discord: Discord, exitString: String? = null, block: suspend ConversationBuilder.() -> Unit) = Conversation(discord, exitString, block)
 
 /**
  * A class that represent a conversation.
  */
-class Conversation(@PublishedApi internal val discord: Discord, var exitString: String? = null, private val block: suspend ConversationStateContainer.() -> Unit) {
+class Conversation(@PublishedApi internal val discord: Discord, var exitString: String? = null, private val block: suspend ConversationBuilder.() -> Unit) {
 
     /**
      * Start a conversation with someone in their private messages.
@@ -68,7 +68,7 @@ class Conversation(@PublishedApi internal val discord: Discord, var exitString: 
         if (Conversations.hasConversation(user, channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val state = ConversationStateContainer(discord, user, channel)
+        val state = ConversationBuilder(discord, user, channel)
 
         return start(state)
     }
@@ -89,52 +89,44 @@ class Conversation(@PublishedApi internal val discord: Discord, var exitString: 
         if (Conversations.hasConversation(user, channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val state = ConversationStateContainer(discord, user, channel)
+        val state = ConversationBuilder(discord, user, channel)
 
         return start(state)
     }
 
-    @PublishedApi
-    internal suspend inline fun start(stateContainer: ConversationStateContainer): ConversationResult {
-        val (_, user, channel) = stateContainer
-        Conversations.start(user, channel, this)
-
-        return start(stateContainer) {
-            Conversations.end(user, channel)
-        }
-    }
-
-    private lateinit var stateContainer: ConversationStateContainer
+    private lateinit var builder: ConversationBuilder
 
     @PublishedApi
-    internal suspend fun start(conversationStateContainer: ConversationStateContainer, onEnd: () -> Unit): ConversationResult {
-        conversationStateContainer.exitString = exitString
-        stateContainer = conversationStateContainer
+    internal suspend fun start(conversationBuilder: ConversationBuilder): ConversationResult {
+        conversationBuilder.exitString = exitString
+        val (_, user, channel) = conversationBuilder
+        builder = conversationBuilder
 
         return try {
-            block.invoke(conversationStateContainer)
+            Conversations.start(user, channel, this)
+            block.invoke(conversationBuilder)
             ConversationResult.COMPLETE
         } catch (e: ExitException) {
             ConversationResult.EXITED
         } catch (e: DmException) {
             ConversationResult.CANNOT_DM
         } finally {
-            onEnd.invoke()
+            Conversations.end(user, channel)
         }
     }
 
     @PublishedApi
-    internal suspend fun acceptMessage(message: Message) = stateContainer.acceptMessage(message)
+    internal suspend fun acceptMessage(message: Message) = builder.acceptMessage(message)
 
     @PublishedApi
-    internal suspend fun acceptReaction(reaction: ReactionAddEvent) = stateContainer.acceptReaction(reaction)
+    internal suspend fun acceptReaction(reaction: ReactionAddEvent) = builder.acceptReaction(reaction)
 }
 
 /** @suppress DSL backing */
-data class ConversationStateContainer(val discord: Discord,
-                                      val user: User,
-                                      override val channel: MessageChannel,
-                                      var exitString: String? = null) : Responder {
+data class ConversationBuilder(val discord: Discord,
+                               val user: User,
+                               override val channel: MessageChannel,
+                               var exitString: String? = null) : Responder {
 
     private val messageBuffer = Channel<Message>()
     private val reactionBuffer = Channel<ReactionAddEvent>()
@@ -273,27 +265,27 @@ data class ConversationStateContainer(val discord: Discord,
 
     private suspend fun <T> parseResponse(argumentType: ArgumentType<T>, message: Message): ArgumentResult<T> {
         val rawInputs = RawInputs(message.content, "", message.content.split(" "), 0)
-        val commandEvent = CommandEvent<GenericContainer>(rawInputs, discord, message, message.author!!, message.channel.asChannel(), message.getGuildOrNull())
+        val commandEvent = CommandEvent<TypeContainer>(rawInputs, discord, message, message.author!!, message.channel.asChannel(), message.getGuildOrNull())
         return argumentType.convert(message.content, commandEvent.rawInputs.commandArgs, commandEvent)
     }
 }
 
 object Conversations {
-    private data class ConversationContext(val userId: Snowflake, val channelId: Snowflake)
+    private data class ConversationLocation(val userId: Snowflake, val channelId: Snowflake)
 
-    private val activeConversations = mutableMapOf<ConversationContext, Conversation>()
+    private val activeConversations = mutableMapOf<ConversationLocation, Conversation>()
 
     @PublishedApi
     internal fun start(user: User, channel: MessageChannel, conversation: Conversation) {
-        activeConversations[ConversationContext(user.id, channel.id)] = conversation
+        activeConversations[ConversationLocation(user.id, channel.id)] = conversation
     }
 
     @PublishedApi
     internal fun end(user: User, channel: MessageChannel) {
-        activeConversations.remove(ConversationContext(user.id, channel.id))
+        activeConversations.remove(ConversationLocation(user.id, channel.id))
     }
 
-    fun getConversation(user: User, channel: MessageChannelBehavior) = activeConversations[ConversationContext(user.id, channel.id)]
+    fun getConversation(user: User, channel: MessageChannelBehavior) = activeConversations[ConversationLocation(user.id, channel.id)]
 
     /**
      * Whether or not a conversation with the given context already exists.
@@ -302,13 +294,13 @@ object Conversations {
 
     internal fun handleMessage(message: Message) {
         runBlocking {
-            getConversation(message.author!!, message.channel) ?.acceptMessage(message)
+            getConversation(message.author!!, message.channel)?.acceptMessage(message)
         }
     }
 
     internal fun handleReaction(author: User, channel: MessageChannelBehavior, reaction: ReactionAddEvent) {
         runBlocking {
-            getConversation(author, channel) ?.acceptReaction(reaction)
+            getConversation(author, channel)?.acceptReaction(reaction)
         }
     }
 }

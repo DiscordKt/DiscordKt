@@ -39,10 +39,16 @@ data class BotConfiguration(
         }
     }
 }
-
 /**
- * @suppress Used in sample
- */
+ * Holds all basic configuration options.
+ *
+* @property allowMentionPrefix Allow mentioning the bot to be used as a prefix '@Bot'.
+* @property showStartupLog Whether or not to display log information when the bot starts.
+* @property generateCommandDocs Whether or not command documentation should be generated.
+* @property recommendCommands Whether or not to recommend the closest command when one fails.
+* @property commandReaction The reaction added to a message when a command is received.
+* @property theme The color theme of internal embeds (i.e. Help).
+*/
 data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
                                var showStartupLog: Boolean = true,
                                var generateCommandDocs: Boolean = true,

@@ -78,6 +78,8 @@ tasks {
                 includeNonPublic.set(false)
                 skipEmptyPackages.set(true)
                 reportUndocumented.set(true)
+
+                suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\api\\GenericContainers.kt")
             }
         }
     }

@@ -53,7 +53,7 @@ open class DiscordContext(val discord: Discord,
  * @property args The parsed input to the command.
  * @property command The [Command] that is resolved from the invocation.
  */
-open class CommandEvent<T : GenericContainer>(
+open class CommandEvent<T : TypeContainer>(
     open val rawInputs: RawInputs,
     open val discord: Discord,
     open val message: Message,
@@ -82,7 +82,7 @@ open class CommandEvent<T : GenericContainer>(
 /**
  * An event that can only be fired in a guild.
  */
-data class GuildCommandEvent<T : GenericContainer>(
+data class GuildCommandEvent<T : TypeContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     override val message: Message,
@@ -93,7 +93,7 @@ data class GuildCommandEvent<T : GenericContainer>(
 /**
  * An event that can only be fired in a DM.
  */
-data class DmCommandEvent<T : GenericContainer>(
+data class DmCommandEvent<T : TypeContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     override val message: Message,

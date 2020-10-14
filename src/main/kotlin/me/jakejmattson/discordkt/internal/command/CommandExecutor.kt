@@ -15,7 +15,14 @@ internal interface ParseResult {
      *
      * @param argumentContainer The parsing results.
      */
-    data class Success(val argumentContainer: GenericContainer) : ParseResult
+    data class Success(val argumentContainer: TypeContainer) : ParseResult
+
+    /**
+     * Object indicating that an operation has failed.
+     *
+     * @param reason The reason for failure.
+     */
+    data class Fail(val reason: String = "") : ParseResult
 }
 
 internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<*>, actualArgs: List<String>): ParseResult {
@@ -23,7 +30,7 @@ internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<*>
 
     val error = when (val initialConversion = convertArguments(actualArgs, expected, event)) {
         is ConversionSuccess -> return ParseResult.Success(bundleToContainer(initialConversion.results))
-        is ConversionError -> Fail(initialConversion.error)
+        is ConversionError -> ParseResult.Fail(initialConversion.error)
     }
 
     if (!command.isFlexible || expected.size < 2)

@@ -40,19 +40,19 @@ sealed class Command(open val names: List<String>,
     /**
      * Invoke this command with the given args.
      */
-    fun invoke(event: CommandEvent<GenericContainer>, args: List<String>) {
+    fun invoke(event: CommandEvent<TypeContainer>, args: List<String>) {
         GlobalScope.launch {
             when (val result = parseInputToBundle(this@Command, event, args)) {
                 is ParseResult.Success -> {
                     event.args = result.argumentContainer
                     execute.invoke(event)
                 }
-                is Fail -> event.respond(result.reason)
+                is ParseResult.Fail -> event.respond(result.reason)
             }
         }
     }
 
-    protected fun <T : CommandEvent<GenericContainer>> setExecute(argTypes: List<ArgumentType<*>>, event: suspend T.() -> Unit) {
+    protected fun <T : CommandEvent<TypeContainer>> setExecute(argTypes: List<ArgumentType<*>>, event: suspend T.() -> Unit) {
         arguments = argTypes
         execute = event as suspend CommandEvent<*>.() -> Unit
     }
