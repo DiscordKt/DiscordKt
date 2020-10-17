@@ -9,25 +9,26 @@ internal fun produceHelpCommand() = commands("Utility") {
     command("Help") {
         description = "Display a help menu."
         execute(AnyArg("Command").makeOptional("")) {
-            val query = args.first
-            val color = discord.configuration.theme
+            val input = args.first
+            val theme = discord.configuration.theme
 
-            when {
-                query.isEmpty -> sendDefaultEmbed(this, color)
-                query.isCommand(this) -> sendCommandEmbed(discord.commands[query]!!, this, query, color)
-                else -> Recommender.sendRecommendation(this, query, fetchVisibleCommands(this).flatMap { it.names })
-            }
+            if (input.isEmpty)
+                sendDefaultEmbed(theme)
+            else
+                discord.commands[input]?.sendHelpEmbed(this, input, theme)
+                    ?: Recommender.sendRecommendation(this, input)
         }
     }
 }
 
-private suspend fun sendDefaultEmbed(event: CommandEvent<*>, embedColor: Color?) =
-    event.respond {
+private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
+    respond {
         title = "Help menu"
-        description = "Use `${event.prefix()}help <command>` for more information."
+        description = "Use `${prefix()}help <command>` for more information."
         color = embedColor
 
-        fetchVisibleCommands(event)
+        discord.commands
+            .filter { discord.configuration.hasPermission(it, this@sendDefaultEmbed) }
             .groupBy { it.category }
             .toList()
             .sortedBy { (_, commands) -> -commands.size }
@@ -45,43 +46,36 @@ private suspend fun sendDefaultEmbed(event: CommandEvent<*>, embedColor: Color?)
             }
     }
 
-private suspend fun sendCommandEmbed(command: Command, event: CommandEvent<*>, input: String, embedColor: Color?) =
+private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String, embedColor: Color?) =
     event.respond {
-        title = command.names.joinToString()
-        description = command.description
+        title = names.joinToString()
+        description = this@sendHelpEmbed.description
         color = embedColor
 
         val commandInvocation = "${event.prefix()}$input"
 
         field {
             name = "Structure"
-            value = "$commandInvocation ${generateStructure(command)}"
+            value = "$commandInvocation ${generateStructure()}"
         }
 
-        if (command.parameterCount != 0)
+        if (parameterCount != 0)
             field {
                 name = "Examples"
-                value = "$commandInvocation ${generateExample(command, event)}"
+                value = "$commandInvocation ${generateExample(event)}"
             }
     }
 
-private fun generateExample(command: Command, event: CommandEvent<*>) =
-    command.arguments.joinToString(" ") {
+private fun Command.generateExample(event: CommandEvent<*>) =
+    arguments.joinToString(" ") {
         val examples = it.generateExamples(event)
         val example = if (examples.isNotEmpty()) examples.random() else "<Example>"
 
         if (it.isOptional) "($example)" else "[$example]"
     }
 
-private suspend fun String.isCommand(event: CommandEvent<*>) = fetchVisibleCommands(event)
-    .any { toLowerCase() in it.names.map { it.toLowerCase() } }
-
-private suspend fun fetchVisibleCommands(event: CommandEvent<*>) = event.discord.commands
-    .filter { event.discord.configuration.hasPermission(it, event) }
-
-private fun generateStructure(command: Command) =
-    command.arguments.joinToString(" ") {
+private fun Command.generateStructure() =
+    arguments.joinToString(" ") {
         val type = it.name
         if (it.isOptional) "($type)" else "[$type]"
     }
-

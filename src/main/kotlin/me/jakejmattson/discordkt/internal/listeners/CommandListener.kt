@@ -45,31 +45,20 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.api.on<
         GuildCommandEvent<TypeContainer>(rawInputs, discord, message, author, channel as TextChannel, it)
     } ?: DmCommandEvent(rawInputs, discord, message, author, channel as DmChannel)
 
-    val errors = discord.preconditions
+    //Apply preconditions
+    discord.preconditions
         .sortedBy { it.priority }
-        .mapNotNull {
+        .forEach {
             try {
                 it.check(event)
-                null
             } catch (e: Exception) {
-                e.message ?: ""
+                e.message.takeUnless { it.isNullOrEmpty() }?.let { event.respond(it) }
+                return@on
             }
         }
 
-    if (errors.isNotEmpty()) {
-        errors.firstOrNull { it.isNotBlank() }?.let { event.respond(it) }
-        return@on
-    }
-
     val command = discord.commands[commandName]?.takeUnless { !config.hasPermission(it, event) }
-
-    if (command == null) {
-        val validCommands = discord.commands
-            .filter { config.hasPermission(it, event) }
-            .flatMap { it.names }
-
-        return@on Recommender.sendRecommendation(event, commandName, validCommands)
-    }
+        ?: return@on Recommender.sendRecommendation(event, commandName)
 
     config.commandReaction?.let {
         message.addReaction(it.toReaction())

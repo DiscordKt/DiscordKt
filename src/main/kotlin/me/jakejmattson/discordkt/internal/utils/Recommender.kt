@@ -12,11 +12,18 @@ internal object Recommender {
         return closestMatch.takeUnless { distance > input.length / 2 + 2 }
     }
 
-    suspend fun sendRecommendation(event: CommandEvent<*>, input: String, possibilities: List<String>) {
-        val shouldRecommend = event.discord.configuration.recommendCommands
+    suspend fun sendRecommendation(event: CommandEvent<*>, input: String) {
+        val discord = event.discord
+        val config = discord.configuration
 
-        if (possibilities.isEmpty() || !shouldRecommend)
+        if (!config.recommendCommands)
             return
+
+        val possibilities = discord.commands
+            .filter { config.hasPermission(it, event) }
+            .flatMap { it.names }
+            .takeUnless { it.isEmpty() }
+            ?: return
 
         val recommendation = recommend(input, possibilities) ?: "<none>"
 
