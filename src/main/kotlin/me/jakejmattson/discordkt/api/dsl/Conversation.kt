@@ -44,12 +44,12 @@ enum class ConversationResult {
  * @param exitString If this String is entered by the user, the conversation is exited.
  */
 @BuilderDSL
-fun conversation(discord: Discord, exitString: String? = null, block: suspend ConversationBuilder.() -> Unit) = Conversation(discord, exitString, block)
+fun conversation(exitString: String? = null, block: suspend ConversationBuilder.() -> Unit) = Conversation(exitString, block)
 
 /**
  * A class that represent a conversation.
  */
-class Conversation(@PublishedApi internal val discord: Discord, var exitString: String? = null, private val block: suspend ConversationBuilder.() -> Unit) {
+class Conversation(var exitString: String? = null, private val block: suspend ConversationBuilder.() -> Unit) {
 
     /**
      * Start a conversation with someone in their private messages.
@@ -59,7 +59,7 @@ class Conversation(@PublishedApi internal val discord: Discord, var exitString: 
      * @return The result of the conversation indicated by an enum.
      * @sample ConversationResult
      */
-    suspend inline fun startPrivately(user: User): ConversationResult {
+    suspend inline fun startPrivately(discord: Discord, user: User): ConversationResult {
         if (user.isBot == true)
             return ConversationResult.INVALID_USER
 
@@ -82,7 +82,7 @@ class Conversation(@PublishedApi internal val discord: Discord, var exitString: 
      * @return The result of the conversation indicated by an enum.
      * @sample ConversationResult
      */
-    suspend inline fun startPublicly(user: User, channel: MessageChannel): ConversationResult {
+    suspend inline fun startPublicly(discord: Discord, user: User, channel: MessageChannel): ConversationResult {
         if (user.isBot == true)
             return ConversationResult.INVALID_USER
 
