@@ -2,9 +2,10 @@ package me.jakejmattson.discordkt.api.arguments
 
 import com.gitlab.kordlib.common.entity.Snowflake
 import com.gitlab.kordlib.core.entity.Role
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.toList
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
+import me.jakejmattson.discordkt.internal.utils.resolveEntityByName
 
 /**
  * Accepts a Discord Role entity as an ID, a mention, or by name.
@@ -19,40 +20,23 @@ open class RoleArg(override val name: String = "Role", private val guildId: Snow
     companion object : RoleArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
-        val resolvedGuildId = guildId ?: event.guild?.id
-
+        val resolvedGuildId = guildId ?: event.guild?.id ?: return Error("Guild not found")
         val roleById = event.discord.api.guilds.toList().flatMap { it.roles.toList() }.firstOrNull { it.id == arg.toSnowflakeOrNull() }
 
-        if (!allowsGlobal && resolvedGuildId != roleById?.guild?.id)
-            return Error("Must be from this guild")
+        if (roleById != null) {
+            return if (allowsGlobal || resolvedGuildId == roleById.guildId)
+                Success(roleById)
+            else
+                Error("Must be from this guild")
+        }
 
-        if (roleById != null)
-            return Success(roleById)
-
-        resolvedGuildId ?: return Error("Please invoke in a guild or use an ID")
-
-        val guild = event.discord.api.getGuild(resolvedGuildId)
+        val guild = resolvedGuildId?.let { event.discord.api.getGuild(it) }
             ?: return Error("Guild not found")
 
         val argString = args.joinToString(" ").toLowerCase()
+        val entities = guild.roles.toList()
 
-        val viableNames = guild.roles
-            .filter { argString.startsWith(it.name.toLowerCase()) }
-            .toList()
-            .sortedBy { it.name.length }
-
-        val longestMatch = viableNames.lastOrNull()?.takeUnless { it.name.length < arg.length }
-        val result = longestMatch.let { viableNames.filter { it.name == longestMatch?.name } }
-
-        return when (result.size) {
-            0 -> Error("Not found")
-            1 -> {
-                val role = result.first()
-                val argList = args.take(role.name.split(" ").size)
-                Success(role, argList.size)
-            }
-            else -> Error("Found multiple matches")
-        }
+        return resolveEntityByName(argString, entities) { name }
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("@everyone")
