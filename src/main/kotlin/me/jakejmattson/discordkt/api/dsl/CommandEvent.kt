@@ -67,6 +67,11 @@ open class CommandEvent<T : TypeContainer>(
         get() = discord.commands[rawInputs.commandName]
 
     /**
+     * Try to resolve the member from the user/guild data.
+     */
+    suspend fun getMember() = guild?.getMember(author.id)
+
+    /**
      * Determine the relevant prefix in the current context.
      */
     suspend fun prefix() = discord.configuration.prefix.invoke(DiscordContext(discord, message, guild, author, channel))

@@ -8,7 +8,7 @@ object Constants {
 
 object Versions {
     const val kotlin = "1.4.10"
-    const val coroutines = "1.3.9"
+    const val coroutines = "1.4.0-M1"
     const val reflections = "0.9.12"
     const val gson = "2.8.6"
     const val slf4j = "2.0.0-alpha1"
