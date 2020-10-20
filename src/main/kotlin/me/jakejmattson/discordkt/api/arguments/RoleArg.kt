@@ -20,26 +20,25 @@ open class RoleArg(override val name: String = "Role", private val guildId: Snow
     companion object : RoleArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
-        val resolvedGuildId = guildId ?: event.guild?.id ?: return Error("Guild not found")
-        val roleById = event.discord.api.guilds.toList().flatMap { it.roles.toList() }.firstOrNull { it.id == arg.toSnowflakeOrNull() }
+        val guild = guildId?.let { event.discord.api.getGuild(it) } ?: event.guild
 
-        if (roleById != null) {
-            return if (allowsGlobal || resolvedGuildId == roleById.guildId)
-                Success(roleById)
-            else
-                Error("Must be from this guild")
-        }
+        if (!allowsGlobal && guild == null)
+            return Error("Guild not found")
 
-        val guild = resolvedGuildId?.let { event.discord.api.getGuild(it) }
-            ?: return Error("Guild not found")
+        val roles = if (allowsGlobal)
+            event.discord.api.guilds.toList().flatMap { it.roles.toList() }
+        else
+            guild!!.roles.toList()
 
-        val argString = args.joinToString(" ").toLowerCase()
-        val entities = guild.roles.toList()
+        val snowflake = arg.toSnowflakeOrNull()
+        val roleById = roles.firstOrNull { it.id == snowflake }
 
-        return resolveEntityByName(argString, entities) { name }
+        if (roleById != null)
+            return Success(roleById)
+
+        return resolveEntityByName(args, roles) { name }
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf("@everyone")
-
     override fun formatData(data: Role) = data.name
 }

@@ -20,23 +20,23 @@ open class CategoryArg(override val name: String = "Category", private val guild
     companion object : CategoryArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
-        val resolvedGuildId = guildId ?: event.guild?.id
-        val categoryById = arg.toSnowflakeOrNull()?.let { event.discord.api.getChannelOf<Category>(it) }
+        val guild = guildId?.let { event.discord.api.getGuild(it) } ?: event.guild
 
-        if (categoryById != null) {
-            return if (allowsGlobal || resolvedGuildId == categoryById.guildId)
-                Success(categoryById)
-            else
-                Error("Must be from this guild")
-        }
+        if (!allowsGlobal && guild == null)
+            return Error("Guild not found")
 
-        val guild = resolvedGuildId?.let { event.discord.api.getGuild(it) }
-            ?: return Error("Guild not found")
+        val categories = if (allowsGlobal)
+            event.discord.api.guilds.toList().flatMap { it.channels.filterIsInstance<Category>().toList() }
+        else
+            guild!!.channels.filterIsInstance<Category>().toList()
 
-        val argString = args.joinToString(" ").toLowerCase()
-        val entities = guild.channels.filterIsInstance<Category>().toList()
+        val snowflake = arg.toSnowflakeOrNull()
+        val categoryById = categories.firstOrNull { it.id == snowflake }
 
-        return resolveEntityByName(argString, entities) { name }
+        if (categoryById != null)
+            return Success(categoryById)
+
+        return resolveEntityByName(args, categories) { name }
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id.value)
