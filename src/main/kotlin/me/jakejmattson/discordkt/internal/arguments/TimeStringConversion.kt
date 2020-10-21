@@ -2,28 +2,25 @@ package me.jakejmattson.discordkt.internal.arguments
 
 import me.jakejmattson.discordkt.api.arguments.*
 
-private typealias Quantity = Double
-private typealias Quantifier = String
-
 internal fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
     val timeStringEnd = actual.indexOfFirst { toTimeElement(it) == null }.takeIf { it != -1 } ?: actual.size
     val original = actual.subList(0, timeStringEnd).toList()
     val possibleElements = original.map { toTimeElement(it.toLowerCase()) }
-    val timeElements = possibleElements.dropLastWhile { it is Quantity } // assume trailing numbers are part of next arg (ID, Integer, etc.)
+    val timeElements = possibleElements.dropLastWhile { it is Double } // assume trailing numbers are part of next arg (ID, Integer, etc.)
 
     if (timeElements.isEmpty())
         return Error("Invalid time element")
 
     val consumed = original.subList(0, timeElements.size)
-    val quantityCount = timeElements.count { it is Quantity }
-    val quantifierCount = timeElements.count { it is Quantifier }
+    val quantityCount = timeElements.count { it is Double }
+    val quantifierCount = timeElements.count { it is String }
 
     if (quantityCount != quantifierCount)
         return Error("Invalid format")
 
     val hasMissingQuantifier = timeElements.withIndex().any { (index, current) ->
         val next = timeElements.getOrNull(index + 1)
-        current is Quantity && next !is Quantifier
+        current is Double && next !is String
     }
 
     if (hasMissingQuantifier)
@@ -32,8 +29,8 @@ internal fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
     val timePairs = timeElements
         .mapIndexedNotNull { index, element ->
             when (element) {
-                is Pair<*, *> -> element as Pair<Quantity, Quantifier>
-                is Quantity -> element to timeElements[index + 1] as Quantifier
+                is Pair<*, *> -> element as Pair<Double, String>
+                is Double -> element to timeElements[index + 1] as String
                 else -> null
             }
         }

@@ -30,7 +30,7 @@ abstract class ArgumentType<T> : Cloneable {
     fun makeOptional(default: T) = cloneToOptional<T>().apply { defaultValue = { default } }
 
     /**
-     * Make this argument optional and fall back to the default value if the conversion fails. Exposes the [CommandEvent].
+     * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type.
      */
@@ -44,7 +44,7 @@ abstract class ArgumentType<T> : Cloneable {
     fun makeNullableOptional(default: T? = null) = cloneToOptional<T?>().apply { defaultValue = { default } }
 
     /**
-     * Make this argument optional and fall back to the default value if the conversion fails. Exposes the [CommandEvent].
+     * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type - can also be null.
      */
@@ -55,7 +55,7 @@ abstract class ArgumentType<T> : Cloneable {
      *
      * @param arg The next argument passed into the command.
      * @param args All remaining arguments passed into the command.
-     * @param event The CommandEvent triggered by the execution of the command.
+     * @param event The CommandEvent<*> triggered by the execution of the command.
      * @return ArgumentResult subtype [Success] or [Error].
      */
     abstract suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
@@ -68,7 +68,7 @@ abstract class ArgumentType<T> : Cloneable {
     abstract fun generateExamples(event: CommandEvent<*>): List<String>
 
     /** Determine the simpler name (just the class) and then remove the companion tag */
-    override fun toString() = this::class.java.simplerName.substringBefore("$")
+    override fun toString() = this::class.simplerName
 
     /**
      * Create a custom formatter for the data this ArgumentType produces.

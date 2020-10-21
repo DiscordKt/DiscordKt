@@ -5,7 +5,7 @@ package me.jakejmattson.discordkt.api.dsl
 import com.gitlab.kordlib.common.entity.*
 import com.gitlab.kordlib.core.behavior.channel.*
 import com.gitlab.kordlib.core.behavior.edit
-import com.gitlab.kordlib.core.entity.ReactionEmoji
+import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.event.message.ReactionAddEvent
 import com.gitlab.kordlib.kordx.emoji.*
 import com.gitlab.kordlib.kordx.emoji.DiscordEmoji
@@ -78,12 +78,16 @@ data class Menu(private val pages: MutableList<EmbedBuilder>,
         return pages[index]
     }
 
-    internal suspend fun send(channel: MessageChannelBehavior) {
-        if (channel.asChannel().type == ChannelType.DM)
-            return InternalLogger.error("Cannot use menus within a private context.")
+    internal suspend fun send(channel: MessageChannelBehavior): Message? {
+        if (channel.asChannel().type == ChannelType.DM) {
+            InternalLogger.error("Cannot use menus within a private context.")
+            return null
+        }
 
-        if (pages.isEmpty())
-            return InternalLogger.error("A menu must have at least one page.")
+        if (pages.isEmpty()) {
+            InternalLogger.error("A menu must have at least one page.")
+            return null
+        }
 
         val message = channel.createMessage {
             embed = pages.first()
@@ -100,6 +104,8 @@ data class Menu(private val pages: MutableList<EmbedBuilder>,
 
         if (isMultiPage || customReactions.isNotEmpty())
             menus[message.id] = this
+
+        return message
     }
 }
 

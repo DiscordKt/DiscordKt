@@ -1,7 +1,6 @@
 package me.jakejmattson.discordkt.api.dsl
 
 import com.google.gson.*
-import me.jakejmattson.discordkt.internal.utils.diService
 import java.io.File
 
 /**

@@ -4,7 +4,7 @@ import com.gitlab.kordlib.core.entity.Message
 import com.gitlab.kordlib.core.entity.channel.TextChannel
 import kotlinx.coroutines.flow.firstOrNull
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.toSnowflake
+import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 
 /**
  * Accepts a Discord Message entity as an ID or a link.
@@ -23,7 +23,7 @@ open class MessageArg(override val name: String = "Message", private val allowsG
         val kord = event.discord.api
 
         val message = if (isLink) {
-            val (guildId, channelId, messageId) = arg.split("/").takeLast(3).map { it.toSnowflake() }
+            val (guildId, channelId, messageId) = arg.split("/").takeLast(3).map { it.toSnowflakeOrNull() }
 
             if (!allowsGlobal && guildId != event.guild?.id)
                 return Error("Must be from this guild")
@@ -35,7 +35,7 @@ open class MessageArg(override val name: String = "Message", private val allowsG
 
             messageId?.let { channel.getMessageOrNull(it) } ?: return Error("Invalid message")
         } else {
-            arg.toSnowflake()?.let { event.channel.getMessageOrNull(it) } ?: return Error("Invalid ID")
+            arg.toSnowflakeOrNull()?.let { event.channel.getMessageOrNull(it) } ?: return Error("Invalid ID")
         }
 
         return Success(message)

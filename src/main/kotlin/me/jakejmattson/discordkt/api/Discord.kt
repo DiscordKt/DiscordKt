@@ -6,7 +6,6 @@ import com.gitlab.kordlib.core.Kord
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import me.jakejmattson.discordkt.api.dsl.*
-import me.jakejmattson.discordkt.internal.utils.diService
 import kotlin.reflect.KClass
 
 /**
@@ -27,6 +26,7 @@ abstract class Discord {
     abstract val api: Kord
     abstract val configuration: BotConfiguration
     abstract val commands: MutableList<Command>
+    internal abstract val preconditions: MutableList<Precondition>
     val versions = Json.decodeFromString<Versions>(this::class.java.getResource("/library-properties.json").readText())
 
     /** Fetch an object from the DI pool by its type */
@@ -56,4 +56,5 @@ internal fun buildDiscordClient(api: Kord, configuration: BotConfiguration) =
         override val api = api
         override val configuration = configuration
         override val commands = mutableListOf<Command>()
+        override val preconditions = mutableListOf<Precondition>()
     }

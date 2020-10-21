@@ -29,7 +29,7 @@ val UserBehavior.mutualGuilds
  * A Discord profile link for this user.
  */
 val UserBehavior.profileLink
-    get() = "https://discordapp.com/users/$id/"
+    get() = "https://discordapp.com/users/${id.longValue}/"
 
 /**
  * Checks whether this user is the bot.

@@ -9,28 +9,28 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
 /**
  * Intermediate result of manual parsing.
  */
-sealed class ParseResult {
+internal interface ParseResult {
     /**
      * The parsing succeeded.
      *
      * @param argumentContainer The parsing results.
      */
-    data class Success(val argumentContainer: GenericContainer) : ParseResult()
+    data class Success(val argumentContainer: TypeContainer) : ParseResult
 
     /**
-     * The parsing failed.
+     * Object indicating that an operation has failed.
      *
-     * @param reason The reason for the failure.
+     * @param reason The reason for failure.
      */
-    data class Error(val reason: String) : ParseResult()
+    data class Fail(val reason: String = "") : ParseResult
 }
 
-internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<GenericContainer>, actualArgs: List<String>): ParseResult {
+internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<*>, actualArgs: List<String>): ParseResult {
     val expected = command.arguments as List<ArgumentType<Any>>
 
     val error = when (val initialConversion = convertArguments(actualArgs, expected, event)) {
-        is ConversionSuccess -> return ParseResult.Success(bundleToArgContainer(initialConversion.results))
-        is ConversionError -> ParseResult.Error(initialConversion.error)
+        is ConversionSuccess -> return ParseResult.Success(bundleToContainer(initialConversion.results))
+        is ConversionError -> ParseResult.Fail(initialConversion.error)
     }
 
     if (!command.isFlexible || expected.size < 2)
@@ -39,9 +39,12 @@ internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<Ge
     val successList = expected
         .toMutableList()
         .generateAllPermutations()
-        .map { it to convertArguments(actualArgs, it, event) }
-        .filter { it.second is ConversionSuccess }
-        .map { it.first to (it.second as ConversionSuccess).results }
+        .mapNotNull {
+            when (val conversion = convertArguments(actualArgs, it, event)) {
+                is ConversionSuccess -> it to conversion.results
+                else -> null
+            }
+        }
         .map { (argumentTypes, results) -> argumentTypes.zip(results) }
 
     val success = when (successList.size) {
@@ -62,7 +65,7 @@ internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<Ge
 
     val orderedResult = expected.map { sortKey -> success.first { it.first == sortKey }.second }
 
-    return ParseResult.Success(bundleToArgContainer(orderedResult))
+    return ParseResult.Success(bundleToContainer(orderedResult))
 }
 
 private fun <E> MutableList<E>.generateAllPermutations(): List<List<E>> {

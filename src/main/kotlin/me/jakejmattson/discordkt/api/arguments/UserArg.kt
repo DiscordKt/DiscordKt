@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.api.arguments
 
 import com.gitlab.kordlib.core.entity.User
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.toSnowflake
+import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 
 /**
  * Accepts a Discord User entity as an ID or mention.
@@ -14,7 +14,7 @@ open class UserArg(override val name: String = "User") : ArgumentType<User>() {
     companion object : UserArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {
-        val user = arg.toSnowflake()?.let { event.discord.api.getUser(it) } ?: return Error("Not found")
+        val user = arg.toSnowflakeOrNull()?.let { event.discord.api.getUser(it) } ?: return Error("Not found")
 
         return Success(user)
     }

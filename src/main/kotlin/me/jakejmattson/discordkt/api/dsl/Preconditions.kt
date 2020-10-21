@@ -2,29 +2,38 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
+import me.jakejmattson.discordkt.api.*
+import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
+import me.jakejmattson.discordkt.internal.utils.BuilderRegister
+
 /**
- * A class that represents some condition that must Pass before a command can be executed.
+ * Create a block for registering preconditions.
  *
- * @param priority The relative priority of this precondition being run.
+ * @param construct The builder function.
  */
-abstract class Precondition(val priority: Int = 5) {
+@BuilderDSL
+fun precondition(priority: Int = 5, construct: suspend PreconditionBuilder.() -> Unit) = Precondition(priority, construct)
+
+/**
+ * @suppress Used in DSL
+ */
+data class PreconditionBuilder(private val event: CommandEvent<*>) : CommandEvent<TypeContainer>(event.rawInputs, event.discord, event.message, event.author, event.channel, event.guild) {
     /**
-     * A function that will either [Pass] or [Fail].
+     * Fail this precondition.
+     *
+     * @param reason The reason for failure.
      */
-    abstract suspend fun evaluate(event: CommandEvent<*>): PreconditionResult
+    fun fail(reason: String = "") {
+        throw Exception(reason)
+    }
 }
 
-/** @suppress Redundant doc */
-sealed class PreconditionResult
-
 /**
- * Object indicating that this precondition has passed.
+ * This is not for you...
  */
-object Pass : PreconditionResult()
-
-/**
- * Object indicating that this precondition has failed.
- *
- * @param reason The reason for failure.
- */
-data class Fail(val reason: String = "") : PreconditionResult()
+data class Precondition(internal val priority: Int, private val construct: suspend PreconditionBuilder.() -> Unit) : BuilderRegister {
+    internal suspend fun check(event: CommandEvent<*>) = construct.invoke(PreconditionBuilder(event))
+    override fun register(discord: Discord) {
+        discord.preconditions.add(this)
+    }
+}

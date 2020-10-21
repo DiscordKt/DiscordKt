@@ -1,22 +1,39 @@
-package me.jakejmattson.discordkt.internal.utils
+package me.jakejmattson.discordkt.api.dsl
 
 import com.gitlab.kordlib.core.Kord
-import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
 import com.gitlab.kordlib.core.entity.*
+import com.gitlab.kordlib.core.entity.channel.MessageChannel
 import com.gitlab.kordlib.gateway.builder.PresenceBuilder
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.annotations.Service
-import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.pluralize
-import me.jakejmattson.discordkt.api.services.ConversationService
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.listeners.*
 import me.jakejmattson.discordkt.internal.services.*
+import me.jakejmattson.discordkt.internal.utils.*
 import kotlin.system.exitProcess
 
 @PublishedApi
 internal val diService = InjectionService()
+
+/**
+ * Create an instance of your Discord bot! You can use the following blocks to modify bot configuration:
+ * [configure][Bot.configure],
+ * [prefix][Bot.prefix],
+ * [mentionEmbed][Bot.mentionEmbed],
+ * [permissions][Bot.permissions],
+ * [presence][Bot.presence]
+ *
+ * @param token Your Discord bot token.
+ */
+@ConfigurationDSL
+suspend fun bot(token: String, operate: suspend Bot.() -> Unit) {
+    val path = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
+    val bot = Bot(Kord(token), path)
+    bot.operate()
+    bot.buildBot()
+}
 
 /**
  * Backing class for [bot] function.
@@ -27,8 +44,9 @@ class Bot(val api: Kord, private val globalPath: String) {
     private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
                                         var prefix: suspend DiscordContext.() -> String = { "+" },
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
-                                        var permissions: suspend (Command, Discord, User, MessageChannelBehavior, Guild?) -> Boolean = { _, _, _, _, _ -> true },
-                                        var presence: PresenceBuilder.() -> Unit = {})
+                                        var permissions: suspend (Command, Discord, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _, _ -> true },
+                                        var presence: PresenceBuilder.() -> Unit = {},
+                                        var onStart: suspend Discord.() -> Unit = {})
 
     private val startupBundle = StartupFunctions()
 
@@ -42,13 +60,11 @@ class Bot(val api: Kord, private val globalPath: String) {
             InternalLogger.log(header)
 
         val dataSize = registerData()
-        val conversationService = ConversationService(discord).apply { diService.inject(this) }
         val services = registerServices()
-        val preconditions = buildPreconditions().sortedBy { it.priority }
 
         ReflectionUtils.registerFunctions(globalPath, discord)
-        registerReactionListener(discord.api, conversationService)
-        registerCommandListener(discord, preconditions)
+        registerReactionListener(discord.api)
+        registerCommandListener(discord)
 
         val commandSets = discord.commands.groupBy { it.category }.keys.size
 
@@ -56,14 +72,10 @@ class Bot(val api: Kord, private val globalPath: String) {
             InternalLogger.log(commandSets.pluralize("CommandSet") + " -> " + discord.commands.size.pluralize("Command"))
             InternalLogger.log(dataSize.pluralize("Data"))
             InternalLogger.log(services.size.pluralize("Service"))
-            InternalLogger.log(preconditions.size.pluralize("Precondition"))
+            InternalLogger.log(discord.preconditions.size.pluralize("Precondition"))
         }
 
         registerHelpCommand(discord)
-        val conversationSize = conversationService.registerConversations(globalPath)
-
-        if (showStartupLog)
-            InternalLogger.log(conversationSize.pluralize("Conversation"))
 
         if (generateCommandDocs)
             createDocumentation(discord.commands)
@@ -79,7 +91,8 @@ class Bot(val api: Kord, private val globalPath: String) {
             prefixFun,
             mentionEmbedFun,
             permissionsFun,
-            presenceFun) = startupBundle
+            presenceFun,
+            startupFun) = startupBundle
 
         val simpleConfiguration = SimpleConfiguration()
         configureFun.invoke(simpleConfiguration)
@@ -87,9 +100,9 @@ class Bot(val api: Kord, private val globalPath: String) {
         val botConfiguration = with(simpleConfiguration) {
             BotConfiguration(
                 allowMentionPrefix = allowMentionPrefix,
-                requiresGuild = requiresGuild,
                 showStartupLog = showStartupLog,
                 generateCommandDocs = generateCommandDocs,
+                recommendCommands = recommendCommands,
                 commandReaction = commandReaction,
                 theme = theme,
                 prefix = prefixFun,
@@ -101,7 +114,10 @@ class Bot(val api: Kord, private val globalPath: String) {
         val discord = buildDiscordClient(api, botConfiguration)
 
         initCore(discord)
-        discord.api.login(presenceFun)
+        discord.api.login {
+            presenceFun.invoke(this)
+            startupFun.invoke(discord)
+        }
     }
 
     /**
@@ -157,13 +173,19 @@ class Bot(val api: Kord, private val globalPath: String) {
         startupBundle.presence = presence
     }
 
-    private fun buildPreconditions() = ReflectionUtils.detectSubtypesOf<Precondition>(globalPath).map { diService.invokeConstructor(it) }
+    /**
+     * When setup is complete, execute these tasks.
+     */
+    @ConfigurationDSL
+    fun onStart(start: suspend Discord.() -> Unit) {
+        startupBundle.onStart = start
+    }
+
     private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(globalPath).apply { diService.buildAllRecursively(this) }
     private fun registerHelpCommand(discord: Discord) = discord.commands["Help"]
-        ?: produceHelpCommand().registerCommands(discord)
+        ?: produceHelpCommand().register(discord)
 
-    private fun registerData() = ReflectionUtils
-        .detectSubtypesOf<Data>(globalPath)
+    private fun registerData() = ReflectionUtils.detectSubtypesOf<Data>(globalPath)
         .map {
             val default = it.getConstructor().newInstance()
 

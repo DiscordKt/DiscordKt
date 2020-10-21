@@ -4,7 +4,8 @@ import com.gitlab.kordlib.common.entity.Snowflake
 import com.gitlab.kordlib.core.entity.channel.Category
 import kotlinx.coroutines.flow.*
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
-import me.jakejmattson.discordkt.api.extensions.*
+import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
+import me.jakejmattson.discordkt.internal.utils.resolveEntityByName
 
 /**
  * Accepts a Discord Category entity as an ID, a mention, or by name.
@@ -19,41 +20,23 @@ open class CategoryArg(override val name: String = "Category", private val guild
     companion object : CategoryArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
-        val resolvedGuildId = guildId ?: event.guild?.id
+        val guild = guildId?.let { event.discord.api.getGuild(it) } ?: event.guild
 
-        if (arg.trimToID().toLongOrNull() != null) {
-            val category = arg.toSnowflake()?.let { event.discord.api.getChannel(it) } as? Category
+        if (!allowsGlobal && guild == null)
+            return Error("Guild not found")
 
-            if (!allowsGlobal && resolvedGuildId != category?.id)
-                return Error("Must be from this guild")
+        val categories = if (allowsGlobal)
+            event.discord.api.guilds.toList().flatMap { it.channels.filterIsInstance<Category>().toList() }
+        else
+            guild!!.channels.filterIsInstance<Category>().toList()
 
-            if (category != null)
-                return Success(category)
-        }
+        val snowflake = arg.toSnowflakeOrNull()
+        val categoryById = categories.firstOrNull { it.id == snowflake }
 
-        resolvedGuildId ?: return Error("Please invoke in a guild or use an ID")
+        if (categoryById != null)
+            return Success(categoryById)
 
-        val guild = event.discord.api.getGuild(resolvedGuildId)
-            ?: return Error("Guild not found")
-        val argString = args.joinToString(" ").toLowerCase()
-
-        val viableNames = guild.channels
-            .filter { argString.startsWith(it.name.toLowerCase()) }
-            .toList()
-            .sortedBy { it.name.length }
-
-        val longestMatch = viableNames.lastOrNull()?.takeUnless { it.name.length < arg.length }
-        val result = longestMatch.let { viableNames.filter { it.name == longestMatch?.name } }
-
-        return when (result.size) {
-            0 -> Error("Not found")
-            1 -> {
-                val category = result.first() as Category
-                val argList = args.take(category.name.split(" ").size)
-                Success(category, argList.size)
-            }
-            else -> Error("Found multiple matches")
-        }
+        return resolveEntityByName(args, categories) { name }
     }
 
     override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id.value)

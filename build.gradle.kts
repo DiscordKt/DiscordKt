@@ -1,14 +1,14 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.dokka.Platform
 
 group = "me.jakejmattson"
-version = "0.20.0"
+version = "0.21.0"
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
     //Core
     kotlin("jvm") version Versions.kotlin
     kotlin("plugin.serialization") version Versions.kotlin
-    id("org.jetbrains.dokka") version "0.10.1"
+    id("org.jetbrains.dokka") version Versions.kotlin
 
     //Publishing
     signing
@@ -16,7 +16,7 @@ plugins {
     id("io.codearte.nexus-staging") version "0.22.0"
 
     //Misc
-    id("com.github.ben-manes.versions") version "0.31.0"
+    id("com.github.ben-manes.versions") version "0.33.0"
 }
 
 repositories {
@@ -39,20 +39,19 @@ dependencies {
 tasks {
     val resourcePath = "src/main/resources"
 
-    withType<KotlinCompile> {
+    compileKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }
 
     copy {
-        val path = "$resourcePath/templates/readme-" + (if (isSnapshot) "snapshot" else "release") + ".md"
+        val path = "$resourcePath/templates/readme.md"
 
         from(file(path))
         into(file("."))
         rename { "README.md" }
         expand(
-            "group" to group,
-            "project" to Constants.projectName,
-            "version" to version
+            "badges" to README.badges,
+            "imports" to README.createImport(group.toString(), version.toString(), isSnapshot)
         )
     }
 
@@ -68,17 +67,20 @@ tasks {
         )
     }
 
-    dokka {
-        outputFormat = "html"
-        outputDirectory = "$buildDir/javadoc"
+    dokkaHtml.configure {
+        outputDirectory.set(buildDir.resolve("javadoc"))
 
-        configuration {
-            includeNonPublic = false
-            skipEmptyPackages = true
-            reportUndocumented = true
+        dokkaSourceSets {
+            configureEach {
+                platform.set(Platform.jvm)
+                jdkVersion.set(8)
 
-            targets = listOf("JVM")
-            platform = "JVM"
+                includeNonPublic.set(false)
+                skipEmptyPackages.set(true)
+                reportUndocumented.set(true)
+
+                suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\api\\GenericContainers.kt")
+            }
         }
     }
 
@@ -114,8 +116,8 @@ val dokkaJar by tasks.creating(Jar::class) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     description = "Assembles Kotlin docs with Dokka"
     archiveClassifier.set("javadoc")
-    from(tasks.dokka)
-    dependsOn(tasks.dokka)
+    from(tasks.dokkaHtml)
+    dependsOn(tasks.dokkaHtml)
 }
 
 publishing {

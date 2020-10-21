@@ -16,7 +16,7 @@ internal class InjectionService {
     }
 
     operator fun <T : Any> get(clazz: KClass<T>) = elementMap[clazz.java] as? T
-        ?: throw IllegalArgumentException("Could not inject class: ${clazz.java.simplerName}")
+        ?: throw IllegalArgumentException("Could not inject class: ${clazz.simplerName}")
 
     internal inline fun <reified T> invokeMethod(method: Method): T {
         val objects = determineArguments(method.parameterTypes)

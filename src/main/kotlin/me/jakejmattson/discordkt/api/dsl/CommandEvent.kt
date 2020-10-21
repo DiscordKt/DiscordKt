@@ -2,8 +2,8 @@ package me.jakejmattson.discordkt.api.dsl
 
 import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
 import com.gitlab.kordlib.core.entity.*
+import com.gitlab.kordlib.core.entity.channel.*
 import me.jakejmattson.discordkt.api.*
-import me.jakejmattson.discordkt.internal.utils.Responder
 
 /**
  * Data class containing the raw information from the command execution.
@@ -30,7 +30,7 @@ data class RawInputs(
  * @property channel The MessageChannel this command was invoked in.
  * @property prefix The prefix used to invoke this command.
  */
-open class DiscordContext(override val discord: Discord,
+open class DiscordContext(val discord: Discord,
                           open val message: Message,
                           open val guild: Guild?,
                           val author: User = message.author!!,
@@ -42,27 +42,67 @@ open class DiscordContext(override val discord: Discord,
 }
 
 /**
- * A command execution event containing the [RawInputs] and the relevant [DiscordContext].
+ * A generic command execution event.
  *
  * @property rawInputs The [RawInputs] of the command.
  * @property discord The [Discord] instance.
- * @property author The User who invoked this command.
  * @property message The Message that invoked this command.
+ * @property author The User who invoked this command.
  * @property channel The MessageChannel this command was invoked in.
- * @property guild The Guild this command was invoked in.
+ * @property guild The (nullable) guild this command was invoked in.
+ * @property args The parsed input to the command.
  * @property command The [Command] that is resolved from the invocation.
- * @property args The [GenericContainer] containing the converted input.
  */
-data class CommandEvent<T : GenericContainer>(val rawInputs: RawInputs,
-                                              override val discord: Discord,
-                                              override val message: Message,
-                                              override val guild: Guild?) : DiscordContext(discord, message, guild) {
-    val command = discord.commands[rawInputs.commandName]
+open class CommandEvent<T : TypeContainer>(
+    open val rawInputs: RawInputs,
+    open val discord: Discord,
+    open val message: Message,
+    open val author: User,
+    override val channel: MessageChannel,
+    open val guild: Guild?) : Responder {
 
     lateinit var args: T
 
+    val command
+        get() = discord.commands[rawInputs.commandName]
+
     /**
-     * Clone this event with optional modifications.
+     * Try to resolve the member from the user/guild data.
      */
-    fun cloneToGeneric(input: RawInputs = rawInputs) = CommandEvent<GenericContainer>(input, discord, message, guild)
+    suspend fun getMember() = guild?.getMember(author.id)
+
+    /**
+     * Determine the relevant prefix in the current context.
+     */
+    suspend fun prefix() = discord.configuration.prefix.invoke(DiscordContext(discord, message, guild, author, channel))
+
+    /**
+     * Clone this event's context data with new inputs.
+     */
+    open fun clone(input: RawInputs) = CommandEvent<T>(input, discord, message, author, channel, guild)
+
+    internal fun isFromGuild() = guild != null
 }
+
+/**
+ * An event that can only be fired in a guild.
+ */
+data class GuildCommandEvent<T : TypeContainer>(
+    override val rawInputs: RawInputs,
+    override val discord: Discord,
+    override val message: Message,
+    override val author: User,
+    override val channel: TextChannel,
+    override val guild: Guild) : CommandEvent<T>(rawInputs, discord, message, author, channel, guild)
+
+/**
+ * An event that can only be fired in a DM.
+ */
+data class DmCommandEvent<T : TypeContainer>(
+    override val rawInputs: RawInputs,
+    override val discord: Discord,
+    override val message: Message,
+    override val author: User,
+    override val channel: DmChannel,
+    @Deprecated("There is no guild within a DmCommandEvent.", level = DeprecationLevel.ERROR)
+    override val guild: Guild? = null) : CommandEvent<T>(rawInputs, discord, message, author, channel, null)
