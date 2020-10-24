@@ -25,7 +25,6 @@ open class ChannelArg<T : GuildChannel>(override val name: String = "Channel", p
         return Success(channel)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id.value)
-
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.mention)
     override fun formatData(data: T): String = "#${data.name}"
 }
