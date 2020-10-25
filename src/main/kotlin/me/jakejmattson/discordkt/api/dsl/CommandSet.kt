@@ -16,7 +16,10 @@ import me.jakejmattson.discordkt.internal.utils.BuilderRegister
 fun commands(category: String, construct: CommandSetBuilder.() -> Unit) = CommandSet(category, construct)
 
 /**
- * @suppress Used in DSL
+ * DSL used to build a set of commands.
+ *
+ * @param discord The discord instance.
+ * @param category The category these commands will be under.
  */
 data class CommandSetBuilder(val discord: Discord, val category: String) {
     private val commands = mutableListOf<Command>()
@@ -69,6 +72,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
  * This is not for you...
  */
 data class CommandSet(private val category: String, private val collector: CommandSetBuilder.() -> Unit) : BuilderRegister {
+    /** @suppress */
     override fun register(discord: Discord) {
         val commandSetBuilder = CommandSetBuilder(discord, category)
         collector.invoke(commandSetBuilder)

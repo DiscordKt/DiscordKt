@@ -57,6 +57,12 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
                                var theme: Color? = null)
 
 /**
- * @suppress Used in sample
+ * Holds information used to determine if a command has permission to run.
+ *
+ * @param command The command invoked that needs to check for permission.
+ * @param discord The discord instance.
+ * @param user The discord user who invoked the command.
+ * @param channel The channel that this command was invoked in.
+ * @param guild The guild that this command was invoked in.
  */
 data class PermissionContext(val command: Command, val discord: Discord, val user: User, val channel: MessageChannel, val guild: Guild?)

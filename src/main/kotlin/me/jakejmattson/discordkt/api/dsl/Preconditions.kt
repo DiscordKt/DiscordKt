@@ -33,6 +33,8 @@ data class PreconditionBuilder(private val event: CommandEvent<*>) : CommandEven
  */
 data class Precondition(internal val priority: Int, private val construct: suspend PreconditionBuilder.() -> Unit) : BuilderRegister {
     internal suspend fun check(event: CommandEvent<*>) = construct.invoke(PreconditionBuilder(event))
+
+    /** @suppress */
     override fun register(discord: Discord) {
         discord.preconditions.add(this)
     }

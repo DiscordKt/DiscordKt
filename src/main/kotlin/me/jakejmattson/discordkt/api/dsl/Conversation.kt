@@ -41,16 +41,17 @@ enum class ConversationResult {
 /**
  * This block builds a conversation.
  *
- * @param exitString If this String is entered by the user, the conversation is exited.
+ * @param exitString A String entered by the user to exit the conversation.
  */
 @BuilderDSL
 fun conversation(exitString: String? = null, block: suspend ConversationBuilder.() -> Unit) = Conversation(exitString, block)
 
 /**
  * A class that represent a conversation.
+ *
+ * @param exitString A String entered by the user to exit the conversation.
  */
 class Conversation(var exitString: String? = null, private val block: suspend ConversationBuilder.() -> Unit) {
-
     /**
      * Start a conversation with someone in their private messages.
      *
@@ -68,7 +69,7 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
         if (Conversations.hasConversation(user, channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val state = ConversationBuilder(discord, user, channel)
+        val state = ConversationBuilder(discord, user, channel, exitString)
 
         return start(state)
     }
@@ -89,7 +90,7 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
         if (Conversations.hasConversation(user, channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val state = ConversationBuilder(discord, user, channel)
+        val state = ConversationBuilder(discord, user, channel, exitString)
 
         return start(state)
     }
@@ -98,7 +99,6 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
 
     @PublishedApi
     internal suspend fun start(conversationBuilder: ConversationBuilder): ConversationResult {
-        conversationBuilder.exitString = exitString
         val (_, user, channel) = conversationBuilder
         builder = conversationBuilder
 
@@ -122,11 +122,17 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
     internal suspend fun acceptReaction(reaction: ReactionAddEvent) = builder.acceptReaction(reaction)
 }
 
-/** @suppress DSL backing */
+/** @suppress DSL backing
+ *
+ * @param discord The discord instance.
+ * @param user The user that the conversation is happening with.
+ * @param channel The channel that the conversation is happening in.
+ * @param exitString A String entered by the user to exit the conversation.
+ */
 data class ConversationBuilder(val discord: Discord,
                                val user: User,
                                override val channel: MessageChannel,
-                               var exitString: String? = null) : Responder {
+                               private val exitString: String? = null) : Responder {
 
     private val messageBuffer = Channel<Message>()
     private val reactionBuffer = Channel<ReactionAddEvent>()
@@ -270,6 +276,9 @@ data class ConversationBuilder(val discord: Discord,
     }
 }
 
+/**
+ * Object to keep tracking of running conversations.
+ */
 object Conversations {
     private data class ConversationLocation(val userId: Snowflake, val channelId: Snowflake)
 
@@ -285,7 +294,10 @@ object Conversations {
         activeConversations.remove(ConversationLocation(user.id, channel.id))
     }
 
-    fun getConversation(user: User, channel: MessageChannelBehavior) = activeConversations[ConversationLocation(user.id, channel.id)]
+    /**
+     * Get a running conversation by its context, if it exists.
+     */
+    private fun getConversation(user: User, channel: MessageChannelBehavior) = activeConversations[ConversationLocation(user.id, channel.id)]
 
     /**
      * Whether or not a conversation with the given context already exists.

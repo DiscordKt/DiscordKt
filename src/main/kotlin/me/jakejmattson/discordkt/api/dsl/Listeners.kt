@@ -18,6 +18,8 @@ fun listeners(construct: ListenerBuilder.() -> Unit) = Listeners(construct)
 
 /**
  * @suppress Used in DSL
+ *
+ * @param discord The discord instance.
  */
 data class ListenerBuilder(val discord: Discord) {
     /**
@@ -35,6 +37,7 @@ data class ListenerBuilder(val discord: Discord) {
  * This is not for you...
  */
 data class Listeners(private val collector: ListenerBuilder.() -> Unit) : BuilderRegister {
+    /** @suppress */
     override fun register(discord: Discord) {
         collector.invoke(ListenerBuilder(discord))
     }
