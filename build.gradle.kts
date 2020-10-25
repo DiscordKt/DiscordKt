@@ -8,7 +8,7 @@ plugins {
     //Core
     kotlin("jvm") version Versions.kotlin
     kotlin("plugin.serialization") version Versions.kotlin
-    id("org.jetbrains.dokka") version Versions.kotlin
+    id("org.jetbrains.dokka") version Versions.dokka
 
     //Publishing
     signing
