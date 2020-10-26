@@ -27,33 +27,20 @@ There is also an [example project](https://github.com/JakeJMattson/DiscordKtExam
 
 ### Maven
 ```xml
-<repository>
-    <id>Sonatype Snapshots</id>
-    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-</repository>
-
 <dependency>
     <groupId>me.jakejmattson</groupId>
     <artifactId>DiscordKt</artifactId>
-    <version>0.21.1-SNAPSHOT</version>
+    <version>0.21.1</version>
 </dependency>
 ```
 ### Gradle
 ```groovy
-maven {
-    url 'https://oss.sonatype.org/content/repositories/snapshots/'
-}
-
 dependencies {
-    implementation 'me.jakejmattson:DiscordKt:0.21.1-SNAPSHOT'
+    implementation 'me.jakejmattson:DiscordKt:0.21.1'
 }
 ```
 ```kotlin
-maven {
-    url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-}
-
 dependencies {
-    implementation("me.jakejmattson:DiscordKt:0.21.1-SNAPSHOT")
+    implementation("me.jakejmattson:DiscordKt:0.21.1")
 }
 ```
