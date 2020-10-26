@@ -1,14 +1,14 @@
 import org.jetbrains.dokka.Platform
 
 group = "me.jakejmattson"
-version = "0.21.0"
+version = "0.21.1"
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
     //Core
     kotlin("jvm") version Versions.kotlin
     kotlin("plugin.serialization") version Versions.kotlin
-    id("org.jetbrains.dokka") version Versions.kotlin
+    id("org.jetbrains.dokka") version Versions.dokka
 
     //Publishing
     signing

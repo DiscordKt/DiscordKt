@@ -26,6 +26,6 @@ open class MemberArg(override val name: String = "Member", private val allowsBot
         return Success(member)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.id.value)
+    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.mention)
     override fun formatData(data: Member) = "@${data.tag}"
 }

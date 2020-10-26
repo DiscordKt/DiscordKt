@@ -38,7 +38,7 @@ internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<*>
 
     val successList = expected
         .toMutableList()
-        .generateAllPermutations()
+        .generatePermutations()
         .mapNotNull {
             when (val conversion = convertArguments(actualArgs, it, event)) {
                 is ConversionSuccess -> it to conversion.results
@@ -68,17 +68,19 @@ internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<*>
     return ParseResult.Success(bundleToContainer(orderedResult))
 }
 
-private fun <E> MutableList<E>.generateAllPermutations(): List<List<E>> {
+private fun <E> MutableList<E>.generatePermutations(): List<List<E>> {
     if (isEmpty())
         return listOf(listOf())
 
     val firstElement = removeAt(0)
     val returnValue = mutableListOf<List<E>>()
 
-    generateAllPermutations().forEachIndexed { index, list ->
-        val temp = list.toMutableList()
-        temp.add(index, firstElement)
-        returnValue.add(temp)
+    generatePermutations().forEach {
+        (0..it.size).forEach { index ->
+            val temp = it.toMutableList()
+            temp.add(index, firstElement)
+            returnValue.add(temp)
+        }
     }
 
     return returnValue
