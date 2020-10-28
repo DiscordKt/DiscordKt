@@ -3,6 +3,7 @@ package me.jakejmattson.discordkt.api.dsl
 import com.gitlab.kordlib.core.Kord
 import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.entity.channel.MessageChannel
+import com.gitlab.kordlib.gateway.Intents
 import com.gitlab.kordlib.gateway.builder.PresenceBuilder
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.*
@@ -30,22 +31,21 @@ internal val diService = InjectionService()
 @ConfigurationDSL
 suspend fun bot(token: String, operate: suspend Bot.() -> Unit) {
     val path = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
-    val bot = Bot(Kord(token), path)
+    val bot = Bot(token, path)
     bot.operate()
     bot.buildBot()
 }
 
 /**
  * Backing class for [bot] function.
- *
- * @param api A Kord instance exposed to the bot builder.
  */
-class Bot(val api: Kord, private val globalPath: String) {
+class Bot(private val token: String, private val globalPath: String) {
     private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
                                         var prefix: suspend DiscordContext.() -> String = { "+" },
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
                                         var permissions: suspend (Command, Discord, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _, _ -> true },
                                         var presence: PresenceBuilder.() -> Unit = {},
+                                        var intents: Intents.IntentsBuilder.() -> Unit = {},
                                         var onStart: suspend Discord.() -> Unit = {})
 
     private val startupBundle = StartupFunctions()
@@ -92,6 +92,7 @@ class Bot(val api: Kord, private val globalPath: String) {
             mentionEmbedFun,
             permissionsFun,
             presenceFun,
+            intentsFun,
             startupFun) = startupBundle
 
         val simpleConfiguration = SimpleConfiguration()
@@ -111,7 +112,13 @@ class Bot(val api: Kord, private val globalPath: String) {
             )
         }
 
-        val discord = buildDiscordClient(api, botConfiguration)
+        val kord = Kord(token) {
+            intents {
+                intentsFun.invoke(this)
+            }
+        }
+
+        val discord = buildDiscordClient(kord, botConfiguration)
 
         initCore(discord)
         discord.api.login {
@@ -171,6 +178,14 @@ class Bot(val api: Kord, private val globalPath: String) {
     @ConfigurationDSL
     fun presence(presence: PresenceBuilder.() -> Unit) {
         startupBundle.presence = presence
+    }
+
+    /**
+     * Configure the Discord Gateway intents for your bot.
+     */
+    @ConfigurationDSL
+    fun intents(intents: Intents.IntentsBuilder.() -> Unit) {
+        startupBundle.intents = intents
     }
 
     /**
