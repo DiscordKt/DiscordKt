@@ -30,6 +30,9 @@ abstract class Discord {
     val versions = Json.decodeFromString<Versions>(this::class.java.getResource("/library-properties.json").readText())
 
     /** Fetch an object from the DI pool by its type */
+    inline fun <reified A: Any> getInjectionObjects() = diService[A::class]
+
+    /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any> getInjectionObjects(a: KClass<A>) = diService[a]
 
     /** Fetch an object from the DI pool by its type */
