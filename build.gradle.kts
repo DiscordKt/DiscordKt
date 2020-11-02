@@ -1,7 +1,7 @@
 import org.jetbrains.dokka.Platform
 
 group = "me.jakejmattson"
-version = "0.21.2"
+version = "0.21.3-SNAPSHOT"
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
@@ -89,11 +89,11 @@ tasks {
         doLast {
             val sizes = buildString {
                 val configuration = configurations["default"]
-                val size = configuration.map { it.length() / (1024 * 1024) }.sum()
+                val size = configuration.map { it.length() / (1024.0 * 1024.0) }.sum()
                 val longestName = configuration.map { it.name.length }.max()
                 val formatStr = "%-${longestName}s   %5d KB"
 
-                appendln("Total Size: $size MB\n")
+                appendln("Total Size: %.2f MB\n".format(size))
 
                 configuration
                     .sortedBy { -it.length() }
