@@ -30,17 +30,17 @@ There is also an [example project](https://github.com/JakeJMattson/DiscordKtExam
 <dependency>
     <groupId>me.jakejmattson</groupId>
     <artifactId>DiscordKt</artifactId>
-    <version>0.21.2</version>
+    <version>0.21.3</version>
 </dependency>
 ```
 ### Gradle
 ```groovy
 dependencies {
-    implementation 'me.jakejmattson:DiscordKt:0.21.2'
+    implementation 'me.jakejmattson:DiscordKt:0.21.3'
 }
 ```
 ```kotlin
 dependencies {
-    implementation("me.jakejmattson:DiscordKt:0.21.2")
+    implementation("me.jakejmattson:DiscordKt:0.21.3")
 }
 ```
