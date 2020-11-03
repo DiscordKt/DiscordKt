@@ -25,22 +25,47 @@ Documentation for this project is currently incomplete.
 Nearly all functions and fields within the codebase use KDocs/Javadocs for IDE discovery.
 There is also an [example project](https://github.com/JakeJMattson/DiscordKtExample) that can be used as a reference for each version.
 
+### Gradle (Kotlin)
+```kotlin
+repositories {
+    mavenCentral()
+    jcenter()
+    maven("https://oss.sonatype.org/content/repositories/snapshots/")
+}
+
+dependencies {
+    implementation("me.jakejmattson:DiscordKt:0.21.4-SNAPSHOT")
+}
+```
+### Gradle (Groovy)
+```groovy
+repositories {
+    mavenCentral()
+    jcenter()
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
+}
+
+dependencies {
+    implementation 'me.jakejmattson:DiscordKt:0.21.4-SNAPSHOT'
+}
+```
+
 ### Maven
 ```xml
-<dependency>
-    <groupId>me.jakejmattson</groupId>
-    <artifactId>DiscordKt</artifactId>
-    <version>0.21.3</version>
-</dependency>
-```
-### Gradle
-```groovy
-dependencies {
-    implementation 'me.jakejmattson:DiscordKt:0.21.3'
-}
-```
-```kotlin
-dependencies {
-    implementation("me.jakejmattson:DiscordKt:0.21.3")
-}
+<repositories>
+    <repository>
+        <id>Sonatype Snapshots</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
+</repositories>
+
+<dependencies>
+    <dependency>
+        <groupId>me.jakejmattson</groupId>
+        <artifactId>DiscordKt</artifactId>
+        <version>0.21.4-SNAPSHOT</version>
+    </dependency>
+</dependencies>
 ```

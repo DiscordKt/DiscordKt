@@ -1,7 +1,7 @@
 import org.jetbrains.dokka.Platform
 
 group = "me.jakejmattson"
-version = "0.21.3"
+version = "0.21.4-SNAPSHOT"
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {

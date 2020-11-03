@@ -60,32 +60,35 @@ object README {
         val gradleTag = "${group}:${project}:${version}"
         val snapshotUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
 
-        appendln("### Maven\n```xml")
+        appendln("### Gradle (Kotlin)\n```kotlin")
 
         if (isSnapshot)
             appendln("""
-                <repository>
-                    <id>Sonatype Snapshots</id>
-                    <url>$snapshotUrl</url>
-                </repository>
+                repositories {
+                    mavenCentral()
+                    jcenter()
+                    maven("$snapshotUrl")
+                }
                 
             """.trimIndent())
 
         appendln("""
-            <dependency>
-                <groupId>${group}</groupId>
-                <artifactId>${project}</artifactId>
-                <version>${version}</version>
-            </dependency>
+            dependencies {
+                implementation("$gradleTag")
+            }
             ```
         """.trimIndent())
 
-        appendln("### Gradle\n```groovy")
+        appendln("### Gradle (Groovy)\n```groovy")
 
         if (isSnapshot)
             appendln("""
-                maven {
-                    url '${snapshotUrl}'
+                repositories {
+                    mavenCentral()
+                    jcenter()
+                    maven {
+                        url '${snapshotUrl}'
+                    }
                 }
                 
             """.trimIndent())
@@ -95,21 +98,30 @@ object README {
                 implementation '${gradleTag}'
             }
             ```
-            ```kotlin
+            
         """.trimIndent())
+
+        appendln("### Maven\n```xml")
 
         if (isSnapshot)
             appendln("""
-                maven {
-                    url = uri("$snapshotUrl")
-                }
+                <repositories>
+                    <repository>
+                        <id>Sonatype Snapshots</id>
+                        <url>$snapshotUrl</url>
+                    </repository>
+                </repositories>
                 
             """.trimIndent())
 
         appendln("""
-            dependencies {
-                implementation("$gradleTag")
-            }
+            <dependencies>
+                <dependency>
+                    <groupId>${group}</groupId>
+                    <artifactId>${project}</artifactId>
+                    <version>${version}</version>
+                </dependency>
+            </dependencies>
             ```
         """.trimIndent())
     }
