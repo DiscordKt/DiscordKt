@@ -4,6 +4,7 @@ package me.jakejmattson.discordkt.api.dsl
 
 import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.entity.channel.MessageChannel
+import com.gitlab.kordlib.gateway.*
 import com.gitlab.kordlib.kordx.emoji.*
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.Discord
@@ -18,6 +19,7 @@ import java.awt.Color
  * @property recommendCommands Whether or not to recommend the closest command when one fails.
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
+ * @property intents The registered gateway intents.
  */
 data class BotConfiguration(
     val allowMentionPrefix: Boolean,
@@ -26,6 +28,7 @@ data class BotConfiguration(
     val recommendCommands: Boolean,
     val commandReaction: DiscordEmoji?,
     val theme: Color?,
+    val intents: Set<Intent>,
 
     internal val prefix: suspend (DiscordContext) -> String,
     internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
@@ -39,22 +42,25 @@ data class BotConfiguration(
         }
     }
 }
+
 /**
  * Holds all basic configuration options.
  *
-* @property allowMentionPrefix Allow mentioning the bot to be used as a prefix '@Bot'.
-* @property showStartupLog Whether or not to display log information when the bot starts.
-* @property generateCommandDocs Whether or not command documentation should be generated.
-* @property recommendCommands Whether or not to recommend the closest command when one fails.
-* @property commandReaction The reaction added to a message when a command is received.
-* @property theme The color theme of internal embeds (i.e. Help).
-*/
+ * @property allowMentionPrefix Allow mentioning the bot to be used as a prefix '@Bot'.
+ * @property showStartupLog Whether or not to display log information when the bot starts.
+ * @property generateCommandDocs Whether or not command documentation should be generated.
+ * @property recommendCommands Whether or not to recommend the closest command when one fails.
+ * @property commandReaction The reaction added to a message when a command is received.
+ * @property theme The color theme of internal embeds (i.e. Help).
+ * @property intents The registered gateway intents.
+ */
 data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
                                var showStartupLog: Boolean = true,
                                var generateCommandDocs: Boolean = true,
                                var recommendCommands: Boolean = true,
                                var commandReaction: DiscordEmoji? = Emojis.eyes,
-                               var theme: Color? = null)
+                               var theme: Color? = null,
+                               var intents: Set<Intent> = Intents.nonPrivileged.intents)
 
 /**
  * Holds information used to determine if a command has permission to run.

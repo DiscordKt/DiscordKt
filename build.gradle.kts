@@ -1,7 +1,7 @@
 import org.jetbrains.dokka.Platform
 
 group = "me.jakejmattson"
-version = "0.21.4-SNAPSHOT"
+version = "0.22.0-SNAPSHOT"
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
@@ -16,7 +16,7 @@ plugins {
     id("io.codearte.nexus-staging") version "0.22.0"
 
     //Misc
-    id("com.github.ben-manes.versions") version "0.33.0"
+    id("com.github.ben-manes.versions") version "0.34.0"
 }
 
 repositories {

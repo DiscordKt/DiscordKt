@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-    implementation("me.jakejmattson:DiscordKt:0.21.4-SNAPSHOT")
+    implementation("me.jakejmattson:DiscordKt:0.22.0-SNAPSHOT")
 }
 ```
 ### Gradle (Groovy)
@@ -48,7 +48,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'me.jakejmattson:DiscordKt:0.21.4-SNAPSHOT'
+    implementation 'me.jakejmattson:DiscordKt:0.22.0-SNAPSHOT'
 }
 ```
 
@@ -65,7 +65,7 @@ dependencies {
     <dependency>
         <groupId>me.jakejmattson</groupId>
         <artifactId>DiscordKt</artifactId>
-        <version>0.21.4-SNAPSHOT</version>
+        <version>0.22.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
 ```

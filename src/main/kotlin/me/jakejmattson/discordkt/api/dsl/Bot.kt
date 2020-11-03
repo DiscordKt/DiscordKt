@@ -45,7 +45,6 @@ class Bot(private val token: String, private val globalPath: String) {
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
                                         var permissions: suspend (Command, Discord, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _, _ -> true },
                                         var presence: PresenceBuilder.() -> Unit = {},
-                                        var intents: Intents.IntentsBuilder.() -> Unit = {},
                                         var onStart: suspend Discord.() -> Unit = {})
 
     private val startupBundle = StartupFunctions()
@@ -54,7 +53,7 @@ class Bot(private val token: String, private val globalPath: String) {
         diService.inject(discord)
         val showStartupLog = discord.configuration.showStartupLog
         val generateCommandDocs = discord.configuration.generateCommandDocs
-        val header = "------- DiscordKt ${discord.versions.library} -------"
+        val header = "----- DiscordKt ${discord.versions.library} -----"
 
         if (showStartupLog)
             InternalLogger.log(header)
@@ -92,7 +91,6 @@ class Bot(private val token: String, private val globalPath: String) {
             mentionEmbedFun,
             permissionsFun,
             presenceFun,
-            intentsFun,
             startupFun) = startupBundle
 
         val simpleConfiguration = SimpleConfiguration()
@@ -106,6 +104,7 @@ class Bot(private val token: String, private val globalPath: String) {
                 recommendCommands = recommendCommands,
                 commandReaction = commandReaction,
                 theme = theme,
+                intents = intents,
                 prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun,
                 permissions = permissionsFun
@@ -114,7 +113,9 @@ class Bot(private val token: String, private val globalPath: String) {
 
         val kord = Kord(token) {
             intents {
-                intentsFun.invoke(this)
+                botConfiguration.intents.forEach {
+                    + it
+                }
             }
         }
 
@@ -178,14 +179,6 @@ class Bot(private val token: String, private val globalPath: String) {
     @ConfigurationDSL
     fun presence(presence: PresenceBuilder.() -> Unit) {
         startupBundle.presence = presence
-    }
-
-    /**
-     * Configure the Discord Gateway intents for your bot.
-     */
-    @ConfigurationDSL
-    fun intents(intents: Intents.IntentsBuilder.() -> Unit) {
-        startupBundle.intents = intents
     }
 
     /**
