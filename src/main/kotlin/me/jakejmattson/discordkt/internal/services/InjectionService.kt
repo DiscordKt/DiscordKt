@@ -23,7 +23,7 @@ internal class InjectionService {
         return method.invoke(null, *objects) as T
     }
 
-    internal fun <T> invokeConstructor(clazz: Class<T>): T {
+    private fun <T> invokeConstructor(clazz: Class<T>): T {
         val constructor = clazz.constructors.first()
         val objects = determineArguments(constructor.parameterTypes)
         return constructor.newInstance(*objects) as T

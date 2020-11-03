@@ -1,4 +1,4 @@
-package me.jakejmattson.discordkt.internal.services
+package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.api.arguments.MultipleArg
 import me.jakejmattson.discordkt.api.dsl.Command

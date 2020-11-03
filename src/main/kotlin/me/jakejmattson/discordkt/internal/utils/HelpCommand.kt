@@ -1,8 +1,7 @@
-package me.jakejmattson.discordkt.internal.services
+package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.api.arguments.AnyArg
 import me.jakejmattson.discordkt.api.dsl.*
-import me.jakejmattson.discordkt.internal.utils.Recommender
 import java.awt.Color
 
 internal fun produceHelpCommand() = commands("Utility") {
