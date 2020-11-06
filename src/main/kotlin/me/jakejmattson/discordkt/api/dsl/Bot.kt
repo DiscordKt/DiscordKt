@@ -1,8 +1,9 @@
 package me.jakejmattson.discordkt.api.dsl
 
-import com.gitlab.kordlib.core.Kord
+import com.gitlab.kordlib.core.*
 import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.entity.channel.MessageChannel
+import com.gitlab.kordlib.core.event.message.*
 import com.gitlab.kordlib.gateway.Intents
 import com.gitlab.kordlib.gateway.builder.PresenceBuilder
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
@@ -113,6 +114,9 @@ class Bot(private val token: String, private val globalPath: String) {
 
         val kord = Kord(token) {
             intents {
+                enableEvent<MessageCreateEvent>()
+                enableEvent<ReactionAddEvent>()
+
                 botConfiguration.intents.forEach {
                     + it
                 }

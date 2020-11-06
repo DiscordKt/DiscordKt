@@ -12,19 +12,23 @@ import me.jakejmattson.discordkt.api.arguments.EitherArg
 import me.jakejmattson.discordkt.api.dsl.Command
 import kotlin.reflect.KClass
 
+private val reactionEvents: List<KClass<out Event>> = listOf(ReactionAddEvent::class, ReactionRemoveEvent::class, ReactionRemoveAllEvent::class, ReactionRemoveEmojiEvent::class)
+
 @OptIn(PrivilegedIntent::class)
 private val requiredIntents: Map<Intent, List<KClass<out Event>>> = mapOf(
-    Intent.DirectMessageTyping to listOf(TypingStartEvent::class),
     Intent.DirectMessages to listOf(ChannelCreateEvent::class, ChannelDeleteEvent::class, MessageCreateEvent::class, MessageDeleteEvent::class),
-    Intent.DirectMessagesReactions to listOf(ReactionAddEvent::class, ReactionRemoveEvent::class, ReactionRemoveAllEvent::class, ReactionRemoveEmojiEvent::class),
+    Intent.DirectMessageTyping to listOf(TypingStartEvent::class),
+    Intent.DirectMessagesReactions to reactionEvents,
+
+    Intent.GuildMessages to listOf(MessageCreateEvent::class, MessageUpdateEvent::class, MessageDeleteEvent::class, MessageBulkDeleteEvent::class),
+    Intent.GuildMessageTyping to listOf(TypingStartEvent::class),
+    Intent.GuildMessageReactions to reactionEvents,
+
     Intent.GuildBans to listOf(BanAddEvent::class, BanRemoveEvent::class),
     Intent.GuildEmojis to listOf(EmojisUpdateEvent::class),
     Intent.GuildIntegrations to listOf(IntegrationsUpdateEvent::class),
     Intent.GuildInvites to listOf(InviteCreateEvent::class, InviteDeleteEvent::class),
     Intent.GuildMembers to listOf(MemberJoinEvent::class, MemberLeaveEvent::class, MemberUpdateEvent::class),
-    Intent.GuildMessageReactions to listOf(ReactionAddEvent::class, ReactionRemoveEvent::class, ReactionRemoveAllEvent::class, ReactionRemoveEmojiEvent::class),
-    Intent.GuildMessageTyping to listOf(TypingStartEvent::class),
-    Intent.GuildMessages to listOf(MessageCreateEvent::class, MessageUpdateEvent::class, MessageDeleteEvent::class, MessageBulkDeleteEvent::class),
     Intent.GuildPresences to listOf(PresenceUpdateEvent::class),
     Intent.GuildVoiceStates to listOf(VoiceStateUpdateEvent::class),
     Intent.GuildWebhooks to listOf(WebhookUpdateEvent::class),

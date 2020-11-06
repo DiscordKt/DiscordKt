@@ -3,6 +3,7 @@ package me.jakejmattson.discordkt.api.dsl
 import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
 import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.entity.channel.*
+import com.gitlab.kordlib.kordx.emoji.*
 import me.jakejmattson.discordkt.api.*
 
 /**
@@ -75,6 +76,11 @@ open class CommandEvent<T : TypeContainer>(
      * Determine the relevant prefix in the current context.
      */
     suspend fun prefix() = discord.configuration.prefix.invoke(DiscordContext(discord, message, guild, author, channel))
+
+    /**
+     * Add a reaction to the command invocation message.
+     */
+    suspend fun reactWith(emoji: DiscordEmoji) = message.addReaction(emoji)
 
     /**
      * Clone this event's context data with new inputs.
