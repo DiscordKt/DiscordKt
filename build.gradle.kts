@@ -26,7 +26,6 @@ repositories {
 
 dependencies {
     //Internal Dependencies
-    implementation(Dependencies.coroutines)
     implementation(Dependencies.reflections)
     implementation(Dependencies.slf4j)
     implementation(Dependencies.gson)
@@ -40,7 +39,10 @@ tasks {
     val resourcePath = "src/main/resources"
 
     compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions {
+            jvmTarget = "1.8"
+            freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+        }
     }
 
     copy {

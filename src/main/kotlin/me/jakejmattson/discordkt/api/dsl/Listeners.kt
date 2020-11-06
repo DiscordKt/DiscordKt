@@ -6,7 +6,7 @@ import com.gitlab.kordlib.core.event.Event
 import com.gitlab.kordlib.core.on
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.internal.annotations.*
-import me.jakejmattson.discordkt.internal.utils.BuilderRegister
+import me.jakejmattson.discordkt.internal.utils.*
 
 /**
  * Create a block for registering listeners.
@@ -27,6 +27,8 @@ data class ListenerBuilder(val discord: Discord) {
      */
     @InnerDSL
     inline fun <reified T : Event> on(crossinline listener: suspend T.() -> Unit) {
+        Validator.validateIntent(discord, T::class)
+
         discord.api.on<T> {
             listener(this)
         }
