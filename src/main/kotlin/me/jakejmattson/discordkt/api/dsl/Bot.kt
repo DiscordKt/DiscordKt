@@ -1,10 +1,9 @@
 package me.jakejmattson.discordkt.api.dsl
 
-import com.gitlab.kordlib.core.*
+import com.gitlab.kordlib.core.Kord
 import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.entity.channel.MessageChannel
 import com.gitlab.kordlib.core.event.message.*
-import com.gitlab.kordlib.gateway.Intents
 import com.gitlab.kordlib.gateway.builder.PresenceBuilder
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.*
@@ -12,7 +11,7 @@ import me.jakejmattson.discordkt.api.annotations.Service
 import me.jakejmattson.discordkt.api.extensions.pluralize
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.listeners.*
-import me.jakejmattson.discordkt.internal.services.*
+import me.jakejmattson.discordkt.internal.services.InjectionService
 import me.jakejmattson.discordkt.internal.utils.*
 import kotlin.system.exitProcess
 
@@ -82,8 +81,10 @@ class Bot(private val token: String, private val globalPath: String) {
 
         Validator.validateCommandMeta(discord.commands)
 
-        if (showStartupLog)
+        if (showStartupLog) {
+            InternalLogger.log("Intents: ${discord.configuration.intents.joinToString { it.name }}")
             InternalLogger.log("-".repeat(header.length))
+        }
     }
 
     internal suspend fun buildBot() {
@@ -112,11 +113,11 @@ class Bot(private val token: String, private val globalPath: String) {
             )
         }
 
+        botConfiguration.enableEvent<MessageCreateEvent>()
+        botConfiguration.enableEvent<ReactionAddEvent>()
+
         val kord = Kord(token) {
             intents {
-                enableEvent<MessageCreateEvent>()
-                enableEvent<ReactionAddEvent>()
-
                 botConfiguration.intents.forEach {
                     + it
                 }

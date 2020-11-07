@@ -7,7 +7,6 @@ import com.gitlab.kordlib.core.event.guild.*
 import com.gitlab.kordlib.core.event.message.*
 import com.gitlab.kordlib.core.event.role.*
 import com.gitlab.kordlib.gateway.*
-import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.arguments.EitherArg
 import me.jakejmattson.discordkt.api.dsl.Command
 import kotlin.reflect.KClass
@@ -38,17 +37,6 @@ private val requiredIntents: Map<Intent, List<KClass<out Event>>> = mapOf(
 
 @PublishedApi
 internal object Validator {
-    fun validateIntent(discord: Discord, event: KClass<out Event>) {
-        val enabledIntents = discord.configuration.intents
-
-        val validIntents = requiredIntents.filter { (_, events) ->
-            event in events
-        }.map { it.key }
-
-        if (validIntents.none { it in enabledIntents })
-            InternalLogger.error("${event.simplerName} missing intent (${validIntents.joinToString("; ") { it.name }})")
-    }
-
     fun validateCommandMeta(commands: MutableList<Command>) {
         val duplicates = commands
             .flatMap { it.names }

@@ -21,4 +21,4 @@ fun String.toSnowflakeOrNull() = trimToID().toLongOrNull()?.let { Snowflake(it) 
 /**
  * Combine two intents into a set.
  */
-operator fun Intent.plus(intent: Intent) = setOf(this, intent)
+operator fun Intent.plus(intent: Intent) = mutableSetOf(this, intent)

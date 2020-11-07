@@ -2,8 +2,10 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
+import com.gitlab.kordlib.core.enableEvent
 import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.entity.channel.MessageChannel
+import com.gitlab.kordlib.core.event.Event
 import com.gitlab.kordlib.gateway.*
 import com.gitlab.kordlib.kordx.emoji.*
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
@@ -28,7 +30,7 @@ data class BotConfiguration(
     val recommendCommands: Boolean,
     val commandReaction: DiscordEmoji?,
     val theme: Color?,
-    val intents: Set<Intent>,
+    val intents: MutableSet<Intent>,
 
     internal val prefix: suspend (DiscordContext) -> String,
     internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
@@ -40,6 +42,15 @@ data class BotConfiguration(
             command is GuildCommand && !event.isFromGuild() -> false
             else -> permissions.invoke(command, event.discord, event.author, event.channel, event.guild)
         }
+    }
+
+    @PublishedApi
+    internal inline fun <reified T : Event> enableEvent() {
+        intents.addAll(
+            Intents.IntentsBuilder().apply {
+                this.enableEvent<T>()
+            }.flags().intents
+        )
     }
 }
 
@@ -60,7 +71,7 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
                                var recommendCommands: Boolean = true,
                                var commandReaction: DiscordEmoji? = Emojis.eyes,
                                var theme: Color? = null,
-                               var intents: Set<Intent> = Intents.nonPrivileged.intents)
+                               var intents: MutableSet<Intent> = mutableSetOf())
 
 /**
  * Holds information used to determine if a command has permission to run.
