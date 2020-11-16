@@ -81,10 +81,8 @@ class Bot(private val token: String, private val globalPath: String) {
 
         Validator.validateCommandMeta(discord.commands)
 
-        if (showStartupLog) {
-            InternalLogger.log("Intents: ${discord.configuration.intents.joinToString { it.name }}")
+        if (showStartupLog)
             InternalLogger.log("-".repeat(header.length))
-        }
     }
 
     internal suspend fun buildBot() {
@@ -106,7 +104,7 @@ class Bot(private val token: String, private val globalPath: String) {
                 recommendCommands = recommendCommands,
                 commandReaction = commandReaction,
                 theme = theme,
-                intents = intents,
+                intents = intents.toMutableSet(),
                 prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun,
                 permissions = permissionsFun

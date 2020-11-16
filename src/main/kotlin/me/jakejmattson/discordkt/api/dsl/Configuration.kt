@@ -71,7 +71,7 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
                                var recommendCommands: Boolean = true,
                                var commandReaction: DiscordEmoji? = Emojis.eyes,
                                var theme: Color? = null,
-                               var intents: MutableSet<Intent> = mutableSetOf())
+                               var intents: Set<Intent> = setOf())
 
 /**
  * Holds information used to determine if a command has permission to run.
