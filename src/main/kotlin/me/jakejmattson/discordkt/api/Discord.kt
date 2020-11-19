@@ -27,21 +27,23 @@ abstract class Discord {
     abstract val configuration: BotConfiguration
     abstract val commands: MutableList<Command>
     internal abstract val preconditions: MutableList<Precondition>
-    val versions = Json.decodeFromString<Versions>(this::class.java.getResource("/library-properties.json").readText())
+    val versions = Json.decodeFromString<Versions>(javaClass.getResource("/library-properties.json").readText())
 
     /** Fetch an object from the DI pool by its type */
-    inline fun <reified A: Any> getInjectionObjects() = diService[A::class]
+    inline fun <reified A : Any> getInjectionObjects() = diService[A::class]
 
     /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any> getInjectionObjects(a: KClass<A>) = diService[a]
 
     /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any, reified B : Any>
-        getInjectionObjects(a: KClass<A>, b: KClass<B>) = Args2(diService[a], diService[b])
+        getInjectionObjects(a: KClass<A>, b: KClass<B>) =
+        Args2(diService[a], diService[b])
 
     /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any, reified B : Any, reified C : Any>
-        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>) = Args3(diService[a], diService[b], diService[c])
+        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>) =
+        Args3(diService[a], diService[b], diService[c])
 
     /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any, reified B : Any, reified C : Any, reified D : Any>

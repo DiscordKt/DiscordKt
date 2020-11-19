@@ -117,7 +117,7 @@ class Bot(private val token: String, private val globalPath: String) {
         val kord = Kord(token) {
             intents {
                 botConfiguration.intents.forEach {
-                    + it
+                    +it
                 }
             }
         }
@@ -201,9 +201,7 @@ class Bot(private val token: String, private val globalPath: String) {
             val default = it.getConstructor().newInstance()
 
             val data = with(default) {
-                if (file.exists()) {
-                    readFromFile()
-                } else {
+                if (!file.exists()) {
                     writeToFile()
 
                     if (killIfGenerated) {
@@ -212,7 +210,8 @@ class Bot(private val token: String, private val globalPath: String) {
                     }
 
                     this
-                }
+                } else
+                    readFromFile()
             }
 
             diService.inject(data)
