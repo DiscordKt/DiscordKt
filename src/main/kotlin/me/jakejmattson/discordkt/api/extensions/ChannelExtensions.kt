@@ -3,19 +3,22 @@ package me.jakejmattson.discordkt.api.extensions
 import com.gitlab.kordlib.core.behavior.*
 import com.gitlab.kordlib.core.entity.VoiceState
 import com.gitlab.kordlib.core.entity.channel.*
+import com.gitlab.kordlib.rest.builder.channel.*
 
 /**
  * Create a new text channel under this category.
  */
-suspend fun Category.createTextChannel() = getGuild().createTextChannel {
+suspend fun Category.createTextChannel(builder: TextChannelCreateBuilder.() -> Unit = {}) = getGuild().createTextChannel {
     parentId = id
+    builder.invoke(this)
 }
 
 /**
  * Create a new voice channel under this category.
  */
-suspend fun Category.createVoiceChannel() = getGuild().createVoiceChannel {
+suspend fun Category.createVoiceChannel(builder: VoiceChannelCreateBuilder.() -> Unit = {}) = getGuild().createVoiceChannel {
     parentId = id
+    builder.invoke(this)
 }
 
 /**
