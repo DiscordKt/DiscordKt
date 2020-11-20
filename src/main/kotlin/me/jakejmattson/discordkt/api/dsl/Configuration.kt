@@ -46,11 +46,12 @@ data class BotConfiguration(
 
     @PublishedApi
     internal inline fun <reified T : Event> enableEvent() {
-        intents.addAll(
-            Intents.IntentsBuilder().apply {
-                this.enableEvent<T>()
-            }.flags().intents
-        )
+        //TODO Fix when Kord updates
+        //intents.addAll(
+            Intents.invoke {
+                enableEvent<T>()
+            }
+        //)
     }
 }
 

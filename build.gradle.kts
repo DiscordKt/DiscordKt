@@ -81,7 +81,7 @@ tasks {
                 skipEmptyPackages.set(true)
                 reportUndocumented.set(true)
 
-                suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\api\\GenericContainers.kt")
+                suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\api\\TypeContainers.kt")
             }
         }
     }

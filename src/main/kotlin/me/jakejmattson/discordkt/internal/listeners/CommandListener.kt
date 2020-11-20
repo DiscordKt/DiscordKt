@@ -13,7 +13,7 @@ import me.jakejmattson.discordkt.internal.utils.Recommender
 
 internal suspend fun registerCommandListener(discord: Discord) = discord.api.on<MessageCreateEvent> {
     val config = discord.configuration
-    val self = kord.selfId.longValue
+    val self = kord.selfId.value
     val author = message.author ?: return@on
     val discordContext = DiscordContext(discord, message, getGuild())
     val prefix = config.prefix.invoke(discordContext)

@@ -4,6 +4,7 @@ import com.gitlab.kordlib.core.Kord
 import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.entity.channel.MessageChannel
 import com.gitlab.kordlib.core.event.message.*
+import com.gitlab.kordlib.gateway.Intents
 import com.gitlab.kordlib.gateway.builder.PresenceBuilder
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.*
@@ -115,11 +116,7 @@ class Bot(private val token: String, private val globalPath: String) {
         botConfiguration.enableEvent<ReactionAddEvent>()
 
         val kord = Kord(token) {
-            intents {
-                botConfiguration.intents.forEach {
-                    +it
-                }
-            }
+            intents = Intents.invoke(botConfiguration.intents)
         }
 
         val discord = buildDiscordClient(kord, botConfiguration)

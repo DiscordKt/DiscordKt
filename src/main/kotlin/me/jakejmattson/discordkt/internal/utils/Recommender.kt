@@ -1,5 +1,6 @@
 package me.jakejmattson.discordkt.internal.utils
 
+import com.gitlab.kordlib.common.kColor
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import java.awt.Color
 
@@ -30,7 +31,7 @@ internal object Recommender {
         event.respond {
             title = "Unknown Command"
             description = "Recommendation: $recommendation"
-            color = Color.RED
+            color = Color.RED.kColor
         }
     }
 }
