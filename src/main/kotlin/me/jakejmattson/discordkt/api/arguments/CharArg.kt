@@ -18,5 +18,5 @@ open class CharArg(override val name: String = "Character") : ArgumentType<Char>
             Error("Must be a single character")
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = ('a'..'z').map { it.toString() }
+    override suspend fun generateExamples(event: CommandEvent<*>) = ('a'..'z').map { it.toString() }
 }

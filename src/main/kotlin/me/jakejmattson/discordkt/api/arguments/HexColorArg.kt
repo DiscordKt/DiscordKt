@@ -26,7 +26,7 @@ open class HexColorArg(override val name: String = "Hex Color") : ArgumentType<C
         return Success(color)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(formatData(Color((0..255).random(), (0..255).random(), (0..255).random())))
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf(formatData(Color((0..255).random(), (0..255).random(), (0..255).random())))
     override fun formatData(data: Color) = with(data) {
         String.format("#%02X%02X%02X", red, green, blue)
     }

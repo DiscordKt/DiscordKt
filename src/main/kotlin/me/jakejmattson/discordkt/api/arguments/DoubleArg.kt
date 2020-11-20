@@ -18,5 +18,5 @@ open class DoubleArg(override val name: String = "Double") : ArgumentType<Double
             else -> Success(result)
         }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf("%.2f".format(Random.nextDouble(0.00, 9.99)))
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf("%.2f".format(Random.nextDouble(0.00, 9.99)))
 }

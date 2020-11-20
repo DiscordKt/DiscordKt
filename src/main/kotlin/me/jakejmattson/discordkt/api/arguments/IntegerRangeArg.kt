@@ -21,5 +21,5 @@ open class IntegerRangeArg(private val min: Int, private val max: Int, override 
         return Success(int)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf((min..max).random().toString())
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf((min..max).random().toString())
 }

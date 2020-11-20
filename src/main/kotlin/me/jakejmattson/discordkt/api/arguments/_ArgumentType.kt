@@ -65,7 +65,7 @@ abstract class ArgumentType<T> : Cloneable {
      *
      * @param event Allows the list result to be generated with the relevant discord context.
      */
-    abstract fun generateExamples(event: CommandEvent<*>): List<String>
+    abstract suspend fun generateExamples(event: CommandEvent<*>): List<String>
 
     /** Determine the simpler name (just the class) and then remove the companion tag */
     override fun toString() = this::class.simplerName
@@ -73,7 +73,7 @@ abstract class ArgumentType<T> : Cloneable {
     /**
      * Create a custom formatter for the data this ArgumentType produces.
      */
-    open fun formatData(data: T): String = data.toString()
+    open fun formatData(data: T) = data.toString()
 }
 
 /**

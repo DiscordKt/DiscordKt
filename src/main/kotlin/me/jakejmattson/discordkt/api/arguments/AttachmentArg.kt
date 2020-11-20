@@ -21,6 +21,6 @@ open class AttachmentArg(override val name: String = "File") : ArgumentType<Atta
         return Success(attachments.first(), 0)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf("File")
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf("File")
     override fun formatData(data: Attachment) = data.filename
 }

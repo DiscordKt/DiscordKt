@@ -16,6 +16,6 @@ open class CommandArg(override val name: String = "Command") : ArgumentType<Comm
         return Success(command)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = event.discord.commands.mapNotNull { it.names.firstOrNull() }
+    override suspend fun generateExamples(event: CommandEvent<*>) = event.discord.commands.mapNotNull { it.names.firstOrNull() }
     override fun formatData(data: Command) = data.names.first()
 }

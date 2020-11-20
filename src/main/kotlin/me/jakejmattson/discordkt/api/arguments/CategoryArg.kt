@@ -39,6 +39,6 @@ open class CategoryArg(override val name: String = "Category", private val guild
         return resolveEntityByName(args, categories) { name }
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id.value)
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf(event.channel.id.asString)
     override fun formatData(data: Category) = data.name
 }

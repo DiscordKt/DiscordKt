@@ -31,7 +31,7 @@ open class QuoteArg(override val name: String = "Quote") : ArgumentType<String>(
         return Success(quote, consumedCount)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf("\"A Quote\"")
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf("\"A Quote\"")
     override fun formatData(data: String) = "\"$data\""
 }
 

@@ -19,6 +19,6 @@ open class UserArg(override val name: String = "User") : ArgumentType<User>() {
         return Success(user)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.mention)
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf(event.author.mention)
     override fun formatData(data: User) = "@${data.tag}"
 }

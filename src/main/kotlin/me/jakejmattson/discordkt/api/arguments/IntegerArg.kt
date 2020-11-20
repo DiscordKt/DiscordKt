@@ -17,5 +17,5 @@ open class IntegerArg(override val name: String = "Integer") : ArgumentType<Int>
             else -> Success(result)
         }
 
-    override fun generateExamples(event: CommandEvent<*>) = (0..10).map { it.toString() }
+    override suspend fun generateExamples(event: CommandEvent<*>) = (0..10).map { it.toString() }
 }

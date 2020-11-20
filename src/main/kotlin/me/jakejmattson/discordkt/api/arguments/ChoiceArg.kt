@@ -24,5 +24,5 @@ open class ChoiceArg<T>(override val name: String, vararg choices: T) : Argument
         return Success(selection)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = options.toList()
+    override suspend fun generateExamples(event: CommandEvent<*>) = options.toList()
 }

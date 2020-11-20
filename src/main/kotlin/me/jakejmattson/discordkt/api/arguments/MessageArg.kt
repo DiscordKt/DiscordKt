@@ -41,5 +41,5 @@ open class MessageArg(override val name: String = "Message", private val allowsG
         return Success(message)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.message.id.value)
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf(event.message.id.asString)
 }

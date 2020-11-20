@@ -27,5 +27,5 @@ open class BooleanArg(override val name: String = "Boolean", private val truthVa
         }
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(truthValue, falseValue)
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf(truthValue, falseValue)
 }

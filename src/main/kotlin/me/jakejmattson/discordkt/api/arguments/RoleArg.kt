@@ -39,6 +39,6 @@ open class RoleArg(override val name: String = "Role", private val guildId: Snow
         return resolveEntityByName(args, roles) { name }
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf("@everyone")
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf("@everyone")
     override fun formatData(data: Role) = data.name
 }

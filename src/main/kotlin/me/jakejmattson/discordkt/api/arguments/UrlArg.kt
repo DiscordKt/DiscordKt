@@ -19,5 +19,5 @@ open class UrlArg(override val name: String = "URL") : ArgumentType<String>() {
             Error("Invalid format")
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf("http://www.google.com")
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf("http://www.google.com")
 }

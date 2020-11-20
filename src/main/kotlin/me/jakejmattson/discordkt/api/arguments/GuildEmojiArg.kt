@@ -28,14 +28,14 @@ open class GuildEmojiArg(override val name: String = "Guild Emoji", private val 
 
         val availableEmojis =
             if (allowsGlobal)
-                event.discord.api.guilds.toList().flatMap { it.emojis }
+                event.discord.api.guilds.toList().flatMap { it.emojis.toList() }
             else
-                event.guild?.emojis ?: emptyList()
+                event.guild?.emojis?.toList() ?: emptyList()
 
         val emoji = availableEmojis.firstOrNull { it.id == id } ?: return Error("Not found")
 
         return Success(emoji)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = event.guild?.emojis?.map { it.mention } ?: emptyList()
+    override suspend fun generateExamples(event: CommandEvent<*>) = event.guild?.emojis?.toList()?.map { it.mention } ?: emptyList()
 }

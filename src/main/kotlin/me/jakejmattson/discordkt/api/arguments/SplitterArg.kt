@@ -22,6 +22,6 @@ open class SplitterArg(override val name: String = "TextWithSplitter", private v
         return Success(joined.split(splitter).toList(), args.size)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf("A${splitter}B${splitter}C")
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf("A${splitter}B${splitter}C")
     override fun formatData(data: List<String>) = data.joinToString(splitter)
 }

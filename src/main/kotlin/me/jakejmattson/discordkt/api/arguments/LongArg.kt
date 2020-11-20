@@ -17,5 +17,5 @@ open class LongArg(override val name: String = "Long") : ArgumentType<Long>() {
             else -> Success(result)
         }
 
-    override fun generateExamples(event: CommandEvent<*>) = (0..10).map { it.toString() }
+    override suspend fun generateExamples(event: CommandEvent<*>) = (0..10).map { it.toString() }
 }

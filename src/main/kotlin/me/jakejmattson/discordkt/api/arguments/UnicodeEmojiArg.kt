@@ -17,5 +17,5 @@ open class UnicodeEmojiArg(override val name: String = "Emoji") : ArgumentType<D
         return Success(emoji)
     }
 
-    override fun generateExamples(event: CommandEvent<*>): List<String> = listOf(Emojis.rainbow.unicode)
+    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf(Emojis.rainbow.unicode)
 }
