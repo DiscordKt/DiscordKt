@@ -8,7 +8,7 @@ import com.gitlab.kordlib.rest.builder.channel.*
 /**
  * Create a new text channel under this category.
  */
-suspend fun Category.createTextChannel(builder: TextChannelCreateBuilder.() -> Unit = {}) = getGuild().createTextChannel {
+suspend fun Category.createTextChannel(name: String, builder: TextChannelCreateBuilder.() -> Unit = {}) = getGuild().createTextChannel(name) {
     parentId = id
     builder.invoke(this)
 }
@@ -16,7 +16,7 @@ suspend fun Category.createTextChannel(builder: TextChannelCreateBuilder.() -> U
 /**
  * Create a new voice channel under this category.
  */
-suspend fun Category.createVoiceChannel(builder: VoiceChannelCreateBuilder.() -> Unit = {}) = getGuild().createVoiceChannel {
+suspend fun Category.createVoiceChannel(name: String, builder: VoiceChannelCreateBuilder.() -> Unit = {}) = getGuild().createVoiceChannel(name) {
     parentId = id
     builder.invoke(this)
 }
