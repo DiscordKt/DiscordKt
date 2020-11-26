@@ -20,7 +20,7 @@ open class MemberArg(override val name: String = "Member", private val allowsBot
 
         val member = arg.toSnowflakeOrNull()?.let { guild.getMemberOrNull(it) } ?: return Error("Not found")
 
-        if (!allowsBot && member.isBot == true)
+        if (!allowsBot && member.isBot)
             return Error("Cannot be a bot")
 
         return Success(member)

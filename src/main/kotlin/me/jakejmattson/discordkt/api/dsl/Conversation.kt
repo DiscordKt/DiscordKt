@@ -61,7 +61,7 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
      * @sample ConversationResult
      */
     suspend inline fun startPrivately(discord: Discord, user: User): ConversationResult {
-        if (user.isBot == true)
+        if (user.isBot)
             return ConversationResult.INVALID_USER
 
         val channel = user.getDmChannel()
@@ -84,7 +84,7 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
      * @sample ConversationResult
      */
     suspend inline fun startPublicly(discord: Discord, user: User, channel: MessageChannel): ConversationResult {
-        if (user.isBot == true)
+        if (user.isBot)
             return ConversationResult.INVALID_USER
 
         if (Conversations.hasConversation(user, channel))

@@ -39,5 +39,5 @@ class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentTyp
     override suspend fun generateExamples(event: CommandEvent<*>) =
         base.generateExamples(event).chunked(2).map { it.joinToString(" ") }
 
-    override fun formatData(data: List<T>) = "[${data.map { base.formatData(it) }.joinToString()}]"
+    override fun formatData(data: List<T>) = "[${data.joinToString { base.formatData(it) }}]"
 }

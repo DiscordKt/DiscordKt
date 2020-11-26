@@ -1,12 +1,7 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import com.gitlab.kordlib.core.event.Event
-import com.gitlab.kordlib.core.event.message.*
 import me.jakejmattson.discordkt.api.arguments.EitherArg
 import me.jakejmattson.discordkt.api.dsl.Command
-import kotlin.reflect.KClass
-
-private val reactionEvents: List<KClass<out Event>> = listOf(ReactionAddEvent::class, ReactionRemoveEvent::class, ReactionRemoveAllEvent::class, ReactionRemoveEmojiEvent::class)
 
 @PublishedApi
 internal object Validator {
