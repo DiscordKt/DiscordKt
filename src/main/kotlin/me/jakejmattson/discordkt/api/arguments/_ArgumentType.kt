@@ -20,35 +20,35 @@ abstract class ArgumentType<T> : Cloneable {
     internal lateinit var defaultValue: suspend (CommandEvent<*>) -> T
         private set
 
-    private fun <T> cloneToOptional() = (clone() as ArgumentType<T>).apply { isOptional = true }
+    private fun <T> cloneType() = (clone() as ArgumentType<T>).apply { isOptional = true }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails.
      *
      * @param default A default value matching the expected type.
      */
-    fun makeOptional(default: T) = cloneToOptional<T>().apply { defaultValue = { default } }
+    fun optional(default: T) = cloneType<T>().apply { defaultValue = { default } }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type.
      */
-    fun makeOptional(default: suspend (CommandEvent<*>) -> T) = cloneToOptional<T>().apply { defaultValue = default }
+    fun optional(default: suspend (CommandEvent<*>) -> T) = cloneType<T>().apply { defaultValue = default }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails.
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    fun makeNullableOptional(default: T? = null) = cloneToOptional<T?>().apply { defaultValue = { default } }
+    fun optionalNullable(default: T? = null) = cloneType<T?>().apply { defaultValue = { default } }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    fun makeNullableOptional(default: suspend (CommandEvent<*>) -> T?) = cloneToOptional<T?>().apply { defaultValue = default }
+    fun optionalNullable(default: suspend (CommandEvent<*>) -> T?) = cloneType<T?>().apply { defaultValue = default }
 
     /**
      * Consumes an argument or multiple arguments and converts them into some desired type.

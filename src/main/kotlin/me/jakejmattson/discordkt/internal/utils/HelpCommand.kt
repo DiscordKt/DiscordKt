@@ -9,7 +9,7 @@ import java.awt.Color
 internal fun produceHelpCommand() = commands("Utility") {
     command("Help") {
         description = "Display a help menu."
-        execute(AnyArg("Command").makeOptional("")) {
+        execute(AnyArg("Command").optional("")) {
             val input = args.first
             val theme = discord.configuration.theme
 
