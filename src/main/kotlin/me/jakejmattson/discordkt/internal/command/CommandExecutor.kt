@@ -26,7 +26,8 @@ internal interface ParseResult {
 }
 
 internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<*>, actualArgs: List<String>): ParseResult {
-    val expected = command.arguments as List<ArgumentType<Any>>
+    //TODO pass in Execution
+    val expected = command.executions.first() as List<ArgumentType<Any>>
 
     val error = when (val initialConversion = convertArguments(actualArgs, expected, event)) {
         is ConversionSuccess -> return ParseResult.Success(bundleToContainer(initialConversion.results))

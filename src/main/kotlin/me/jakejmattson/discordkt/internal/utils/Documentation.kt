@@ -18,7 +18,8 @@ internal fun createDocumentation(commands: List<Command>) {
     fun extractCommandData(command: Command): CommandData {
         val nameString = (if (command.isFlexible) "*" else "") + command.names.joinToString().sanitizePipe()
 
-        val expectedArgs = command.arguments.joinToString {
+        //TODO support format for overloaded commands
+        val expectedArgs = command.executions.first().arguments.joinToString {
             if (it.isOptional) "(${it.name})" else it.name
         }.takeIf { it.isNotEmpty() } ?: ""
 
@@ -41,10 +42,10 @@ internal fun createDocumentation(commands: List<Command>) {
 
     val keyString = buildString {
         with(commands) {
-            if (any { it.arguments.any { it.isOptional } })
+            if (any { it.executions.any { it.arguments.any { it.isOptional } } })
                 appendLine("| (Argument)  | Argument is not required.      |")
 
-            if (any { it.arguments.any { it is MultipleArg<*> } })
+            if (any { it.executions.any { it.arguments.any { it is MultipleArg<*> } } })
                 appendLine("| Argument... | Accepts many of this argument. |")
 
             if (any { it.isFlexible })

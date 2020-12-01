@@ -18,7 +18,8 @@ internal object Validator {
             InternalLogger.error("Found commands with duplicate names: $duplicates")
 
         commands.forEach { command ->
-            val args = command.arguments
+            //TODO Check different executions
+            val args = command.executions.first().arguments
             val commandName = command.names.first()
 
             if (command.names.any { it.isBlank() })

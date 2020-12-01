@@ -60,23 +60,24 @@ private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String,
             value = "$commandInvocation ${generateStructure()}"
         }
 
-        if (parameterCount != 0)
             field {
                 name = "Examples"
                 value = "$commandInvocation ${generateExample(event)}"
             }
     }
 
+//TODO support format for overloaded commands
 private fun Command.generateExample(event: CommandEvent<*>) =
-    arguments.joinToString(" ") {
+    executions.first().arguments.joinToString(" ") {
         val examples = runBlocking { it.generateExamples(event) }
         val example = if (examples.isNotEmpty()) examples.random() else "<Example>"
 
         if (it.isOptional) "($example)" else "[$example]"
     }
 
+//TODO support format for overloaded commands
 private fun Command.generateStructure() =
-    arguments.joinToString(" ") {
+    executions.first().arguments.joinToString(" ") {
         val type = it.name
         if (it.isOptional) "($type)" else "[$type]"
     }
