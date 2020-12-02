@@ -8,3 +8,6 @@ internal annotation class BuilderDSL
 
 @DslMarker
 internal annotation class InnerDSL
+
+@DslMarker
+internal annotation class NestedDSL
