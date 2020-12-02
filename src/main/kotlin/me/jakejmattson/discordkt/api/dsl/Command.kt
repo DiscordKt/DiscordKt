@@ -36,27 +36,30 @@ sealed class Command(open val names: List<String>,
      *
      * @return The result of the parsing operation.
      */
-    suspend fun canParse(event: CommandEvent<*>, execution: Execution<*>, args: List<String>) = parseInputToBundle(this, execution, event, args) is ParseResult.Success
+    suspend fun canParse(event: CommandEvent<*>, execution: Execution<*>, args: List<String>) = parseInputToBundle(execution, event, args) is ParseResult.Success
 
     /**
      * Invoke this command with the given args.
      */
     fun invoke(event: CommandEvent<TypeContainer>, args: List<String>) {
         GlobalScope.launch {
-            val results = executions.map { it to parseInputToBundle(this@Command, it, event, args) }
-            val success = results.firstOrNull { it.second is ParseResult.Success }
+            val success = executions.map { it to parseInputToBundle(it, event, args) }
+                .firstOrNull { it.second is ParseResult.Success }
 
             if (success == null) {
-                event.respond("Cannot execute ${event.rawInputs.commandName} with these args.")
+                event.respond("Cannot execute `${event.rawInputs.commandName}` with these args.")
                 return@launch
             }
 
-            event.args = (success.second as ParseResult.Success).argumentContainer
+            val (execution, result) = success
+
+            event.args = (result as ParseResult.Success).argumentContainer
+            (execution as Execution<CommandEvent<*>>).execute(event)
         }
     }
 
-    protected fun <T : CommandEvent<*>> addExecution(argTypes: List<ArgumentType<*>>, event: suspend T.() -> Unit) {
-        executions.add(Execution(argTypes, event))
+    protected fun <T : CommandEvent<*>> addExecution(argTypes: List<ArgumentType<*>>, execute: suspend T.() -> Unit) {
+        executions.add(Execution(argTypes, execute))
     }
 }
 

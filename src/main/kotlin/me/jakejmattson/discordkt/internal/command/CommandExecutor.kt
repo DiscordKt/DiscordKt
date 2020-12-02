@@ -4,7 +4,6 @@ import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.arguments.ArgumentType
 import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.internal.arguments.*
-import me.jakejmattson.discordkt.internal.utils.InternalLogger
 
 /**
  * Intermediate result of manual parsing.
@@ -25,8 +24,7 @@ internal interface ParseResult {
     data class Fail(val reason: String = "") : ParseResult
 }
 
-internal suspend fun parseInputToBundle(command: Command, execution: Execution<*>, event: CommandEvent<*>, actualArgs: List<String>): ParseResult {
-    //TODO pass in Execution
+internal suspend fun parseInputToBundle(execution: Execution<*>, event: CommandEvent<*>, actualArgs: List<String>): ParseResult {
     val expected = execution.arguments as List<ArgumentType<Any>>
 
     val error = when (val initialConversion = convertArguments(actualArgs, expected, event)) {
@@ -49,19 +47,8 @@ internal suspend fun parseInputToBundle(command: Command, execution: Execution<*
         .map { (argumentTypes, results) -> argumentTypes.zip(results) }
 
     val success = when (successList.size) {
-        0 -> return error
         1 -> successList.first()
-        else -> {
-            InternalLogger.error(
-                """
-                    Flexible command resolved ambiguously.
-                    ${command.names.first()}(${expected.joinToString()})
-                    Input: ${actualArgs.joinToString(" ")}
-                """.trimIndent()
-            )
-
-            return error
-        }
+        else -> return error
     }
 
     val orderedResult = expected.map { sortKey -> success.first { it.first == sortKey }.second }
