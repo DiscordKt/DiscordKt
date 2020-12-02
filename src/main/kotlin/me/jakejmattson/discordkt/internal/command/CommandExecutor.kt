@@ -25,16 +25,16 @@ internal interface ParseResult {
     data class Fail(val reason: String = "") : ParseResult
 }
 
-internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<*>, actualArgs: List<String>): ParseResult {
+internal suspend fun parseInputToBundle(command: Command, execution: Execution<*>, event: CommandEvent<*>, actualArgs: List<String>): ParseResult {
     //TODO pass in Execution
-    val expected = command.executions.first() as List<ArgumentType<Any>>
+    val expected = execution.arguments as List<ArgumentType<Any>>
 
     val error = when (val initialConversion = convertArguments(actualArgs, expected, event)) {
         is ConversionSuccess -> return ParseResult.Success(bundleToContainer(initialConversion.results))
         is ConversionError -> ParseResult.Fail(initialConversion.error)
     }
 
-    if (!command.isFlexible || expected.size < 2)
+    if (!execution.isFlexible || expected.size < 2)
         return error
 
     val successList = expected

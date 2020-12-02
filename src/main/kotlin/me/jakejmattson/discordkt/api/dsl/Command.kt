@@ -7,26 +7,25 @@ import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.arguments.ArgumentType
 import me.jakejmattson.discordkt.internal.command.*
 
-data class Execution<T : CommandEvent<*>>(val arguments: List<ArgumentType<*>>, val action: suspend T.() -> Unit) {
-    suspend fun execute(event: T) = action.invoke(event)
-
-    val signature
-        get() = "(${arguments.joinToString { it.name } })"
-
+data class Execution<T : CommandEvent<*>>(val arguments: List<ArgumentType<*>>,
+                                          val action: suspend T.() -> Unit,
+                                          val isFlexible: Boolean = false) {
     val parameterCount: Int
         get() = arguments.size
+
+    val signature
+        get() = "(${arguments.joinToString { it.name }})"
+
+    suspend fun execute(event: T) = action.invoke(event)
 }
 
 /**
  * @property names The name(s) this command can be executed by (case insensitive).
  * @property description A brief description of the command - used in documentation.
  * @property category The category that this command belongs to - set automatically by CommandSet.
- * @property isFlexible Whether or not this command can accept arguments in any order.
  */
 sealed class Command(open val names: List<String>,
-                     open var description: String = "<No Description>",
-                     open var isFlexible: Boolean = false) {
-
+                     open var description: String = "<No Description>") {
     var category: String = ""
     val executions: MutableList<Execution<*>> = mutableListOf()
 
@@ -37,14 +36,14 @@ sealed class Command(open val names: List<String>,
      *
      * @return The result of the parsing operation.
      */
-    suspend fun canParse(event: CommandEvent<*>, args: List<String>) = parseInputToBundle(this, event, args) is ParseResult.Success
+    suspend fun canParse(event: CommandEvent<*>, execution: Execution<*>, args: List<String>) = parseInputToBundle(this, execution, event, args) is ParseResult.Success
 
     /**
      * Invoke this command with the given args.
      */
     fun invoke(event: CommandEvent<TypeContainer>, args: List<String>) {
         GlobalScope.launch {
-            val results = executions.map { it to parseInputToBundle(this@Command, event, args)  }
+            val results = executions.map { it to parseInputToBundle(this@Command, it, event, args) }
             val success = results.firstOrNull { it.second is ParseResult.Success }
 
             if (success == null) {
@@ -65,18 +64,22 @@ sealed class Command(open val names: List<String>,
  * A command that can be executed from anywhere.
  */
 class GlobalCommand(override val names: List<String>,
-                    override var description: String = "<No Description>",
-                    override var isFlexible: Boolean = false) : Command(names, description, isFlexible) {
+                    override var description: String = "<No Description>") : Command(names, description) {
     /** @suppress */
     fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
+
     /** @suppress */
     fun <A> execute(a: ArgumentType<A>, execute: suspend CommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+
     /** @suppress */
     fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend CommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+
     /** @suppress */
     fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend CommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+
     /** @suppress */
     fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend CommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+
     /** @suppress */
     fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend CommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
@@ -85,18 +88,22 @@ class GlobalCommand(override val names: List<String>,
  * A command that can only be executed in a guild.
  */
 class GuildCommand(override val names: List<String>,
-                   override var description: String = "<No Description>",
-                   override var isFlexible: Boolean = false) : Command(names, description, isFlexible) {
+                   override var description: String = "<No Description>") : Command(names, description) {
     /** @suppress */
     fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
+
     /** @suppress */
     fun <A> execute(a: ArgumentType<A>, execute: suspend GuildCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+
     /** @suppress */
     fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend GuildCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+
     /** @suppress */
     fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend GuildCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+
     /** @suppress */
     fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend GuildCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+
     /** @suppress */
     fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend GuildCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
@@ -105,18 +112,22 @@ class GuildCommand(override val names: List<String>,
  * A command that can only be executed in a DM.
  */
 class DmCommand(override val names: List<String>,
-                override var description: String = "<No Description>",
-                override var isFlexible: Boolean = false) : Command(names, description, isFlexible) {
+                override var description: String = "<No Description>") : Command(names, description) {
     /** @suppress */
     fun execute(execute: suspend DmCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
+
     /** @suppress */
     fun <A> execute(a: ArgumentType<A>, execute: suspend DmCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+
     /** @suppress */
     fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend DmCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+
     /** @suppress */
     fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend DmCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+
     /** @suppress */
     fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend DmCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+
     /** @suppress */
     fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend DmCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }

@@ -16,7 +16,9 @@ internal fun createDocumentation(commands: List<Command>) {
     fun List<CommandData>.maxLength(header: String, field: (CommandData) -> String) = (map { field.invoke(it).length } + header.length).maxOrNull()!!
 
     fun extractCommandData(command: Command): CommandData {
-        val nameString = (if (command.isFlexible) "*" else "") + command.names.joinToString().sanitizePipe()
+        //TODO Add notation for flexible set
+        val nameString = //(if (command.isFlexible) "*" else "") +
+            command.names.joinToString().sanitizePipe()
 
         //TODO support format for overloaded commands
         val expectedArgs = command.executions.first().arguments.joinToString {
@@ -48,7 +50,7 @@ internal fun createDocumentation(commands: List<Command>) {
             if (any { it.executions.any { it.arguments.any { it is MultipleArg<*> } } })
                 appendLine("| Argument... | Accepts many of this argument. |")
 
-            if (any { it.isFlexible })
+            if (any { it.executions.any { it.isFlexible } })
                 appendLine("| *Command    | Argument can be in any order.  |")
         }
     }

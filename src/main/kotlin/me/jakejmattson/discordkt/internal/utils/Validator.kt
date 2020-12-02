@@ -18,8 +18,6 @@ internal object Validator {
             InternalLogger.error("Found commands with duplicate names: $duplicates")
 
         commands.forEach { command ->
-            //TODO Check different executions
-            val args = command.executions.first().arguments
             val commandName = command.names.first()
 
             if (command.names.any { it.isBlank() })
@@ -31,22 +29,26 @@ internal object Validator {
                     InternalLogger.error("Found command name with spaces: ${spaces.joinToString { "\"$it\"" }}")
             }
 
-            args.filterIsInstance<EitherArg<*, *>>().forEach {
-                if (it.left == it.right) {
-                    val arg = it.left::class.simplerName
-                    InternalLogger.error("Detected EitherArg with identical args ($arg) in command: $commandName")
+            command.executions.forEach {
+                val args = it.arguments
+
+                args.filterIsInstance<EitherArg<*, *>>().forEach {
+                    if (it.left == it.right) {
+                        val arg = it.left::class.simplerName
+                        InternalLogger.error("Detected EitherArg with identical args ($arg) in command: $commandName")
+                    }
                 }
-            }
 
-            if (command.isFlexible) {
-                if (args.size < 2)
-                    InternalLogger.error("Flexible commands must accept at least 2 arguments ($commandName)")
-                else {
-                    val actualCount = args.size
-                    val distinctCount = args.distinct().size
+                if (it.isFlexible) {
+                    if (args.size < 2)
+                        InternalLogger.error("Flexible commands must accept at least 2 arguments ($commandName)")
+                    else {
+                        val actualCount = args.size
+                        val distinctCount = args.distinct().size
 
-                    if (distinctCount != actualCount)
-                        InternalLogger.error("Flexible commands must accept distinct arguments ($commandName)")
+                        if (distinctCount != actualCount)
+                            InternalLogger.error("Flexible commands must accept distinct arguments ($commandName)")
+                    }
                 }
             }
         }
