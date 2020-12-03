@@ -3,36 +3,47 @@ package me.jakejmattson.discordkt.internal.utils
 import me.jakejmattson.discordkt.api.arguments.MultipleArg
 import me.jakejmattson.discordkt.api.dsl.Command
 import java.io.File
+import kotlin.math.max
 
 internal fun createDocumentation(commands: List<Command>) {
     if (commands.isEmpty())
         return
 
-    data class CommandData(val name: String, val args: String, val desc: String) {
-        fun format(format: String) = String.format(format, name, args, desc)
+    data class CommandData(val name: String, val args: List<String>, val desc: String) {
+        val longestArg
+            get() = args.maxByOrNull { it.length } ?: ""
+
+        fun format(format: String) = args
+            .sortedBy { it.length }
+            .mapIndexed { index: Int, value: String ->
+                format.format(
+                    if (index == 0) name else "",
+                    value,
+                    if (index == 0) desc else ""
+                )
+            }.joinToString("\n")
     }
 
     fun String.sanitizePipe() = replace("|", "\\|")
-    fun List<CommandData>.maxLength(header: String, field: (CommandData) -> String) = (map { field.invoke(it).length } + header.length).maxOrNull()!!
+    fun List<CommandData>.maxLength(field: (CommandData) -> String) = map { field.invoke(it).length }.maxOrNull()!!
 
     fun extractCommandData(command: Command): CommandData {
-        //TODO Add notation for flexible set
-        val nameString = //(if (command.isFlexible) "*" else "") +
-            command.names.joinToString().sanitizePipe()
+        val nameString = command.names.joinToString().sanitizePipe()
 
-        //TODO support format for overloaded commands
-        val expectedArgs = command.executions.first().arguments.joinToString {
-            if (it.isOptional) "(${it.name})" else it.name
-        }.takeIf { it.isNotEmpty() } ?: ""
+        val expectedArgs = command.executions.map {
+            it.arguments.joinToString {
+                if (it.isOptional) "(${it.name})" else it.name
+            }.sanitizePipe().takeIf { it.isNotEmpty() } ?: ""
+        }
 
-        return CommandData(nameString, expectedArgs.sanitizePipe(), command.description.sanitizePipe())
+        return CommandData(nameString, expectedArgs, command.description.sanitizePipe())
     }
 
     fun formatDocs(commandData: List<CommandData>): String {
-        val header = CommandData("Commands", "Arguments", "Description")
-        val longestName = commandData.maxLength(header.name) { it.name }
-        val longestArgs = commandData.maxLength(header.args) { it.args }
-        val longestDesc = commandData.maxLength(header.desc) { it.desc }
+        val header = CommandData("Commands", listOf("Arguments"), "Description")
+        val longestName = max(commandData.maxLength { it.name }, header.name.length)
+        val longestArgs = max(commandData.maxLength { it.longestArg }, header.args.first().length)
+        val longestDesc = max(commandData.maxLength { it.desc }, header.desc.length)
         val formatString = "| %-${longestName}s | %-${longestArgs}s | %-${longestDesc}s |"
 
         val headerString = header.format(formatString)
@@ -49,9 +60,6 @@ internal fun createDocumentation(commands: List<Command>) {
 
             if (any { it.executions.any { it.arguments.any { it is MultipleArg<*> } } })
                 appendLine("| Argument... | Accepts many of this argument. |")
-
-            if (any { it.executions.any { it.isFlexible } })
-                appendLine("| *Command    | Argument can be in any order.  |")
         }
     }
 
