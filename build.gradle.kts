@@ -47,19 +47,20 @@ tasks {
     }
 
     copy {
-        val path = "$resourcePath/templates/readme.md"
+        val path = "templates/readme.md"
 
         from(file(path))
         into(file("."))
         rename { "README.md" }
         expand(
-            "badges" to README.badges,
-            "imports" to README.createImport(group.toString(), version.toString(), isSnapshot)
+            "kotlin" to Versions.kotlin,
+            "kord" to Versions.kord,
+            "imports" to README.createImportBlock(group.toString(), version.toString(), isSnapshot)
         )
     }
 
     copy {
-        from(file("$resourcePath/templates/properties-template.json"))
+        from(file("templates/properties-template.json"))
         into(file(resourcePath))
         rename { "library-properties.json" }
         expand(
