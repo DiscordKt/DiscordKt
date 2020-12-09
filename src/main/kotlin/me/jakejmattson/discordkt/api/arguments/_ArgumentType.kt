@@ -23,6 +23,11 @@ abstract class ArgumentType<T> : Cloneable {
     private fun <T> cloneType() = (clone() as ArgumentType<T>).apply { isOptional = true }
 
     /**
+     * Accept multiple inputs of this ArgumentType.
+     */
+    fun multiple() = MultipleArg(this, name)
+
+    /**
      * Make this argument optional and fall back to the default value if the conversion fails.
      *
      * @param default A default value matching the expected type.
