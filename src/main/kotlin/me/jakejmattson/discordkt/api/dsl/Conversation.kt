@@ -7,6 +7,7 @@ import com.gitlab.kordlib.core.behavior.channel.*
 import com.gitlab.kordlib.core.entity.*
 import com.gitlab.kordlib.core.entity.channel.MessageChannel
 import com.gitlab.kordlib.core.event.message.ReactionAddEvent
+import com.gitlab.kordlib.kordx.emoji.*
 import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
@@ -220,7 +221,7 @@ data class ConversationBuilder(val discord: Discord,
      * @param prompt The embed sent to the user as a prompt for information.
      */
     @Throws(DmException::class)
-    suspend fun <T> promptReaction(reactionMap: Map<ReactionEmoji, T>, prompt: suspend EmbedBuilder.() -> Unit): T {
+    suspend fun <T> promptReaction(reactionMap: Map<DiscordEmoji, T>, prompt: suspend EmbedBuilder.() -> Unit): T {
         val message = channel.createEmbed {
             prompt.invoke(this)
         }
@@ -228,10 +229,10 @@ data class ConversationBuilder(val discord: Discord,
         botMessageIds.add(message.id)
 
         reactionMap.forEach {
-            message.addReaction(it.key)
+            message.addReaction(it.key.toReaction())
         }
 
-        return retrieveValidReactionResponse(reactionMap)
+        return retrieveValidReactionResponse(reactionMap.mapKeys { it.key.toReaction() })
     }
 
     private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<T>, prompt: String?): T = runBlocking {

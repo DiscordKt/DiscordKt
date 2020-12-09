@@ -37,8 +37,6 @@ dependencies {
 }
 
 tasks {
-    val resourcePath = "src/main/resources"
-
     compileKotlin {
         kotlinOptions {
             jvmTarget = "1.8"
@@ -61,7 +59,7 @@ tasks {
 
     copy {
         from(file("templates/properties-template.json"))
-        into(file(resourcePath))
+        into(file("src/main/resources"))
         rename { "library-properties.json" }
         expand(
             "projectRepo" to Constants.projectUrl,
