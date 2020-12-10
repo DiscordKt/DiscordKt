@@ -3,18 +3,14 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
-import me.jakejmattson.discordkt.internal.utils.simplerName
 
 /**
  * An object that represents a type and contains the logic to convert string arguments to the desired type.
  *
  * @property name The display name for this type in documentations and examples.
  */
-abstract class ArgumentType<T> : Cloneable {
-    abstract val name: String
-
-    internal lateinit var defaultValue: suspend (CommandEvent<*>) -> T
-        private set
+interface ArgumentType<T> : Cloneable {
+    val name: String
 
     /**
      * Accept multiple inputs of this ArgumentType.
@@ -57,22 +53,22 @@ abstract class ArgumentType<T> : Cloneable {
      * @param event The CommandEvent<*> triggered by the execution of the command.
      * @return ArgumentResult subtype [Success] or [Error].
      */
-    abstract suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
+    suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
 
     /**
      * A function called whenever an example of this type is needed.
      *
      * @param event Allows the list result to be generated with the relevant discord context.
      */
-    abstract suspend fun generateExamples(event: CommandEvent<*>): List<String>
-
-    /** Determine the simpler name (just the class) and then remove the companion tag */
-    override fun toString() = this::class.simplerName
+    suspend fun generateExamples(event: CommandEvent<*>): List<String>
 
     /**
      * Create a custom formatter for the data this ArgumentType produces.
      */
-    open fun formatData(data: T) = data.toString()
+    fun formatData(data: T) = data.toString()
+
+    /** Determine the simpler name (just the class) and then remove the companion tag */
+    //override fun toString() = this::class.simplerName
 }
 
 /**

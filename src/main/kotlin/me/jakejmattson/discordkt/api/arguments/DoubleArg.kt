@@ -6,7 +6,7 @@ import kotlin.random.Random
 /**
  * Accept a decimal number in the double range.
  */
-open class DoubleArg(override val name: String = "Double") : ArgumentType<Double>() {
+open class DoubleArg(override val name: String = "Double") : ArgumentType<Double> {
     /**
      * Accept a decimal number in the double range.
      */

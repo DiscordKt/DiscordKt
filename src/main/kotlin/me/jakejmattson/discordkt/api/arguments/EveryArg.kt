@@ -5,7 +5,7 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
 /**
  * Consumes all remaining arguments. Does not accept empty strings.
  */
-open class EveryArg(override val name: String = "Text") : ArgumentType<String>() {
+open class EveryArg(override val name: String = "Text") : ArgumentType<String> {
     /**
      * Consumes all remaining arguments. Does not accept empty strings.
      */

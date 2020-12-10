@@ -7,7 +7,7 @@ import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 /**
  * Accepts a Discord User entity as an ID or mention.
  */
-open class UserArg(override val name: String = "User") : ArgumentType<User>() {
+open class UserArg(override val name: String = "User") : ArgumentType<User> {
     /**
      * Accepts a Discord User entity as an ID or mention. Does not allow bots.
      */

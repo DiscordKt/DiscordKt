@@ -6,7 +6,7 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
 /**
  * Accepts a file as a message attachment.
  */
-open class AttachmentArg(override val name: String = "File") : ArgumentType<Attachment>() {
+open class AttachmentArg(override val name: String = "File") : ArgumentType<Attachment> {
     /**
      * Accepts a file as a message attachment.
      */

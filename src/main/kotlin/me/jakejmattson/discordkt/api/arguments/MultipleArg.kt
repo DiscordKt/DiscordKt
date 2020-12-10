@@ -7,7 +7,7 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
  *
  * @param base The [ArgumentType] that you expect to be used to create the list.
  */
-class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentType<List<T>>() {
+class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentType<List<T>> {
     override val name = if (name.isNotBlank()) name else "${base.name}..."
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<T>> {

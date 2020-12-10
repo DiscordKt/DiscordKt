@@ -30,7 +30,7 @@ sealed class Either<out L, out R> {
  * @param left The first [ArgumentType] to attempt to convert the data to.
  * @param right The second [ArgumentType] to attempt to convert the data to.
  */
-class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, name: String = "") : ArgumentType<Either<L, R>>() {
+class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, name: String = "") : ArgumentType<Either<L, R>> {
     override val name = if (name.isNotBlank()) name else "${left.name} | ${right.name}"
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Either<L, R>> {

@@ -5,7 +5,7 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
 /**
  * Accepts any (single) argument. Does not accept empty strings.
  */
-open class AnyArg(override val name: String = "Any") : ArgumentType<String>() {
+open class AnyArg(override val name: String = "Any") : ArgumentType<String> {
     /**
      * Accepts any (single) argument. Does not accept empty strings.
      */

@@ -7,7 +7,7 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
  *
  * @param splitter The character used to split the input.
  */
-open class SplitterArg(override val name: String = "TextWithSplitter", private val splitter: String = "|") : ArgumentType<List<String>>() {
+open class SplitterArg(override val name: String = "TextWithSplitter", private val splitter: String = "|") : ArgumentType<List<String>> {
     /**
      * Consumes all arguments and returns a list of the results (split by '|' character).
      */

@@ -8,7 +8,7 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
  * @param truthValue The string value that results in true.
  * @param falseValue The string value that results in false.
  */
-open class BooleanArg(override val name: String = "Boolean", private val truthValue: String = "true", private val falseValue: String = "false") : ArgumentType<Boolean>() {
+open class BooleanArg(override val name: String = "Boolean", private val truthValue: String = "true", private val falseValue: String = "false") : ArgumentType<Boolean> {
     /**
      * Accepts either true or false.
      */

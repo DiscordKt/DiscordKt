@@ -5,7 +5,7 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
 /**
  * Accepts a single character.
  */
-open class CharArg(override val name: String = "Character") : ArgumentType<Char>() {
+open class CharArg(override val name: String = "Character") : ArgumentType<Char> {
     /**
      * Accepts a single character.
      */

@@ -5,7 +5,7 @@ import me.jakejmattson.discordkt.api.dsl.*
 /**
  * Accepts a DiscordKt command by name.
  */
-open class CommandArg(override val name: String = "Command") : ArgumentType<Command>() {
+open class CommandArg(override val name: String = "Command") : ArgumentType<Command> {
     /**
      * Accepts a DiscordKt command by name.
      */

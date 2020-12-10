@@ -5,7 +5,7 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
 /**
  * Accept a whole number in the long range.
  */
-open class LongArg(override val name: String = "Long") : ArgumentType<Long>() {
+open class LongArg(override val name: String = "Long") : ArgumentType<Long> {
     /**
      * Accept a whole number in the long range.
      */

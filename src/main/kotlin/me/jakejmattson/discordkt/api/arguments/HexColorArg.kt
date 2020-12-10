@@ -6,7 +6,7 @@ import java.awt.Color
 /**
  * Accepts a color in hexadecimal format. The '#' symbol is optional.
  */
-open class HexColorArg(override val name: String = "Hex Color") : ArgumentType<Color>() {
+open class HexColorArg(override val name: String = "Hex Color") : ArgumentType<Color> {
     /**
      * Accepts a color in hexadecimal format. The '#' symbol is optional.
      */

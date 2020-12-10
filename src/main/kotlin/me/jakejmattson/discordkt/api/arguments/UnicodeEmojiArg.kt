@@ -6,7 +6,7 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
 /**
  * Accepts a unicode emoji.
  */
-open class UnicodeEmojiArg(override val name: String = "Emoji") : ArgumentType<DiscordEmoji>() {
+open class UnicodeEmojiArg(override val name: String = "Emoji") : ArgumentType<DiscordEmoji> {
     /**
      * Accepts a unicode emoji.
      */

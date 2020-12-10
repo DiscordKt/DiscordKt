@@ -5,7 +5,7 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
 /**
  * Accept a whole number in the int range.
  */
-open class IntegerArg(override val name: String = "Integer") : ArgumentType<Int>() {
+open class IntegerArg(override val name: String = "Integer") : ArgumentType<Int> {
     /**
      * Accept a whole number in the int range.
      */

@@ -6,7 +6,7 @@ import me.jakejmattson.discordkt.internal.arguments.convertTimeString
 /**
  * Accepts a group of time elements and returns the number of seconds as a double.
  */
-open class TimeArg(override val name: String = "Time") : ArgumentType<Double>() {
+open class TimeArg(override val name: String = "Time") : ArgumentType<Double> {
     /**
      * Accepts a group of time elements and returns the number of seconds as a double.
      */
