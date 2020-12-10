@@ -12,7 +12,5 @@ class OptionalArg<G>(override val name: String, val type: ArgumentType<*>, val d
             Success(default.invoke(event), 0)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>): List<String> {
-        return listOf("")
-    }
+    override suspend fun generateExamples(event: CommandEvent<*>) = type.generateExamples(event)
 }
