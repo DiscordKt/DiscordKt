@@ -191,7 +191,7 @@ data class ConversationBuilder(val discord: Discord,
      */
     @Throws(DmException::class)
     fun <T> promptMessage(argumentType: ArgumentType<T>, prompt: String): T {
-        require(!argumentType.isOptional) { "Conversation arguments cannot be optional" }
+        require(argumentType !is OptionalArg<*>) { "Conversation arguments cannot be optional" }
         return retrieveValidTextResponse(argumentType, prompt)
     }
 
@@ -203,7 +203,7 @@ data class ConversationBuilder(val discord: Discord,
      */
     @Throws(DmException::class)
     suspend fun <T> promptEmbed(argumentType: ArgumentType<T>, prompt: suspend EmbedBuilder.() -> Unit): T {
-        require(!argumentType.isOptional) { "Conversation arguments cannot be optional" }
+        require(argumentType !is OptionalArg<*>) { "Conversation arguments cannot be optional" }
 
         val message = channel.createEmbed {
             prompt.invoke(this)

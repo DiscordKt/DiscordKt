@@ -47,12 +47,8 @@ internal suspend fun convertArguments(actual: List<String>, expected: List<Argum
                 SuccessData(expectedArg, conversionResult.result)
             }
             is Error -> {
-                if (expectedArg.isOptional)
-                    SuccessData(expectedArg, expectedArg.defaultValue.invoke(event))
-                else {
-                    hasFatalError = true
-                    ErrorData(expectedArg, if (remainingArgs.isNotEmpty()) "<${conversionResult.error}>" else "<Missing>")
-                }
+                hasFatalError = true
+                ErrorData(expectedArg, if (remainingArgs.isNotEmpty()) "<${conversionResult.error}>" else "<Missing>")
             }
         }
     }

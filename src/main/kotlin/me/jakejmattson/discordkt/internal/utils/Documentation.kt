@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import me.jakejmattson.discordkt.api.arguments.MultipleArg
+import me.jakejmattson.discordkt.api.arguments.*
 import me.jakejmattson.discordkt.api.dsl.Command
 import java.io.File
 import kotlin.math.max
@@ -32,7 +32,7 @@ internal fun createDocumentation(commands: List<Command>) {
 
         val expectedArgs = command.executions.map {
             it.arguments.joinToString {
-                if (it.isOptional) "(${it.name})" else it.name
+                if (it is OptionalArg) "(${it.name})" else it.name
             }.sanitizePipe().takeIf { it.isNotEmpty() } ?: ""
         }
 
@@ -55,7 +55,7 @@ internal fun createDocumentation(commands: List<Command>) {
 
     val keyString = buildString {
         with(commands) {
-            if (any { it.executions.any { it.arguments.any { it.isOptional } } })
+            if (any { it.executions.any { it.arguments.any { it is OptionalArg } } })
                 appendLine("| (Argument)  | Argument is not required.      |")
 
             if (any { it.executions.any { it.arguments.any { it is MultipleArg<*> } } })

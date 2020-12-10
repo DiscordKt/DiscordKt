@@ -9,18 +9,12 @@ import me.jakejmattson.discordkt.internal.utils.simplerName
  * An object that represents a type and contains the logic to convert string arguments to the desired type.
  *
  * @property name The display name for this type in documentations and examples.
- * @property isOptional Whether or not this argument is strictly required.
  */
 abstract class ArgumentType<T> : Cloneable {
     abstract val name: String
 
-    var isOptional: Boolean = false
-        private set
-
     internal lateinit var defaultValue: suspend (CommandEvent<*>) -> T
         private set
-
-    private fun <T> cloneType() = (clone() as ArgumentType<T>).apply { isOptional = true }
 
     /**
      * Accept multiple inputs of this ArgumentType.
@@ -32,28 +26,28 @@ abstract class ArgumentType<T> : Cloneable {
      *
      * @param default A default value matching the expected type.
      */
-    fun optional(default: T) = cloneType<T>().apply { defaultValue = { default } }
+    fun optional(default: T) = OptionalArg(name, this) { default }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type.
      */
-    fun optional(default: suspend (CommandEvent<*>) -> T) = cloneType<T>().apply { defaultValue = default }
+    fun optional(default: suspend (CommandEvent<*>) -> T) = OptionalArg(name, this, default)
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails.
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    fun optionalNullable(default: T? = null) = cloneType<T?>().apply { defaultValue = { default } }
+    fun optionalNullable(default: T? = null) = OptionalArg(name, this) { default }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    fun optionalNullable(default: suspend (CommandEvent<*>) -> T?) = cloneType<T?>().apply { defaultValue = default }
+    fun optionalNullable(default: suspend (CommandEvent<*>) -> T?) = OptionalArg(name, this, default)
 
     /**
      * Consumes an argument or multiple arguments and converts them into some desired type.

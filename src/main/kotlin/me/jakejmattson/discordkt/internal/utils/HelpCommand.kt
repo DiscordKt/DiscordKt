@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.internal.utils
 
 import com.gitlab.kordlib.common.kColor
 import kotlinx.coroutines.runBlocking
-import me.jakejmattson.discordkt.api.arguments.AnyArg
+import me.jakejmattson.discordkt.api.arguments.*
 import me.jakejmattson.discordkt.api.dsl.*
 import java.awt.Color
 
@@ -66,18 +66,16 @@ private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String,
             }
     }
 
-//TODO support format for overloaded commands
 private fun Command.generateExample(event: CommandEvent<*>) =
     executions.first().arguments.joinToString(" ") {
         val examples = runBlocking { it.generateExamples(event) }
         val example = if (examples.isNotEmpty()) examples.random() else "<Example>"
 
-        if (it.isOptional) "($example)" else "[$example]"
+        if (it is OptionalArg) "($example)" else "[$example]"
     }
 
-//TODO support format for overloaded commands
 private fun Command.generateStructure() =
     executions.first().arguments.joinToString(" ") {
         val type = it.name
-        if (it.isOptional) "($type)" else "[$type]"
+        if (it is OptionalArg) "($type)" else "[$type]"
     }
