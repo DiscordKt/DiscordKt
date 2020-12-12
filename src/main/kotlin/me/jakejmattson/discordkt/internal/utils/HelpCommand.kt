@@ -50,8 +50,10 @@ private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
 private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String, embedColor: Color?) =
     event.respond {
         title = names.joinToString()
-        description = this@sendHelpEmbed.description
         color = embedColor?.kColor
+
+        if (this@sendHelpEmbed.description.isNotBlank())
+            description = this@sendHelpEmbed.description
 
         val commandInvocation = "${event.prefix()}$input"
 
@@ -60,10 +62,10 @@ private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String,
             value = "$commandInvocation ${generateStructure()}"
         }
 
-            field {
-                name = "Examples"
-                value = "$commandInvocation ${generateExample(event)}"
-            }
+        field {
+            name = "Examples"
+            value = "$commandInvocation ${generateExample(event)}"
+        }
     }
 
 private fun Command.generateExample(event: CommandEvent<*>) =
