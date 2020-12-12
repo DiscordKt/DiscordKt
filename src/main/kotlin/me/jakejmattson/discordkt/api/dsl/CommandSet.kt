@@ -29,7 +29,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
      */
     @InnerDSL
     fun command(vararg names: String, body: GlobalCommand.() -> Unit) {
-        val command = GlobalCommand(names.toList()).apply {
+        val command = GlobalCommand(names.toList(), "").apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -42,7 +42,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
      */
     @InnerDSL
     fun guildCommand(vararg names: String, body: GuildCommand.() -> Unit) {
-        val command = GuildCommand(names.toList()).apply {
+        val command = GuildCommand(names.toList(), "").apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -55,7 +55,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
      */
     @InnerDSL
     fun dmCommand(vararg names: String, body: DmCommand.() -> Unit) {
-        val command = DmCommand(names.toList()).apply {
+        val command = DmCommand(names.toList(), "").apply {
             this.category = this@CommandSetBuilder.category
         }
 

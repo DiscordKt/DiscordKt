@@ -26,7 +26,7 @@ data class Execution<T : CommandEvent<*>>(val arguments: List<ArgumentType<*>>,
  * @property category The category that this command belongs to - set automatically by CommandSet.
  */
 sealed class Command(open val names: List<String>,
-                     open var description: String = "<No Description>") {
+                     open var description: String) {
     var category: String = ""
     val executions: MutableList<Execution<*>> = mutableListOf()
 
@@ -68,7 +68,7 @@ sealed class Command(open val names: List<String>,
  * A command that can be executed from anywhere.
  */
 class GlobalCommand(override val names: List<String>,
-                    override var description: String = "<No Description>") : Command(names, description) {
+                    override var description: String) : Command(names, description) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -98,7 +98,7 @@ class GlobalCommand(override val names: List<String>,
  * A command that can only be executed in a guild.
  */
 class GuildCommand(override val names: List<String>,
-                   override var description: String = "<No Description>") : Command(names, description) {
+                   override var description: String) : Command(names, description) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -128,7 +128,7 @@ class GuildCommand(override val names: List<String>,
  * A command that can only be executed in a DM.
  */
 class DmCommand(override val names: List<String>,
-                override var description: String = "<No Description>") : Command(names, description) {
+                override var description: String) : Command(names, description) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend DmCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
