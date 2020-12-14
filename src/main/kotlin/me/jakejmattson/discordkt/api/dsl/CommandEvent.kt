@@ -1,9 +1,9 @@
 package me.jakejmattson.discordkt.api.dsl
 
-import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
-import com.gitlab.kordlib.core.entity.*
-import com.gitlab.kordlib.core.entity.channel.*
-import com.gitlab.kordlib.kordx.emoji.*
+import dev.kord.core.behavior.channel.MessageChannelBehavior
+import dev.kord.core.entity.*
+import dev.kord.core.entity.channel.*
+import dev.kord.kordx.emoji.*
 import me.jakejmattson.discordkt.api.*
 
 /**

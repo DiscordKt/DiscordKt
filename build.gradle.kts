@@ -20,6 +20,8 @@ plugins {
 }
 
 repositories {
+    mavenLocal()
+    maven("https://dl.bintray.com/kordlib/Kord")
     mavenCentral()
     jcenter()
 }
@@ -138,15 +140,6 @@ publishing {
                         id.set("JakeJMattson")
                         name.set("Jake Mattson")
                         email.set("JakeJMattson@gmail.com")
-                    }
-                }
-                withXml {
-                    val repoNode = asNode().appendNode("repositories").appendNode("repository")
-
-                    with(repoNode) {
-                        appendNode("id", "jcenter")
-                        appendNode("name", "jcenter-bintray")
-                        appendNode("url", "https://jcenter.bintray.com")
                     }
                 }
                 licenses {

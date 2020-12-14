@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import com.gitlab.kordlib.core.entity.Attachment
+import dev.kord.core.entity.Attachment
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
 
 /**

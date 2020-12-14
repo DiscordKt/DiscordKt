@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import com.gitlab.kordlib.common.kColor
+import dev.kord.common.kColor
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.arguments.*
 import me.jakejmattson.discordkt.api.dsl.*

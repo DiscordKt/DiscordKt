@@ -2,7 +2,7 @@
 
 package me.jakejmattson.discordkt.api.extensions
 
-import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
+import dev.kord.rest.builder.message.EmbedBuilder
 
 /**
  * Utility function to create a field.

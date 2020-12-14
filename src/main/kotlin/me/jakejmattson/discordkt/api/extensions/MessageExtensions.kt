@@ -2,7 +2,7 @@
 
 package me.jakejmattson.discordkt.api.extensions
 
-import com.gitlab.kordlib.core.entity.Message
+import dev.kord.core.entity.Message
 import kotlinx.coroutines.flow.count
 
 /**

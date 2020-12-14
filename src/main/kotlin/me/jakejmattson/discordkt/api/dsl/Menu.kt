@@ -2,14 +2,14 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
-import com.gitlab.kordlib.common.entity.*
-import com.gitlab.kordlib.core.behavior.channel.*
-import com.gitlab.kordlib.core.behavior.edit
-import com.gitlab.kordlib.core.entity.*
-import com.gitlab.kordlib.core.event.message.ReactionAddEvent
-import com.gitlab.kordlib.kordx.emoji.*
-import com.gitlab.kordlib.kordx.emoji.DiscordEmoji
-import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
+import dev.kord.common.entity.*
+import dev.kord.core.behavior.channel.*
+import dev.kord.core.behavior.edit
+import dev.kord.core.entity.*
+import dev.kord.core.event.message.ReactionAddEvent
+import dev.kord.kordx.emoji.*
+import dev.kord.kordx.emoji.DiscordEmoji
+import dev.kord.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
 
 private val menus = mutableMapOf<Snowflake, Menu>()

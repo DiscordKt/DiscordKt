@@ -1,12 +1,12 @@
 package me.jakejmattson.discordkt.api.dsl
 
-import com.gitlab.kordlib.core.Kord
-import com.gitlab.kordlib.core.entity.*
-import com.gitlab.kordlib.core.entity.channel.MessageChannel
-import com.gitlab.kordlib.core.event.message.*
-import com.gitlab.kordlib.gateway.Intents
-import com.gitlab.kordlib.gateway.builder.PresenceBuilder
-import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
+import dev.kord.core.Kord
+import dev.kord.core.entity.*
+import dev.kord.core.entity.channel.MessageChannel
+import dev.kord.core.event.message.*
+import dev.kord.gateway.Intents
+import dev.kord.gateway.builder.PresenceBuilder
+import dev.kord.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.annotations.Service
 import me.jakejmattson.discordkt.api.extensions.pluralize

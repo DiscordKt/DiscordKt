@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import com.gitlab.kordlib.core.entity.Guild
-import com.gitlab.kordlib.core.firstOrNull
+import dev.kord.core.entity.Guild
+import dev.kord.core.firstOrNull
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 

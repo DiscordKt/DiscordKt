@@ -1,10 +1,10 @@
 package me.jakejmattson.discordkt.internal.listeners
 
-import com.gitlab.kordlib.core.behavior.channel.createEmbed
-import com.gitlab.kordlib.core.entity.channel.*
-import com.gitlab.kordlib.core.event.message.MessageCreateEvent
-import com.gitlab.kordlib.core.on
-import com.gitlab.kordlib.kordx.emoji.addReaction
+import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.core.entity.channel.*
+import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.core.on
+import dev.kord.kordx.emoji.addReaction
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.trimToID

@@ -2,7 +2,7 @@
 
 package me.jakejmattson.discordkt.api
 
-import com.gitlab.kordlib.core.Kord
+import dev.kord.core.Kord
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import me.jakejmattson.discordkt.api.dsl.*

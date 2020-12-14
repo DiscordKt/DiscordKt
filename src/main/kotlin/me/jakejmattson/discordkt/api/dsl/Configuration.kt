@@ -2,13 +2,13 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
-import com.gitlab.kordlib.core.enableEvent
-import com.gitlab.kordlib.core.entity.*
-import com.gitlab.kordlib.core.entity.channel.MessageChannel
-import com.gitlab.kordlib.core.event.Event
-import com.gitlab.kordlib.gateway.*
-import com.gitlab.kordlib.kordx.emoji.*
-import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
+import dev.kord.core.enableEvent
+import dev.kord.core.entity.*
+import dev.kord.core.entity.channel.MessageChannel
+import dev.kord.core.event.Event
+import dev.kord.gateway.*
+import dev.kord.kordx.emoji.*
+import dev.kord.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.Discord
 import java.awt.Color
 

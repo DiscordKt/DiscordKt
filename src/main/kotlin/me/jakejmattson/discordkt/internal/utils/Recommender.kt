@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import com.gitlab.kordlib.common.kColor
+import dev.kord.common.kColor
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import java.awt.Color
 

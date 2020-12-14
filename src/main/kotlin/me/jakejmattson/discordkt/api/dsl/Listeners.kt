@@ -2,8 +2,8 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
-import com.gitlab.kordlib.core.event.Event
-import com.gitlab.kordlib.core.on
+import dev.kord.core.event.Event
+import dev.kord.core.on
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.internal.annotations.*
 import me.jakejmattson.discordkt.internal.utils.BuilderRegister

@@ -2,8 +2,8 @@
 
 package me.jakejmattson.discordkt.api.extensions
 
-import com.gitlab.kordlib.common.entity.Snowflake
-import com.gitlab.kordlib.gateway.Intent
+import dev.kord.common.entity.Snowflake
+import dev.kord.gateway.Intent
 
 /**
  * Convert a Long ID to a Snowflake.

@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import com.gitlab.kordlib.common.entity.Snowflake
-import com.gitlab.kordlib.core.entity.channel.Category
+import dev.kord.common.entity.Snowflake
+import dev.kord.core.entity.channel.Category
 import kotlinx.coroutines.flow.*
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull

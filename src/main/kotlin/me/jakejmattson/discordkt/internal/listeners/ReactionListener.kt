@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.internal.listeners
 
-import com.gitlab.kordlib.core.*
-import com.gitlab.kordlib.core.event.message.ReactionAddEvent
+import dev.kord.core.*
+import dev.kord.core.event.message.ReactionAddEvent
 import me.jakejmattson.discordkt.api.dsl.*
 
 internal fun registerReactionListener(kord: Kord) = kord.on<ReactionAddEvent> {

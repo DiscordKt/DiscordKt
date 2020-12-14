@@ -2,10 +2,10 @@
 
 package me.jakejmattson.discordkt.api.extensions
 
-import com.gitlab.kordlib.core.behavior.*
-import com.gitlab.kordlib.core.entity.VoiceState
-import com.gitlab.kordlib.core.entity.channel.*
-import com.gitlab.kordlib.rest.builder.channel.*
+import dev.kord.core.behavior.*
+import dev.kord.core.entity.VoiceState
+import dev.kord.core.entity.channel.*
+import dev.kord.rest.builder.channel.*
 
 /**
  * Create a new text channel under this category.

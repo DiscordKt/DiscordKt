@@ -2,9 +2,9 @@
 
 package me.jakejmattson.discordkt.api.extensions
 
-import com.gitlab.kordlib.core.behavior.*
-import com.gitlab.kordlib.core.behavior.channel.createEmbed
-import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
+import dev.kord.core.behavior.*
+import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.flow.filter
 
 /**
