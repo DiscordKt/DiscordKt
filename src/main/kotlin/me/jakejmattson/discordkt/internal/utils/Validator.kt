@@ -38,18 +38,6 @@ internal object Validator {
                         InternalLogger.error("Detected EitherArg with identical args ($arg) in command: $commandName")
                     }
                 }
-
-                if (it.isFlexible) {
-                    if (args.size < 2)
-                        InternalLogger.error("Flexible commands must accept at least 2 arguments ($commandName)")
-                    else {
-                        val actualCount = args.size
-                        val distinctCount = args.distinct().size
-
-                        if (distinctCount != actualCount)
-                            InternalLogger.error("Flexible commands must accept distinct arguments ($commandName)")
-                    }
-                }
             }
         }
     }

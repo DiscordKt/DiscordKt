@@ -27,49 +27,8 @@ internal interface ParseResult {
 internal suspend fun parseInputToBundle(execution: Execution<*>, event: CommandEvent<*>, actualArgs: List<String>): ParseResult {
     val expected = execution.arguments as List<ArgumentType<Any>>
 
-    val error = when (val initialConversion = convertArguments(actualArgs, expected, event)) {
-        is ConversionSuccess -> return ParseResult.Success(bundleToContainer(initialConversion.results))
+    return when (val initialConversion = convertArguments(actualArgs, expected, event)) {
+        is ConversionSuccess -> ParseResult.Success(bundleToContainer(initialConversion.results))
         is ConversionError -> ParseResult.Fail(initialConversion.error)
     }
-
-    if (!execution.isFlexible || expected.size < 2)
-        return error
-
-    val successList = expected
-        .toMutableList()
-        .generatePermutations()
-        .mapNotNull {
-            when (val conversion = convertArguments(actualArgs, it, event)) {
-                is ConversionSuccess -> it to conversion.results
-                else -> null
-            }
-        }
-        .map { (argumentTypes, results) -> argumentTypes.zip(results) }
-
-    val success = when (successList.size) {
-        1 -> successList.first()
-        else -> return error
-    }
-
-    val orderedResult = expected.map { sortKey -> success.first { it.first == sortKey }.second }
-
-    return ParseResult.Success(bundleToContainer(orderedResult))
-}
-
-private fun <E> MutableList<E>.generatePermutations(): List<List<E>> {
-    if (isEmpty())
-        return listOf(listOf())
-
-    val firstElement = removeAt(0)
-    val returnValue = mutableListOf<List<E>>()
-
-    generatePermutations().forEach {
-        (0..it.size).forEach { index ->
-            val temp = it.toMutableList()
-            temp.add(index, firstElement)
-            returnValue.add(temp)
-        }
-    }
-
-    return returnValue
 }

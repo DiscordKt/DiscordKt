@@ -8,9 +8,7 @@ import me.jakejmattson.discordkt.api.arguments.ArgumentType
 import me.jakejmattson.discordkt.internal.annotations.*
 import me.jakejmattson.discordkt.internal.command.*
 
-data class Execution<T : CommandEvent<*>>(val arguments: List<ArgumentType<*>>,
-                                          val action: suspend T.() -> Unit,
-                                          val isFlexible: Boolean = false) {
+data class Execution<T : CommandEvent<*>>(val arguments: List<ArgumentType<*>>, val action: suspend T.() -> Unit) {
     val parameterCount: Int
         get() = arguments.size
 
