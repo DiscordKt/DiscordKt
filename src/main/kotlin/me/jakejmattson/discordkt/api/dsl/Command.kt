@@ -23,8 +23,7 @@ data class Execution<T : CommandEvent<*>>(val arguments: List<ArgumentType<*>>, 
  * @property description A brief description of the command - used in documentation.
  * @property category The category that this command belongs to - set automatically by CommandSet.
  */
-sealed class Command(open val names: List<String>,
-                     open var description: String) {
+sealed class Command(open val names: List<String>, open var description: String) {
     var category: String = ""
     val executions: MutableList<Execution<*>> = mutableListOf()
 
@@ -35,14 +34,14 @@ sealed class Command(open val names: List<String>,
      *
      * @return The result of the parsing operation.
      */
-    suspend fun canParse(event: CommandEvent<*>, execution: Execution<*>, args: List<String>) = parseInputToBundle(execution, event, args) is ParseResult.Success
+    suspend fun canParse(event: CommandEvent<*>, execution: Execution<*>, args: List<String>) = convertArguments(event, execution.arguments, args) is ParseResult.Success
 
     /**
      * Invoke this command with the given args.
      */
     fun invoke(event: CommandEvent<TypeContainer>, args: List<String>) {
         GlobalScope.launch {
-            val success = executions.map { it to parseInputToBundle(it, event, args) }
+            val success = executions.map { it to convertArguments(event, it.arguments, args) }
                 .firstOrNull { it.second is ParseResult.Success }
 
             if (success == null) {
@@ -65,8 +64,7 @@ sealed class Command(open val names: List<String>,
 /**
  * A command that can be executed from anywhere.
  */
-class GlobalCommand(override val names: List<String>,
-                    override var description: String) : Command(names, description) {
+class GlobalCommand(override val names: List<String>, override var description: String) : Command(names, description) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -95,8 +93,7 @@ class GlobalCommand(override val names: List<String>,
 /**
  * A command that can only be executed in a guild.
  */
-class GuildCommand(override val names: List<String>,
-                   override var description: String) : Command(names, description) {
+class GuildCommand(override val names: List<String>, override var description: String) : Command(names, description) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -125,8 +122,7 @@ class GuildCommand(override val names: List<String>,
 /**
  * A command that can only be executed in a DM.
  */
-class DmCommand(override val names: List<String>,
-                override var description: String) : Command(names, description) {
+class DmCommand(override val names: List<String>, override var description: String) : Command(names, description) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend DmCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)

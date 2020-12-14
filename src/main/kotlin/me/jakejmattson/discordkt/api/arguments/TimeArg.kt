@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
-import me.jakejmattson.discordkt.internal.arguments.convertTimeString
+import me.jakejmattson.discordkt.internal.utils.convertTimeString
 
 /**
  * Accepts a group of time elements and returns the number of seconds as a double.

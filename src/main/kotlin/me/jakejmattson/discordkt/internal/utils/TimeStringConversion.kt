@@ -1,4 +1,4 @@
-package me.jakejmattson.discordkt.internal.arguments
+package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.api.arguments.*
 
