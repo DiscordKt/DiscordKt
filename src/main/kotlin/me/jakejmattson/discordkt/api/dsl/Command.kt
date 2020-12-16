@@ -8,13 +8,21 @@ import me.jakejmattson.discordkt.api.arguments.ArgumentType
 import me.jakejmattson.discordkt.internal.annotations.*
 import me.jakejmattson.discordkt.internal.command.*
 
+/**
+ * The bundle of information to be executed when a command is invoked.
+ *
+ * @param arguments The ArgumentTypes accepted by this execution.
+ * @param action The code to be run when this execution is fired.
+ *
+ * @property signature Mocks a method signature using ArgumentType names, i.e. (a, b, c)
+ */
 data class Execution<T : CommandEvent<*>>(val arguments: List<ArgumentType<*>>, val action: suspend T.() -> Unit) {
-    val parameterCount: Int
-        get() = arguments.size
-
     val signature
         get() = "(${arguments.joinToString { it.name }})"
 
+    /**
+     * Run the command logic.
+     */
     suspend fun execute(event: T) = action.invoke(event)
 }
 
@@ -22,6 +30,7 @@ data class Execution<T : CommandEvent<*>>(val arguments: List<ArgumentType<*>>, 
  * @property names The name(s) this command can be executed by (case insensitive).
  * @property description A brief description of the command - used in documentation.
  * @property category The category that this command belongs to - set automatically by CommandSet.
+ * @property executions The list of [Execution] that this command can be run with.
  */
 sealed class Command(open val names: List<String>, open var description: String) {
     var category: String = ""
