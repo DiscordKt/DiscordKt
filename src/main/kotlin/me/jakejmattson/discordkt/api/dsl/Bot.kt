@@ -7,6 +7,7 @@ import dev.kord.core.event.message.*
 import dev.kord.gateway.Intents
 import dev.kord.gateway.builder.PresenceBuilder
 import dev.kord.rest.builder.message.EmbedBuilder
+import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.annotations.Service
 import me.jakejmattson.discordkt.api.extensions.pluralize
@@ -30,11 +31,14 @@ internal val diService = InjectionService()
  * @param token Your Discord bot token.
  */
 @ConfigurationDSL
-suspend fun bot(token: String, operate: suspend Bot.() -> Unit) {
+fun bot(token: String, operate: suspend Bot.() -> Unit) {
     val path = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
     val bot = Bot(token, path)
-    bot.operate()
-    bot.buildBot()
+
+    runBlocking {
+        bot.operate()
+        bot.buildBot()
+    }
 }
 
 /**
