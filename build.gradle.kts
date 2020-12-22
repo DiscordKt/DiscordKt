@@ -72,7 +72,7 @@ tasks {
     }
 
     dokkaHtml.configure {
-        outputDirectory.set(buildDir.resolve("javadoc"))
+        outputDirectory.set(buildDir.resolve("dokka"))
 
         dokkaSourceSets {
             configureEach {
@@ -109,6 +109,17 @@ tasks {
             println(sizes)
         }
     }
+
+    register("generateDocs") {
+        description = "Generate documentation for DiscordKt.github.io"
+        dependsOn(listOf(dokkaHtml))
+
+        copy {
+            delete(file("../DiscordKt.github.io/docs/dokka"))
+            from(buildDir.resolve("dokka"))
+            into(file("../DiscordKt.github.io/docs/dokka"))
+        }
+    }
 }
 
 val sourcesJar by tasks.creating(Jar::class) {
@@ -118,10 +129,9 @@ val sourcesJar by tasks.creating(Jar::class) {
 
 val dokkaJar by tasks.creating(Jar::class) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Assembles Kotlin docs with Dokka"
     archiveClassifier.set("javadoc")
-    from(tasks.dokkaHtml)
-    dependsOn(tasks.dokkaHtml)
+    from(tasks.dokkaJavadoc)
+    dependsOn(tasks.dokkaJavadoc)
 }
 
 publishing {
