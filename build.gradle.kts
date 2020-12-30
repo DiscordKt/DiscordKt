@@ -159,8 +159,8 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:ssh://github.com/JakeJMattson/DiscordKt.git")
-                    developerConnection.set("scm:git:ssh://git@github.com:JakeJMattson/DiscordKt.git")
+                    connection.set("scm:git:ssh://github.com/DiscordKt/DiscordKt.git")
+                    developerConnection.set("scm:git:ssh://git@github.com:DiscordKt/DiscordKt.git")
                     url.set(Constants.projectUrl)
                 }
             }
