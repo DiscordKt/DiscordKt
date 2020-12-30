@@ -18,24 +18,25 @@ open class MessageArg(override val name: String = "Message", private val allowsG
     companion object : MessageArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Message> {
-        val regex = "https://discord(app)?.com/channels/\\d+/\\d+/\\d+".toRegex()
-        val isLink = regex.matches(arg)
-        val kord = event.discord.api
+        val publicRegex = "https://discord(app)?.com/channels/\\d+/\\d+/\\d+".toRegex()
+        val privateRegex = "https://discord(app)?.com/channels/@me/\\d+/\\d+".toRegex()
 
-        val message = if (isLink) {
-            val (guildId, channelId, messageId) = arg.split("/").takeLast(3).map { it.toSnowflakeOrNull() }
+        val message = when {
+            publicRegex.matches(arg) -> {
+                val (guildId, channelId, messageId) = arg.split("/").takeLast(3).map { it.toSnowflakeOrNull() }
 
-            if (!allowsGlobal && guildId != event.guild?.id)
-                return Error("Must be from this guild")
+                if (!allowsGlobal && guildId != event.guild?.id)
+                    return Error("Must be from this guild")
 
-            val guild = guildId?.let { kord.getGuild(it) } ?: return Error("Invalid guild")
+                val guild = guildId?.let { event.discord.api.getGuild(it) } ?: return Error("Invalid guild")
 
-            val channel = guild.channels.firstOrNull { it.id == channelId } as? GuildMessageChannel
-                ?: return Error("Invalid channel")
+                val channel = guild.channels.firstOrNull { it.id == channelId } as? GuildMessageChannel
+                    ?: return Error("Invalid channel")
 
-            messageId?.let { channel.getMessageOrNull(it) } ?: return Error("Invalid message")
-        } else {
-            arg.toSnowflakeOrNull()?.let { event.channel.getMessageOrNull(it) } ?: return Error("Invalid ID")
+                messageId?.let { channel.getMessageOrNull(it) } ?: return Error("Invalid message")
+            }
+            privateRegex.matches(arg) -> return Error("Cannot resolve private URL - use message ID")
+            else -> arg.toSnowflakeOrNull()?.let { event.channel.getMessageOrNull(it) } ?: return Error("Invalid ID")
         }
 
         return Success(message)
