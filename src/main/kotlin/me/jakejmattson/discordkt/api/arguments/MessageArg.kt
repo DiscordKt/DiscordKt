@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import dev.kord.core.entity.Message
-import dev.kord.core.entity.channel.TextChannel
+import dev.kord.core.entity.channel.GuildMessageChannel
 import kotlinx.coroutines.flow.firstOrNull
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
@@ -30,7 +30,7 @@ open class MessageArg(override val name: String = "Message", private val allowsG
 
             val guild = guildId?.let { kord.getGuild(it) } ?: return Error("Invalid guild")
 
-            val channel = guild.channels.firstOrNull { it.id == channelId } as? TextChannel
+            val channel = guild.channels.firstOrNull { it.id == channelId } as? GuildMessageChannel
                 ?: return Error("Invalid channel")
 
             messageId?.let { channel.getMessageOrNull(it) } ?: return Error("Invalid message")
