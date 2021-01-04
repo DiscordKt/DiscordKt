@@ -5,8 +5,13 @@ package me.jakejmattson.discordkt.api
 import dev.kord.core.Kord
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
+import me.jakejmattson.discordkt.api.annotations.Service
 import me.jakejmattson.discordkt.api.dsl.*
+import me.jakejmattson.discordkt.api.extensions.pluralize
+import me.jakejmattson.discordkt.internal.listeners.*
+import me.jakejmattson.discordkt.internal.utils.*
 import kotlin.reflect.KClass
+import kotlin.system.exitProcess
 
 /**
  * @param library The current DiscordKt version.
@@ -54,12 +59,65 @@ abstract class Discord {
     inline fun <reified A : Any, reified B : Any, reified C : Any, reified D : Any, reified E : Any>
         getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>, e: KClass<E>) =
         Args5(diService[a], diService[b], diService[c], diService[d], diService[e])
-}
 
-internal fun buildDiscordClient(api: Kord, configuration: BotConfiguration) =
-    object : Discord() {
-        override val api = api
-        override val configuration = configuration
-        override val commands = mutableListOf<Command>()
-        override val preconditions = mutableListOf<Precondition>()
+    internal suspend fun initCore() {
+        diService.inject(this)
+        val showStartupLog = configuration.showStartupLog
+        val generateCommandDocs = configuration.generateCommandDocs
+        val header = "----- DiscordKt ${versions.library} -----"
+
+        if (showStartupLog)
+            InternalLogger.log(header)
+
+        val dataSize = registerData()
+        val services = registerServices()
+
+        ReflectionUtils.registerFunctions(configuration.packageName, this)
+        registerReactionListener(api)
+        registerCommandListener(this)
+
+        val commandSets = commands.groupBy { it.category }.keys.size
+
+        if (showStartupLog) {
+            InternalLogger.log(commandSets.pluralize("CommandSet") + " -> " + commands.size.pluralize("Command"))
+            InternalLogger.log(dataSize.pluralize("Data"))
+            InternalLogger.log(services.size.pluralize("Service"))
+            InternalLogger.log(preconditions.size.pluralize("Precondition"))
+        }
+
+        registerHelpCommand(this)
+
+        if (generateCommandDocs)
+            createDocumentation(commands)
+
+        Validator.validateCommandMeta(commands)
+
+        if (showStartupLog)
+            InternalLogger.log("-".repeat(header.length))
     }
+
+    private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(configuration.packageName).apply { diService.buildAllRecursively(this) }
+    private fun registerHelpCommand(discord: Discord) = discord.commands["Help"]
+        ?: produceHelpCommand().register(discord)
+
+    private fun registerData() = ReflectionUtils.detectSubtypesOf<Data>(configuration.packageName)
+        .map {
+            val default = it.getConstructor().newInstance()
+
+            val data = with(default) {
+                if (!file.exists()) {
+                    writeToFile()
+
+                    if (killIfGenerated) {
+                        InternalLogger.error("Please fill in the following file before re-running: ${file.absolutePath}")
+                        exitProcess(-1)
+                    }
+
+                    this
+                } else
+                    readFromFile()
+            }
+
+            diService.inject(data)
+        }.size
+}

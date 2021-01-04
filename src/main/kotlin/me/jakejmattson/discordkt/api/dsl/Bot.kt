@@ -8,14 +8,9 @@ import dev.kord.gateway.Intents
 import dev.kord.gateway.builder.PresenceBuilder
 import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.runBlocking
-import me.jakejmattson.discordkt.api.*
-import me.jakejmattson.discordkt.api.annotations.Service
-import me.jakejmattson.discordkt.api.extensions.pluralize
+import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
-import me.jakejmattson.discordkt.internal.listeners.*
 import me.jakejmattson.discordkt.internal.services.InjectionService
-import me.jakejmattson.discordkt.internal.utils.*
-import kotlin.system.exitProcess
 
 @PublishedApi
 internal val diService = InjectionService()
@@ -31,12 +26,11 @@ internal val diService = InjectionService()
  * @param token Your Discord bot token.
  */
 @ConfigurationDSL
-fun bot(token: String, operate: suspend Bot.() -> Unit) {
-    val path = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
-    val bot = Bot(token, path)
+fun bot(token: String, configure: suspend Bot.() -> Unit) {
+    val bot = Bot(token)
 
     runBlocking {
-        bot.operate()
+        bot.configure()
         bot.buildBot()
     }
 }
@@ -44,7 +38,7 @@ fun bot(token: String, operate: suspend Bot.() -> Unit) {
 /**
  * Backing class for [bot] function.
  */
-class Bot(private val token: String, private val globalPath: String) {
+class Bot(private val token: String) {
     private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
                                         var prefix: suspend DiscordContext.() -> String = { "+" },
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
@@ -53,42 +47,6 @@ class Bot(private val token: String, private val globalPath: String) {
                                         var onStart: suspend Discord.() -> Unit = {})
 
     private val startupBundle = StartupFunctions()
-
-    private suspend fun initCore(discord: Discord) {
-        diService.inject(discord)
-        val showStartupLog = discord.configuration.showStartupLog
-        val generateCommandDocs = discord.configuration.generateCommandDocs
-        val header = "----- DiscordKt ${discord.versions.library} -----"
-
-        if (showStartupLog)
-            InternalLogger.log(header)
-
-        val dataSize = registerData()
-        val services = registerServices()
-
-        ReflectionUtils.registerFunctions(globalPath, discord)
-        registerReactionListener(discord.api)
-        registerCommandListener(discord)
-
-        val commandSets = discord.commands.groupBy { it.category }.keys.size
-
-        if (showStartupLog) {
-            InternalLogger.log(commandSets.pluralize("CommandSet") + " -> " + discord.commands.size.pluralize("Command"))
-            InternalLogger.log(dataSize.pluralize("Data"))
-            InternalLogger.log(services.size.pluralize("Service"))
-            InternalLogger.log(discord.preconditions.size.pluralize("Precondition"))
-        }
-
-        registerHelpCommand(discord)
-
-        if (generateCommandDocs)
-            createDocumentation(discord.commands)
-
-        Validator.validateCommandMeta(discord.commands)
-
-        if (showStartupLog)
-            InternalLogger.log("-".repeat(header.length))
-    }
 
     internal suspend fun buildBot() {
         val (configureFun,
@@ -110,6 +68,7 @@ class Bot(private val token: String, private val globalPath: String) {
                 commandReaction = commandReaction,
                 theme = theme,
                 intents = intents.toMutableSet(),
+                packageName = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name,
                 prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun,
                 permissions = permissionsFun
@@ -123,9 +82,15 @@ class Bot(private val token: String, private val globalPath: String) {
             intents = Intents.invoke(botConfiguration.intents)
         }
 
-        val discord = buildDiscordClient(kord, botConfiguration)
+        val discord = object : Discord() {
+            override val api = kord
+            override val configuration = botConfiguration
+            override val commands = mutableListOf<Command>()
+            override val preconditions = mutableListOf<Precondition>()
+        }
 
-        initCore(discord)
+        discord.initCore()
+
         discord.api.login {
             presenceFun.invoke(this)
             startupFun.invoke(discord)
@@ -192,29 +157,4 @@ class Bot(private val token: String, private val globalPath: String) {
     fun onStart(start: suspend Discord.() -> Unit) {
         startupBundle.onStart = start
     }
-
-    private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(globalPath).apply { diService.buildAllRecursively(this) }
-    private fun registerHelpCommand(discord: Discord) = discord.commands["Help"]
-        ?: produceHelpCommand().register(discord)
-
-    private fun registerData() = ReflectionUtils.detectSubtypesOf<Data>(globalPath)
-        .map {
-            val default = it.getConstructor().newInstance()
-
-            val data = with(default) {
-                if (!file.exists()) {
-                    writeToFile()
-
-                    if (killIfGenerated) {
-                        InternalLogger.error("Please fill in the following file before re-running: ${file.absolutePath}")
-                        exitProcess(-1)
-                    }
-
-                    this
-                } else
-                    readFromFile()
-            }
-
-            diService.inject(data)
-        }.size
 }

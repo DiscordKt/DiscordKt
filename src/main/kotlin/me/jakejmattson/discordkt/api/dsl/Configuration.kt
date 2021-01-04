@@ -21,7 +21,8 @@ import java.awt.Color
  * @property recommendCommands Whether or not to recommend the closest command when one fails.
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
- * @property intents The registered gateway intents.
+ * @property intents Additional gateway intents to register manually.
+ * @property packageName The detected package name for the bot.
  */
 data class BotConfiguration(
     val allowMentionPrefix: Boolean,
@@ -31,6 +32,7 @@ data class BotConfiguration(
     val commandReaction: DiscordEmoji?,
     val theme: Color?,
     val intents: MutableSet<Intent>,
+    val packageName: String,
 
     internal val prefix: suspend (DiscordContext) -> String,
     internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
@@ -63,7 +65,7 @@ data class BotConfiguration(
  * @property recommendCommands Whether or not to recommend the closest command when one fails.
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
- * @property intents The registered gateway intents.
+ * @property intents Additional gateway intents to register manually.
  */
 data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
                                var showStartupLog: Boolean = true,
