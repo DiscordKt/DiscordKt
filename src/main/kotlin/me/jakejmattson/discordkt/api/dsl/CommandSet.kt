@@ -38,6 +38,19 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
     }
 
     /**
+     * Create a slash command.
+     */
+    @InnerDSL
+    fun slash(vararg names: String, body: GlobalCommand.() -> Unit) {
+        val command = SlashCommand(names.toList(), "").apply {
+            this.category = this@CommandSetBuilder.category
+        }
+
+        command.body()
+        commands.add(command)
+    }
+
+    /**
      * Create a guild command.
      */
     @InnerDSL

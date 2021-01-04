@@ -73,7 +73,7 @@ sealed class Command(open val names: List<String>, open var description: String)
 /**
  * A command that can be executed from anywhere.
  */
-class GlobalCommand(override val names: List<String>, override var description: String) : Command(names, description) {
+open class GlobalCommand(override val names: List<String>, override var description: String) : Command(names, description) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -98,6 +98,8 @@ class GlobalCommand(override val names: List<String>, override var description: 
     @NestedDSL
     fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend CommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
+
+class SlashCommand(override val names: List<String>, override var description: String) : GlobalCommand(names, description)
 
 /**
  * A command that can only be executed in a guild.
