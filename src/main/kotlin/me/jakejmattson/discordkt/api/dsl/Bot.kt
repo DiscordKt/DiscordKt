@@ -1,5 +1,6 @@
 package me.jakejmattson.discordkt.api.dsl
 
+import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
 import dev.kord.core.entity.*
 import dev.kord.core.entity.channel.MessageChannel
@@ -25,6 +26,7 @@ internal val diService = InjectionService()
  *
  * @param token Your Discord bot token.
  */
+@KordPreview
 @ConfigurationDSL
 fun bot(token: String, configure: suspend Bot.() -> Unit) {
     val bot = Bot(token)
@@ -48,6 +50,7 @@ class Bot(private val token: String) {
 
     private val startupBundle = StartupFunctions()
 
+    @KordPreview
     internal suspend fun buildBot() {
         val (configureFun,
             prefixFun,

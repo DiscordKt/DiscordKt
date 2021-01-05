@@ -2,10 +2,12 @@
 
 package me.jakejmattson.discordkt.api
 
+import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import me.jakejmattson.discordkt.api.annotations.Service
+import me.jakejmattson.discordkt.api.arguments.*
 import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.pluralize
 import me.jakejmattson.discordkt.internal.listeners.*
@@ -60,6 +62,7 @@ abstract class Discord {
         getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>, e: KClass<E>) =
         Args5(diService[a], diService[b], diService[c], diService[d], diService[e])
 
+    @KordPreview
     internal suspend fun initCore() {
         diService.inject(this)
         val showStartupLog = configuration.showStartupLog
@@ -73,6 +76,7 @@ abstract class Discord {
         val services = registerServices()
 
         ReflectionUtils.registerFunctions(configuration.packageName, this)
+        registerSlashCommands()
         registerReactionListener(api)
         registerCommandListener(this)
 
@@ -99,6 +103,24 @@ abstract class Discord {
     private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(configuration.packageName).apply { diService.buildAllRecursively(this) }
     private fun registerHelpCommand(discord: Discord) = discord.commands["Help"]
         ?: produceHelpCommand().register(discord)
+
+    @KordPreview
+    private suspend fun registerSlashCommands() {
+        commands.filterIsInstance<SlashCommand>().forEach {
+            api.createGlobalApplicationCommand(it.names.first(), it.description) {
+                it.executions.first().arguments.forEach {
+                    when (it) {
+                        is IntegerArg -> int(it.name, "")
+                        is BooleanArg -> boolean(it.name, "")
+                        is UserArg -> user(it.name, "")
+                        is RoleArg -> role(it.name, "")
+                        is ChannelArg<*> -> channel(it.name, "")
+                        else -> string(it.name, "")
+                    }
+                }
+            }
+        }
+    }
 
     private fun registerData() = ReflectionUtils.detectSubtypesOf<Data>(configuration.packageName)
         .map {
