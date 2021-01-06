@@ -29,7 +29,8 @@ internal val diService = InjectionService()
 @KordPreview
 @ConfigurationDSL
 fun bot(token: String, configure: suspend Bot.() -> Unit) {
-    val bot = Bot(token)
+    val packageName = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
+    val bot = Bot(token, packageName)
 
     runBlocking {
         bot.configure()
@@ -40,7 +41,7 @@ fun bot(token: String, configure: suspend Bot.() -> Unit) {
 /**
  * Backing class for [bot] function.
  */
-class Bot(private val token: String) {
+class Bot(private val token: String, private val packageName: String) {
     private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
                                         var prefix: suspend DiscordContext.() -> String = { "+" },
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
@@ -71,7 +72,7 @@ class Bot(private val token: String) {
                 commandReaction = commandReaction,
                 theme = theme,
                 intents = intents.toMutableSet(),
-                packageName = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name,
+                packageName = packageName,
                 prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun,
                 permissions = permissionsFun
