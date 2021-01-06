@@ -19,13 +19,13 @@ internal class InjectionService {
         ?: throw IllegalArgumentException("Could not inject class: ${clazz.simplerName}")
 
     internal inline fun <reified T> invokeMethod(method: Method): T {
-        val objects = determineArguments(method.parameterTypes)
+        val objects = determineArguments(method.parameterTypes, method.signature)
         return method.invoke(null, *objects) as T
     }
 
     private fun <T> invokeConstructor(clazz: Class<T>): T {
         val constructor = clazz.constructors.first()
-        val objects = determineArguments(constructor.parameterTypes)
+        val objects = determineArguments(constructor.parameterTypes, constructor.signature)
         return constructor.newInstance(*objects) as T
     }
 
@@ -51,10 +51,10 @@ internal class InjectionService {
         buildAllRecursively(failed, failed.size)
     }
 
-    private fun determineArguments(parameters: Array<out Class<*>>) = if (parameters.isEmpty()) emptyArray() else
+    private fun determineArguments(parameters: Array<out Class<*>>, signature: String) = if (parameters.isEmpty()) emptyArray() else
         parameters.map { arg ->
             elementMap.entries.find { arg.isAssignableFrom(it.key) }?.value
-                ?: throw IllegalStateException("Couldn't inject of type '$arg' from registered objects.")
+                ?: throw IllegalStateException("Couldn't inject '${arg.simplerName}' into $signature")
         }.toTypedArray()
 
     private fun generateBadInjectionReport(failedInjections: List<FailureBundle>) = buildString {

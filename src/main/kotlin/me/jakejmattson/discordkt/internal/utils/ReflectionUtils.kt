@@ -4,7 +4,7 @@ import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.dsl.*
 import org.reflections.Reflections
 import org.reflections.scanners.MethodParameterScanner
-import java.lang.reflect.Method
+import java.lang.reflect.*
 import kotlin.reflect.KClass
 
 internal interface BuilderRegister {
@@ -32,3 +32,9 @@ internal val Class<*>.simplerName
 
 internal val KClass<*>.simplerName
     get() = java.simplerName
+
+internal val Method.signature
+    get() = "${name}(${parameterTypes.joinToString { it.simplerName }})"
+
+internal val Constructor<*>.signature
+    get() = "${name}(${parameterTypes.joinToString { it.simplerName }})"
