@@ -13,7 +13,7 @@ object Versions {
     const val gson = "2.8.6"
     const val slf4j = "2.0.0-alpha1"
     const val log = "2.0.4"
-    const val kord = "0.7.0-SLASH"
+    const val kord = "0.7.0-SNAPSHOT"
     const val emojis = "0.5.0"
 }
 

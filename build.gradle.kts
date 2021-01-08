@@ -21,8 +21,8 @@ plugins {
 
 repositories {
     mavenLocal()
-    maven("https://dl.bintray.com/kordlib/Kord")
     mavenCentral()
+    maven("https://oss.sonatype.org/content/repositories/snapshots")
     jcenter()
 }
 
