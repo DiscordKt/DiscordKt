@@ -20,13 +20,13 @@ open class CategoryArg(override val name: String = "Category", private val guild
     companion object : CategoryArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
-        val guild = guildId?.let { event.discord.api.getGuild(it) } ?: event.guild
+        val guild = guildId?.let { event.discord.kord.getGuild(it) } ?: event.guild
 
         if (!allowsGlobal && guild == null)
             return Error("Guild not found")
 
         val categories = if (allowsGlobal)
-            event.discord.api.guilds.toList().flatMap { it.channels.filterIsInstance<Category>().toList() }
+            event.discord.kord.guilds.toList().flatMap { it.channels.filterIsInstance<Category>().toList() }
         else
             guild!!.channels.filterIsInstance<Category>().toList()
 

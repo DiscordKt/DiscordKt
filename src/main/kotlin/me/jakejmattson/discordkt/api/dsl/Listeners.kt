@@ -29,7 +29,7 @@ data class ListenerBuilder(val discord: Discord) {
     inline fun <reified T : Event> on(crossinline listener: suspend T.() -> Unit) {
         discord.configuration.enableEvent<T>()
 
-        discord.api.on<T> {
+        discord.kord.on<T> {
             listener(this)
         }
     }

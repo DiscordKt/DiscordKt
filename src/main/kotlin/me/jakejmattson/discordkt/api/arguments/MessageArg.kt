@@ -28,7 +28,7 @@ open class MessageArg(override val name: String = "Message", private val allowsG
                 if (!allowsGlobal && guildId != event.guild?.id)
                     return Error("Must be from this guild")
 
-                val guild = guildId?.let { event.discord.api.getGuild(it) } ?: return Error("Invalid guild")
+                val guild = guildId?.let { event.discord.kord.getGuild(it) } ?: return Error("Invalid guild")
 
                 val channel = guild.channels.firstOrNull { it.id == channelId } as? GuildMessageChannel
                     ?: return Error("Invalid channel")

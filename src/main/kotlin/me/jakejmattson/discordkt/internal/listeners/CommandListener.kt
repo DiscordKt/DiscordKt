@@ -11,7 +11,7 @@ import me.jakejmattson.discordkt.api.extensions.trimToID
 import me.jakejmattson.discordkt.internal.command.*
 import me.jakejmattson.discordkt.internal.utils.Recommender
 
-internal suspend fun registerCommandListener(discord: Discord) = discord.api.on<MessageCreateEvent> {
+internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on<MessageCreateEvent> {
     val config = discord.configuration
     val self = kord.selfId.value
     val author = message.author ?: return@on

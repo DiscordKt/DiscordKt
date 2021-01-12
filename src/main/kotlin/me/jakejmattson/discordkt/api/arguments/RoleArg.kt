@@ -20,13 +20,13 @@ open class RoleArg(override val name: String = "Role", private val guildId: Snow
     companion object : RoleArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
-        val guild = guildId?.let { event.discord.api.getGuild(it) } ?: event.guild
+        val guild = guildId?.let { event.discord.kord.getGuild(it) } ?: event.guild
 
         if (!allowsGlobal && guild == null)
             return Error("Guild not found")
 
         val roles = if (allowsGlobal)
-            event.discord.api.guilds.toList().flatMap { it.roles.toList() }
+            event.discord.kord.guilds.toList().flatMap { it.roles.toList() }
         else
             guild!!.roles.toList()
 

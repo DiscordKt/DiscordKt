@@ -87,7 +87,7 @@ class Bot(private val token: String, private val packageName: String) {
         }
 
         val discord = object : Discord() {
-            override val api = kord
+            override val kord = kord
             override val configuration = botConfiguration
             override val commands = mutableListOf<Command>()
             override val preconditions = mutableListOf<Precondition>()
@@ -95,7 +95,7 @@ class Bot(private val token: String, private val packageName: String) {
 
         discord.initCore()
 
-        discord.api.login {
+        discord.kord.login {
             presenceFun.invoke(this)
             startupFun.invoke(discord)
         }

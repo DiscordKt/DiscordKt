@@ -24,13 +24,13 @@ import kotlin.system.exitProcess
 data class Versions(val library: String, val kotlin: String, val kord: String)
 
 /**
- * @property api A Kord instance used to access the Discord API.
+ * @property kord A Kord instance used to access the Discord API.
  * @property configuration All of the current configuration details for this bot.
  * @property commands All registered commands.
  * @property versions Properties for the core library.
  */
 abstract class Discord {
-    abstract val api: Kord
+    abstract val kord: Kord
     abstract val configuration: BotConfiguration
     abstract val commands: MutableList<Command>
     internal abstract val preconditions: MutableList<Precondition>
@@ -77,7 +77,7 @@ abstract class Discord {
 
         ReflectionUtils.registerFunctions(configuration.packageName, this)
         registerSlashCommands()
-        registerReactionListener(api)
+        registerReactionListener(kord)
         registerCommandListener(this)
 
         val commandSets = commands.groupBy { it.category }.keys.size
@@ -107,7 +107,7 @@ abstract class Discord {
     @KordPreview
     private suspend fun registerSlashCommands() {
         commands.filterIsInstance<SlashCommand>().forEach {
-            api.createGlobalApplicationCommand(it.names.first(), it.description) {
+            kord.createGlobalApplicationCommand(it.names.first(), it.description) {
                 it.executions.first().arguments.forEach {
                     when (it) {
                         is IntegerArg -> int(it.name, "")

@@ -16,7 +16,7 @@ open class ChannelArg<T : GuildChannel>(override val name: String = "Channel", p
     companion object : ChannelArg<TextChannel>()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T> {
-        val channel = arg.toSnowflakeOrNull()?.let { event.discord.api.getChannel(it) } as? T
+        val channel = arg.toSnowflakeOrNull()?.let { event.discord.kord.getChannel(it) } as? T
             ?: return Error("Not found")
 
         if (!allowsGlobal && channel.guild.id != event.guild?.id)
