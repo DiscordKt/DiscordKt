@@ -40,6 +40,15 @@ enum class ConversationResult {
 }
 
 /**
+ * A reaction prompted for inside a conversation
+ *
+ * @property emoji The actual Discord emoji to be reacted with.
+ * @property description The String description used in the prompt.
+ * @property value The value returned when this emoji is selected.
+ */
+data class PromptedReaction<T>(val emoji: DiscordEmoji, val description: String, val value: T)
+
+/**
  * This block builds a conversation.
  *
  * @param exitString A String entered by the user to exit the conversation.
@@ -217,22 +226,22 @@ data class ConversationBuilder(val discord: Discord,
     /**
      * Prompt the user with an embed and the provided reactions.
      *
-     * @param reactionMap A map of reactions that will be added to the embed and their values.
+     * @param reactions Collection of [PromptedReaction] that will be added to the embed.
      * @param prompt The embed sent to the user as a prompt for information.
      */
     @Throws(DmException::class)
-    suspend fun <T> promptReaction(reactionMap: Map<DiscordEmoji, T>, prompt: suspend EmbedBuilder.() -> Unit): T {
+    suspend fun <T> promptReaction(vararg reactions: PromptedReaction<T>, prompt: suspend EmbedBuilder.() -> Unit): T {
         val message = channel.createEmbed {
             prompt.invoke(this)
         }
 
         botMessageIds.add(message.id)
 
-        reactionMap.forEach {
-            message.addReaction(it.key.toReaction())
+        reactions.forEach {
+            message.addReaction(it.emoji)
         }
 
-        return retrieveValidReactionResponse(reactionMap.mapKeys { it.key.toReaction() })
+        return retrieveValidReactionResponse(reactions.map { it.emoji.toReaction() to it.value }.toMap())
     }
 
     private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<T>, prompt: String?): T = runBlocking {
