@@ -7,7 +7,7 @@ import dev.kord.core.behavior.channel.*
 import dev.kord.core.entity.*
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.event.message.ReactionAddEvent
-import dev.kord.kordx.emoji.*
+import dev.kord.x.emoji.*
 import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking

@@ -3,7 +3,7 @@ package me.jakejmattson.discordkt.api.dsl
 import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.entity.*
 import dev.kord.core.entity.channel.*
-import dev.kord.kordx.emoji.*
+import dev.kord.x.emoji.*
 import me.jakejmattson.discordkt.api.*
 
 /**

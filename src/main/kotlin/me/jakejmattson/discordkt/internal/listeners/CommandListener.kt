@@ -4,7 +4,7 @@ import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.entity.channel.*
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
-import dev.kord.kordx.emoji.addReaction
+import dev.kord.x.emoji.addReaction
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.trimToID

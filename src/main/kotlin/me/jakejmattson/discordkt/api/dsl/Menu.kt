@@ -7,8 +7,8 @@ import dev.kord.core.behavior.channel.*
 import dev.kord.core.behavior.edit
 import dev.kord.core.entity.*
 import dev.kord.core.event.message.ReactionAddEvent
-import dev.kord.kordx.emoji.*
-import dev.kord.kordx.emoji.DiscordEmoji
+import dev.kord.x.emoji.*
+import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
 

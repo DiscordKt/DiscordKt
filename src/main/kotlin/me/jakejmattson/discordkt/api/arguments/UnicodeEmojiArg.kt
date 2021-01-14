@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import dev.kord.kordx.emoji.*
+import dev.kord.x.emoji.*
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
 
 /**

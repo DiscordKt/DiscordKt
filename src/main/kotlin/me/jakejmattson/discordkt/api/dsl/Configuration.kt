@@ -7,7 +7,7 @@ import dev.kord.core.entity.*
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.event.Event
 import dev.kord.gateway.*
-import dev.kord.kordx.emoji.*
+import dev.kord.x.emoji.*
 import dev.kord.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.Discord
 import java.awt.Color
