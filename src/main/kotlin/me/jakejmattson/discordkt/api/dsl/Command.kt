@@ -99,7 +99,7 @@ open class GlobalCommand(override val names: List<String>, override var descript
     fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend CommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
 
-class SlashCommand(override val names: List<String>, override var description: String) : GlobalCommand(names, description)
+class SlashCommand(val name: String, override var description: String) : GlobalCommand(listOf(name), description)
 
 /**
  * A command that can only be executed in a guild.
