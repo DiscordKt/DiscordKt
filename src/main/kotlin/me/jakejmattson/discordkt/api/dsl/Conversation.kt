@@ -7,8 +7,8 @@ import dev.kord.core.behavior.channel.*
 import dev.kord.core.entity.*
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.event.message.ReactionAddEvent
-import dev.kord.x.emoji.*
 import dev.kord.rest.builder.message.EmbedBuilder
+import dev.kord.x.emoji.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
@@ -233,6 +233,11 @@ data class ConversationBuilder(val discord: Discord,
     suspend fun <T> promptReaction(vararg reactions: PromptedReaction<T>, prompt: suspend EmbedBuilder.() -> Unit): T {
         val message = channel.createEmbed {
             prompt.invoke(this)
+
+            field {
+                name = "Options"
+                value = reactions.joinToString ("\n") { "${it.emoji.unicode} - ${it.description}" }
+            }
         }
 
         botMessageIds.add(message.id)
