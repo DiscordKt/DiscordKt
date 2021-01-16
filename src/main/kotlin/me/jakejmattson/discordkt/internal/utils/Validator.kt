@@ -30,6 +30,9 @@ internal object Validator {
                     InternalLogger.error("Found command name with spaces: ${spaces.joinToString { "\"$it\"" }}")
             }
 
+            if (command.executions.isEmpty())
+                InternalLogger.error("$commandName has no execute block.")
+
             command.executions.forEach {
                 val args = it.arguments
 
@@ -42,7 +45,7 @@ internal object Validator {
             }
 
             if (command is SlashCommand && command.executions.size > 1)
-                InternalLogger.error("Slash commands cannot be overloaded.")
+                InternalLogger.error("Slash commands ($commandName) cannot be overloaded.")
         }
     }
 }
