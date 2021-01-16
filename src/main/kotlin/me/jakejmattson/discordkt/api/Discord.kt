@@ -109,15 +109,15 @@ abstract class Discord {
     @KordPreview
     private suspend fun registerSlashCommands() {
         commands.filterIsInstance<SlashCommand>().forEach {
-            kord.createGlobalApplicationCommand(it.names.first(), it.description) {
+            kord.createGlobalApplicationCommand(it.name, it.description.ifBlank { "<No Description>" }) {
                 it.executions.first().arguments.forEach {
                     when (it) {
-                        is IntegerArg -> int(it.name, "")
-                        is BooleanArg -> boolean(it.name, "")
-                        is UserArg -> user(it.name, "")
-                        is RoleArg -> role(it.name, "")
-                        is ChannelArg<*> -> channel(it.name, "")
-                        else -> string(it.name, "")
+                        is IntegerArg -> int(it.name, "integer")
+                        is BooleanArg -> boolean(it.name, "boolean")
+                        is UserArg -> user(it.name, "user")
+                        is RoleArg -> role(it.name, "role")
+                        is ChannelArg<*> -> channel(it.name, "channel")
+                        else -> string(it.name, "other")
                     }
                 }
             }
