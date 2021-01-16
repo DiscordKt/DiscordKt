@@ -236,7 +236,7 @@ data class ConversationBuilder(val discord: Discord,
 
             field {
                 name = "Options"
-                value = reactions.joinToString ("\n") { "${it.emoji.unicode} - ${it.description}" }
+                value = reactions.joinToString("\n") { "${it.emoji.unicode} - ${it.description}" }
             }
         }
 

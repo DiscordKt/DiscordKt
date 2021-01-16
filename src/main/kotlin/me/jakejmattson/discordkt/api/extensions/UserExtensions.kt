@@ -2,7 +2,8 @@
 
 package me.jakejmattson.discordkt.api.extensions
 
-import dev.kord.core.behavior.*
+import dev.kord.core.behavior.MemberBehavior
+import dev.kord.core.behavior.UserBehavior
 import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.flow.filter

@@ -1,6 +1,8 @@
 package me.jakejmattson.discordkt.internal.services
 
-import me.jakejmattson.discordkt.internal.utils.*
+import me.jakejmattson.discordkt.internal.utils.InternalLogger
+import me.jakejmattson.discordkt.internal.utils.signature
+import me.jakejmattson.discordkt.internal.utils.simplerName
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess

@@ -2,10 +2,14 @@
 
 package me.jakejmattson.discordkt.api.extensions
 
-import dev.kord.core.behavior.*
+import dev.kord.core.behavior.createTextChannel
+import dev.kord.core.behavior.createVoiceChannel
+import dev.kord.core.behavior.edit
 import dev.kord.core.entity.VoiceState
-import dev.kord.core.entity.channel.*
-import dev.kord.rest.builder.channel.*
+import dev.kord.core.entity.channel.Category
+import dev.kord.core.entity.channel.VoiceChannel
+import dev.kord.rest.builder.channel.TextChannelCreateBuilder
+import dev.kord.rest.builder.channel.VoiceChannelCreateBuilder
 
 /**
  * Create a new text channel under this category.

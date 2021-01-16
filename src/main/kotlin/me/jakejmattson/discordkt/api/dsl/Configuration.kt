@@ -3,12 +3,15 @@
 package me.jakejmattson.discordkt.api.dsl
 
 import dev.kord.core.enableEvent
-import dev.kord.core.entity.*
+import dev.kord.core.entity.Guild
+import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.event.Event
-import dev.kord.gateway.*
-import dev.kord.x.emoji.*
+import dev.kord.gateway.Intent
+import dev.kord.gateway.Intents
 import dev.kord.rest.builder.message.EmbedBuilder
+import dev.kord.x.emoji.DiscordEmoji
+import dev.kord.x.emoji.Emojis
 import me.jakejmattson.discordkt.api.Discord
 import java.awt.Color
 

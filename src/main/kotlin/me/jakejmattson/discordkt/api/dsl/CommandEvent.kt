@@ -1,10 +1,16 @@
 package me.jakejmattson.discordkt.api.dsl
 
 import dev.kord.core.behavior.channel.MessageChannelBehavior
-import dev.kord.core.entity.*
-import dev.kord.core.entity.channel.*
-import dev.kord.x.emoji.*
-import me.jakejmattson.discordkt.api.*
+import dev.kord.core.entity.Guild
+import dev.kord.core.entity.Message
+import dev.kord.core.entity.User
+import dev.kord.core.entity.channel.DmChannel
+import dev.kord.core.entity.channel.MessageChannel
+import dev.kord.core.entity.channel.TextChannel
+import dev.kord.x.emoji.DiscordEmoji
+import dev.kord.x.emoji.addReaction
+import me.jakejmattson.discordkt.api.Discord
+import me.jakejmattson.discordkt.api.TypeContainer
 
 /**
  * Data class containing the raw information from the command execution.

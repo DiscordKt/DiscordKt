@@ -2,7 +2,9 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
-import dev.kord.core.behavior.channel.*
+import dev.kord.core.behavior.channel.MessageChannelBehavior
+import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.entity.Message
 import dev.kord.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.Discord

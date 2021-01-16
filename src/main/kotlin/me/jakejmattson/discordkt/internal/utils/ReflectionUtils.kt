@@ -4,7 +4,8 @@ import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.dsl.*
 import org.reflections.Reflections
 import org.reflections.scanners.MethodParameterScanner
-import java.lang.reflect.*
+import java.lang.reflect.Constructor
+import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
 internal interface BuilderRegister {

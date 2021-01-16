@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import dev.kord.core.entity.channel.*
+import dev.kord.core.entity.channel.GuildChannel
+import dev.kord.core.entity.channel.TextChannel
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 

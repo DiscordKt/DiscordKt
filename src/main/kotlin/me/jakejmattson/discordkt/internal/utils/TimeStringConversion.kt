@@ -1,6 +1,8 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import me.jakejmattson.discordkt.api.arguments.*
+import me.jakejmattson.discordkt.api.arguments.ArgumentResult
+import me.jakejmattson.discordkt.api.arguments.Error
+import me.jakejmattson.discordkt.api.arguments.Success
 
 internal fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
     val timeStringEnd = actual.indexOfFirst { toTimeElement(it) == null }.takeIf { it != -1 } ?: actual.size
