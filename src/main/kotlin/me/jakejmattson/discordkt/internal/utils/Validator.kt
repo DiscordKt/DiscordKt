@@ -2,10 +2,11 @@ package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.api.arguments.EitherArg
 import me.jakejmattson.discordkt.api.dsl.Command
+import me.jakejmattson.discordkt.api.dsl.SlashCommand
 
 @PublishedApi
 internal object Validator {
-    fun validateCommandMeta(commands: MutableList<Command>) {
+    fun validateCommands(commands: MutableList<Command>) {
         val duplicates = commands
             .flatMap { it.names }
             .groupingBy { it }
@@ -39,6 +40,9 @@ internal object Validator {
                     }
                 }
             }
+
+            if (command is SlashCommand && command.executions.size > 1)
+                InternalLogger.error("Slash commands cannot be overloaded.")
         }
     }
 }

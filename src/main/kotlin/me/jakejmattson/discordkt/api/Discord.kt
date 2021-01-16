@@ -96,7 +96,7 @@ abstract class Discord {
         if (generateCommandDocs)
             createDocumentation(commands)
 
-        Validator.validateCommandMeta(commands)
+        Validator.validateCommands(commands)
 
         if (showStartupLog)
             InternalLogger.log("-".repeat(header.length))
