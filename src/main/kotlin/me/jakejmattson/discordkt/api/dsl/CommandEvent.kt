@@ -118,3 +118,15 @@ data class DmCommandEvent<T : TypeContainer>(
     override val channel: DmChannel,
     @Deprecated("There is no guild within a DmCommandEvent.", level = DeprecationLevel.ERROR)
     override val guild: Guild? = null) : CommandEvent<T>(rawInputs, discord, message, author, channel, null)
+
+/**
+ * An event fired by a slash command.
+ */
+data class SlashCommandEvent<T: TypeContainer>(
+    override val rawInputs: RawInputs,
+    override val discord: Discord,
+    @Deprecated("A slash command cannot access its message.", level = DeprecationLevel.ERROR)
+    override val message: Message,
+    override val author: User,
+    override val channel: MessageChannel,
+    override val guild: Guild? = null) : CommandEvent<T>(rawInputs, discord, message, author, channel, null)
