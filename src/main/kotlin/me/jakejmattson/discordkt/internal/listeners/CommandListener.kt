@@ -37,7 +37,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
         else -> return@on Conversations.handleMessage(message)
     }
 
-    val (_, commandName, commandArgs, _) = rawInputs
+    val (_, commandName, _) = rawInputs
 
     if (commandName.isBlank()) return@on
 
@@ -64,5 +64,5 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
         message.addReaction(it)
     }
 
-    command.invoke(event, commandArgs)
+    command.invoke(event, rawInputs.commandArgs)
 }

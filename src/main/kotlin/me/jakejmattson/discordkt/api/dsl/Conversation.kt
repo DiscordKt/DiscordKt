@@ -285,7 +285,7 @@ data class ConversationBuilder(val discord: Discord,
     }
 
     private suspend fun <T> parseResponse(argumentType: ArgumentType<T>, message: Message): ArgumentResult<T> {
-        val rawInputs = RawInputs(message.content, "", message.content.split(" "), 0)
+        val rawInputs = RawInputs(message.content, "", 0, message.content.split(" "))
         val commandEvent = CommandEvent<TypeContainer>(rawInputs, discord, message, message.author!!, message.channel.asChannel(), message.getGuildOrNull())
         return argumentType.convert(message.content, commandEvent.rawInputs.commandArgs, commandEvent)
     }
