@@ -40,7 +40,6 @@ object README {
             appendln("""
                 repositories {
                     mavenCentral()
-                    jcenter()
                     maven("$snapshotUrl")
                 }
                 
@@ -59,7 +58,6 @@ object README {
             appendln("""
                 repositories {
                     mavenCentral()
-                    jcenter()
                     maven {
                         url '${snapshotUrl}'
                     }

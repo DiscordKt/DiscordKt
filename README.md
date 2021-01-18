@@ -27,7 +27,6 @@ For API docs and examples, check [GitHub Pages](https://discordkt.github.io/). F
 ```kotlin
 repositories {
     mavenCentral()
-    jcenter()
     maven("https://oss.sonatype.org/content/repositories/snapshots/")
 }
 
@@ -39,7 +38,6 @@ dependencies {
 ```groovy
 repositories {
     mavenCentral()
-    jcenter()
     maven {
         url 'https://oss.sonatype.org/content/repositories/snapshots/'
     }
