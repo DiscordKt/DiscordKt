@@ -26,7 +26,7 @@ object Dependencies {
 
     //Library Dependencies
     const val kord = "dev.kord:kord-core:${Versions.kord}"
-    const val emojis = "dev.kord:kordx.emoji:${Versions.emojis}"
+    const val emojis = "dev.kord.x:emoji:${Versions.emojis}"
 }
 
 object README {
