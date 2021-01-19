@@ -1,7 +1,9 @@
 package me.jakejmattson.discordkt.internal.listeners
 
+import dev.kord.common.annotation.KordPreview
 import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.entity.channel.*
+import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
 import dev.kord.x.emoji.addReaction
@@ -10,6 +12,29 @@ import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.trimToID
 import me.jakejmattson.discordkt.internal.command.*
 import me.jakejmattson.discordkt.internal.utils.Recommender
+
+@KordPreview
+internal suspend fun registerSlashListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
+    val dktCommand = discord.commands[interaction.command.name] as? SlashCommand ?: return@on
+    val args = dktCommand.executions.first().arguments.joinToString(" ") { interaction.command.options[it.name.toLowerCase()]!!.value.toString() }
+    val rawInputs = RawInputs("/${dktCommand.name} $args", dktCommand.name, prefixCount = 1)
+    val author = interaction.member.asUser()
+    val channel = interaction.getChannel() as MessageChannel
+    val event = SlashCommandEvent<TypeContainer>(rawInputs, discord, channel.getLastMessage()!!, author, channel, interaction.getGuild())
+
+    discord.preconditions
+        .sortedBy { it.priority }
+        .forEach {
+            try {
+                it.check(event)
+            } catch (e: Exception) {
+                e.message.takeUnless { it.isNullOrEmpty() }?.let { event.respond(it) }
+                return@on
+            }
+        }
+
+    dktCommand.invoke(event, rawInputs.commandArgs)
+}
 
 internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on<MessageCreateEvent> {
     val config = discord.configuration
@@ -45,7 +70,6 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
         GuildCommandEvent<TypeContainer>(rawInputs, discord, message, author, channel as TextChannel, it)
     } ?: DmCommandEvent(rawInputs, discord, message, author, channel as DmChannel)
 
-    //Apply preconditions
     discord.preconditions
         .sortedBy { it.priority }
         .forEach {

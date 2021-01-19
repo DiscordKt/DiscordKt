@@ -13,6 +13,7 @@ import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.pluralize
 import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
 import me.jakejmattson.discordkt.internal.listeners.registerReactionListener
+import me.jakejmattson.discordkt.internal.listeners.registerSlashListener
 import me.jakejmattson.discordkt.internal.utils.*
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
@@ -78,9 +79,7 @@ abstract class Discord {
         val services = registerServices()
 
         ReflectionUtils.registerFunctions(configuration.packageName, this)
-        registerSlashCommands()
-        registerReactionListener(kord)
-        registerCommandListener(this)
+        registerListeners(this)
 
         val commandSets = commands.groupBy { it.category }.keys.size
 
@@ -105,6 +104,13 @@ abstract class Discord {
     private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(configuration.packageName).apply { diService.buildAllRecursively(this) }
     private fun registerHelpCommand(discord: Discord) = discord.commands["Help"]
         ?: produceHelpCommand().register(discord)
+
+    @KordPreview
+    private suspend fun registerListeners(discord: Discord) {
+        registerSlashListener(discord)
+        registerReactionListener(kord)
+        registerCommandListener(discord)
+    }
 
     @KordPreview
     private suspend fun registerSlashCommands() {
