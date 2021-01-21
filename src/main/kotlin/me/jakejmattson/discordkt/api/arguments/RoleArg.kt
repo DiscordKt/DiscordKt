@@ -19,6 +19,8 @@ open class RoleArg(override val name: String = "Role", private val guildId: Snow
      */
     companion object : RoleArg()
 
+    override val description = "A Discord role"
+
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
         val guild = guildId?.let { event.discord.kord.getGuild(it) } ?: event.guild
 

@@ -8,9 +8,11 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
  * An object that represents a type and contains the logic to convert string arguments to the desired type.
  *
  * @property name The display name for this type in documentations and examples.
+ * @property description A description of the data that this type represents.
  */
 interface ArgumentType<T> : Cloneable {
     val name: String
+    val description: String
 
     /**
      * Accept multiple inputs of this ArgumentType.

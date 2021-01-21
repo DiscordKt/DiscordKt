@@ -17,6 +17,8 @@ open class MessageArg(override val name: String = "Message", private val allowsG
      */
     companion object : MessageArg()
 
+    override val description = "A Discord message"
+
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Message> {
         val publicRegex = "https://discord(app)?.com/channels/\\d+/\\d+/\\d+".toRegex()
         val privateRegex = "https://discord(app)?.com/channels/@me/\\d+/\\d+".toRegex()

@@ -14,6 +14,8 @@ open class BooleanArg(override val name: String = "Boolean", private val truthVa
      */
     companion object : BooleanArg()
 
+    override val description = "A true or false value"
+
     init {
         require(truthValue.isNotEmpty() && falseValue.isNotEmpty()) { "Custom BooleanArg ($name) options cannot be empty!" }
         require(truthValue.toLowerCase() != falseValue.toLowerCase()) { "Custom BooleanArg ($name) options cannot be the same!" }

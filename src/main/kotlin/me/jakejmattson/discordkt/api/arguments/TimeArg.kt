@@ -12,6 +12,8 @@ open class TimeArg(override val name: String = "Time") : ArgumentType<Double> {
      */
     companion object : TimeArg()
 
+    override val description = "An amount of time"
+
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) = convertTimeString(args)
 
     override suspend fun generateExamples(event: CommandEvent<*>) = listOf("5 seconds", "5s")

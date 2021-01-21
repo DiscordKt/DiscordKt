@@ -11,6 +11,8 @@ open class CharArg(override val name: String = "Character") : ArgumentType<Char>
      */
     companion object : CharArg()
 
+    override val description = "A single letter"
+
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Char> {
         return if (arg.length == 1)
             Success(arg[0])

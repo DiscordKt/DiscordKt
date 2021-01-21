@@ -6,6 +6,7 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
  * Accepts an integer within a pre-defined range.
  */
 open class IntegerRangeArg(private val min: Int, private val max: Int, override val name: String = "Integer ($min-$max)") : ArgumentType<Int> {
+    override val description = "A whole number between $min and $max"
 
     init {
         require(max > min) { "Maximum value must be greater than minimum value." }

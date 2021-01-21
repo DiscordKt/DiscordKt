@@ -32,6 +32,7 @@ sealed class Either<out L, out R> {
  */
 class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, name: String = "") : ArgumentType<Either<L, R>> {
     override val name = if (name.isNotBlank()) name else "${left.name} | ${right.name}"
+    override val description = "Either ${left.name} or ${right.name}"
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Either<L, R>> {
         val leftResult = left.convert(arg, args, event)

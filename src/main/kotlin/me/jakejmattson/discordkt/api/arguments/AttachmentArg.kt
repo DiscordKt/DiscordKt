@@ -12,6 +12,8 @@ open class AttachmentArg(override val name: String = "File") : ArgumentType<Atta
      */
     companion object : AttachmentArg()
 
+    override val description = "A Discord attachment"
+
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Attachment> {
         val attachments = event.message.attachments
 

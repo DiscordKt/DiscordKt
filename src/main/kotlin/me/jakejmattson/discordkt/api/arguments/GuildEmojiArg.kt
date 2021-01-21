@@ -17,6 +17,8 @@ open class GuildEmojiArg(override val name: String = "Guild Emoji", private val 
      */
     companion object : GuildEmojiArg()
 
+    override val description = "A Discord emoji"
+
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<GuildEmoji> {
         val trimmed = arg.trimToID()
         val split = trimmed.split(":")

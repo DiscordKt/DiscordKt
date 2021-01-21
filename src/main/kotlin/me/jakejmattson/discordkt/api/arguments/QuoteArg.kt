@@ -11,6 +11,8 @@ open class QuoteArg(override val name: String = "Quote") : ArgumentType<String> 
      */
     companion object : QuoteArg()
 
+    override val description = "Text between quotations"
+
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         val quotationMark = '"'
 

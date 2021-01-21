@@ -11,6 +11,7 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
 open class ChoiceArg<T>(override val name: String, vararg choices: T) : ArgumentType<T> {
     private val enumerations = choices.associateBy { it.toString().toLowerCase() }
     private val options = enumerations.keys
+    override val description = "A list to choose from"
 
     init {
         if (choices.size != options.size)

@@ -6,6 +6,9 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
  * An optional argument with a default value.
  */
 class OptionalArg<G>(override val name: String, private val type: ArgumentType<*>, private val default: suspend CommandEvent<*>.() -> G) : ArgumentType<G> {
+
+    override val description = "An optional ${type.name}"
+
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<G> {
         val conversion = type.convert(arg, args, event)
 

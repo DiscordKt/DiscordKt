@@ -20,6 +20,8 @@ open class CategoryArg(override val name: String = "Category", private val guild
      */
     companion object : CategoryArg()
 
+    override val description = "A Discord category"
+
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
         val guild = guildId?.let { event.discord.kord.getGuild(it) } ?: event.guild
 

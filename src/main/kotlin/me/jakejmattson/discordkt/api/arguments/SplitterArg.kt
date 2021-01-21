@@ -13,6 +13,8 @@ open class SplitterArg(override val name: String = "TextWithSplitter", private v
      */
     companion object : SplitterArg()
 
+    override val description = "Items split by $splitter"
+
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<String>> {
         val joined = args.joinToString(" ")
 
