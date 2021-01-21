@@ -82,6 +82,7 @@ tasks {
                 skipEmptyPackages.set(true)
                 reportUndocumented.set(true)
 
+                includes.from("packages.md")
                 suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\api\\TypeContainers.kt")
             }
         }
