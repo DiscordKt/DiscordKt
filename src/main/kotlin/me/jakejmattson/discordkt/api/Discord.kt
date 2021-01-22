@@ -118,12 +118,12 @@ abstract class Discord {
             kord.createGlobalApplicationCommand(it.name, it.description.ifBlank { "<No Description>" }) {
                 it.executions.first().arguments.forEach {
                     when (it) {
-                        is IntegerArg -> int(it.name, "integer")
-                        is BooleanArg -> boolean(it.name, "boolean")
-                        is UserArg -> user(it.name, "user")
-                        is RoleArg -> role(it.name, "role")
-                        is ChannelArg<*> -> channel(it.name, "channel")
-                        else -> string(it.name, "other")
+                        is IntegerArg -> int(it.name, it.description)
+                        is BooleanArg -> boolean(it.name, it.description)
+                        is UserArg -> user(it.name, it.description)
+                        is RoleArg -> role(it.name, it.description)
+                        is ChannelArg<*> -> channel(it.name, it.description)
+                        else -> string(it.name, it.description)
                     }
                 }
             }
