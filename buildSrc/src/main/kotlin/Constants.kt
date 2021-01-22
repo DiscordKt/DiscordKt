@@ -12,7 +12,6 @@ object Versions {
     const val reflections = "0.9.12"
     const val gson = "2.8.6"
     const val slf4j = "2.0.0-alpha1"
-    const val log = "2.0.4"
     const val kord = "0.7.0-SNAPSHOT"
     const val emojis = "0.5.0-SNAPSHOT"
 }
@@ -22,7 +21,6 @@ object Dependencies {
     const val reflections = "org.reflections:reflections:${Versions.reflections}"
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
     const val slf4j = "org.slf4j:slf4j-nop:${Versions.slf4j}"
-    const val log = "io.github.microutils:kotlin-logging:${Versions.log}"
 
     //Library Dependencies
     const val kord = "dev.kord:kord-core:${Versions.kord}"

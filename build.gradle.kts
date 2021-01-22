@@ -30,7 +30,6 @@ dependencies {
     implementation(Dependencies.reflections)
     implementation(Dependencies.gson)
     implementation(Dependencies.slf4j)
-    implementation(Dependencies.log)
 
     //Library Dependencies
     api(Dependencies.kord)
