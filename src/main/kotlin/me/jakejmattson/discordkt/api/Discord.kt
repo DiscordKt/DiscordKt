@@ -68,42 +68,32 @@ abstract class Discord {
     @KordPreview
     internal suspend fun initCore() {
         diService.inject(this)
-        val showStartupLog = configuration.showStartupLog
-        val generateCommandDocs = configuration.generateCommandDocs
-        val header = "----- DiscordKt ${versions.library} -----"
-
-        if (showStartupLog)
-            InternalLogger.log(header)
-
         val dataSize = registerData()
         val services = registerServices()
 
         ReflectionUtils.registerFunctions(configuration.packageName, this)
         registerListeners(this)
 
-        val commandSets = commands.groupBy { it.category }.keys.size
+        if (configuration.showStartupLog) {
+            val header = "----- DiscordKt ${versions.library} -----"
+            val commandSets = commands.groupBy { it.category }.keys.size
 
-        if (showStartupLog) {
+            InternalLogger.log(header)
             InternalLogger.log(commandSets.pluralize("CommandSet") + " -> " + commands.size.pluralize("Command"))
             InternalLogger.log(dataSize.pluralize("Data"))
             InternalLogger.log(services.size.pluralize("Service"))
             InternalLogger.log(preconditions.size.pluralize("Precondition"))
+            InternalLogger.log("-".repeat(header.length))
         }
 
-        registerHelpCommand(this)
-
-        if (generateCommandDocs)
-            createDocumentation(commands)
-
         Validator.validateCommands(commands)
+        commands["Help"] ?: produceHelpCommand().register(this)
 
-        if (showStartupLog)
-            InternalLogger.log("-".repeat(header.length))
+        if (configuration.generateCommandDocs)
+            createDocumentation(commands)
     }
 
     private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(configuration.packageName).apply { diService.buildAllRecursively(this) }
-    private fun registerHelpCommand(discord: Discord) = discord.commands["Help"]
-        ?: produceHelpCommand().register(discord)
 
     @KordPreview
     private suspend fun registerListeners(discord: Discord) {
