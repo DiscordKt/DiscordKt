@@ -3,6 +3,7 @@ package me.jakejmattson.discordkt.internal.listeners
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.entity.channel.*
+import dev.kord.core.entity.interaction.GuildInteraction
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
@@ -15,12 +16,13 @@ import me.jakejmattson.discordkt.internal.utils.Recommender
 
 @KordPreview
 internal suspend fun registerSlashListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
-    val dktCommand = discord.commands[interaction.command.name] as? SlashCommand ?: return@on
+    val dktCommand = discord.commands[interaction.command.rootName] as? SlashCommand ?: return@on
     val args = dktCommand.executions.first().arguments.joinToString(" ") { interaction.command.options[it.name.toLowerCase()]!!.value.toString() }
     val rawInputs = RawInputs("/${dktCommand.name} $args", dktCommand.name, prefixCount = 1)
-    val author = interaction.member.asUser()
+    val author = kord.getUser(interaction.data.user.value!!.id)!!
+    val guild = (interaction as? GuildInteraction)?.getGuild()
     val channel = interaction.getChannel() as MessageChannel
-    val event = SlashCommandEvent<TypeContainer>(rawInputs, discord, channel.getLastMessage()!!, author, channel, interaction.getGuild())
+    val event = SlashCommandEvent<TypeContainer>(rawInputs, discord, channel.getLastMessage()!!, author, channel, guild)
 
     discord.preconditions
         .sortedBy { it.priority }
