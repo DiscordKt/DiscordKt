@@ -85,7 +85,7 @@ class Bot(private val token: String, private val packageName: String) {
         botConfiguration.enableEvent<ReactionAddEvent>()
 
         val kord = Kord(token) {
-            intents = Intents.invoke(botConfiguration.intents)
+            intents = Intents(botConfiguration.intents)
         }
 
         val discord = object : Discord() {

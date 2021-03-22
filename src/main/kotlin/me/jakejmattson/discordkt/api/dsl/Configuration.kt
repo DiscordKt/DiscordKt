@@ -52,8 +52,8 @@ data class BotConfiguration(
     @PublishedApi
     internal inline fun <reified T : Event> enableEvent() {
         intents.addAll(
-            Intents.invoke {
-                enableEvent<T>()
+            Intents {
+                this.enableEvent<T>()
             }.values
         )
     }
