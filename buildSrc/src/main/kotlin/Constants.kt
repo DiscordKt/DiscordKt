@@ -7,7 +7,7 @@ object Constants {
 }
 
 object Versions {
-    const val kotlin = "1.4.31"
+    const val kotlin = "1.4.32"
     const val dokka = "1.4.30"
     const val reflections = "0.9.12"
     const val gson = "2.8.6"
@@ -32,10 +32,10 @@ object README {
         val gradleTag = "${group}:${Constants.projectName}:${version}"
         val snapshotUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
 
-        appendln("### Gradle (Kotlin)\n```kotlin")
+        appendLine("### Gradle (Kotlin)\n```kotlin")
 
         if (isSnapshot)
-            appendln("""
+            appendLine("""
                 repositories {
                     mavenCentral()
                     maven("$snapshotUrl")
@@ -43,17 +43,17 @@ object README {
                 
             """.trimIndent())
 
-        appendln("""
+        appendLine("""
             dependencies {
                 implementation("$gradleTag")
             }
             ```
         """.trimIndent())
 
-        appendln("### Gradle (Groovy)\n```groovy")
+        appendLine("### Gradle (Groovy)\n```groovy")
 
         if (isSnapshot)
-            appendln("""
+            appendLine("""
                 repositories {
                     mavenCentral()
                     maven {
@@ -63,7 +63,7 @@ object README {
                 
             """.trimIndent())
 
-        appendln("""
+        appendLine("""
             dependencies {
                 implementation '${gradleTag}'
             }
@@ -71,10 +71,10 @@ object README {
             
         """.trimIndent())
 
-        appendln("### Maven\n```xml")
+        appendLine("### Maven\n```xml")
 
         if (isSnapshot)
-            appendln("""
+            appendLine("""
                 <repositories>
                     <repository>
                         <id>Sonatype Snapshots</id>
@@ -84,7 +84,7 @@ object README {
                 
             """.trimIndent())
 
-        appendln("""
+        appendLine("""
             <dependencies>
                 <dependency>
                     <groupId>${group}</groupId>
