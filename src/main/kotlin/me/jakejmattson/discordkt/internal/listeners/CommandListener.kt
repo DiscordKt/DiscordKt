@@ -2,16 +2,19 @@ package me.jakejmattson.discordkt.internal.listeners
 
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.behavior.channel.createEmbed
-import dev.kord.core.entity.channel.*
+import dev.kord.core.entity.channel.DmChannel
+import dev.kord.core.entity.channel.TextChannel
 import dev.kord.core.entity.interaction.GuildInteraction
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
 import dev.kord.x.emoji.addReaction
-import me.jakejmattson.discordkt.api.*
+import me.jakejmattson.discordkt.api.Discord
+import me.jakejmattson.discordkt.api.TypeContainer
 import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.trimToID
-import me.jakejmattson.discordkt.internal.command.*
+import me.jakejmattson.discordkt.internal.command.stripMentionInvocation
+import me.jakejmattson.discordkt.internal.command.stripPrefixInvocation
 import me.jakejmattson.discordkt.internal.utils.Recommender
 
 @KordPreview
@@ -21,7 +24,7 @@ internal suspend fun registerSlashListener(discord: Discord) = discord.kord.on<I
     val rawInputs = RawInputs("/${dktCommand.name} $args", dktCommand.name, prefixCount = 1)
     val author = kord.getUser(interaction.data.user.value!!.id)!!
     val guild = (interaction as? GuildInteraction)?.getGuild()
-    val channel = interaction.getChannel() as MessageChannel
+    val channel = interaction.getChannel()
     val event = SlashCommandEvent<TypeContainer>(rawInputs, discord, channel.getLastMessage()!!, author, channel, guild)
 
     discord.preconditions

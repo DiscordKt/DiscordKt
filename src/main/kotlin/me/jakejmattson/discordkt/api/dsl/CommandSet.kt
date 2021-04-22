@@ -3,7 +3,8 @@
 package me.jakejmattson.discordkt.api.dsl
 
 import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.internal.annotations.*
+import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
+import me.jakejmattson.discordkt.internal.annotations.InnerDSL
 import me.jakejmattson.discordkt.internal.utils.BuilderRegister
 
 /**

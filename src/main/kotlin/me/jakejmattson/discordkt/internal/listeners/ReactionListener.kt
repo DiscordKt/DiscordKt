@@ -1,8 +1,10 @@
 package me.jakejmattson.discordkt.internal.listeners
 
-import dev.kord.core.*
+import dev.kord.core.Kord
 import dev.kord.core.event.message.ReactionAddEvent
-import me.jakejmattson.discordkt.api.dsl.*
+import dev.kord.core.on
+import me.jakejmattson.discordkt.api.dsl.Conversations
+import me.jakejmattson.discordkt.api.dsl.handleMenuReaction
 
 internal fun registerReactionListener(kord: Kord) = kord.on<ReactionAddEvent> {
     val user = getUser().takeUnless { it.isBot } ?: return@on

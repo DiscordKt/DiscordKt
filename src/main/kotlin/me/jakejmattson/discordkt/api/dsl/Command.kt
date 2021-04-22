@@ -2,11 +2,13 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.arguments.ArgumentType
-import me.jakejmattson.discordkt.internal.annotations.*
-import me.jakejmattson.discordkt.internal.command.*
+import me.jakejmattson.discordkt.internal.annotations.NestedDSL
+import me.jakejmattson.discordkt.internal.command.ParseResult
+import me.jakejmattson.discordkt.internal.command.convertArguments
 
 /**
  * The bundle of information to be executed when a command is invoked.

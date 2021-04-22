@@ -1,8 +1,11 @@
 package me.jakejmattson.discordkt.internal.command
 
-import me.jakejmattson.discordkt.api.*
-import me.jakejmattson.discordkt.api.arguments.*
-import me.jakejmattson.discordkt.api.dsl.*
+import me.jakejmattson.discordkt.api.TypeContainer
+import me.jakejmattson.discordkt.api.arguments.ArgumentType
+import me.jakejmattson.discordkt.api.arguments.Error
+import me.jakejmattson.discordkt.api.arguments.Success
+import me.jakejmattson.discordkt.api.bundleToContainer
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 
 /**
  * Intermediate result of manual parsing.

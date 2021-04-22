@@ -2,8 +2,10 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
-import dev.kord.common.entity.*
-import dev.kord.core.behavior.channel.*
+import dev.kord.common.entity.ChannelType
+import dev.kord.common.entity.Snowflake
+import dev.kord.core.behavior.channel.MessageChannelBehavior
+import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.behavior.edit
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.ReactionEmoji

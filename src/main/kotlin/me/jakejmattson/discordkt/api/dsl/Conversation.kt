@@ -3,16 +3,22 @@
 package me.jakejmattson.discordkt.api.dsl
 
 import dev.kord.common.entity.Snowflake
-import dev.kord.core.behavior.channel.*
-import dev.kord.core.entity.*
+import dev.kord.core.behavior.channel.MessageChannelBehavior
+import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.core.entity.Message
+import dev.kord.core.entity.ReactionEmoji
+import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.event.message.ReactionAddEvent
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.x.emoji.*
+import dev.kord.x.emoji.DiscordEmoji
+import dev.kord.x.emoji.addReaction
+import dev.kord.x.emoji.toReaction
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
-import me.jakejmattson.discordkt.api.*
+import me.jakejmattson.discordkt.api.Discord
+import me.jakejmattson.discordkt.api.TypeContainer
 import me.jakejmattson.discordkt.api.arguments.*
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 

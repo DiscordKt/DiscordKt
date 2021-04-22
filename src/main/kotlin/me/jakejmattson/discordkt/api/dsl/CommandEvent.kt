@@ -122,7 +122,7 @@ data class DmCommandEvent<T : TypeContainer>(
 /**
  * An event fired by a slash command.
  */
-data class SlashCommandEvent<T: TypeContainer>(
+data class SlashCommandEvent<T : TypeContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     @Deprecated("A slash command cannot access its message.", level = DeprecationLevel.ERROR)
