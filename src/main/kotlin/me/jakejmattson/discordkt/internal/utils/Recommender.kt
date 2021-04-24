@@ -43,8 +43,8 @@ private fun String.levenshteinDistanceTo(other: String) = when {
     else -> {
         val initialRow = (0 until other.length + 1).map { it }
 
-        (indices).fold(initialRow, { previous, u ->
-            (other.indices).fold(mutableListOf(u + 1), { row, v ->
+        (indices).fold(initialRow) { previous, u ->
+            (other.indices).fold(mutableListOf(u + 1)) { row, v ->
                 row.apply {
                     add(minOf(
                         row.last() + 1,
@@ -52,7 +52,7 @@ private fun String.levenshteinDistanceTo(other: String) = when {
                         previous[v] + if (this@levenshteinDistanceTo[u] == other[v]) 0 else 1
                     ))
                 }
-            })
-        }).last()
+            }
+        }.last()
     }
 }

@@ -26,7 +26,7 @@ internal fun createDocumentation(commands: List<Command>) {
     }
 
     fun String.sanitizePipe() = replace("|", "\\|")
-    fun List<CommandData>.maxLength(field: (CommandData) -> String) = map { field.invoke(it).length }.maxOrNull()!!
+    fun List<CommandData>.maxLength(field: (CommandData) -> String) = maxOf { field.invoke(it).length }
 
     fun extractCommandData(command: Command): CommandData {
         val nameString = command.names.joinToString().sanitizePipe()

@@ -64,7 +64,7 @@ private suspend fun String.cleanseRoles(discord: Discord): String {
     val roleMentions = roleRegex.findAll(this).map {
         runBlocking {
             val mention = it.value
-            val roles = discord.kord.guilds.toList().flatMap { it.roles.toList() }.map { it.mention to it.name }.toMap()
+            val roles = discord.kord.guilds.toList().flatMap { it.roles.toList() }.associate { it.mention to it.name }
             val resolvedName = roles[mention] ?: ""
 
             mention to resolvedName

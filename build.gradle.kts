@@ -92,16 +92,16 @@ tasks {
         doLast {
             val sizes = buildString {
                 val configuration = configurations["default"]
-                val size = configuration.map { it.length() / (1024.0 * 1024.0) }.sum()
-                val longestName = configuration.map { it.name.length }.max()
+                val size = configuration.sumOf { it.length() / (1024.0 * 1024.0) }
+                val longestName = configuration.map { it.name.length }.maxOrNull()
                 val formatStr = "%-${longestName}s   %5d KB"
 
-                appendln("Total Size: %.2f MB\n".format(size))
+                appendLine("Total Size: %.2f MB\n".format(size))
 
                 configuration
                     .sortedBy { -it.length() }
                     .forEach {
-                        appendln(formatStr.format(it.name, it.length() / 1024))
+                        appendLine(formatStr.format(it.name, it.length() / 1024))
                     }
             }
 

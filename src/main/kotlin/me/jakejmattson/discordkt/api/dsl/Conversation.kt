@@ -252,7 +252,7 @@ data class ConversationBuilder(val discord: Discord,
             message.addReaction(it.emoji)
         }
 
-        return retrieveValidReactionResponse(reactions.map { it.emoji.toReaction() to it.value }.toMap())
+        return retrieveValidReactionResponse(reactions.associate { it.emoji.toReaction() to it.value })
     }
 
     private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<T>, prompt: String?): T = runBlocking {
