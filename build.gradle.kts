@@ -20,9 +20,9 @@ plugins {
 }
 
 repositories {
-    maven("https://oss.sonatype.org/content/repositories/snapshots")
     mavenCentral()
-    jcenter()
+    maven("https://oss.sonatype.org/content/repositories/snapshots")
+    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven")
 }
 
 dependencies {
