@@ -1,5 +1,5 @@
 {
   "library": "0.22.0-SNAPSHOT",
   "kotlin": "1.5.0",
-  "kord": "0.7.0-RC3"
+  "kord": "0.7.x-SNAPSHOT"
 }
