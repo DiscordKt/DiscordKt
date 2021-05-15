@@ -18,13 +18,13 @@ open class BooleanArg(override val name: String = "Boolean", private val truthVa
 
     init {
         require(truthValue.isNotEmpty() && falseValue.isNotEmpty()) { "Custom BooleanArg ($name) options cannot be empty!" }
-        require(truthValue.toLowerCase() != falseValue.toLowerCase()) { "Custom BooleanArg ($name) options cannot be the same!" }
+        require(truthValue.lowercase() != falseValue.lowercase()) { "Custom BooleanArg ($name) options cannot be the same!" }
     }
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Boolean> {
-        return when (arg.toLowerCase()) {
-            truthValue.toLowerCase() -> Success(true)
-            falseValue.toLowerCase() -> Success(false)
+        return when (arg.lowercase()) {
+            truthValue.lowercase() -> Success(true)
+            falseValue.lowercase() -> Success(false)
             else -> Error("Must be '$truthValue' or '$falseValue'")
         }
     }
