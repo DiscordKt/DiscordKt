@@ -7,7 +7,7 @@ import me.jakejmattson.discordkt.api.arguments.Success
 internal fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
     val timeStringEnd = actual.indexOfFirst { toTimeElement(it) == null }.takeIf { it != -1 } ?: actual.size
     val original = actual.subList(0, timeStringEnd).toList()
-    val possibleElements = original.map { toTimeElement(it.lowercase()) }
+    val possibleElements = original.map { toTimeElement(it.toLowerCase()) }
     val timeElements = possibleElements.dropLastWhile { it is Double } // assume trailing numbers are part of next arg (ID, Integer, etc.)
 
     if (timeElements.isEmpty())
@@ -51,7 +51,7 @@ private fun toTimeElement(element: String): Any? = toBoth(element)
     ?: toQuantifier(element)
     ?: toQuantity(element)
 
-private fun toQuantifier(element: String) = element.takeIf { it.lowercase() in timeStringToSeconds }
+private fun toQuantifier(element: String) = element.takeIf { it.toLowerCase() in timeStringToSeconds }
 private fun toQuantity(element: String) = element.toDoubleOrNull()
 
 private fun toBoth(element: String): Pair<Double, String>? {

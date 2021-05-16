@@ -31,7 +31,7 @@ fun String.containsInvite() = inviteRegex.matches(this)
  * Whether or not this string is a valid boolean value (true/false/t/f).
  */
 fun String.isBooleanValue() =
-    when (lowercase()) {
+    when (toLowerCase()) {
         "true" -> true
         "false" -> true
         "t" -> true

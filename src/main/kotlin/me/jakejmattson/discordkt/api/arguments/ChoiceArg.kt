@@ -9,7 +9,7 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
  * @param choices The available choices. Can be any type, but associated by toString value.
  */
 open class ChoiceArg<T>(override val name: String, vararg choices: T) : ArgumentType<T> {
-    private val enumerations = choices.associateBy { it.toString().lowercase() }
+    private val enumerations = choices.associateBy { it.toString().toLowerCase() }
     private val options = enumerations.keys
     override val description = "A list to choose from"
 
@@ -19,7 +19,7 @@ open class ChoiceArg<T>(override val name: String, vararg choices: T) : Argument
     }
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T> {
-        val selection = enumerations[arg.lowercase()]
+        val selection = enumerations[arg.toLowerCase()]
             ?: return Error("Invalid selection")
 
         return Success(selection)
