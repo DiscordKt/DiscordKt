@@ -7,7 +7,7 @@ object Constants {
 }
 
 object Versions {
-    const val kotlin = "1.5.0"
+    const val kotlin = "1.4.32"
     const val dokka = "1.4.32"
     const val reflections = "0.9.12"
     const val gson = "2.8.6"
