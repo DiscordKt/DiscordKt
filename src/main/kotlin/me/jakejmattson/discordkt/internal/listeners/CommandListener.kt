@@ -8,6 +8,7 @@ import dev.kord.core.entity.interaction.GuildInteraction
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
+import dev.kord.x.emoji.Emojis
 import dev.kord.x.emoji.addReaction
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.TypeContainer
@@ -50,7 +51,14 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     val channel = message.channel.asChannel()
     val content = message.content
 
-    fun String.mentionsSelf() = startsWith("<@!$self>") || startsWith("<@$self>")
+    fun String.isBotMention() = config.allowMentionPrefix && (startsWith("<@!$self>") || startsWith("<@$self>"))
+    fun String.isSearch() = config.enableSearch && toLowerCase().startsWith("search") && split(" ").size == 2
+    suspend fun search() {
+        val query = content.split(" ")[1]
+
+        if (discord.commands[query] != null)
+            message.addReaction(Emojis.whiteCheckMark)
+    }
 
     val rawInputs = when {
         content.startsWith(prefix) -> stripPrefixInvocation(content, prefix)
@@ -63,7 +71,8 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
 
             return@on
         }
-        content.mentionsSelf() && config.allowMentionPrefix -> stripMentionInvocation(content)
+        content.isBotMention() -> stripMentionInvocation(content)
+        content.isSearch() -> return@on search()
         else -> return@on Conversations.handleMessage(message)
     }
 

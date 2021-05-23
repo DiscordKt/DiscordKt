@@ -22,6 +22,7 @@ import java.awt.Color
  * @property showStartupLog Whether or not to display log information when the bot starts.
  * @property generateCommandDocs Whether or not command documentation should be generated.
  * @property recommendCommands Whether or not to recommend the closest command when one fails.
+ * @property enableSearch Allow users to search for a command by typing 'search <command name>'.
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway intents to register manually.
@@ -32,6 +33,7 @@ data class BotConfiguration(
     val showStartupLog: Boolean,
     val generateCommandDocs: Boolean,
     val recommendCommands: Boolean,
+    val enableSearch: Boolean,
     val commandReaction: DiscordEmoji?,
     val theme: Color?,
     val intents: MutableSet<Intent>,
@@ -66,6 +68,7 @@ data class BotConfiguration(
  * @property showStartupLog Whether or not to display log information when the bot starts.
  * @property generateCommandDocs Whether or not command documentation should be generated.
  * @property recommendCommands Whether or not to recommend the closest command when one fails.
+ * @property enableSearch Allow users to search for a command by typing 'search <command name>'.
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway intents to register manually.
@@ -74,6 +77,7 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
                                var showStartupLog: Boolean = true,
                                var generateCommandDocs: Boolean = true,
                                var recommendCommands: Boolean = true,
+                               var enableSearch: Boolean = true,
                                var commandReaction: DiscordEmoji? = Emojis.eyes,
                                var theme: Color? = null,
                                var intents: Set<Intent> = setOf())

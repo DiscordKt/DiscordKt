@@ -71,6 +71,7 @@ class Bot(private val token: String, private val packageName: String) {
                 showStartupLog = showStartupLog,
                 generateCommandDocs = generateCommandDocs,
                 recommendCommands = recommendCommands,
+                enableSearch = enableSearch,
                 commandReaction = commandReaction,
                 theme = theme,
                 intents = intents.toMutableSet(),
