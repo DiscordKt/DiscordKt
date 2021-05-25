@@ -34,6 +34,11 @@ dependencies {
     //Library Dependencies
     api(Dependencies.kord)
     api(Dependencies.emojis)
+
+    //Testing
+    testImplementation(platform("org.junit:junit-bom:5.8.0-M1"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("io.mockk:mockk:1.11.0")
 }
 
 tasks {
@@ -42,6 +47,14 @@ tasks {
             jvmTarget = "1.8"
             freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
         }
+    }
+
+    compileTestKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
     copy {
@@ -87,6 +100,17 @@ tasks {
         }
     }
 
+    register("generateDocs") {
+        description = "Generate documentation for DiscordKt.github.io"
+        dependsOn(listOf(dokkaHtml))
+
+        copy {
+            delete(file("../DiscordKt.github.io/docs/dokka"))
+            from(buildDir.resolve("dokka"))
+            into(file("../DiscordKt.github.io/docs/dokka"))
+        }
+    }
+
     register("dependencySizes") {
         description = "Print dependency sizes for the default configuration"
         doLast {
@@ -106,17 +130,6 @@ tasks {
             }
 
             println(sizes)
-        }
-    }
-
-    register("generateDocs") {
-        description = "Generate documentation for DiscordKt.github.io"
-        dependsOn(listOf(dokkaHtml))
-
-        copy {
-            delete(file("../DiscordKt.github.io/docs/dokka"))
-            from(buildDir.resolve("dokka"))
-            into(file("../DiscordKt.github.io/docs/dokka"))
         }
     }
 }
