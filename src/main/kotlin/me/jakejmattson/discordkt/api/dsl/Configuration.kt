@@ -26,6 +26,7 @@ import java.awt.Color
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway intents to register manually.
+ * @property localization A collection of Strings for localization.
  * @property packageName The detected package name for the bot.
  */
 data class BotConfiguration(
@@ -37,6 +38,7 @@ data class BotConfiguration(
     val commandReaction: DiscordEmoji?,
     val theme: Color?,
     val intents: MutableSet<Intent>,
+    val localization: Localization,
     val packageName: String,
 
     internal val prefix: suspend (DiscordContext) -> String,
@@ -92,3 +94,7 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
  * @param guild The guild that this command was invoked in.
  */
 data class PermissionContext(val command: Command, val discord: Discord, val user: User, val channel: MessageChannel, val guild: Guild?)
+
+data class Localization(
+    var helpCommand: String = "help"
+)

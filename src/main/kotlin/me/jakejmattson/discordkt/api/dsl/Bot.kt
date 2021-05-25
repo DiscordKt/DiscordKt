@@ -48,6 +48,7 @@ class Bot(private val token: String, private val packageName: String) {
                                         var prefix: suspend DiscordContext.() -> String = { "+" },
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
                                         var permissions: suspend (Command, Discord, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _, _ -> true },
+                                        var localization: Localization.() -> Unit = {},
                                         var presence: PresenceBuilder.() -> Unit = {},
                                         var onStart: suspend Discord.() -> Unit = {})
 
@@ -59,8 +60,12 @@ class Bot(private val token: String, private val packageName: String) {
             prefixFun,
             mentionEmbedFun,
             permissionsFun,
+            localizationFun,
             presenceFun,
             startupFun) = startupBundle
+
+        val localization = Localization()
+        localizationFun.invoke(localization)
 
         val simpleConfiguration = SimpleConfiguration()
         configureFun.invoke(simpleConfiguration)
@@ -75,6 +80,7 @@ class Bot(private val token: String, private val packageName: String) {
                 commandReaction = commandReaction,
                 theme = theme,
                 intents = intents.toMutableSet(),
+                localization = localization,
                 packageName = packageName,
                 prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun,
@@ -147,6 +153,14 @@ class Bot(private val token: String, private val packageName: String) {
             val context = PermissionContext(command, discord, user, messageChannel, guild)
             predicate.invoke(context)
         }
+    }
+
+    /**
+     * Configure the localization for this bot.
+     */
+    @ConfigurationDSL
+    fun localization(localization: Localization.() -> Unit) {
+        startupBundle.localization = localization
     }
 
     /**
