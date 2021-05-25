@@ -7,9 +7,9 @@ import me.jakejmattson.discordkt.api.arguments.OptionalArg
 import me.jakejmattson.discordkt.api.dsl.*
 import java.awt.Color
 
-internal fun produceHelpCommand() = commands("Utility") {
-    command(discord.configuration.localization.helpCommand) {
-        description = "Display a help menu."
+internal fun produceHelpCommand(category: String) = commands(category) {
+    command(discord.localization.helpName) {
+        description = discord.localization.helpDescription
         execute(AnyArg("Command").optional("")) {
             val input = args.first
             val theme = discord.configuration.theme
@@ -25,8 +25,8 @@ internal fun produceHelpCommand() = commands("Utility") {
 
 private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
     respond {
-        title = "Help menu"
-        description = "Use `${prefix()}${discord.configuration.localization.helpCommand} <command>` for more information."
+        title = discord.localization.helpName
+        description = discord.localization.helpEmbedDescription
         color = embedColor?.kColor
 
         discord.commands

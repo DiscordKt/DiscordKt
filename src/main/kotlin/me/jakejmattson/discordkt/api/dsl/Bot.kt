@@ -80,7 +80,6 @@ class Bot(private val token: String, private val packageName: String) {
                 commandReaction = commandReaction,
                 theme = theme,
                 intents = intents.toMutableSet(),
-                localization = localization,
                 packageName = packageName,
                 prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun,
@@ -98,6 +97,7 @@ class Bot(private val token: String, private val packageName: String) {
         val discord = object : Discord() {
             override val kord = kord
             override val configuration = botConfiguration
+            override val localization = localization
             override val commands = mutableListOf<Command>()
             override val preconditions = mutableListOf<Precondition>()
         }
