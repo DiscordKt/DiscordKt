@@ -64,9 +64,9 @@ tasks {
         into(file("."))
         rename { "README.md" }
         expand(
-            "kotlin" to Versions.kotlin,
-            "kord" to Versions.kord,
-            "discordkt" to version,
+            "kotlin" to Versions.kotlin.replace("-", "--"),
+            "kord" to Versions.kord.replace("-", "--"),
+            "discordkt" to version.toString().replace("-", "--"),
             "imports" to README.createImportBlock(group.toString(), version.toString(), isSnapshot)
         )
     }
