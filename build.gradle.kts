@@ -66,6 +66,7 @@ tasks {
         expand(
             "kotlin" to Versions.kotlin,
             "kord" to Versions.kord,
+            "discordkt" to version,
             "imports" to README.createImportBlock(group.toString(), version.toString(), isSnapshot)
         )
     }
