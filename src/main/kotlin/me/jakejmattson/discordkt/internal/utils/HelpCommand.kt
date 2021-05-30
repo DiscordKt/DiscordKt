@@ -8,8 +8,8 @@ import me.jakejmattson.discordkt.api.dsl.*
 import java.awt.Color
 
 internal fun produceHelpCommand(category: String) = commands(category) {
-    command(discord.localization.helpName) {
-        description = discord.localization.helpDescription
+    command(discord.locale.helpName) {
+        description = discord.locale.helpDescription
         execute(AnyArg("Command").optional("")) {
             val input = args.first
             val theme = discord.configuration.theme
@@ -25,8 +25,8 @@ internal fun produceHelpCommand(category: String) = commands(category) {
 
 private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
     respond {
-        title = discord.localization.helpName
-        description = discord.localization.helpEmbedDescription
+        title = discord.locale.helpName
+        description = discord.locale.helpEmbedDescription
         color = embedColor?.kColor
 
         discord.commands

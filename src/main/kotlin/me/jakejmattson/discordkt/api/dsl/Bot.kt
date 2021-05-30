@@ -48,7 +48,7 @@ class Bot(private val token: String, private val packageName: String) {
                                         var prefix: suspend DiscordContext.() -> String = { "+" },
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
                                         var permissions: suspend (Command, Discord, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _, _ -> true },
-                                        var localization: Localization.() -> Unit = {},
+                                        var locale: Locale = Language.EN.locale,
                                         var presence: PresenceBuilder.() -> Unit = {},
                                         var onStart: suspend Discord.() -> Unit = {})
 
@@ -60,12 +60,9 @@ class Bot(private val token: String, private val packageName: String) {
             prefixFun,
             mentionEmbedFun,
             permissionsFun,
-            localizationFun,
+            localeType,
             presenceFun,
             startupFun) = startupBundle
-
-        val localization = Localization()
-        localizationFun.invoke(localization)
 
         val simpleConfiguration = SimpleConfiguration()
         configureFun.invoke(simpleConfiguration)
@@ -97,7 +94,7 @@ class Bot(private val token: String, private val packageName: String) {
         val discord = object : Discord() {
             override val kord = kord
             override val configuration = botConfiguration
-            override val localization = localization
+            override val locale = localeType
             override val commands = mutableListOf<Command>()
             override val preconditions = mutableListOf<Precondition>()
         }
@@ -159,8 +156,10 @@ class Bot(private val token: String, private val packageName: String) {
      * Configure the localization for this bot.
      */
     @ConfigurationDSL
-    fun localization(localization: Localization.() -> Unit) {
-        startupBundle.localization = localization
+    fun localeOf(language: Language, localeBuilder: Locale.() -> Unit) {
+        val localeType = language.locale
+        localeBuilder.invoke(localeType)
+        startupBundle.locale = localeType
     }
 
     /**

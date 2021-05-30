@@ -92,10 +92,3 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
  * @param guild The guild that this command was invoked in.
  */
 data class PermissionContext(val command: Command, val discord: Discord, val user: User, val channel: MessageChannel, val guild: Guild?)
-
-data class Localization(
-    var helpName: String = "Help",
-    var helpCategory: String = "Utility",
-    var helpDescription: String = "Display a help menu.",
-    var helpEmbedDescription: String = "Use `${helpName} <command>` for more information."
-)

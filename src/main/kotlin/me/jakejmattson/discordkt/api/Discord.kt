@@ -35,7 +35,7 @@ data class Versions(val library: String, val kotlin: String, val kord: String)
 abstract class Discord {
     abstract val kord: Kord
     abstract val configuration: BotConfiguration
-    abstract val localization: Localization
+    abstract val locale: Locale
     abstract val commands: MutableList<Command>
     internal abstract val preconditions: MutableList<Precondition>
     val versions = Json.decodeFromString<Versions>(javaClass.getResource("/library-properties.json").readText())
@@ -88,7 +88,7 @@ abstract class Discord {
         }
 
         Validator.validateCommands(commands)
-        commands[localization.helpName] ?: produceHelpCommand(localization.helpCategory).register(this)
+        commands[locale.helpName] ?: produceHelpCommand(locale.helpCategory).register(this)
 
         if (configuration.generateCommandDocs)
             createDocumentation(commands)
