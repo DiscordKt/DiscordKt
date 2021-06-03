@@ -60,7 +60,7 @@ class Bot(private val token: String, private val packageName: String) {
             prefixFun,
             mentionEmbedFun,
             permissionsFun,
-            localeType,
+            locale,
             presenceFun,
             startupFun) = startupBundle
 
@@ -94,7 +94,7 @@ class Bot(private val token: String, private val packageName: String) {
         val discord = object : Discord() {
             override val kord = kord
             override val configuration = botConfiguration
-            override val locale = localeType
+            override val locale = locale
             override val commands = mutableListOf<Command>()
             override val preconditions = mutableListOf<Precondition>()
         }

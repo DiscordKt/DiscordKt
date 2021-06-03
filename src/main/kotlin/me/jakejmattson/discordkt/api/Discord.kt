@@ -29,6 +29,7 @@ data class Versions(val library: String, val kotlin: String, val kord: String)
 /**
  * @property kord A Kord instance used to access the Discord API.
  * @property configuration All of the current configuration details for this bot.
+ * @property locale Localization (language and customizations).
  * @property commands All registered commands.
  * @property versions Properties for the core library.
  */

@@ -29,8 +29,8 @@ internal object Recommender {
         val recommendation = recommend(input, possibilities) ?: "<none>"
 
         event.respond {
-            title = "Unknown Command"
-            description = "Recommendation: $recommendation"
+            title = discord.locale.unknownCommand
+            description = discord.locale.commandRecommendation.format(recommendation)
             color = Color.RED.kColor
         }
     }
@@ -40,19 +40,15 @@ private fun String.levenshteinDistanceTo(other: String) = when {
     this == other -> 0
     this == "" -> other.length
     other == "" -> this.length
-    else -> {
-        val initialRow = (0 until other.length + 1).map { it }
-
-        (indices).fold(initialRow) { previous, u ->
-            (other.indices).fold(mutableListOf(u + 1)) { row, v ->
-                row.apply {
-                    add(minOf(
-                        row.last() + 1,
-                        previous[v + 1] + 1,
-                        previous[v] + if (this@levenshteinDistanceTo[u] == other[v]) 0 else 1
-                    ))
-                }
+    else -> (indices).fold((0..other.length).toList()) { previous, u ->
+        (other.indices).fold(mutableListOf(u + 1)) { row, v ->
+            row.apply {
+                add(minOf(
+                    row.last() + 1,
+                    previous[v + 1] + 1,
+                    previous[v] + if (this@levenshteinDistanceTo[u] == other[v]) 0 else 1
+                ))
             }
-        }.last()
-    }
+        }
+    }.last()
 }
