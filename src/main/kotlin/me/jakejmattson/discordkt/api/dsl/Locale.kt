@@ -17,7 +17,7 @@ enum class Language(val locale: Locale) {
 interface Locale {
     //Help Command
     var helpName: String
-    var helpCategory : String
+    var helpCategory: String
     var helpDescription: String
     var helpEmbedDescription: String
 
@@ -26,6 +26,9 @@ interface Locale {
     //Errors
     @RequiresFill(["The closest command name"])
     var commandRecommendation: String
+
+    @RequiresFill(["The command name attempted to run"])
+    var badArgs: String
 }
 
 data class LocaleEN(
@@ -36,6 +39,10 @@ data class LocaleEN(
 
     override var unknownCommand: String = "Unknown Command",
 
-    override var commandRecommendation: String = "Recommendation: %s"
-
+    override var commandRecommendation: String = "Recommendation: {0}",
+    override var badArgs: String = "Cannot execute `{0}` with these args."
 ) : Locale
+
+fun String.inject(vararg args: String) = args.foldIndexed(this) { index: Int, temp: String, arg: String ->
+    temp.replace("{$index}", arg)
+}

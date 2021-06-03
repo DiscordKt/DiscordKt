@@ -56,7 +56,7 @@ sealed class Command(open val names: List<String>, open var description: String)
                 .firstOrNull { it.second is ParseResult.Success }
 
             if (success == null) {
-                event.respond("Cannot execute `${event.rawInputs.commandName}` with these args.")
+                event.respond(event.discord.locale.badArgs.inject(event.rawInputs.commandName))
                 return@launch
             }
 

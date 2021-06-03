@@ -2,6 +2,7 @@ package me.jakejmattson.discordkt.internal.utils
 
 import dev.kord.common.kColor
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.inject
 import java.awt.Color
 
 internal object Recommender {
@@ -26,11 +27,11 @@ internal object Recommender {
             .takeUnless { it.isEmpty() }
             ?: return
 
-        val recommendation = recommend(input, possibilities) ?: "<none>"
+        val recommendation = recommend(input, possibilities) ?: discord.locale.helpName
 
         event.respond {
             title = discord.locale.unknownCommand
-            description = discord.locale.commandRecommendation.format(recommendation)
+            description = discord.locale.commandRecommendation.inject(recommendation)
             color = Color.RED.kColor
         }
     }
