@@ -7,10 +7,10 @@ object Constants {
 }
 
 object Versions {
-    const val kotlin = "1.4.32"
+    const val kotlin = "1.5.20-M1"
     const val dokka = "1.4.32"
     const val reflections = "0.9.12"
-    const val gson = "2.8.6"
+    const val gson = "2.8.7"
     const val slf4j = "2.0.0-alpha1"
     const val kord = "0.7.x-SNAPSHOT"
     const val emojis = "0.5.0-SNAPSHOT"
