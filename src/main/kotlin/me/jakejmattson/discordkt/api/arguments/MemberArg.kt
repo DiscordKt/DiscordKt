@@ -20,7 +20,8 @@ open class MemberArg(override val name: String = "Member", private val allowsBot
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Member> {
         val guild = event.guild ?: return Error("No guild found")
 
-        val member = arg.toSnowflakeOrNull()?.let { guild.getMemberOrNull(it) } ?: return Error("Not found")
+        val member = arg.toSnowflakeOrNull()?.let { guild.getMemberOrNull(it) }
+            ?: return Error(event.discord.locale.notFound)
 
         if (!allowsBot && member.isBot)
             return Error("Cannot be a bot")

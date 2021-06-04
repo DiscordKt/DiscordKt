@@ -26,7 +26,7 @@ open class GuildEmojiArg(override val name: String = "Guild Emoji", private val 
         val id = when (split.size) {
             1 -> split[0]
             3 -> split[2]
-            else -> return Error("Not found")
+            else -> return Error(event.discord.locale.notFound)
         }.toSnowflakeOrNull()
 
         val availableEmojis =
@@ -35,7 +35,7 @@ open class GuildEmojiArg(override val name: String = "Guild Emoji", private val 
             else
                 event.guild?.emojis?.toList() ?: emptyList()
 
-        val emoji = availableEmojis.firstOrNull { it.id == id } ?: return Error("Not found")
+        val emoji = availableEmojis.firstOrNull { it.id == id } ?: return Error(event.discord.locale.notFound)
 
         return Success(emoji)
     }

@@ -18,7 +18,7 @@ open class UrlArg(override val name: String = "URL") : ArgumentType<String> {
         return if (arg.containsURl())
             Success(arg)
         else
-            Error("Invalid format")
+            Error(event.discord.locale.invalidFormat)
     }
 
     override suspend fun generateExamples(event: CommandEvent<*>) = listOf("https://www.google.com")

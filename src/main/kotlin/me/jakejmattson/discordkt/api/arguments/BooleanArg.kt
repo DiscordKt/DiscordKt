@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.inject
 
 /**
  * Accepts either of two values. Defaults to true/false.
@@ -14,7 +15,7 @@ open class BooleanArg(override val name: String = "Boolean", private val truthVa
      */
     companion object : BooleanArg()
 
-    override val description = "A true or false value"
+    override val description = "Either $truthValue or $falseValue"
 
     init {
         require(truthValue.isNotEmpty() && falseValue.isNotEmpty()) { "Custom BooleanArg ($name) options cannot be empty!" }
@@ -25,7 +26,7 @@ open class BooleanArg(override val name: String = "Boolean", private val truthVa
         return when (arg.toLowerCase()) {
             truthValue.toLowerCase() -> Success(true)
             falseValue.toLowerCase() -> Success(false)
-            else -> Error("Must be '$truthValue' or '$falseValue'")
+            else -> Error(event.discord.locale.invalidBooleanArg.inject(truthValue, falseValue))
         }
     }
 

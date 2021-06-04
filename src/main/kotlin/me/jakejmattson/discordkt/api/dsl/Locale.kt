@@ -34,6 +34,12 @@ interface Locale {
     /** Literal text */
     var unknownCommand: String
 
+    /** Literal text */
+    var notFound: String
+
+    /** Literal text */
+    var invalidFormat: String
+
     //Errors
     /** A string recommending the command with the neatest name */
     @RequiresFill(["The closest command name"])
@@ -42,6 +48,9 @@ interface Locale {
     /** Command was provided with invalid arguments */
     @RequiresFill(["The command name attempted to run"])
     var badArgs: String
+
+    @RequiresFill(["truth value", "false value"])
+    var invalidBooleanArg: String
 }
 
 data class LocaleEN(
@@ -51,9 +60,12 @@ data class LocaleEN(
     override var helpEmbedDescription: String = "Use `${helpName} <command>` for more information.",
 
     override var unknownCommand: String = "Unknown Command",
+    override var notFound: String = "Not found",
+    override var invalidFormat: String = "Invalid format",
 
     override var commandRecommendation: String = "Recommendation: {0}",
     override var badArgs: String = "Cannot execute `{0}` with these args.",
+    override var invalidBooleanArg: String = "Must be '{0}' or '{1}'"
 ) : Locale
 
 fun String.inject(vararg args: String) = args.foldIndexed(this) { index: Int, temp: String, arg: String ->

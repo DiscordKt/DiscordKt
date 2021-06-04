@@ -18,7 +18,7 @@ open class GuildArg(override val name: String = "Guild") : ArgumentType<Guild> {
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Guild> {
         val guild = event.discord.kord.guilds.firstOrNull { it.id == arg.toSnowflakeOrNull() }
-            ?: return Error("Not found")
+            ?: return Error(event.discord.locale.notFound)
 
         return Success(guild)
     }

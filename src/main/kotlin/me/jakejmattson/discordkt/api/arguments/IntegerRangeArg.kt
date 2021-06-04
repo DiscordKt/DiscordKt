@@ -14,7 +14,7 @@ open class IntegerRangeArg(private val min: Int, private val max: Int, override 
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Int> {
         val int = arg.toIntOrNull()
-            ?: return Error("Invalid format")
+            ?: return Error(event.discord.locale.invalidFormat)
 
         if (int !in min..max)
             return Error("Not in range $min-$max")

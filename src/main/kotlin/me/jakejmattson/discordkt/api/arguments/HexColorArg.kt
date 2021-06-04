@@ -15,13 +15,13 @@ open class HexColorArg(override val name: String = "Hex Color") : ArgumentType<C
     override val description = "A hexadecimal color"
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Color> {
-        if (arg.length !in 6..7) return Error("Invalid format")
+        if (arg.length !in 6..7) return Error(event.discord.locale.invalidFormat)
 
         val trimmedInput = arg.takeLast(6).toUpperCase()
         val isValidHex = trimmedInput.all { it in '0'..'9' || it in 'A'..'F' }
 
         if (!isValidHex)
-            return Error("Invalid format")
+            return Error(event.discord.locale.invalidFormat)
 
         val color = Color(trimmedInput.toInt(16))
 

@@ -15,7 +15,7 @@ open class IntegerArg(override val name: String = "Integer") : ArgumentType<Int>
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toIntOrNull()) {
-            null -> Error("Invalid format")
+            null -> Error(event.discord.locale.invalidFormat)
             else -> Success(result)
         }
 

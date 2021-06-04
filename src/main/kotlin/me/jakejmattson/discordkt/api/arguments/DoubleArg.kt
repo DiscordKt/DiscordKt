@@ -16,7 +16,7 @@ open class DoubleArg(override val name: String = "Double") : ArgumentType<Double
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toDoubleOrNull()) {
-            null -> Error("Invalid format")
+            null -> Error(event.discord.locale.invalidFormat)
             else -> Success(result)
         }
 

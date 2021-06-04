@@ -20,7 +20,7 @@ open class ChannelArg<T : GuildChannel>(override val name: String = "Channel", p
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T> {
         val channel = arg.toSnowflakeOrNull()?.let { event.discord.kord.getChannel(it) } as? T
-            ?: return Error("Not found")
+            ?: return Error(event.discord.locale.notFound)
 
         if (!allowsGlobal && channel.guild.id != event.guild?.id)
             return Error("Must be from this guild")
