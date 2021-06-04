@@ -3,6 +3,7 @@ package me.jakejmattson.discordkt.api.arguments
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.Emojis
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 
 /**
  * Accepts a unicode emoji.
@@ -16,7 +17,7 @@ open class UnicodeEmojiArg(override val name: String = "Emoji") : ArgumentType<D
     override val description = "A simple emoji"
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<DiscordEmoji> {
-        val emoji = Emojis[arg.trim()] ?: return Error(event.discord.locale.invalidFormat)
+        val emoji = Emojis[arg.trim()] ?: return Error(internalLocale.invalidFormat)
         return Success(emoji)
     }
 

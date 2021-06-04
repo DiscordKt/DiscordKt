@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 import java.awt.Color
 
 /**
@@ -15,13 +16,13 @@ open class HexColorArg(override val name: String = "Hex Color") : ArgumentType<C
     override val description = "A hexadecimal color"
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Color> {
-        if (arg.length !in 6..7) return Error(event.discord.locale.invalidFormat)
+        if (arg.length !in 6..7) return Error(internalLocale.invalidFormat)
 
         val trimmedInput = arg.takeLast(6).toUpperCase()
         val isValidHex = trimmedInput.all { it in '0'..'9' || it in 'A'..'F' }
 
         if (!isValidHex)
-            return Error(event.discord.locale.invalidFormat)
+            return Error(internalLocale.invalidFormat)
 
         val color = Color(trimmedInput.toInt(16))
 

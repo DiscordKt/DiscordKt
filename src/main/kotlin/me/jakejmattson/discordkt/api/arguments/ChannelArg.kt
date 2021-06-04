@@ -3,6 +3,7 @@ package me.jakejmattson.discordkt.api.arguments
 import dev.kord.core.entity.channel.GuildChannel
 import dev.kord.core.entity.channel.TextChannel
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 
 /**
@@ -20,7 +21,7 @@ open class ChannelArg<T : GuildChannel>(override val name: String = "Channel", p
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T> {
         val channel = arg.toSnowflakeOrNull()?.let { event.discord.kord.getChannel(it) } as? T
-            ?: return Error(event.discord.locale.notFound)
+            ?: return Error(internalLocale.notFound)
 
         if (!allowsGlobal && channel.guild.id != event.guild?.id)
             return Error("Must be from this guild")

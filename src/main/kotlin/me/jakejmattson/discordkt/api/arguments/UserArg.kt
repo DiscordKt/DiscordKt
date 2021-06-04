@@ -2,6 +2,7 @@ package me.jakejmattson.discordkt.api.arguments
 
 import dev.kord.core.entity.User
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 
 /**
@@ -17,7 +18,7 @@ open class UserArg(override val name: String = "User") : ArgumentType<User> {
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {
         val user = arg.toSnowflakeOrNull()?.let { event.discord.kord.getUser(it) }
-            ?: return Error(event.discord.locale.notFound)
+            ?: return Error(internalLocale.notFound)
 
         return Success(user)
     }

@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 import kotlin.random.Random
 
 /**
@@ -16,7 +17,7 @@ open class DoubleArg(override val name: String = "Double") : ArgumentType<Double
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toDoubleOrNull()) {
-            null -> Error(event.discord.locale.invalidFormat)
+            null -> Error(internalLocale.invalidFormat)
             else -> Success(result)
         }
 

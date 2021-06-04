@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 
 /**
  * Accepts an integer within a pre-defined range.
@@ -14,7 +15,7 @@ open class IntegerRangeArg(private val min: Int, private val max: Int, override 
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Int> {
         val int = arg.toIntOrNull()
-            ?: return Error(event.discord.locale.invalidFormat)
+            ?: return Error(internalLocale.invalidFormat)
 
         if (int !in min..max)
             return Error("Not in range $min-$max")

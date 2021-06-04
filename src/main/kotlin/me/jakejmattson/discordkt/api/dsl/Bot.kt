@@ -20,6 +20,8 @@ import me.jakejmattson.discordkt.internal.services.InjectionService
 @PublishedApi
 internal val diService = InjectionService()
 
+internal lateinit var internalLocale: Locale
+
 /**
  * Create an instance of your Discord bot! You can use the following blocks to modify bot configuration:
  * [configure][Bot.configure],
@@ -92,6 +94,8 @@ class Bot(private val token: String, private val packageName: String) {
         val kord = Kord(token) {
             intents = Intents(botConfiguration.intents)
         }
+
+        internalLocale = locale
 
         val discord = object : Discord() {
             override val kord = kord

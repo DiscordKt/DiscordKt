@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.extensions.containsURl
 
 /**
@@ -18,7 +19,7 @@ open class UrlArg(override val name: String = "URL") : ArgumentType<String> {
         return if (arg.containsURl())
             Success(arg)
         else
-            Error(event.discord.locale.invalidFormat)
+            Error(internalLocale.invalidFormat)
     }
 
     override suspend fun generateExamples(event: CommandEvent<*>) = listOf("https://www.google.com")

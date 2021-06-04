@@ -4,6 +4,8 @@ import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.arguments.*
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
+import me.jakejmattson.discordkt.api.locale.LocaleEN
 import org.junit.jupiter.api.*
 
 private val commandEventMock = mockk<CommandEvent<*>> { }
@@ -51,6 +53,7 @@ private fun ArgumentType<*>.attemptConvert(input: String): ArgumentResult<*> {
     var result: ArgumentResult<*>
 
     runBlocking {
+        internalLocale = LocaleEN()
         result = convert(split.first(), split, commandEventMock)
     }
 

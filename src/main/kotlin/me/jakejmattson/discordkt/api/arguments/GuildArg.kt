@@ -3,6 +3,7 @@ package me.jakejmattson.discordkt.api.arguments
 import dev.kord.core.entity.Guild
 import dev.kord.core.firstOrNull
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 
 /**
@@ -18,7 +19,7 @@ open class GuildArg(override val name: String = "Guild") : ArgumentType<Guild> {
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Guild> {
         val guild = event.discord.kord.guilds.firstOrNull { it.id == arg.toSnowflakeOrNull() }
-            ?: return Error(event.discord.locale.notFound)
+            ?: return Error(internalLocale.notFound)
 
         return Success(guild)
     }

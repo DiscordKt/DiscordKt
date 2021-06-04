@@ -2,6 +2,7 @@ package me.jakejmattson.discordkt.api.arguments
 
 import dev.kord.core.entity.Member
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 
 /**
@@ -21,7 +22,7 @@ open class MemberArg(override val name: String = "Member", private val allowsBot
         val guild = event.guild ?: return Error("No guild found")
 
         val member = arg.toSnowflakeOrNull()?.let { guild.getMemberOrNull(it) }
-            ?: return Error(event.discord.locale.notFound)
+            ?: return Error(internalLocale.notFound)
 
         if (!allowsBot && member.isBot)
             return Error("Cannot be a bot")

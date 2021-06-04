@@ -1,8 +1,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.Command
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
-import me.jakejmattson.discordkt.api.dsl.get
+import me.jakejmattson.discordkt.api.dsl.*
 
 /**
  * Accepts a DiscordKt command by name.
@@ -16,7 +14,7 @@ open class CommandArg(override val name: String = "Command") : ArgumentType<Comm
     override val description = "A DiscordKt command"
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Command> {
-        val command = event.discord.commands[arg] ?: return Error(event.discord.locale.notFound)
+        val command = event.discord.commands[arg] ?: return Error(internalLocale.notFound)
         return Success(command)
     }
 
