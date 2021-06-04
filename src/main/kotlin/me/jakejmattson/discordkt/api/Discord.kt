@@ -11,6 +11,7 @@ import me.jakejmattson.discordkt.api.annotations.Service
 import me.jakejmattson.discordkt.api.arguments.*
 import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.pluralize
+import me.jakejmattson.discordkt.api.locale.Locale
 import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
 import me.jakejmattson.discordkt.internal.listeners.registerReactionListener
 import me.jakejmattson.discordkt.internal.listeners.registerSlashListener
@@ -29,7 +30,7 @@ data class Versions(val library: String, val kotlin: String, val kord: String)
 /**
  * @property kord A Kord instance used to access the Discord API.
  * @property configuration All of the current configuration details for this bot.
- * @property locale Localization (language and customizations).
+ * @property locale Locale (language and customizations).
  * @property commands All registered commands.
  * @property versions Properties for the core library.
  */

@@ -1,4 +1,4 @@
-package me.jakejmattson.discordkt.api.dsl
+package me.jakejmattson.discordkt.api.locale
 
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.RUNTIME)
@@ -50,9 +50,13 @@ interface Locale {
     var badArgs: String
 
     @RequiresFill(["truth value", "false value"])
+    /** An error response for [me.jakejmattson.discordkt.api.arguments.BooleanArg]*/
     var invalidBooleanArg: String
 }
 
+/**
+ * English locale pack
+ */
 data class LocaleEN(
     override var helpName: String = "Help",
     override var helpCategory: String = "Utility",
@@ -68,6 +72,6 @@ data class LocaleEN(
     override var invalidBooleanArg: String = "Must be '{0}' or '{1}'"
 ) : Locale
 
-fun String.inject(vararg args: String) = args.foldIndexed(this) { index: Int, temp: String, arg: String ->
+internal fun String.inject(vararg args: String) = args.foldIndexed(this) { index: Int, temp: String, arg: String ->
     temp.replace("{$index}", arg)
 }

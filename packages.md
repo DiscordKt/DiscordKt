@@ -16,4 +16,8 @@ Primary builders and events used to develop bots.
 
 # Package me.jakejmattson.discordkt.api.extensions
 
-A collection of extension functions to aid in development.
+Extension functions to aid in bot development.
+
+# Package me.jakejmattson.discordkt.api.locale
+
+A collection of user-facing string values.

@@ -12,6 +12,8 @@ import dev.kord.gateway.builder.PresenceBuilder
 import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.Discord
+import me.jakejmattson.discordkt.api.locale.Language
+import me.jakejmattson.discordkt.api.locale.Locale
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.services.InjectionService
 
@@ -153,7 +155,7 @@ class Bot(private val token: String, private val packageName: String) {
     }
 
     /**
-     * Configure the localization for this bot.
+     * Configure the locale for this bot.
      */
     @ConfigurationDSL
     fun localeOf(language: Language, localeBuilder: Locale.() -> Unit) {

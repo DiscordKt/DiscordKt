@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
-import me.jakejmattson.discordkt.api.dsl.inject
+import me.jakejmattson.discordkt.api.locale.inject
 
 /**
  * Accepts either of two values. Defaults to true/false.
