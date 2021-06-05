@@ -3,6 +3,7 @@ package me.jakejmattson.discordkt.internal.utils
 import dev.kord.common.kColor
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.arguments.AnyArg
+import me.jakejmattson.discordkt.api.arguments.ArgumentType
 import me.jakejmattson.discordkt.api.arguments.OptionalArg
 import me.jakejmattson.discordkt.api.dsl.*
 import java.awt.Color
@@ -37,7 +38,7 @@ private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
             .map { (category, commands) ->
                 field {
                     name = category
-                    value = "```css\n" +
+                    value = "```\n" +
                         commands
                             .sortedBy { it.names.joinToString() }
                             .joinToString("\n")
@@ -58,27 +59,29 @@ private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String,
 
         val commandInvocation = "${event.prefix()}$input"
 
-        field {
-            name = "Structure"
-            value = "$commandInvocation ${generateStructure()}"
+        val helpBundle = this@sendHelpEmbed.executions.map {
+            """$commandInvocation ${it.generateStructure()}
+                ${
+                it.arguments.joinToString("\n") { arg ->
+                    """- ${arg.name}: ${arg.description} (${arg.generateExample(event)})
+                    """.trimMargin()
+                }
+            }
+            """.trimMargin()
         }
 
         field {
-            name = "Examples"
-            value = "$commandInvocation ${generateExample(event)}"
+            this.value = helpBundle.joinToString("\n\n") { it }
         }
     }
 
-private fun Command.generateExample(event: CommandEvent<*>) =
-    executions.first().arguments.joinToString(" ") {
-        val examples = runBlocking { it.generateExamples(event) }
-        val example = if (examples.isNotEmpty()) examples.random() else "<Example>"
+private fun ArgumentType<*>.generateExample(event: CommandEvent<*>) =
+    runBlocking { generateExamples(event) }
+        .takeIf { it.isNotEmpty() }
+        ?.random()
+        ?: "<Example>"
 
-        if (it is OptionalArg) "($example)" else "[$example]"
-    }
-
-private fun Command.generateStructure() =
-    executions.first().arguments.joinToString(" ") {
-        val type = it.name
-        if (it is OptionalArg) "($type)" else "[$type]"
-    }
+private fun Execution<*>.generateStructure() = arguments.joinToString(" ") {
+    val type = it.name
+    if (it is OptionalArg) "($type)" else "[$type]"
+}
