@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.internal.utils.convertTimeString
 
 /**
@@ -12,7 +13,7 @@ open class TimeArg(override val name: String = "Time") : ArgumentType<Double> {
      */
     companion object : TimeArg()
 
-    override val description = "An amount of time"
+    override val description = internalLocale.timeArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) = convertTimeString(args)
 

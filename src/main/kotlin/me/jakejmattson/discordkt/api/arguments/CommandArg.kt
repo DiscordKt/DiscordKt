@@ -11,7 +11,7 @@ open class CommandArg(override val name: String = "Command") : ArgumentType<Comm
      */
     companion object : CommandArg()
 
-    override val description = "A DiscordKt command"
+    override val description = internalLocale.commandArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Command> {
         val command = event.discord.commands[arg] ?: return Error(internalLocale.notFound)

@@ -3,6 +3,8 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
+import me.jakejmattson.discordkt.api.locale.inject
 
 internal data class Left<out L>(val data: L) : Either<L, Nothing>()
 internal data class Right<out R>(val data: R) : Either<Nothing, R>()
@@ -32,7 +34,7 @@ sealed class Either<out L, out R> {
  */
 class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, name: String = "") : ArgumentType<Either<L, R>> {
     override val name = name.ifBlank { "${left.name} | ${right.name}" }
-    override val description = "Either ${left.name} or ${right.name}"
+    override val description = internalLocale.eitherArgDescription.inject(left.name, right.name)
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Either<L, R>> {
         val leftResult = left.convert(arg, args, event)

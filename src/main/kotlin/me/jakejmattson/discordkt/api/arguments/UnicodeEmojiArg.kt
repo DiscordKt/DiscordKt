@@ -14,7 +14,7 @@ open class UnicodeEmojiArg(override val name: String = "Emoji") : ArgumentType<D
      */
     companion object : UnicodeEmojiArg()
 
-    override val description = "A simple emoji"
+    override val description = internalLocale.unicodeEmojiArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<DiscordEmoji> {
         val emoji = Emojis[arg.trim()] ?: return Error(internalLocale.invalidFormat)

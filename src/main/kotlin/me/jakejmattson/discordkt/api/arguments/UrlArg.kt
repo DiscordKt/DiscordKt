@@ -13,7 +13,7 @@ open class UrlArg(override val name: String = "URL") : ArgumentType<String> {
      */
     companion object : UrlArg()
 
-    override val description = "A URL (link)"
+    override val description = internalLocale.urlArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         return if (arg.containsURl())

@@ -1,6 +1,8 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
+import me.jakejmattson.discordkt.api.locale.inject
 
 /**
  * Accepts multiple arguments of the given type. Returns a list.
@@ -9,7 +11,7 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
  */
 class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentType<List<T>> {
     override val name = name.ifBlank { "${base.name}..." }
-    override val description = "Any number of ${base.name}"
+    override val description = internalLocale.multipleArgDescription.inject(base.name)
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<T>> {
         val totalResult = mutableListOf<T>()

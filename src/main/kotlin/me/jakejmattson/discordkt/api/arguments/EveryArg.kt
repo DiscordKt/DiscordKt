@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 
 /**
  * Consumes all remaining arguments. Does not accept empty strings.
@@ -11,7 +12,7 @@ open class EveryArg(override val name: String = "Text") : ArgumentType<String> {
      */
     companion object : EveryArg()
 
-    override val description = "All input"
+    override val description = internalLocale.everyArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         if (args.size in 0..1 && arg.isEmpty())

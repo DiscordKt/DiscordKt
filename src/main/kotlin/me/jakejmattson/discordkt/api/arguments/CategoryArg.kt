@@ -5,6 +5,7 @@ import dev.kord.core.entity.channel.Category
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.toList
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 import me.jakejmattson.discordkt.internal.utils.resolveEntityByName
 
@@ -20,7 +21,7 @@ open class CategoryArg(override val name: String = "Category", private val guild
      */
     companion object : CategoryArg()
 
-    override val description = "A Discord category"
+    override val description = internalLocale.categoryArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
         val guild = guildId?.let { event.discord.kord.getGuild(it) } ?: event.guild

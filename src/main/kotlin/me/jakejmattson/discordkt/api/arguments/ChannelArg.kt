@@ -17,7 +17,7 @@ open class ChannelArg<T : GuildChannel>(override val name: String = "Channel", p
      */
     companion object : ChannelArg<TextChannel>()
 
-    override val description = "A Discord channel"
+    override val description = internalLocale.channelArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T> {
         val channel = arg.toSnowflakeOrNull()?.let { event.discord.kord.getChannel(it) } as? T

@@ -12,7 +12,7 @@ open class IntegerArg(override val name: String = "Integer") : ArgumentType<Int>
      */
     companion object : IntegerArg()
 
-    override val description = "A whole number"
+    override val description = internalLocale.integerArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toIntOrNull()) {

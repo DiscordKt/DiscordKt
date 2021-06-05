@@ -4,6 +4,7 @@ import dev.kord.core.entity.Message
 import dev.kord.core.entity.channel.GuildMessageChannel
 import kotlinx.coroutines.flow.firstOrNull
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 
 /**
@@ -17,7 +18,7 @@ open class MessageArg(override val name: String = "Message", private val allowsG
      */
     companion object : MessageArg()
 
-    override val description = "A Discord message"
+    override val description = internalLocale.messageArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Message> {
         val publicRegex = "https://discord(app)?.com/channels/\\d+/\\d+/\\d+".toRegex()

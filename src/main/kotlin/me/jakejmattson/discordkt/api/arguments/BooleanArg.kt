@@ -16,7 +16,7 @@ open class BooleanArg(override val name: String = "Boolean", private val truthVa
      */
     companion object : BooleanArg()
 
-    override val description = "Either $truthValue or $falseValue"
+    override val description = internalLocale.booleanArgDescription.inject(truthValue, falseValue)
 
     init {
         require(truthValue.isNotEmpty() && falseValue.isNotEmpty()) { "Custom BooleanArg ($name) options cannot be empty!" }

@@ -13,7 +13,7 @@ open class DoubleArg(override val name: String = "Double") : ArgumentType<Double
      */
     companion object : DoubleArg()
 
-    override val description = "A Discord member"
+    override val description = internalLocale.doubleArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toDoubleOrNull()) {

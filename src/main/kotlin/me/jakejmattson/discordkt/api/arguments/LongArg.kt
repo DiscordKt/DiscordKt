@@ -12,7 +12,7 @@ open class LongArg(override val name: String = "Long") : ArgumentType<Long> {
      */
     companion object : LongArg()
 
-    override val description = "A whole number"
+    override val description = internalLocale.longArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toLongOrNull()) {

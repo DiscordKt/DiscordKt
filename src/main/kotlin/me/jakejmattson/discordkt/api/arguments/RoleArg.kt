@@ -4,6 +4,7 @@ import dev.kord.common.entity.Snowflake
 import dev.kord.core.entity.Role
 import kotlinx.coroutines.flow.toList
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 import me.jakejmattson.discordkt.internal.utils.resolveEntityByName
 
@@ -19,7 +20,7 @@ open class RoleArg(override val name: String = "Role", private val guildId: Snow
      */
     companion object : RoleArg()
 
-    override val description = "A Discord role"
+    override val description = internalLocale.roleArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
         val guild = guildId?.let { event.discord.kord.getGuild(it) } ?: event.guild

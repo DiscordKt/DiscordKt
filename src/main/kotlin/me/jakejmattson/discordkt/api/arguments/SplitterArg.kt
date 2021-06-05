@@ -1,6 +1,8 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
+import me.jakejmattson.discordkt.api.locale.inject
 
 /**
  * Consumes all arguments and returns a list of the results (split by splitter character).
@@ -13,7 +15,7 @@ open class SplitterArg(override val name: String = "TextWithSplitter", private v
      */
     companion object : SplitterArg()
 
-    override val description = "Items split by $splitter"
+    override val description = internalLocale.splitterArgDescription.inject(splitter)
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<String>> {
         val joined = args.joinToString(" ")

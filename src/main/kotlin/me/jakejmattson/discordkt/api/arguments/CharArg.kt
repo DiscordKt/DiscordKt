@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 
 /**
  * Accepts a single character.
@@ -11,7 +12,7 @@ open class CharArg(override val name: String = "Character") : ArgumentType<Char>
      */
     companion object : CharArg()
 
-    override val description = "A single letter"
+    override val description = internalLocale.charArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Char> {
         return if (arg.length == 1)

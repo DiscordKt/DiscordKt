@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
 
 /**
@@ -11,7 +12,7 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
 open class ChoiceArg<T>(override val name: String, vararg choices: T) : ArgumentType<T> {
     private val enumerations = choices.associateBy { it.toString().toLowerCase() }
     private val options = enumerations.keys
-    override val description = "A list to choose from"
+    override val description = internalLocale.choiceArgDescription
 
     init {
         if (choices.size != options.size)

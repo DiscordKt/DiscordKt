@@ -16,7 +16,7 @@ open class MemberArg(override val name: String = "Member", private val allowsBot
      */
     companion object : MemberArg()
 
-    override val description = "A Discord member"
+    override val description = internalLocale.memberArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Member> {
         val guild = event.guild ?: return Error("No guild found")
