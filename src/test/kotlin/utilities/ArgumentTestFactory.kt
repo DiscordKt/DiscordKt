@@ -46,6 +46,14 @@ interface ArgumentTestFactory {
             }
         }
     }
+
+    companion object {
+        @BeforeAll
+        @JvmStatic
+        fun initLocale() {
+            internalLocale = LocaleEN()
+        }
+    }
 }
 
 private fun ArgumentType<*>.attemptConvert(input: String): ArgumentResult<*> {
@@ -53,7 +61,6 @@ private fun ArgumentType<*>.attemptConvert(input: String): ArgumentResult<*> {
     var result: ArgumentResult<*>
 
     runBlocking {
-        internalLocale = LocaleEN()
         result = convert(split.first(), split, commandEventMock)
     }
 
