@@ -41,16 +41,23 @@ interface Locale {
     var invalidFormat: String
 
     //Errors
-    /** A string recommending the command with the neatest name */
-    @RequiresFill(["The closest command name"])
+    /** A string recommending the command with the nearest name
+     * {0} command name
+     */
+    @RequiresFill(["command name"])
     var commandRecommendation: String
 
-    /** Command was provided with invalid arguments */
-    @RequiresFill(["The command name attempted to run"])
+    /** Command was provided with invalid arguments
+     * {0} command name
+     */
+    @RequiresFill(["command name"])
     var badArgs: String
 
+    /** Invalid input for [BooleanArg][me.jakejmattson.discordkt.api.arguments.BooleanArg]
+     * {0} truth value
+     * {1} false value
+     */
     @RequiresFill(["truth value", "false value"])
-    /** An error response for [me.jakejmattson.discordkt.api.arguments.BooleanArg]*/
     var invalidBooleanArg: String
 
     /** [AnyArg][me.jakejmattson.discordkt.api.arguments.AnyArg] description */
@@ -59,7 +66,10 @@ interface Locale {
     /** [AttachmentArg][me.jakejmattson.discordkt.api.arguments.AttachmentArg] description */
     var attachmentArgDescription: String
 
-    /** [BooleanArg][me.jakejmattson.discordkt.api.arguments.BooleanArg] description */
+    /** [BooleanArg][me.jakejmattson.discordkt.api.arguments.BooleanArg] description
+     * {0} truth value
+     * {1} false value
+     */
     @RequiresFill(["truth value", "false value"])
     var booleanArgDescription: String
 
@@ -81,7 +91,10 @@ interface Locale {
     /** [DoubleArg][me.jakejmattson.discordkt.api.arguments.DoubleArg] description */
     var doubleArgDescription: String
 
-    /** [EitherArg][me.jakejmattson.discordkt.api.arguments.EitherArg] description */
+    /** [EitherArg][me.jakejmattson.discordkt.api.arguments.EitherArg] description
+     * {0} left type
+     * {1} right type
+     */
     @RequiresFill(["left type", "right type"])
     var eitherArgDescription: String
 
@@ -100,7 +113,10 @@ interface Locale {
     /** [IntegerArg][me.jakejmattson.discordkt.api.arguments.IntegerArg] description */
     var integerArgDescription: String
 
-    /** [IntegerRangeArg][me.jakejmattson.discordkt.api.arguments.IntegerRangeArg] description */
+    /** [IntegerRangeArg][me.jakejmattson.discordkt.api.arguments.IntegerRangeArg] description
+     * {0} minimum value
+     * {1} maximum value
+     */
     @RequiresFill(["minimum value", "maximum value"])
     var integerRangeArgDescription: String
 
@@ -113,11 +129,15 @@ interface Locale {
     /** [MessageArg][me.jakejmattson.discordkt.api.arguments.MessageArg] description */
     var messageArgDescription: String
 
-    /** [MultipleArg][me.jakejmattson.discordkt.api.arguments.MultipleArg] description */
-    @RequiresFill(["multiple type"])
+    /** [MultipleArg][me.jakejmattson.discordkt.api.arguments.MultipleArg] description
+     * {0} type name
+     */
+    @RequiresFill(["type name"])
     var multipleArgDescription: String
 
-    /** [OptionalArg][me.jakejmattson.discordkt.api.arguments.OptionalArg] description */
+    /** [OptionalArg][me.jakejmattson.discordkt.api.arguments.OptionalArg] description
+     * {0} type name
+     */
     @RequiresFill(["optional type"])
     var optionalArgDescription: String
 
@@ -127,7 +147,9 @@ interface Locale {
     /** [RoleArg][me.jakejmattson.discordkt.api.arguments.RoleArg] description */
     var roleArgDescription: String
 
-    /** [SplitterArg][me.jakejmattson.discordkt.api.arguments.SplitterArg] description */
+    /** [SplitterArg][me.jakejmattson.discordkt.api.arguments.SplitterArg] description
+     * {0} splitter character
+     */
     @RequiresFill(["splitter character"])
     var splitterArgDescription: String
 
@@ -169,9 +191,9 @@ data class LocaleEN(
     override var charArgDescription: String = "A single letter",
     override var choiceArgDescription: String = "A list to choose from",
     override var commandArgDescription: String = "A DiscordKt command",
-    override var doubleArgDescription: String = "A Discord member",
-    override var eitherArgDescription: String = "Either {0} or ${1}",
-    override var everyArgDescription: String = "All input",
+    override var doubleArgDescription: String = "A decimal number",
+    override var eitherArgDescription: String = "Either {0} or {1}",
+    override var everyArgDescription: String = "All remaining input",
     override var guildArgDescription: String = "A Discord guild",
     override var guildEmojiArgDescription: String = "A Discord emoji",
     override var hexColorArgDescription: String = "A hexadecimal color",
@@ -187,7 +209,7 @@ data class LocaleEN(
     override var splitterArgDescription: String = "Items split by {0}",
     override var timeArgDescription: String = "An amount of time",
     override var unicodeEmojiArgDescription: String = "A simple emoji",
-    override var urlArgDescription: String = "A URL (link)",
+    override var urlArgDescription: String = "A URL",
     override var userArgDescription: String = "A Discord user"
 ) : Locale
 
