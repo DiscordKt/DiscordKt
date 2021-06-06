@@ -7,10 +7,12 @@ internal annotation class RequiresFill(val requirements: Array<String>)
 /**
  * Enum collection of available languages.
  *
- * @property locale The matching locale value for this language.
+ * @property locale The matching locale for this language.
  */
 enum class Language(val locale: Locale) {
-    /** English */
+    /** English
+     * @sample LocaleEN
+     */
     EN(LocaleEN());
 }
 
@@ -138,7 +140,7 @@ interface Locale {
     /** [OptionalArg][me.jakejmattson.discordkt.api.arguments.OptionalArg] description
      * {0} type name
      */
-    @RequiresFill(["optional type"])
+    @RequiresFill(["type name"])
     var optionalArgDescription: String
 
     /** [QuoteArg][me.jakejmattson.discordkt.api.arguments.QuoteArg] description */

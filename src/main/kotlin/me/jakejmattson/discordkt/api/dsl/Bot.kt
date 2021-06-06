@@ -160,6 +160,8 @@ class Bot(private val token: String, private val packageName: String) {
 
     /**
      * Configure the locale for this bot.
+     *
+     * @param language The initial [Language] pack.
      */
     @ConfigurationDSL
     fun localeOf(language: Language, localeBuilder: Locale.() -> Unit) {
