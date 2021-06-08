@@ -36,9 +36,9 @@ internal object Validator {
             command.executions.forEach {
                 val args = it.arguments
 
-                args.filterIsInstance<EitherArg<*, *>>().forEach {
-                    if (it.left == it.right) {
-                        val arg = it.left::class.simplerName
+                args.filterIsInstance<EitherArg<*, *>>().forEach { eitherArg ->
+                    if (eitherArg.left == eitherArg.right) {
+                        val arg = eitherArg.left::class.simplerName
                         InternalLogger.error("Detected EitherArg with identical args ($arg) in command: $commandName")
                     }
                 }

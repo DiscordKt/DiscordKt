@@ -31,10 +31,12 @@ internal fun createDocumentation(commands: List<Command>) {
     fun extractCommandData(command: Command): CommandData {
         val nameString = command.names.joinToString().sanitizePipe()
 
-        val expectedArgs = command.executions.map {
-            it.arguments.joinToString {
-                if (it is OptionalArg) "[${it.name}]" else it.name
-            }.sanitizePipe().takeIf { it.isNotEmpty() } ?: ""
+        val expectedArgs = command.executions.map { execution ->
+            execution.arguments
+                .joinToString { arg -> if (arg is OptionalArg) "[${arg.name}]" else arg.name }
+                .sanitizePipe()
+                .takeIf { it.isNotEmpty() }
+                ?: ""
         }
 
         return CommandData(nameString, expectedArgs, command.description.sanitizePipe())
@@ -55,13 +57,13 @@ internal fun createDocumentation(commands: List<Command>) {
     }
 
     val keyString = buildString {
-        with(commands) {
-            if (any { it.executions.any { it.arguments.any { it is OptionalArg } } })
-                appendLine("| [Argument]  | Argument is not required.      |")
+        val argumentSet = commands.flatMap { cmd -> cmd.executions.flatMap { it.arguments } }.toSet()
 
-            if (any { it.executions.any { it.arguments.any { it is MultipleArg<*> } } })
-                appendLine("| Argument... | Accepts many of this argument. |")
-        }
+        if (argumentSet.any { it is OptionalArg })
+            appendLine("| [Argument]  | Argument is not required.      |")
+
+        if (argumentSet.any { it is MultipleArg<*> })
+            appendLine("| Argument... | Accepts many of this argument. |")
     }
 
     val key =
@@ -76,7 +78,7 @@ internal fun createDocumentation(commands: List<Command>) {
 
     val docs = commands
         .groupBy { it.category }
-        .map { it.key to formatDocs(it.value.map { extractCommandData(it) }) }
+        .map { category -> category.key to formatDocs(category.value.map { extractCommandData(it) }) }
         .sortedBy { it.first }
         .joinToString("") { "## ${it.first}\n${it.second}\n" }
 

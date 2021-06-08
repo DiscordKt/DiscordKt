@@ -28,16 +28,7 @@ internal suspend fun registerSlashListener(discord: Discord) = discord.kord.on<I
     val channel = interaction.getChannel()
     val event = SlashCommandEvent<TypeContainer>(rawInputs, discord, channel.getLastMessage()!!, author, channel, guild)
 
-    discord.preconditions
-        .sortedBy { it.priority }
-        .forEach {
-            try {
-                it.check(event)
-            } catch (e: Exception) {
-                e.message.takeUnless { it.isNullOrEmpty() }?.let { event.respond(it) }
-                return@on
-            }
-        }
+    if (!arePreconditionsPassing(event)) return@on
 
     dktCommand.invoke(event, rawInputs.commandArgs)
 }
@@ -84,16 +75,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
         GuildCommandEvent<TypeContainer>(rawInputs, discord, message, author, channel as TextChannel, it)
     } ?: DmCommandEvent(rawInputs, discord, message, author, channel as DmChannel)
 
-    discord.preconditions
-        .sortedBy { it.priority }
-        .forEach {
-            try {
-                it.check(event)
-            } catch (e: Exception) {
-                e.message.takeUnless { it.isNullOrEmpty() }?.let { event.respond(it) }
-                return@on
-            }
-        }
+    if (!arePreconditionsPassing(event)) return@on
 
     val command = discord.commands[commandName]?.takeUnless { !config.hasPermission(it, event) }
         ?: return@on Recommender.sendRecommendation(event, commandName)
@@ -103,4 +85,19 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     }
 
     command.invoke(event, rawInputs.commandArgs)
+}
+
+suspend fun arePreconditionsPassing(event: CommandEvent<*>): Boolean {
+    event.discord.preconditions
+        .sortedBy { it.priority }
+        .forEach { precondition ->
+            try {
+                precondition.check(event)
+            } catch (e: Exception) {
+                e.message.takeUnless { it.isNullOrEmpty() }?.let { event.respond(it) }
+                return false
+            }
+        }
+
+    return true
 }

@@ -90,7 +90,9 @@ internal class InjectionService {
             val failPaths = failed
                 .mapNotNull { getCyclicList(it) }
                 .distinctBy { it.toSet() }
-                .joinToString("\n") { it.joinToString(" -> ") { it.simplerName } }
+                .joinToString("\n") { classes ->
+                    classes.joinToString(" -> ") { it.simplerName }
+                }
 
             appendLine()
             appendLine("Infinite loop detected:")
