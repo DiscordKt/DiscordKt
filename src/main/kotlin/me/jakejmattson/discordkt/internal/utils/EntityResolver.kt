@@ -5,10 +5,10 @@ import me.jakejmattson.discordkt.api.arguments.Error
 import me.jakejmattson.discordkt.api.arguments.Success
 
 internal fun <T> resolveEntityByName(args: List<String>, entities: List<T>, name: T.() -> String): ArgumentResult<T> {
-    val rawInput = args.joinToString(" ").toLowerCase()
+    val rawInput = args.joinToString(" ").lowercase()
 
     val viableEntities = entities
-        .filter { rawInput.startsWith(it.name().toLowerCase()) }
+        .filter { rawInput.startsWith(it.name().lowercase()) }
         .sortedBy { it.name().length }
 
     val longestMatch = viableEntities.lastOrNull()?.name()

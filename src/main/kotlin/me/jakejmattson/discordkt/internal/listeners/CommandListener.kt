@@ -21,7 +21,7 @@ import me.jakejmattson.discordkt.internal.utils.Recommender
 @KordPreview
 internal suspend fun registerSlashListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
     val dktCommand = discord.commands[interaction.command.rootName] as? SlashCommand ?: return@on
-    val args = dktCommand.executions.first().arguments.joinToString(" ") { interaction.command.options[it.name.toLowerCase()]!!.value.toString() }
+    val args = dktCommand.executions.first().arguments.joinToString(" ") { interaction.command.options[it.name.lowercase()]!!.value.toString() }
     val rawInputs = RawInputs("/${dktCommand.name} $args", dktCommand.name, prefixCount = 1)
     val author = kord.getUser(interaction.data.user.value!!.id)!!
     val guild = (interaction as? GuildInteraction)?.getGuild()
@@ -52,7 +52,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     val content = message.content
 
     fun String.isBotMention() = config.allowMentionPrefix && (startsWith("<@!$self>") || startsWith("<@$self>"))
-    fun String.isSearch() = config.enableSearch && toLowerCase().startsWith("search") && split(" ").size == 2
+    fun String.isSearch() = config.enableSearch && lowercase().startsWith("search") && split(" ").size == 2
     suspend fun search() {
         val query = content.split(" ")[1]
 

@@ -24,9 +24,9 @@ open class BooleanArg(override val name: String = "Boolean", private val truthVa
     }
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Boolean> {
-        return when (arg.toLowerCase()) {
-            truthValue.toLowerCase() -> Success(true)
-            falseValue.toLowerCase() -> Success(false)
+        return when (arg.lowercase()) {
+            truthValue.lowercase() -> Success(true)
+            falseValue.lowercase() -> Success(false)
             else -> Error(internalLocale.invalidBooleanArg.inject(truthValue, falseValue))
         }
     }

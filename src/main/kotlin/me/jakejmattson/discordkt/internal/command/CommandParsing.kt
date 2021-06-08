@@ -18,10 +18,10 @@ internal fun stripMentionInvocation(message: String): RawInputs {
 
 private fun produceCommandStruct(raw: String, message: String, invocationCount: Int = 1): RawInputs {
     if (!message.contains(" ")) {
-        return RawInputs(raw, message.toLowerCase(), invocationCount, listOf())
+        return RawInputs(raw, message.lowercase(), invocationCount, listOf())
     }
 
-    val commandName = message.substring(0, message.indexOf(" ")).toLowerCase()
+    val commandName = message.substring(0, message.indexOf(" ")).lowercase()
     val commandArgs = message.substring(message.indexOf(" ") + 1).split(" ")
 
     return RawInputs(raw, commandName, invocationCount, commandArgs)

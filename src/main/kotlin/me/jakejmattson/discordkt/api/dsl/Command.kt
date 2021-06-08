@@ -170,4 +170,4 @@ class DmCommand(override val names: List<String>, override var description: Stri
 /**
  * Get a command by its name (case insensitive).
  */
-operator fun MutableList<Command>.get(name: String) = firstOrNull { name.toLowerCase() in it.names.map { it.toLowerCase() } }
+operator fun MutableList<Command>.get(name: String) = firstOrNull { name.lowercase() in it.names.map { it.lowercase() } }
