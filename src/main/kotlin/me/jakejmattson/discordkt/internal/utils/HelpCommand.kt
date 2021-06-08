@@ -83,5 +83,5 @@ private fun ArgumentType<*>.generateExample(event: CommandEvent<*>) =
 
 private fun Execution<*>.generateStructure() = arguments.joinToString(" ") {
     val type = it.name
-    if (it is OptionalArg) "($type)" else "[$type]"
+    if (it is OptionalArg) "[$type]" else type
 }

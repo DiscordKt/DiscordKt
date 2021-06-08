@@ -33,7 +33,7 @@ internal fun createDocumentation(commands: List<Command>) {
 
         val expectedArgs = command.executions.map {
             it.arguments.joinToString {
-                if (it is OptionalArg) "(${it.name})" else it.name
+                if (it is OptionalArg) "[${it.name}]" else it.name
             }.sanitizePipe().takeIf { it.isNotEmpty() } ?: ""
         }
 
@@ -57,7 +57,7 @@ internal fun createDocumentation(commands: List<Command>) {
     val keyString = buildString {
         with(commands) {
             if (any { it.executions.any { it.arguments.any { it is OptionalArg } } })
-                appendLine("| (Argument)  | Argument is not required.      |")
+                appendLine("| [Argument]  | Argument is not required.      |")
 
             if (any { it.executions.any { it.arguments.any { it is MultipleArg<*> } } })
                 appendLine("| Argument... | Accepts many of this argument. |")
