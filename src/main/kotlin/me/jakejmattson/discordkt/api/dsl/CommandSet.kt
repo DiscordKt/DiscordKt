@@ -42,8 +42,8 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
      * Create a slash command.
      */
     @InnerDSL
-    fun slash(name: String, body: SlashCommand.() -> Unit) {
-        val command = SlashCommand(name, "").apply {
+    fun slash(name: String, body: GlobalSlashCommand.() -> Unit) {
+        val command = GlobalSlashCommand(name, "").apply {
             this.category = this@CommandSetBuilder.category
         }
 

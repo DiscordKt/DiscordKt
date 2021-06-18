@@ -103,16 +103,9 @@ open class GlobalCommand(override val names: List<String>, override var descript
 }
 
 /**
- * A command wrapper for a discord slash command.
- *
- * @property name The name of the slash command.
- */
-class SlashCommand(val name: String, override var description: String) : GlobalCommand(listOf(name), description)
-
-/**
  * A command that can only be executed in a guild.
  */
-class GuildCommand(override val names: List<String>, override var description: String) : Command(names, description) {
+open class GuildCommand(override val names: List<String>, override var description: String) : Command(names, description) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -166,6 +159,20 @@ class DmCommand(override val names: List<String>, override var description: Stri
     @NestedDSL
     fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend DmCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
+
+/**
+ * A command wrapper for a global discord slash command.
+ *
+ * @property name The name of the slash command.
+ */
+class GlobalSlashCommand(val name: String, override var description: String) : GlobalCommand(listOf(name), description)
+
+/**
+ * A command wrapper for a guild discord slash command.
+ *
+ * @property name The name of the slash command.
+ */
+class GuildSlashCommand(val name: String, override var description: String) : GuildCommand(listOf(name), description)
 
 /**
  * Get a command by its name (case insensitive).

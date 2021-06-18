@@ -4,6 +4,9 @@ package me.jakejmattson.discordkt.api
 
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
+import dev.kord.core.behavior.createApplicationCommand
+import dev.kord.rest.builder.interaction.ApplicationCommandCreateBuilder
+import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -107,17 +110,29 @@ abstract class Discord {
 
     @KordPreview
     private suspend fun registerSlashCommands() {
-        commands.filterIsInstance<SlashCommand>().forEach {
-            kord.createGlobalApplicationCommand(it.name, it.description.ifBlank { "<No Description>" }) {
-                it.executions.first().arguments.forEach { arg ->
-                    when (arg) {
-                        is IntegerArg -> int(arg.name, arg.description)
-                        is BooleanArg -> boolean(arg.name, arg.description)
-                        is UserArg -> user(arg.name, arg.description)
-                        is RoleArg -> role(arg.name, arg.description)
-                        is ChannelArg<*> -> channel(arg.name, arg.description)
-                        else -> string(arg.name, arg.description)
-                    }
+        fun ApplicationCommandCreateBuilder.unpack(command: Command) {
+            command.executions.first().arguments.forEach { arg ->
+                when (arg) {
+                    is IntegerArg -> int(arg.name, arg.description)
+                    is BooleanArg -> boolean(arg.name, arg.description)
+                    is UserArg -> user(arg.name, arg.description)
+                    is RoleArg -> role(arg.name, arg.description)
+                    is ChannelArg<*> -> channel(arg.name, arg.description)
+                    else -> string(arg.name, arg.description)
+                }
+            }
+        }
+
+        commands.filterIsInstance<GlobalSlashCommand>().forEach { slashCommand ->
+            kord.createGlobalApplicationCommand(slashCommand.name, slashCommand.description.ifBlank { "<No Description>" }) {
+                unpack(slashCommand)
+            }
+        }
+
+        commands.filterIsInstance<GuildSlashCommand>().forEach { slashCommand ->
+            kord.guilds.onEach { guild ->
+                guild.createApplicationCommand(slashCommand.name, slashCommand.description.ifBlank { "<No Description>" }) {
+                    unpack(slashCommand)
                 }
             }
         }

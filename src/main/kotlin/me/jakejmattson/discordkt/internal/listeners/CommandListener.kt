@@ -20,7 +20,7 @@ import me.jakejmattson.discordkt.internal.utils.Recommender
 
 @KordPreview
 internal suspend fun registerSlashListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
-    val dktCommand = discord.commands[interaction.command.rootName] as? SlashCommand ?: return@on
+    val dktCommand = discord.commands[interaction.command.rootName] as? GlobalSlashCommand ?: return@on
     val args = dktCommand.executions.first().arguments.joinToString(" ") { interaction.command.options[it.name.lowercase()]!!.value.toString() }
     val rawInputs = RawInputs("/${dktCommand.name} $args", dktCommand.name, prefixCount = 1)
     val author = kord.getUser(interaction.data.user.value!!.id)!!

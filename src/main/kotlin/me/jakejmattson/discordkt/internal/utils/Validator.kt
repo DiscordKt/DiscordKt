@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.api.arguments.EitherArg
 import me.jakejmattson.discordkt.api.dsl.Command
-import me.jakejmattson.discordkt.api.dsl.SlashCommand
+import me.jakejmattson.discordkt.api.dsl.GlobalSlashCommand
 
 @PublishedApi
 internal object Validator {
@@ -44,7 +44,7 @@ internal object Validator {
                 }
             }
 
-            if (command is SlashCommand && command.executions.size > 1)
+            if (command is GlobalSlashCommand && command.executions.size > 1)
                 InternalLogger.error("Slash commands ($commandName) cannot be overloaded.")
         }
     }
