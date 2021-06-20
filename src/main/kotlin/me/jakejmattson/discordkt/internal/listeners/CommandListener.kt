@@ -4,6 +4,7 @@ import dev.kord.common.annotation.KordPreview
 import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.entity.channel.DmChannel
 import dev.kord.core.entity.channel.TextChannel
+import dev.kord.core.entity.interaction.CommandInteraction
 import dev.kord.core.entity.interaction.GuildInteraction
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
@@ -20,8 +21,13 @@ import me.jakejmattson.discordkt.internal.utils.Recommender
 
 @KordPreview
 internal suspend fun registerSlashListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
-    val dktCommand = discord.commands[interaction.command.rootName] as? GlobalSlashCommand ?: return@on
-    val args = dktCommand.executions.first().arguments.joinToString(" ") { interaction.command.options[it.name.lowercase()]!!.value.toString() }
+    if (interaction !is CommandInteraction)
+        return@on
+
+    val commandInteraction = interaction as CommandInteraction
+
+    val dktCommand = discord.commands[commandInteraction.command.rootName] as? GlobalSlashCommand ?: return@on
+    val args = dktCommand.executions.first().arguments.joinToString(" ") { commandInteraction.command.options[it.name.lowercase()]!!.value.toString() }
     val rawInputs = RawInputs("/${dktCommand.name} $args", dktCommand.name, prefixCount = 1)
     val author = kord.getUser(interaction.data.user.value!!.id)!!
     val guild = (interaction as? GuildInteraction)?.getGuild()
