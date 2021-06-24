@@ -4,16 +4,20 @@ import me.jakejmattson.discordkt.api.arguments.ArgumentResult
 import me.jakejmattson.discordkt.api.arguments.Error
 import me.jakejmattson.discordkt.api.arguments.Success
 
-internal fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
-    val timeStringEnd = actual.indexOfFirst { toTimeElement(it) == null }.takeIf { it != -1 } ?: actual.size
-    val original = actual.subList(0, timeStringEnd).toList()
-    val possibleElements = original.map { toTimeElement(it.lowercase()) }
+data class TimePair(val quantity: Double, val quantifier: String) {
+    val seconds: Double
+        get() = quantity * timeStringToSeconds.getValue(quantifier)
+}
+
+internal fun convertTimeString(initial: List<String>): ArgumentResult<Double> {
+    val timeStringEnd = initial.indexOfFirst { it.toTimeElement() == null }.takeIf { it != -1 } ?: initial.size
+    val original = initial.subList(0, timeStringEnd).toList()
+    val possibleElements = original.map { it.lowercase().toTimeElement() }
     val timeElements = possibleElements.dropLastWhile { it is Double } // assume trailing numbers are part of next arg (ID, Integer, etc.)
 
     if (timeElements.isEmpty())
         return Error("Invalid time element")
 
-    val consumed = original.subList(0, timeElements.size)
     val quantityCount = timeElements.count { it is Double }
     val quantifierCount = timeElements.count { it is String }
 
@@ -28,39 +32,31 @@ internal fun convertTimeString(actual: List<String>): ArgumentResult<Double> {
     if (hasMissingQuantifier)
         return Error("Quantity missing quantifier")
 
-    val timePairs = timeElements
-        .mapIndexedNotNull { index, element ->
-            when (element) {
-                is Pair<*, *> -> element as Pair<Double, String>
-                is Double -> element to timeElements[index + 1] as String
-                else -> null
-            }
+    val timePairs = timeElements.mapIndexedNotNull { index, element ->
+        when (element) {
+            is TimePair -> element
+            is Double -> TimePair(element, timeElements[index + 1] as String)
+            else -> null
         }
+    }
 
-    if (timePairs.any { it.first < 0.0 })
+    if (timePairs.any { it.quantity < 0.0 })
         return Error("Cannot be negative")
 
-    val timeInSeconds = timePairs
-        .map { (quantity, quantifier) -> quantity * timeStringToSeconds.getValue(quantifier) }
-        .reduce { a, b -> a + b }
-
-    return Success(timeInSeconds, consumed.size)
+    val timeInSeconds = timePairs.sumOf { it.seconds }
+    return Success(timeInSeconds, original.subList(0, timeElements.size).size)
 }
 
-private fun toTimeElement(element: String): Any? = toBoth(element)
-    ?: toQuantifier(element)
-    ?: toQuantity(element)
+private fun String.toTimeElement() = with(this) { toTimePair() ?: toQuantifier() ?: toQuantity() }
+private fun String.toQuantifier() = takeIf { it.lowercase() in timeStringToSeconds }
+private fun String.toQuantity() = toDoubleOrNull()
 
-private fun toQuantifier(element: String) = element.takeIf { it.lowercase() in timeStringToSeconds }
-private fun toQuantity(element: String) = element.toDoubleOrNull()
+private fun String.toTimePair(): TimePair? {
+    val quantityRaw = toCharArray().takeWhile { it.isDigit() || it == '.' }.joinToString("")
+    val quantity = quantityRaw.toQuantity() ?: return null
+    val quantifier = substring(quantityRaw.length).toQuantifier() ?: return null
 
-private fun toBoth(element: String): Pair<Double, String>? {
-    val quantityRaw = element.toCharArray().takeWhile { it.isDigit() || it == '.' }.joinToString("")
-    val quantity = toQuantity(quantityRaw) ?: return null
-    val quantifier = toQuantifier(element.substring(quantityRaw.length))
-        ?: return null
-
-    return quantity to quantifier
+    return TimePair(quantity, quantifier)
 }
 
 private val timeStringToSeconds = mapOf(
