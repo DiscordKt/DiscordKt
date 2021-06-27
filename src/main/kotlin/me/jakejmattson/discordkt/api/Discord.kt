@@ -16,8 +16,8 @@ import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.pluralize
 import me.jakejmattson.discordkt.api.locale.Locale
 import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
+import me.jakejmattson.discordkt.internal.listeners.registerInteractionListener
 import me.jakejmattson.discordkt.internal.listeners.registerReactionListener
-import me.jakejmattson.discordkt.internal.listeners.registerSlashListener
 import me.jakejmattson.discordkt.internal.utils.*
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
@@ -103,7 +103,7 @@ abstract class Discord {
 
     @KordPreview
     private suspend fun registerListeners(discord: Discord) {
-        registerSlashListener(discord)
+        registerInteractionListener(discord)
         registerReactionListener(kord)
         registerCommandListener(discord)
     }

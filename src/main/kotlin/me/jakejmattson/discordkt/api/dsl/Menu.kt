@@ -18,6 +18,9 @@ import java.util.*
 
 private val menus = mutableMapOf<Snowflake, Menu>()
 
+/**
+ * Builder functions for menu buttons.
+ */
 class ButtonRowBuilder {
     internal val buttons = mutableListOf<DktButton>()
 
@@ -183,46 +186,55 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
         menus[message.id] = this
         return message
     }
+
+    internal companion object {
+        @OptIn(KordPreview::class)
+        internal suspend fun handleButtonPress(interaction: ComponentInteraction) {
+            interaction.acknowledgeEphemeralDeferredMessageUpdate()
+            val firedButton = interaction.component ?: return
+
+            if (firedButton.url != null)
+                return
+
+            val message = interaction.message!!
+            val menu = menus[message.id] ?: return
+            val simpleButtons = menu.buttons.flatten().filterIsInstance<SimpleButton>()
+
+            val newEmbed = when (val simpleButton = simpleButtons.find { firedButton.customId == it.id }) {
+                is NavButton -> {
+                    simpleButton.action.invoke(menu)
+                    menu.page
+                }
+                is EditButton -> {
+                    val page = menu.page
+                    simpleButton.action.invoke(page)
+                    menu.updatePage(page)
+                    page
+                }
+                else -> return
+            }
+
+            message.edit {
+                embed = newEmbed
+            }
+        }
+    }
 }
 
-@OptIn(KordPreview::class)
-internal suspend fun handleButtonPress(interaction: ComponentInteraction) {
-    interaction.acknowledgeEphemeralDeferredMessageUpdate()
-    val firedButton = interaction.component ?: return
-
-    if (firedButton.url != null)
-        return
-
-    val message = interaction.message!!
-    val menu = menus[message.id] ?: return
-    val simpleButtons = menu.buttons.flatten().filterIsInstance<SimpleButton>()
-
-    val newEmbed = when (val simpleButton = simpleButtons.find { firedButton.customId == it.id }) {
-        is NavButton -> {
-            simpleButton.action.invoke(menu)
-            menu.page
-        }
-        is EditButton -> {
-            val page = menu.page
-            simpleButton.action.invoke(page)
-            menu.updatePage(page)
-            page
-        }
-        else -> return
-    }
-
-    message.edit {
-        embed = newEmbed
-    }
-}
-
+/**
+ * Used internally to represent a button.
+ *
+ * @property label Optional button text
+ * @property emoji Optional button emoji
+ * @property disabled Whether or not the button is disabled.
+ */
 interface DktButton {
     val label: String?
     val emoji: ReactionEmoji?
     var disabled: Boolean
 }
 
-internal interface SimpleButton : DktButton {
+private interface SimpleButton : DktButton {
     override val label: String?
     override val emoji: ReactionEmoji?
     override var disabled: Boolean
@@ -232,7 +244,7 @@ internal interface SimpleButton : DktButton {
     val style: ButtonStyle
 }
 
-internal data class NavButton @OptIn(KordPreview::class) constructor(
+private data class NavButton @OptIn(KordPreview::class) constructor(
     override val label: String?,
     override val emoji: ReactionEmoji?,
     override var disabled: Boolean,
@@ -241,7 +253,7 @@ internal data class NavButton @OptIn(KordPreview::class) constructor(
     val action: Menu.() -> Unit
 ) : SimpleButton
 
-internal data class EditButton @OptIn(KordPreview::class) constructor(
+private data class EditButton @OptIn(KordPreview::class) constructor(
     override val label: String?,
     override val emoji: ReactionEmoji?,
     override var disabled: Boolean,
@@ -250,7 +262,7 @@ internal data class EditButton @OptIn(KordPreview::class) constructor(
     val action: EmbedBuilder.() -> Unit
 ) : SimpleButton
 
-internal data class LinkButton @OptIn(KordPreview::class) constructor(
+private data class LinkButton @OptIn(KordPreview::class) constructor(
     override val label: String?,
     override val emoji: ReactionEmoji?,
     override var disabled: Boolean,

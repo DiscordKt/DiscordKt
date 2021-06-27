@@ -1,13 +1,8 @@
 package me.jakejmattson.discordkt.internal.listeners
 
-import dev.kord.common.annotation.KordPreview
 import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.entity.channel.DmChannel
 import dev.kord.core.entity.channel.TextChannel
-import dev.kord.core.entity.interaction.CommandInteraction
-import dev.kord.core.entity.interaction.ComponentInteraction
-import dev.kord.core.entity.interaction.GuildInteraction
-import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
 import dev.kord.x.emoji.Emojis
@@ -19,32 +14,6 @@ import me.jakejmattson.discordkt.api.extensions.trimToID
 import me.jakejmattson.discordkt.internal.command.stripMentionInvocation
 import me.jakejmattson.discordkt.internal.command.stripPrefixInvocation
 import me.jakejmattson.discordkt.internal.utils.Recommender
-
-@KordPreview
-internal suspend fun registerSlashListener(discord: Discord) =
-discord.kord.on<InteractionCreateEvent> {
-    val interaction = interaction
-
-    if (interaction is ComponentInteraction) {
-        handleButtonPress(interaction)
-        return@on
-    }
-
-    if (interaction !is CommandInteraction)
-        return@on
-
-    val dktCommand = discord.commands[interaction.command.rootName] as? GlobalSlashCommand ?: return@on
-    val args = dktCommand.executions.first().arguments.joinToString(" ") { interaction.command.options[it.name.lowercase()]!!.value.toString() }
-    val rawInputs = RawInputs("/${dktCommand.name} $args", dktCommand.name, prefixCount = 1)
-    val author = kord.getUser(interaction.data.user.value!!.id)!!
-    val guild = (interaction as? GuildInteraction)?.getGuild()
-    val channel = interaction.getChannel()
-    val event = SlashCommandEvent<TypeContainer>(rawInputs, discord, channel.getLastMessage()!!, author, channel, guild)
-
-    if (!arePreconditionsPassing(event)) return@on
-
-    dktCommand.invoke(event, rawInputs.commandArgs)
-}
 
 internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on<MessageCreateEvent> {
     val config = discord.configuration
@@ -100,7 +69,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     command.invoke(event, rawInputs.commandArgs)
 }
 
-suspend fun arePreconditionsPassing(event: CommandEvent<*>): Boolean {
+internal suspend fun arePreconditionsPassing(event: CommandEvent<*>): Boolean {
     event.discord.preconditions
         .sortedBy { it.priority }
         .forEach { precondition ->

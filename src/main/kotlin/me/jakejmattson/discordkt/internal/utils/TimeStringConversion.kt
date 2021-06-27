@@ -4,7 +4,7 @@ import me.jakejmattson.discordkt.api.arguments.ArgumentResult
 import me.jakejmattson.discordkt.api.arguments.Error
 import me.jakejmattson.discordkt.api.arguments.Success
 
-data class TimePair(val quantity: Double, val quantifier: String) {
+private data class TimePair(val quantity: Double, val quantifier: String) {
     val seconds: Double
         get() = quantity * timeStringToSeconds.getValue(quantifier)
 }
