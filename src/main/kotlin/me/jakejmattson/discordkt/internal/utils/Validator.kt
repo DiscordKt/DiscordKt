@@ -6,6 +6,17 @@ import me.jakejmattson.discordkt.api.dsl.GlobalSlashCommand
 
 @PublishedApi
 internal object Validator {
+    fun validateArgumentTypes(commands: MutableList<Command>) {
+        commands.forEach { command ->
+            command.executions.forEach { execution ->
+                execution.arguments.forEach {
+                    if (" " in it.name)
+                        InternalLogger.error("[${command.category}-${command.names.first()}]: ${it.toSimpleString()}(\"${it.name}\") contains a space.")
+                }
+            }
+        }
+    }
+
     fun validateCommands(commands: MutableList<Command>) {
         val duplicates = commands
             .flatMap { it.names }

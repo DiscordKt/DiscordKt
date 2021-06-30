@@ -31,7 +31,7 @@ private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
         color = embedColor?.kColor
 
         discord.commands
-            .filter { discord.configuration.hasPermission(it, this@sendDefaultEmbed) }
+            .filter { discord.configuration.canRun(it, this@sendDefaultEmbed) }
             .groupBy { it.category }
             .toList()
             .sortedBy { (_, commands) -> -commands.size }

@@ -2,6 +2,7 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.jakejmattson.discordkt.api.*
@@ -51,6 +52,7 @@ sealed class Command(open val names: List<String>, open var description: String)
     /**
      * Invoke this command with the given args.
      */
+    @OptIn(DelicateCoroutinesApi::class)
     fun invoke(event: CommandEvent<TypeContainer>, args: List<String>) {
         GlobalScope.launch {
             val success = executions.map { it to convertArguments(event, it.arguments, args) }

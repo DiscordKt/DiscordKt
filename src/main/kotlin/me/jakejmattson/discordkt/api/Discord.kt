@@ -93,6 +93,7 @@ abstract class Discord {
         }
 
         Validator.validateCommands(commands)
+        Validator.validateArgumentTypes(commands)
         commands[locale.helpName] ?: produceHelpCommand(locale.helpCategory).register(this)
 
         if (configuration.generateCommandDocs)

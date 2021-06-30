@@ -59,7 +59,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
 
     if (!arePreconditionsPassing(event)) return@on
 
-    val command = discord.commands[commandName]?.takeUnless { !config.hasPermission(it, event) }
+    val command = discord.commands[commandName]?.takeUnless { !config.canRun(it, event) }
         ?: return@on Recommender.sendRecommendation(event, commandName)
 
     config.commandReaction?.let {

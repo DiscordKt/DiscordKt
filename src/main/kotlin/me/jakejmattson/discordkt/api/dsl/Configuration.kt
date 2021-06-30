@@ -18,11 +18,11 @@ import java.awt.Color
 /**
  * Contains all properties configured when the bot is created.
  *
- * @property allowMentionPrefix Allow mentioning the bot to be used as a prefix '@Bot'.
- * @property showStartupLog Whether or not to display log information when the bot starts.
- * @property generateCommandDocs Whether or not command documentation should be generated.
- * @property recommendCommands Whether or not to recommend the closest command when one fails.
- * @property enableSearch Allow users to search for a command by typing 'search <command name>'.
+ * @property allowMentionPrefix Uses the bot mention (@Bot) as a prefix.
+ * @property showStartupLog Displays log information when the bot starts.
+ * @property generateCommandDocs Generates a markdown file of command info.
+ * @property recommendCommands Recommends the closest command name when an invalid one is attempted.
+ * @property enableSearch Allows searching for a command by typing 'search <command name>'.
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway intents to register manually.
@@ -43,7 +43,7 @@ data class BotConfiguration(
     internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
     private val permissions: suspend (Command, Discord, User, MessageChannel, Guild?) -> Boolean
 ) {
-    internal suspend fun hasPermission(command: Command, event: CommandEvent<*>): Boolean {
+    internal suspend fun canRun(command: Command, event: CommandEvent<*>): Boolean {
         return when {
             command is DmCommand && event.isFromGuild() -> false
             command is GuildCommand && !event.isFromGuild() -> false
@@ -64,11 +64,11 @@ data class BotConfiguration(
 /**
  * Holds all basic configuration options.
  *
- * @property allowMentionPrefix Allow mentioning the bot to be used as a prefix '@Bot'.
- * @property showStartupLog Whether or not to display log information when the bot starts.
- * @property generateCommandDocs Whether or not command documentation should be generated.
- * @property recommendCommands Whether or not to recommend the closest command when one fails.
- * @property enableSearch Allow users to search for a command by typing 'search <command name>'.
+ * @property allowMentionPrefix Uses the bot mention (@Bot) as a prefix.
+ * @property showStartupLog Displays log information when the bot starts.
+ * @property generateCommandDocs Generates a markdown file of command info.
+ * @property recommendCommands Recommends the closest command name when an invalid one is attempted.
+ * @property enableSearch Allows searching for a command by typing 'search <command name>'.
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway intents to register manually.

@@ -3,6 +3,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.internal.utils.simplerName
 
 /**
  * An object that represents a type and contains the logic to convert string arguments to the desired type.
@@ -70,7 +71,7 @@ interface ArgumentType<T> : Cloneable {
     fun formatData(data: T) = data.toString()
 
     /** Determine the simpler name (just the class) and then remove the companion tag */
-    //override fun toString() = this::class.simplerName
+    fun toSimpleString() = this::class.simplerName
 }
 
 /**
