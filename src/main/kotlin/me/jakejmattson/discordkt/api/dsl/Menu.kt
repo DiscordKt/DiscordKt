@@ -3,7 +3,9 @@
 package me.jakejmattson.discordkt.api.dsl
 
 import dev.kord.common.annotation.KordPreview
-import dev.kord.common.entity.*
+import dev.kord.common.entity.ButtonStyle
+import dev.kord.common.entity.DiscordPartialEmoji
+import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.behavior.edit
@@ -34,8 +36,8 @@ class ButtonRowBuilder {
      * @param disabled Whether or not this button is disabled
      */
     @OptIn(KordPreview::class)
-    fun button(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: Menu.() -> Unit) {
-        val button = NavButton(label, emoji?.toReaction(), disabled, style, UUID.randomUUID().toString(), action)
+    fun button(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend Menu.() -> Unit) {
+        val button = SimpleButton(label, emoji?.toReaction(), disabled, UUID.randomUUID().toString(), Nav(action), style)
         buttons.add(button)
     }
 
@@ -49,8 +51,23 @@ class ButtonRowBuilder {
      * @param disabled Whether or not this button is disabled
      */
     @OptIn(KordPreview::class)
-    fun editButton(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: EmbedBuilder.() -> Unit) {
-        val button = EditButton(label, emoji?.toReaction(), disabled, style, UUID.randomUUID().toString(), action)
+    fun editButton(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend EmbedBuilder.() -> Unit) {
+        val button = SimpleButton(label, emoji?.toReaction(), disabled, UUID.randomUUID().toString(), Edit(action), style)
+        buttons.add(button)
+    }
+
+    /**
+     * A Discord button component.
+     * Exposes the button press interaction.
+     *
+     * @param label The Button text
+     * @param emoji The Button [emoji][DiscordEmoji]
+     * @param style The Button [style][ButtonStyle]
+     * @param disabled Whether or not this button is disabled
+     */
+    @OptIn(KordPreview::class)
+    fun actionButton(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend ComponentInteraction.() -> Unit) {
+        val button = SimpleButton(label, emoji?.toReaction(), disabled, UUID.randomUUID().toString(), Action(action), style)
         buttons.add(button)
     }
 
@@ -148,11 +165,6 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
 
     @OptIn(KordPreview::class)
     internal suspend fun send(channel: MessageChannelBehavior): Message? {
-        if (channel.asChannel().type == ChannelType.DM) {
-            InternalLogger.error("Cannot use menus within a private context.")
-            return null
-        }
-
         if (pages.isEmpty()) {
             InternalLogger.error("A menu must have at least one page.")
             return null
@@ -165,7 +177,7 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
                 actionRow {
                     it.forEach { button ->
                         when (button) {
-                            is SimpleButton -> {
+                            is SimpleButton<*> -> {
                                 interactionButton(button.style, button.id) {
                                     this.label = button.label
                                     this.emoji = DiscordPartialEmoji(name = button.emoji?.name)
@@ -198,18 +210,23 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
 
             val message = interaction.message!!
             val menu = menus[message.id] ?: return
-            val simpleButtons = menu.buttons.flatten().filterIsInstance<SimpleButton>()
+            val simpleButtons = menu.buttons.flatten().filterIsInstance<SimpleButton<*>>()
+            val simpleButton = simpleButtons.find { firedButton.customId == it.id } ?: return
 
-            val newEmbed = when (val simpleButton = simpleButtons.find { firedButton.customId == it.id }) {
-                is NavButton -> {
-                    simpleButton.action.invoke(menu)
+            val newEmbed = when (val action = simpleButton.action) {
+                is Nav -> {
+                    action.invoke(menu)
                     menu.page
                 }
-                is EditButton -> {
+                is Edit -> {
                     val page = menu.page
-                    simpleButton.action.invoke(page)
+                    action.invoke(page)
                     menu.updatePage(page)
                     page
+                }
+                is Action -> {
+                    action.invoke(interaction)
+                    menu.page
                 }
                 else -> return
             }
@@ -234,33 +251,29 @@ interface DktButton {
     var disabled: Boolean
 }
 
-private interface SimpleButton : DktButton {
-    override val label: String?
-    override val emoji: ReactionEmoji?
-    override var disabled: Boolean
-    val id: String
+private class SimpleButton<T>(
+    override val label: String?,
+    override val emoji: ReactionEmoji?,
+    override var disabled: Boolean,
+    val id: String,
+    val action: ButtonAction<T>,
 
     @OptIn(KordPreview::class)
     val style: ButtonStyle
+) : DktButton
+
+sealed class ButtonAction<T> {
+    abstract val action: suspend T.() -> Unit
+
+    suspend fun invoke(data: T) {
+        action.invoke(data)
+    }
 }
 
-private data class NavButton @OptIn(KordPreview::class) constructor(
-    override val label: String?,
-    override val emoji: ReactionEmoji?,
-    override var disabled: Boolean,
-    override val style: ButtonStyle,
-    override val id: String,
-    val action: Menu.() -> Unit
-) : SimpleButton
-
-private data class EditButton @OptIn(KordPreview::class) constructor(
-    override val label: String?,
-    override val emoji: ReactionEmoji?,
-    override var disabled: Boolean,
-    override val style: ButtonStyle,
-    override val id: String,
-    val action: EmbedBuilder.() -> Unit
-) : SimpleButton
+@OptIn(KordPreview::class)
+class Action(override val action: suspend ComponentInteraction.() -> Unit) : ButtonAction<ComponentInteraction>()
+class Edit(override val action: suspend EmbedBuilder.() -> Unit) : ButtonAction<EmbedBuilder>()
+class Nav(override val action: suspend Menu.() -> Unit) : ButtonAction<Menu>()
 
 private data class LinkButton @OptIn(KordPreview::class) constructor(
     override val label: String?,
