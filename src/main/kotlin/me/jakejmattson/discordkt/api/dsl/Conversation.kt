@@ -2,18 +2,22 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
+import dev.kord.common.annotation.KordPreview
 import dev.kord.common.entity.Snowflake
-import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.core.behavior.interaction.EphemeralInteractionResponseBehavior
+import dev.kord.core.behavior.interaction.followUpEphemeral
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
+import dev.kord.core.entity.interaction.ComponentInteraction
 import dev.kord.core.event.message.ReactionAddEvent
+import dev.kord.rest.builder.interaction.embed
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.emoji.DiscordEmoji
-import dev.kord.x.emoji.addReaction
 import dev.kord.x.emoji.toReaction
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
@@ -54,6 +58,22 @@ enum class ConversationResult {
  */
 data class PromptedReaction<T>(val emoji: DiscordEmoji, val description: String, val value: T)
 
+class Messenger @OptIn(KordPreview::class) constructor(private val either: Either<MessageChannel, EphemeralInteractionResponseBehavior>) {
+    @OptIn(DelicateCoroutinesApi::class, KordPreview::class)
+    suspend fun createMessage(message: String) =
+        either.map(
+            { it.createMessage(message).id },
+            { it.followUpEphemeral { content = message }; null }
+        )
+
+    @OptIn(DelicateCoroutinesApi::class, KordPreview::class)
+    suspend fun createEmbed(builder: suspend EmbedBuilder.() -> Unit) =
+        either.map(
+            { it.createEmbed { builder.invoke(this) } },
+            { it.followUpEphemeral { embed { builder.invoke(this) } }; null }
+        )
+}
+
 /**
  * This block builds a conversation.
  *
@@ -85,7 +105,8 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
         if (Conversations.hasConversation(user, channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val state = ConversationBuilder(discord, user, channel, exitString)
+        val messenger = Messenger(Left(channel))
+        val state = ConversationBuilder(discord, user, channel, messenger, exitString)
 
         return start(state)
     }
@@ -106,7 +127,23 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
         if (Conversations.hasConversation(user, channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val state = ConversationBuilder(discord, user, channel, exitString)
+        val messenger = Messenger(Left(channel))
+        val state = ConversationBuilder(discord, user, channel, messenger, exitString)
+
+        return start(state)
+    }
+
+    @OptIn(KordPreview::class)
+    suspend inline fun startEphemeral(discord: Discord, interaction: ComponentInteraction): ConversationResult {
+        val user = interaction.user.asUser()
+        val channel = discord.kord.getChannelOf<MessageChannel>(interaction.channelId)!!
+
+        if (Conversations.hasConversation(user, channel))
+            return ConversationResult.HAS_CONVERSATION
+
+        val ephemeralResponse = interaction.acknowledgeEphemeralDeferredMessageUpdate()
+        val messenger = Messenger(Right(ephemeralResponse))
+        val state = ConversationBuilder(discord, user, channel, messenger, exitString)
 
         return start(state)
     }
@@ -148,6 +185,7 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
 data class ConversationBuilder(val discord: Discord,
                                val user: User,
                                override val channel: MessageChannel,
+                               private val messenger: Messenger,
                                private val exitString: String? = null) : Responder {
 
     private val messageBuffer = Channel<Message>()
@@ -191,7 +229,7 @@ data class ConversationBuilder(val discord: Discord,
         var value: T = promptMessage(argumentType, prompt)
 
         while (!isValid.invoke(value)) {
-            channel.createMessage(error).also { botMessageIds.add(it.id) }
+            messenger.createMessage(error).also { it?.let { botMessageIds.add(it) } }
             value = promptMessage(argumentType, prompt)
         }
 
@@ -220,11 +258,13 @@ data class ConversationBuilder(val discord: Discord,
     suspend fun <T> promptEmbed(argumentType: ArgumentType<T>, prompt: suspend EmbedBuilder.() -> Unit): T {
         require(argumentType !is OptionalArg<*>) { "Conversation arguments cannot be optional" }
 
-        val message = channel.createEmbed {
+        val message = messenger.createEmbed {
             prompt.invoke(this)
         }
 
-        botMessageIds.add(message.id)
+        if (message != null) {
+            botMessageIds.add(message.id)
+        }
 
         return retrieveValidTextResponse(argumentType, null)
     }
@@ -237,7 +277,7 @@ data class ConversationBuilder(val discord: Discord,
      */
     @Throws(DmException::class)
     suspend fun <T> promptReaction(vararg reactions: PromptedReaction<T>, prompt: suspend EmbedBuilder.() -> Unit): T {
-        val message = channel.createEmbed {
+        val message = messenger.createEmbed {
             prompt.invoke(this)
 
             field {
@@ -246,17 +286,19 @@ data class ConversationBuilder(val discord: Discord,
             }
         }
 
-        botMessageIds.add(message.id)
+        if (message != null) {
+            botMessageIds.add(message.id)
+        }
 
         reactions.forEach {
-            message.addReaction(it.emoji)
+            message?.addReaction(it.emoji.toReaction())
         }
 
         return retrieveValidReactionResponse(reactions.associate { it.emoji.toReaction() to it.value })
     }
 
     private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<T>, prompt: String?): T = runBlocking {
-        prompt?.let { channel.createMessage(it) }?.also { botMessageIds.add(it.id) }
+        prompt?.let { messenger.createMessage(it) }?.also { botMessageIds.add(it) }
         retrieveTextResponse(argumentType) ?: retrieveValidTextResponse(argumentType, prompt)
     }
 
@@ -318,20 +360,20 @@ object Conversations {
     /**
      * Get a running conversation by its context, if it exists.
      */
-    private fun getConversation(user: User, channel: MessageChannelBehavior) = activeConversations[ConversationLocation(user.id, channel.id)]
+    private fun getConversation(user: User, channel: MessageChannel) = activeConversations[ConversationLocation(user.id, channel.id)]
 
     /**
      * Whether or not a conversation with the given context already exists.
      */
-    fun hasConversation(user: User, channel: MessageChannelBehavior) = getConversation(user, channel) != null
+    fun hasConversation(user: User, channel: MessageChannel) = getConversation(user, channel) != null
 
     internal fun handleMessage(message: Message) {
         runBlocking {
-            getConversation(message.author!!, message.channel)?.acceptMessage(message)
+            getConversation(message.author!!, message.channel.asChannel())?.acceptMessage(message)
         }
     }
 
-    internal fun handleReaction(author: User, channel: MessageChannelBehavior, reaction: ReactionAddEvent) {
+    internal fun handleReaction(author: User, channel: MessageChannel, reaction: ReactionAddEvent) {
         runBlocking {
             getConversation(author, channel)?.acceptReaction(reaction)
         }

@@ -6,8 +6,8 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.locale.inject
 
-internal data class Left<out L>(val data: L) : Either<L, Nothing>()
-internal data class Right<out R>(val data: R) : Either<Nothing, R>()
+data class Left<out L>(val data: L) : Either<L, Nothing>()
+data class Right<out R>(val data: R) : Either<Nothing, R>()
 
 /**
  * Represent 2 possible types in a single object.
@@ -19,7 +19,7 @@ sealed class Either<out L, out R> {
      * @param left The value map if the left element is present.
      * @param right The value map if the right element is present.
      */
-    fun <T> map(left: (L) -> T, right: (R) -> T) =
+    suspend fun <T> map(left: suspend (L) -> T, right: suspend (R) -> T) =
         when (this) {
             is Left -> left.invoke(data)
             is Right -> right.invoke(data)

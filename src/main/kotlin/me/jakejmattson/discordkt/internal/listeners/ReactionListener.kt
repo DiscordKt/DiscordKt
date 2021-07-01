@@ -7,6 +7,7 @@ import me.jakejmattson.discordkt.api.dsl.Conversations
 
 internal fun registerReactionListener(kord: Kord) = kord.on<ReactionAddEvent> {
     val user = getUser().takeUnless { it.isBot } ?: return@on
+    val channel = channel.asChannel()
 
     if (Conversations.hasConversation(user, channel))
         Conversations.handleReaction(user, channel, this)
