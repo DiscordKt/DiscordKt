@@ -4,7 +4,6 @@ package me.jakejmattson.discordkt.api.dsl
 
 import dev.kord.common.annotation.KordPreview
 import dev.kord.common.entity.ButtonStyle
-import dev.kord.common.entity.DiscordPartialEmoji
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.behavior.channel.createMessage
@@ -15,6 +14,7 @@ import dev.kord.core.entity.interaction.ComponentInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
+import me.jakejmattson.discordkt.api.extensions.toPartialEmoji
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
 import java.util.*
 
@@ -80,7 +80,7 @@ class ButtonRowBuilder {
      * @param emoji The Button [emoji][DiscordEmoji]
      * @param disabled Whether or not this button is disabled
      */
-    fun linkButton(url: String, label: String?, emoji: DiscordEmoji?, disabled: Boolean = false) {
+    fun linkButton(label: String?, emoji: DiscordEmoji?, url: String, disabled: Boolean = false) {
         val button = LinkButton(label, emoji?.toReaction(), disabled, url)
         buttons.add(button)
     }
@@ -180,13 +180,13 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
                             is SimpleButton<*> -> {
                                 interactionButton(button.style, button.id) {
                                     this.label = button.label
-                                    this.emoji = DiscordPartialEmoji(name = button.emoji?.name)
+                                    this.emoji = button.emoji?.toPartialEmoji()
                                 }
                             }
                             is LinkButton -> {
                                 linkButton(button.url) {
                                     this.label = button.label
-                                    this.emoji = DiscordPartialEmoji(name = button.emoji?.name)
+                                    this.emoji = button.emoji?.toPartialEmoji()
                                 }
                             }
                         }
