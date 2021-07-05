@@ -24,19 +24,18 @@ repositories {
 }
 
 dependencies {
-    //Internal Dependencies
-    implementation(Dependencies.reflections)
-    implementation(Dependencies.gson)
-    implementation(Dependencies.slf4j)
+    Dependencies.apply {
+        implementation(reflections)
+        implementation(gson)
 
-    //Library Dependencies
-    api(Dependencies.kord)
-    api(Dependencies.emojis)
+        api(kord)
+        api(emojis)
+        api(slf4j)
 
-    //Testing
-    testImplementation(platform("org.junit:junit-bom:5.8.0-M1"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testImplementation("io.mockk:mockk:1.11.0")
+        testImplementation(platform(`junit-platform`))
+        testImplementation(junit)
+        testImplementation(mockk)
+    }
 }
 
 tasks {

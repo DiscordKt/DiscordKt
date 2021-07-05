@@ -9,22 +9,32 @@ object Constants {
 object Versions {
     const val kotlin = "1.5.20"
     const val dokka = "1.4.32"
+
     const val reflections = "0.9.12"
     const val gson = "2.8.7"
-    const val slf4j = "2.0.0-alpha1"
+
     const val kord = "0.7.2"
     const val emojis = "0.5.0"
+    const val slf4j = "2.0.0-alpha2"
+
+    const val junit = "5.8.0-M1"
+    const val mockk = "1.12.0"
 }
 
 object Dependencies {
-    //Internal Dependencies
+    //Internal
     const val reflections = "org.reflections:reflections:${Versions.reflections}"
     const val gson = "com.google.code.gson:gson:${Versions.gson}"
-    const val slf4j = "org.slf4j:slf4j-nop:${Versions.slf4j}"
 
-    //Library Dependencies
+    //Library
     const val kord = "dev.kord:kord-core:${Versions.kord}"
     const val emojis = "dev.kord.x:emoji:${Versions.emojis}"
+    const val slf4j = "org.slf4j:slf4j-simple:${Versions.slf4j}"
+
+    //Testing
+    const val `junit-platform` = "org.junit:junit-bom:${Versions.junit}"
+    const val junit = "org.junit.jupiter:junit-jupiter"
+    const val mockk = "io.mockk:mockk:${Versions.mockk}"
 }
 
 object README {
