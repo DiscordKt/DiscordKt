@@ -87,7 +87,7 @@ class ButtonRowBuilder {
 }
 
 /**
- * Type-safe builder for creating paginated embeds with custom reactions.
+ * Type-safe builder for creating paginated embeds with button components.
  */
 class MenuBuilder {
     private val pages = mutableListOf<EmbedBuilder>()

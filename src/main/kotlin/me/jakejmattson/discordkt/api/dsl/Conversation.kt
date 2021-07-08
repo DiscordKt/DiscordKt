@@ -8,15 +8,11 @@ import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.behavior.interaction.EphemeralInteractionResponseBehavior
 import dev.kord.core.behavior.interaction.followUpEphemeral
 import dev.kord.core.entity.Message
-import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ComponentInteraction
-import dev.kord.core.event.message.ReactionAddEvent
 import dev.kord.rest.builder.interaction.embed
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.x.emoji.DiscordEmoji
-import dev.kord.x.emoji.toReaction
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
@@ -48,15 +44,6 @@ enum class ConversationResult {
     /** The conversation was exited by the user. */
     EXITED
 }
-
-/**
- * A reaction prompted for inside a conversation
- *
- * @property emoji The actual Discord emoji to be reacted with.
- * @property description The String description used in the prompt.
- * @property value The value returned when this emoji is selected.
- */
-data class PromptedReaction<T>(val emoji: DiscordEmoji, val description: String, val value: T)
 
 class Messenger @OptIn(KordPreview::class) constructor(private val either: Either<MessageChannel, EphemeralInteractionResponseBehavior>) {
     @OptIn(DelicateCoroutinesApi::class, KordPreview::class)
@@ -178,9 +165,6 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
 
     @PublishedApi
     internal suspend fun acceptMessage(message: Message) = builder.acceptMessage(message)
-
-    @PublishedApi
-    internal suspend fun acceptReaction(reaction: ReactionAddEvent) = builder.acceptReaction(reaction)
 }
 
 /** @suppress DSL backing
@@ -195,9 +179,7 @@ data class ConversationBuilder(val discord: Discord,
                                override val channel: MessageChannel,
                                private val messenger: Messenger,
                                private val exitString: String? = null) : Responder {
-
     private val messageBuffer = Channel<Message>()
-    private val reactionBuffer = Channel<ReactionAddEvent>()
 
     /**
      * All ID's of messages sent by the bot in this conversation.
@@ -222,7 +204,6 @@ data class ConversationBuilder(val discord: Discord,
         get() = userMessageIds.last()
 
     internal suspend fun acceptMessage(message: Message) = messageBuffer.send(message)
-    internal suspend fun acceptReaction(reaction: ReactionAddEvent) = reactionBuffer.send(reaction)
 
     /**
      * Prompt the user with a String. Re-prompt until the response converts correctly. Then apply a custom predicate as an additional check.
@@ -277,41 +258,9 @@ data class ConversationBuilder(val discord: Discord,
         return retrieveValidTextResponse(argumentType, null)
     }
 
-    /**
-     * Prompt the user with an embed and the provided reactions.
-     *
-     * @param reactions Collection of [PromptedReaction] that will be added to the embed.
-     * @param prompt The embed sent to the user as a prompt for information.
-     */
-    @Throws(DmException::class)
-    suspend fun <T> promptReaction(vararg reactions: PromptedReaction<T>, prompt: suspend EmbedBuilder.() -> Unit): T {
-        val message = messenger.createEmbed {
-            prompt.invoke(this)
-
-            field {
-                name = "Options"
-                value = reactions.joinToString("\n") { "${it.emoji.unicode} - ${it.description}" }
-            }
-        }
-
-        if (message != null) {
-            botMessageIds.add(message.id)
-        }
-
-        reactions.forEach {
-            message?.addReaction(it.emoji.toReaction())
-        }
-
-        return retrieveValidReactionResponse(reactions.associate { it.emoji.toReaction() to it.value })
-    }
-
     private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<T>, prompt: String?): T = runBlocking {
         prompt?.let { messenger.createMessage(it) }?.also { botMessageIds.add(it) }
         retrieveTextResponse(argumentType) ?: retrieveValidTextResponse(argumentType, prompt)
-    }
-
-    private fun <T> retrieveValidReactionResponse(reactions: Map<ReactionEmoji, T>): T = runBlocking {
-        retrieveReactionResponse(reactions) ?: retrieveValidReactionResponse(reactions)
     }
 
     private suspend fun <T> retrieveTextResponse(argumentType: ArgumentType<T>) = select<T?> {
@@ -328,15 +277,6 @@ data class ConversationBuilder(val discord: Discord,
                     null
                 }
             }
-        }
-    }
-
-    private suspend fun <T> retrieveReactionResponse(reactions: Map<ReactionEmoji, T>) = select<T?> {
-        reactionBuffer.onReceive { input ->
-            if (input.messageId != previousBotMessageId)
-                return@onReceive null
-
-            reactions[input.emoji]
         }
     }
 
@@ -378,12 +318,6 @@ object Conversations {
     internal fun handleMessage(message: Message) {
         runBlocking {
             getConversation(message.author!!, message.channel.asChannel())?.acceptMessage(message)
-        }
-    }
-
-    internal fun handleReaction(author: User, channel: MessageChannel, reaction: ReactionAddEvent) {
-        runBlocking {
-            getConversation(author, channel)?.acceptReaction(reaction)
         }
     }
 }
