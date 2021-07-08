@@ -262,7 +262,7 @@ private class SimpleButton<T>(
     val style: ButtonStyle
 ) : DktButton
 
-sealed class ButtonAction<T> {
+private sealed class ButtonAction<T> {
     abstract val action: suspend T.() -> Unit
 
     suspend fun invoke(data: T) {
@@ -271,9 +271,9 @@ sealed class ButtonAction<T> {
 }
 
 @OptIn(KordPreview::class)
-class Action(override val action: suspend ComponentInteraction.() -> Unit) : ButtonAction<ComponentInteraction>()
-class Edit(override val action: suspend EmbedBuilder.() -> Unit) : ButtonAction<EmbedBuilder>()
-class Nav(override val action: suspend Menu.() -> Unit) : ButtonAction<Menu>()
+private class Action(override val action: suspend ComponentInteraction.() -> Unit) : ButtonAction<ComponentInteraction>()
+private class Edit(override val action: suspend EmbedBuilder.() -> Unit) : ButtonAction<EmbedBuilder>()
+private class Nav(override val action: suspend Menu.() -> Unit) : ButtonAction<Menu>()
 
 private data class LinkButton @OptIn(KordPreview::class) constructor(
     override val label: String?,

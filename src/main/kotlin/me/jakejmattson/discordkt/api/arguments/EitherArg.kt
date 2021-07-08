@@ -6,7 +6,18 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.locale.inject
 
+/**
+ * An [Either] type
+ *
+ * @property data The stored value
+ */
 data class Left<out L>(val data: L) : Either<L, Nothing>()
+
+/**
+ * An [Either] type
+ *
+ * @property data The stored value
+ */
 data class Right<out R>(val data: R) : Either<Nothing, R>()
 
 /**

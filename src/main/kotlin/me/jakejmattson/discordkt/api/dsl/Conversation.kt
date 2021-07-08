@@ -133,6 +133,14 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
         return start(state)
     }
 
+    /**
+     * Start a conversation with someone via ephemeral messages.
+     *
+     * @param interaction The [ComponentInteraction] to use as a starting point.
+     *
+     * @return The result of the conversation indicated by an enum.
+     * @sample ConversationResult
+     */
     @OptIn(KordPreview::class)
     suspend inline fun startEphemeral(discord: Discord, interaction: ComponentInteraction): ConversationResult {
         val user = interaction.user.asUser()
