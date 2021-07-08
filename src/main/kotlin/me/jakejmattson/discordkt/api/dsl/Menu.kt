@@ -204,13 +204,13 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
         internal suspend fun handleButtonPress(interaction: ComponentInteraction) {
             val firedButton = interaction.component ?: return
 
-            if (firedButton.url != null)
+            if (firedButton.data.url.value != null)
                 return
 
             val message = interaction.message!!
             val menu = menus[message.id] ?: return
             val simpleButtons = menu.buttons.flatten().filterIsInstance<SimpleButton<*>>()
-            val simpleButton = simpleButtons.find { firedButton.customId == it.id } ?: return
+            val simpleButton = simpleButtons.find { firedButton.data.customId.value == it.id } ?: return
 
             when (val action = simpleButton.action) {
                 is Nav -> {

@@ -73,6 +73,7 @@ class Bot(private val token: String, private val packageName: String) {
 
         val botConfiguration = with(simpleConfiguration) {
             BotConfiguration(
+                packageName = packageName,
                 allowMentionPrefix = allowMentionPrefix,
                 showStartupLog = showStartupLog,
                 generateCommandDocs = generateCommandDocs,
@@ -81,7 +82,7 @@ class Bot(private val token: String, private val packageName: String) {
                 commandReaction = commandReaction,
                 theme = theme,
                 intents = intents.toMutableSet(),
-                packageName = packageName,
+                entitySupplyStrategy = entitySupplyStrategy,
                 prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun,
                 permissions = permissionsFun
@@ -93,6 +94,7 @@ class Bot(private val token: String, private val packageName: String) {
 
         val kord = Kord(token) {
             intents = Intents(botConfiguration.intents)
+            defaultStrategy = botConfiguration.entitySupplyStrategy
         }
 
         internalLocale = locale

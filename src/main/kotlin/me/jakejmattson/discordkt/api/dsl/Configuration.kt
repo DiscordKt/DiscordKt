@@ -7,6 +7,7 @@ import dev.kord.core.entity.Guild
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.event.Event
+import dev.kord.core.supplier.EntitySupplyStrategy
 import dev.kord.gateway.Intent
 import dev.kord.gateway.Intents
 import dev.kord.rest.builder.message.EmbedBuilder
@@ -18,6 +19,7 @@ import java.awt.Color
 /**
  * Contains all properties configured when the bot is created.
  *
+ * @property packageName The detected package name for the bot.
  * @property allowMentionPrefix Uses the bot mention (@Bot) as a prefix.
  * @property showStartupLog Displays log information when the bot starts.
  * @property generateCommandDocs Generates a markdown file of command info.
@@ -26,9 +28,10 @@ import java.awt.Color
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway intents to register manually.
- * @property packageName The detected package name for the bot.
+ * @property entitySupplyStrategy [EntitySupplyStrategy] for use in Kord cache.
  */
 data class BotConfiguration(
+    val packageName: String,
     val allowMentionPrefix: Boolean,
     val showStartupLog: Boolean,
     val generateCommandDocs: Boolean,
@@ -37,7 +40,7 @@ data class BotConfiguration(
     val commandReaction: DiscordEmoji?,
     val theme: Color?,
     val intents: MutableSet<Intent>,
-    val packageName: String,
+    val entitySupplyStrategy: EntitySupplyStrategy<*>,
 
     internal val prefix: suspend (DiscordContext) -> String,
     internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
@@ -72,6 +75,7 @@ data class BotConfiguration(
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway intents to register manually.
+ * @property entitySupplyStrategy [EntitySupplyStrategy] for use in Kord cache.
  */
 data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
                                var showStartupLog: Boolean = true,
@@ -80,7 +84,8 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
                                var enableSearch: Boolean = true,
                                var commandReaction: DiscordEmoji? = Emojis.eyes,
                                var theme: Color? = null,
-                               var intents: Set<Intent> = setOf())
+                               var intents: Set<Intent> = setOf(),
+                               var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback)
 
 /**
  * Holds information used to determine if a command has permission to run.
