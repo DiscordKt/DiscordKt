@@ -344,17 +344,18 @@ data class ConversationBuilder(val discord: Discord,
     }
 
     @OptIn(KordPreview::class)
-    private fun <T> retrieveValidInteractionResponse(interactions: Map<String, T>): T = runBlocking {
-        retrieveInteractionResponse(interactions) ?: retrieveValidInteractionResponse(interactions)
+    private fun <T> retrieveValidInteractionResponse(buttons: Map<String, T>): T = runBlocking {
+        retrieveInteractionResponse(buttons) ?: retrieveValidInteractionResponse(buttons)
     }
 
     @OptIn(KordPreview::class)
-    private suspend fun <T> retrieveInteractionResponse(interactions: Map<String, T>) = select<T?> {
-        interactionBuffer.onReceive { input ->
-            if (input.message?.id != previousBotMessageId)
+    private suspend fun <T> retrieveInteractionResponse(buttons: Map<String, T>) = select<T?> {
+        interactionBuffer.onReceive { interaction ->
+            if (interaction.message?.id != previousBotMessageId)
                 return@onReceive null
 
-            interactions[input.componentId]
+            interaction.acknowledgeEphemeralDeferredMessageUpdate()
+            buttons[interaction.componentId]
         }
     }
 
