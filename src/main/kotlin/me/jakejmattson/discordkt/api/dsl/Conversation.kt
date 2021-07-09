@@ -327,13 +327,13 @@ data class ConversationBuilder(val discord: Discord,
     }
 
     private suspend fun <T> retrieveTextResponse(argumentType: ArgumentType<T>) = select<T?> {
-        messageBuffer.onReceive { input ->
-            userMessageIds.add(input.id)
+        messageBuffer.onReceive { message ->
+            userMessageIds.add(message.id)
 
-            if (input.content == exitString)
+            if (message.content == exitString)
                 throw ExitException()
 
-            when (val result = parseResponse(argumentType, input)) {
+            when (val result = parseResponse(argumentType, message)) {
                 is Success<T> -> result.result
                 is Error<T> -> {
                     respond(result.error)
@@ -350,6 +350,13 @@ data class ConversationBuilder(val discord: Discord,
 
     @OptIn(KordPreview::class)
     private suspend fun <T> retrieveInteractionResponse(buttons: Map<String, T>) = select<T?> {
+        messageBuffer.onReceive { message ->
+            if (message.content == exitString)
+                throw ExitException()
+            else
+                null
+        }
+
         interactionBuffer.onReceive { interaction ->
             if (interaction.message?.id != previousBotMessageId)
                 return@onReceive null
