@@ -23,7 +23,7 @@ private val menus = mutableMapOf<Snowflake, Menu>()
 /**
  * Builder functions for menu buttons.
  */
-class ButtonRowBuilder {
+class MenuButtonRowBuilder {
     internal val buttons = mutableListOf<DktButton>()
 
     /**
@@ -103,10 +103,10 @@ class MenuBuilder {
     }
 
     /**
-     * Create a new row of buttons using the [button][ButtonRowBuilder.editButton] or [linkButton][ButtonRowBuilder.linkButton] builders.
+     * Create a new row of buttons using the [button][MenuButtonRowBuilder.editButton] or [linkButton][MenuButtonRowBuilder.linkButton] builders.
      */
-    fun buttons(rowBuilder: ButtonRowBuilder.() -> Unit) {
-        val builder = ButtonRowBuilder()
+    fun buttons(rowBuilder: MenuButtonRowBuilder.() -> Unit) {
+        val builder = MenuButtonRowBuilder()
         rowBuilder.invoke(builder)
         componentRows.add(builder.buttons)
     }

@@ -16,6 +16,7 @@ internal suspend fun registerInteractionListener(discord: Discord) = discord.kor
 
     if (interaction is ComponentInteraction) {
         Menu.handleButtonPress(interaction)
+        Conversations.handleInteraction(interaction)
         return@on
     }
 

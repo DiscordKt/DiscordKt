@@ -3,24 +3,27 @@
 package me.jakejmattson.discordkt.api.dsl
 
 import dev.kord.common.annotation.KordPreview
+import dev.kord.common.entity.ButtonStyle
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.channel.createEmbed
-import dev.kord.core.behavior.interaction.EphemeralInteractionResponseBehavior
-import dev.kord.core.behavior.interaction.followUpEphemeral
+import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.entity.Message
+import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ComponentInteraction
-import dev.kord.rest.builder.interaction.embed
 import dev.kord.rest.builder.message.EmbedBuilder
-import kotlinx.coroutines.DelicateCoroutinesApi
+import dev.kord.x.emoji.DiscordEmoji
+import dev.kord.x.emoji.toReaction
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.TypeContainer
 import me.jakejmattson.discordkt.api.arguments.*
+import me.jakejmattson.discordkt.api.extensions.toPartialEmoji
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
+import java.util.*
 
 private class ExitException : Exception("Conversation exited early.")
 private class DmException : Exception("Message failed to deliver.")
@@ -45,20 +48,81 @@ enum class ConversationResult {
     EXITED
 }
 
-class Messenger @OptIn(KordPreview::class) constructor(private val either: Either<MessageChannel, EphemeralInteractionResponseBehavior>) {
-    @OptIn(DelicateCoroutinesApi::class, KordPreview::class)
-    suspend fun createMessage(message: String) =
-        either.map(
-            { it.createMessage(message).id },
-            { it.followUpEphemeral { content = message }; null }
-        )
+/**
+ * Builder for a button prompt
+ */
+class ButtonPromptBuilder<T> {
+    private lateinit var promptEmbed: suspend EmbedBuilder.() -> Unit
+    private val buttonRows: MutableList<MutableList<ConversationButton<T>>> = mutableListOf()
 
-    @OptIn(DelicateCoroutinesApi::class, KordPreview::class)
-    suspend fun createEmbed(builder: suspend EmbedBuilder.() -> Unit) =
-        either.map(
-            { it.createEmbed { builder.invoke(this) } },
-            { it.followUpEphemeral { embed { builder.invoke(this) } }; null }
-        )
+    internal val valueMap: Map<String, T>
+        get() = buttonRows.flatten().associate { it.id to it.value }
+
+    /**
+     * Create the embed prompting the user for input.
+     */
+    fun embed(prompt: suspend EmbedBuilder.() -> Unit) {
+        promptEmbed = prompt
+    }
+
+    /**
+     * Create a new row of buttons using the [button][ConversationButtonRowBuilder.button] builder.
+     */
+    fun buttons(rowBuilder: ConversationButtonRowBuilder<T>.() -> Unit) {
+        val builder = ConversationButtonRowBuilder<T>()
+        rowBuilder.invoke(builder)
+        buttonRows.add(builder.buttons)
+    }
+
+    @OptIn(KordPreview::class)
+    internal suspend fun create(channel: MessageChannel) = channel.createMessage {
+        embed {
+            promptEmbed.invoke(this)
+        }
+
+        buttonRows.forEach { buttons ->
+            actionRow {
+                buttons.forEach { button ->
+                    interactionButton(button.style, button.id) {
+                        this.label = button.label
+                        this.emoji = button.emoji?.toPartialEmoji()
+                    }
+                }
+            }
+        }
+    }
+}
+
+internal class ConversationButton<T>(
+    val label: String?,
+    val emoji: ReactionEmoji?,
+    val id: String,
+    val value: T,
+
+    @OptIn(KordPreview::class)
+    val style: ButtonStyle
+)
+
+/**
+ * Builder functions for conversation buttons.
+ */
+class ConversationButtonRowBuilder<T> {
+    internal val buttons = mutableListOf<ConversationButton<T>>()
+
+    /**
+     * A Discord button component.
+     * Exposes the menu for navigation functions.
+     *
+     * @param label The Button text
+     * @param emoji The Button [emoji][DiscordEmoji]
+     * @param value The value returned when this button is pressed
+     * @param style The Button [style][ButtonStyle]
+     */
+    @OptIn(KordPreview::class)
+    fun button(label: String?, emoji: DiscordEmoji?, value: T, style: ButtonStyle = ButtonStyle.Secondary) {
+        val button = ConversationButton(label, emoji?.toReaction(), UUID.randomUUID().toString(), value, style)
+        buttons.add(button)
+    }
 }
 
 /**
@@ -92,8 +156,7 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
         if (Conversations.hasConversation(user, channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val messenger = Messenger(Left(channel))
-        val state = ConversationBuilder(discord, user, channel, messenger, exitString)
+        val state = ConversationBuilder(discord, user, channel, exitString)
 
         return start(state)
     }
@@ -114,31 +177,7 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
         if (Conversations.hasConversation(user, channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val messenger = Messenger(Left(channel))
-        val state = ConversationBuilder(discord, user, channel, messenger, exitString)
-
-        return start(state)
-    }
-
-    /**
-     * Start a conversation with someone via ephemeral messages.
-     *
-     * @param interaction The [ComponentInteraction] to use as a starting point.
-     *
-     * @return The result of the conversation indicated by an enum.
-     * @sample ConversationResult
-     */
-    @OptIn(KordPreview::class)
-    suspend inline fun startEphemeral(discord: Discord, interaction: ComponentInteraction): ConversationResult {
-        val user = interaction.user.asUser()
-        val channel = discord.kord.getChannelOf<MessageChannel>(interaction.channelId)!!
-
-        if (Conversations.hasConversation(user, channel))
-            return ConversationResult.HAS_CONVERSATION
-
-        val ephemeralResponse = interaction.acknowledgeEphemeralDeferredMessageUpdate()
-        val messenger = Messenger(Right(ephemeralResponse))
-        val state = ConversationBuilder(discord, user, channel, messenger, exitString)
+        val state = ConversationBuilder(discord, user, channel, exitString)
 
         return start(state)
     }
@@ -165,6 +204,10 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
 
     @PublishedApi
     internal suspend fun acceptMessage(message: Message) = builder.acceptMessage(message)
+
+    @OptIn(KordPreview::class)
+    @PublishedApi
+    internal suspend fun acceptInteraction(interaction: ComponentInteraction) = builder.acceptInteraction(interaction)
 }
 
 /** @suppress DSL backing
@@ -177,9 +220,11 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
 data class ConversationBuilder(val discord: Discord,
                                val user: User,
                                override val channel: MessageChannel,
-                               private val messenger: Messenger,
                                private val exitString: String? = null) : Responder {
     private val messageBuffer = Channel<Message>()
+
+    @OptIn(KordPreview::class)
+    private val interactionBuffer = Channel<ComponentInteraction>()
 
     /**
      * All ID's of messages sent by the bot in this conversation.
@@ -205,6 +250,9 @@ data class ConversationBuilder(val discord: Discord,
 
     internal suspend fun acceptMessage(message: Message) = messageBuffer.send(message)
 
+    @OptIn(KordPreview::class)
+    internal suspend fun acceptInteraction(interaction: ComponentInteraction) = interactionBuffer.send(interaction)
+
     /**
      * Prompt the user with a String. Re-prompt until the response converts correctly. Then apply a custom predicate as an additional check.
      *
@@ -218,7 +266,7 @@ data class ConversationBuilder(val discord: Discord,
         var value: T = promptMessage(argumentType, prompt)
 
         while (!isValid.invoke(value)) {
-            messenger.createMessage(error).also { it?.let { botMessageIds.add(it) } }
+            channel.createMessage(error).also { it.let { botMessageIds.add(it.id) } }
             value = promptMessage(argumentType, prompt)
         }
 
@@ -247,19 +295,34 @@ data class ConversationBuilder(val discord: Discord,
     suspend fun <T> promptEmbed(argumentType: ArgumentType<T>, prompt: suspend EmbedBuilder.() -> Unit): T {
         require(argumentType !is OptionalArg<*>) { "Conversation arguments cannot be optional" }
 
-        val message = messenger.createEmbed {
+        val message = channel.createEmbed {
             prompt.invoke(this)
         }
 
-        if (message != null) {
-            botMessageIds.add(message.id)
-        }
+        botMessageIds.add(message.id)
 
         return retrieveValidTextResponse(argumentType, null)
     }
 
+    /**
+     * Prompt the user with an embed and the provided buttons.
+     * Requires a call to both [ButtonPromptBuilder.embed] and [ButtonPromptBuilder.buttons].
+     *
+     * @param prompt The [builder][ButtonPromptBuilder]
+     */
+    @Throws(DmException::class)
+    suspend fun <T> promptButton(prompt: suspend ButtonPromptBuilder<T>.() -> Unit): T {
+        val builder = ButtonPromptBuilder<T>()
+        prompt.invoke(builder)
+        val message = builder.create(channel)
+
+        botMessageIds.add(message.id)
+
+        return retrieveValidInteractionResponse(builder.valueMap)
+    }
+
     private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<T>, prompt: String?): T = runBlocking {
-        prompt?.let { messenger.createMessage(it) }?.also { botMessageIds.add(it) }
+        prompt?.let { channel.createMessage(it) }?.also { botMessageIds.add(it.id) }
         retrieveTextResponse(argumentType) ?: retrieveValidTextResponse(argumentType, prompt)
     }
 
@@ -277,6 +340,21 @@ data class ConversationBuilder(val discord: Discord,
                     null
                 }
             }
+        }
+    }
+
+    @OptIn(KordPreview::class)
+    private fun <T> retrieveValidInteractionResponse(interactions: Map<String, T>): T = runBlocking {
+        retrieveInteractionResponse(interactions) ?: retrieveValidInteractionResponse(interactions)
+    }
+
+    @OptIn(KordPreview::class)
+    private suspend fun <T> retrieveInteractionResponse(interactions: Map<String, T>) = select<T?> {
+        interactionBuffer.onReceive { input ->
+            if (input.message?.id != previousBotMessageId)
+                return@onReceive null
+
+            interactions[input.componentId]
         }
     }
 
@@ -318,6 +396,15 @@ object Conversations {
     internal fun handleMessage(message: Message) {
         runBlocking {
             getConversation(message.author!!, message.channel.asChannel())?.acceptMessage(message)
+        }
+    }
+
+    @OptIn(KordPreview::class)
+    internal fun handleInteraction(interaction: ComponentInteraction) {
+        runBlocking {
+            val user = interaction.user.asUser()
+            val channel = interaction.getChannel()
+            getConversation(user, channel)?.acceptInteraction(interaction)
         }
     }
 }
