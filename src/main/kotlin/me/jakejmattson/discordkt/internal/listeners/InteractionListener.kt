@@ -8,6 +8,7 @@ import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.on
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.TypeContainer
+import me.jakejmattson.discordkt.api.conversations.Conversations
 import me.jakejmattson.discordkt.api.dsl.*
 
 @KordPreview
