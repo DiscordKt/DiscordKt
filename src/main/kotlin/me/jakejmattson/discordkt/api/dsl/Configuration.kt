@@ -14,6 +14,7 @@ import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.Emojis
 import me.jakejmattson.discordkt.api.Discord
+import me.jakejmattson.discordkt.internal.annotations.NestedDSL
 import java.awt.Color
 
 /**
@@ -41,17 +42,31 @@ data class BotConfiguration(
     val theme: Color?,
     val intents: MutableSet<Intent>,
     val entitySupplyStrategy: EntitySupplyStrategy<*>,
+    val permissionLevels: List<Enum<*>>,
+    val defaultPermissionLevel: Enum<*>,
 
     internal val prefix: suspend (DiscordContext) -> String,
     internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
-    private val permissions: suspend (Command, Discord, User, MessageChannel, Guild?) -> Boolean
 ) {
     internal suspend fun canRun(command: Command, event: CommandEvent<*>): Boolean {
         return when {
             command is DmCommand && event.isFromGuild() -> false
             command is GuildCommand && !event.isFromGuild() -> false
-            else -> permissions.invoke(command, event.discord, event.author, event.channel, event.guild)
+            else -> hasPermission(PermissionContext(command, event.discord, event.author, event.channel, event.guild))
         }
+    }
+
+    private suspend fun hasPermission(permissionContext: PermissionContext) : Boolean {
+        val level = permissionLevels.indexOfFirst {
+            (it as PermissionSet).hasPermission(permissionContext)
+        }
+
+        if (level == -1)
+            return false
+
+        val requiredLevel = permissionLevels.indexOf(permissionContext.command.requiredPermission)
+
+        return level <= requiredLevel
     }
 
     @PublishedApi
@@ -85,7 +100,21 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
                                var commandReaction: DiscordEmoji? = Emojis.eyes,
                                var theme: Color? = null,
                                var intents: Set<Intent> = setOf(),
-                               var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback)
+                               var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback) {
+    @PublishedApi
+    internal var permissionLevels: List<Enum<*>> = listOf(DefaultPermissions.NONE)
+
+    @PublishedApi
+    internal var defaultRequiredPermission: Enum<*> = DefaultPermissions.NONE
+
+    @NestedDSL
+    inline fun <reified T : Enum<T>> permissions(defaultRequiredPermission: Enum<T>) {
+        this.permissionLevels = enumValues<T>().toList()
+        this.defaultRequiredPermission = defaultRequiredPermission
+
+        println(permissionLevels.map { it.name })
+    }
+}
 
 /**
  * Holds information used to determine if a command has permission to run.
@@ -97,3 +126,13 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
  * @param guild The guild that this command was invoked in.
  */
 data class PermissionContext(val command: Command, val discord: Discord, val user: User, val channel: MessageChannel, val guild: Guild?)
+
+interface PermissionSet {
+    suspend fun hasPermission(context: PermissionContext): Boolean
+}
+
+enum class DefaultPermissions : PermissionSet {
+    NONE {
+        override suspend fun hasPermission(context: PermissionContext) = true
+    }
+}

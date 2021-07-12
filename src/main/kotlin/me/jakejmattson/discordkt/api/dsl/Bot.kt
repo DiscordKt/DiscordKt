@@ -2,9 +2,6 @@ package me.jakejmattson.discordkt.api.dsl
 
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
-import dev.kord.core.entity.Guild
-import dev.kord.core.entity.User
-import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.event.message.ReactionAddEvent
 import dev.kord.gateway.Intents
@@ -49,9 +46,8 @@ fun bot(token: String, configure: suspend Bot.() -> Unit) {
  */
 class Bot(private val token: String, private val packageName: String) {
     private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
-                                        var prefix: suspend DiscordContext.() -> String = { "+" },
+                                        var prefix: suspend DiscordContext.() -> String = { "" },
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
-                                        var permissions: suspend (Command, Discord, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _, _ -> true },
                                         var locale: Locale = Language.EN.locale,
                                         var presence: PresenceBuilder.() -> Unit = {},
                                         var onStart: suspend Discord.() -> Unit = {})
@@ -63,7 +59,6 @@ class Bot(private val token: String, private val packageName: String) {
         val (configureFun,
             prefixFun,
             mentionEmbedFun,
-            permissionsFun,
             locale,
             presenceFun,
             startupFun) = startupBundle
@@ -85,7 +80,8 @@ class Bot(private val token: String, private val packageName: String) {
                 entitySupplyStrategy = entitySupplyStrategy,
                 prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun,
-                permissions = permissionsFun
+                permissionLevels = permissionLevels,
+                defaultPermissionLevel = defaultRequiredPermission
             )
         }
 
@@ -116,6 +112,12 @@ class Bot(private val token: String, private val packageName: String) {
     }
 
     /**
+     * Inject objects into the dependency injection pool.
+     */
+    @ConfigurationDSL
+    fun inject(vararg injectionObjects: Any) = injectionObjects.forEach { diService.inject(it) }
+
+    /**
      * Modify simple configuration options.
      *
      * @sample SimpleConfiguration
@@ -124,12 +126,6 @@ class Bot(private val token: String, private val packageName: String) {
     fun configure(config: suspend SimpleConfiguration.() -> Unit) {
         startupBundle.configure = config
     }
-
-    /**
-     * Inject objects into the dependency injection pool.
-     */
-    @ConfigurationDSL
-    fun inject(vararg injectionObjects: Any) = injectionObjects.forEach { diService.inject(it) }
 
     /**
      * Determine the prefix in a given context.
@@ -145,19 +141,6 @@ class Bot(private val token: String, private val packageName: String) {
     @ConfigurationDSL
     fun mentionEmbed(construct: suspend EmbedBuilder.(DiscordContext) -> Unit) {
         startupBundle.mentionEmbed = construct
-    }
-
-    /**
-     * Determine if the given command has permission to be run in this context.
-     *
-     * @sample PermissionContext
-     */
-    @ConfigurationDSL
-    fun permissions(predicate: suspend PermissionContext.() -> Boolean) {
-        startupBundle.permissions = { command, discord, user, messageChannel, guild ->
-            val context = PermissionContext(command, discord, user, messageChannel, guild)
-            predicate.invoke(context)
-        }
     }
 
     /**

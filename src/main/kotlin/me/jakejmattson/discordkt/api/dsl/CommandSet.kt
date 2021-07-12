@@ -14,7 +14,7 @@ import me.jakejmattson.discordkt.internal.utils.BuilderRegister
  * @param construct The builder function.
  */
 @BuilderDSL
-fun commands(category: String, construct: CommandSetBuilder.() -> Unit) = CommandSet(category, construct)
+fun commands(category: String, requiredPermissionLevel: Enum<*>? = null, construct: CommandSetBuilder.() -> Unit) = CommandSet(category, requiredPermissionLevel, construct)
 
 /**
  * DSL used to build a set of commands.
@@ -22,7 +22,7 @@ fun commands(category: String, construct: CommandSetBuilder.() -> Unit) = Comman
  * @param discord The discord instance.
  * @param category The category these commands will be under.
  */
-data class CommandSetBuilder(val discord: Discord, val category: String) {
+data class CommandSetBuilder(val discord: Discord, val category: String, private val requiredPermission: Enum<*>) {
     private val commands = mutableListOf<Command>()
 
     /**
@@ -30,7 +30,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
      */
     @InnerDSL
     fun command(vararg names: String, body: GlobalCommand.() -> Unit) {
-        val command = GlobalCommand(names.toList(), "").apply {
+        val command = GlobalCommand(names.toList(), "", requiredPermission).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -43,7 +43,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
      */
     @InnerDSL
     fun slash(name: String, body: GlobalSlashCommand.() -> Unit) {
-        val command = GlobalSlashCommand(name, "").apply {
+        val command = GlobalSlashCommand(name, "", requiredPermission).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -56,7 +56,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
      */
     @InnerDSL
     fun guildCommand(vararg names: String, body: GuildCommand.() -> Unit) {
-        val command = GuildCommand(names.toList(), "").apply {
+        val command = GuildCommand(names.toList(), "", requiredPermission).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -69,7 +69,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
      */
     @InnerDSL
     fun dmCommand(vararg names: String, body: DmCommand.() -> Unit) {
-        val command = DmCommand(names.toList(), "").apply {
+        val command = DmCommand(names.toList(), "", requiredPermission).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -85,10 +85,11 @@ data class CommandSetBuilder(val discord: Discord, val category: String) {
 /**
  * This is not for you...
  */
-class CommandSet(private val category: String, private val collector: CommandSetBuilder.() -> Unit) : BuilderRegister {
+class CommandSet(private val category: String, private val requiredPermissionLevel: Enum<*>?, private val collector: CommandSetBuilder.() -> Unit) : BuilderRegister {
     /** @suppress */
     override fun register(discord: Discord) {
-        val commandSetBuilder = CommandSetBuilder(discord, category)
+        val permissionLevel = requiredPermissionLevel ?: discord.configuration.defaultPermissionLevel
+        val commandSetBuilder = CommandSetBuilder(discord, category, permissionLevel)
         collector.invoke(commandSetBuilder)
         commandSetBuilder.registerCommands()
     }

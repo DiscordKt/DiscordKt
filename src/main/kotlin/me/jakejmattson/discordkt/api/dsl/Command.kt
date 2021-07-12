@@ -36,7 +36,7 @@ data class Execution<T : CommandEvent<*>>(val arguments: List<ArgumentType<*>>, 
  * @property category The category that this command belongs to - set automatically by CommandSet.
  * @property executions The list of [Execution] that this command can be run with.
  */
-sealed class Command(open val names: List<String>, open var description: String) {
+sealed class Command(open val names: List<String>, open var description: String, open var requiredPermission: Enum<*>) {
     var category: String = ""
     val executions: MutableList<Execution<*>> = mutableListOf()
 
@@ -78,7 +78,7 @@ sealed class Command(open val names: List<String>, open var description: String)
 /**
  * A command that can be executed from anywhere.
  */
-open class GlobalCommand(override val names: List<String>, override var description: String) : Command(names, description) {
+open class GlobalCommand(override val names: List<String>, override var description: String, override var requiredPermission: Enum<*>) : Command(names, description, requiredPermission) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -107,7 +107,7 @@ open class GlobalCommand(override val names: List<String>, override var descript
 /**
  * A command that can only be executed in a guild.
  */
-open class GuildCommand(override val names: List<String>, override var description: String) : Command(names, description) {
+open class GuildCommand(override val names: List<String>, override var description: String, override var requiredPermission: Enum<*>) : Command(names, description, requiredPermission) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -136,7 +136,7 @@ open class GuildCommand(override val names: List<String>, override var descripti
 /**
  * A command that can only be executed in a DM.
  */
-class DmCommand(override val names: List<String>, override var description: String) : Command(names, description) {
+class DmCommand(override val names: List<String>, override var description: String, override var requiredPermission: Enum<*>) : Command(names, description, requiredPermission) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend DmCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -167,14 +167,14 @@ class DmCommand(override val names: List<String>, override var description: Stri
  *
  * @property name The name of the slash command.
  */
-class GlobalSlashCommand(val name: String, override var description: String) : GlobalCommand(listOf(name), description)
+class GlobalSlashCommand(val name: String, override var description: String, override var requiredPermission: Enum<*>) : GlobalCommand(listOf(name), description, requiredPermission)
 
 /**
  * A command wrapper for a guild discord slash command.
  *
  * @property name The name of the slash command.
  */
-class GuildSlashCommand(val name: String, override var description: String) : GuildCommand(listOf(name), description)
+class GuildSlashCommand(val name: String, override var description: String, override var requiredPermission: Enum<*>) : GuildCommand(listOf(name), description, requiredPermission)
 
 /**
  * Get a command by its name (case insensitive).
