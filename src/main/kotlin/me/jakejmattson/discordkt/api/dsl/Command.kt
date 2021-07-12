@@ -50,6 +50,29 @@ sealed class Command(open val names: List<String>, open var description: String,
     suspend fun canParse(event: CommandEvent<*>, execution: Execution<*>, args: List<String>) = convertArguments(event, execution.arguments, args) is ParseResult.Success
 
     /**
+     * Whether or not this command has permission to run with the given event.
+     *
+     * @param event The event context that will attempt to run the command.
+     */
+    suspend fun hasPermissionToRun(event: CommandEvent<*>) = when {
+        this is DmCommand && event.isFromGuild() -> false
+        this is GuildCommand && !event.isFromGuild() -> false
+        else -> {
+            val config = event.discord.configuration
+            val permissionLevels = config.permissionLevels
+            val permissionContext = PermissionContext(this, event.discord, event.author, event.channel, event.guild)
+
+            val level = permissionLevels
+                .indexOfFirst { (it as PermissionSet).hasPermission(permissionContext) }
+                .takeUnless { it == -1 }
+                ?: throw IllegalArgumentException("This is impossible, but you did it. Congrats.")
+
+            val requiredLevel = permissionLevels.indexOf(permissionContext.command.requiredPermission)
+            level <= requiredLevel
+        }
+    }
+
+    /**
      * Invoke this command with the given args.
      */
     @OptIn(DelicateCoroutinesApi::class)

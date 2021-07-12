@@ -9,8 +9,8 @@ import dev.kord.x.emoji.Emojis
 import dev.kord.x.emoji.addReaction
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.TypeContainer
-import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.conversations.Conversations
+import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.trimToID
 import me.jakejmattson.discordkt.internal.command.stripMentionInvocation
 import me.jakejmattson.discordkt.internal.command.stripPrefixInvocation
@@ -60,7 +60,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
 
     if (!arePreconditionsPassing(event)) return@on
 
-    val command = discord.commands[commandName]?.takeUnless { !config.canRun(it, event) }
+    val command = discord.commands[commandName]?.takeUnless { it.hasPermissionToRun(event) }
         ?: return@on Recommender.sendRecommendation(event, commandName)
 
     config.commandReaction?.let {

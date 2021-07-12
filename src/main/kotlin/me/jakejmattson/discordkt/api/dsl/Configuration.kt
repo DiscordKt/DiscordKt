@@ -48,27 +48,6 @@ data class BotConfiguration(
     internal val prefix: suspend (DiscordContext) -> String,
     internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
 ) {
-    internal suspend fun canRun(command: Command, event: CommandEvent<*>): Boolean {
-        return when {
-            command is DmCommand && event.isFromGuild() -> false
-            command is GuildCommand && !event.isFromGuild() -> false
-            else -> hasPermission(PermissionContext(command, event.discord, event.author, event.channel, event.guild))
-        }
-    }
-
-    private suspend fun hasPermission(permissionContext: PermissionContext) : Boolean {
-        val level = permissionLevels.indexOfFirst {
-            (it as PermissionSet).hasPermission(permissionContext)
-        }
-
-        if (level == -1)
-            return false
-
-        val requiredLevel = permissionLevels.indexOf(permissionContext.command.requiredPermission)
-
-        return level <= requiredLevel
-    }
-
     @PublishedApi
     internal inline fun <reified T : Event> enableEvent() {
         intents.addAll(
