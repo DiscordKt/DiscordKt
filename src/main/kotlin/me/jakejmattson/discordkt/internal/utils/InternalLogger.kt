@@ -1,13 +1,19 @@
 package me.jakejmattson.discordkt.internal.utils
 
-internal class InternalLogger {
-    companion object {
-        fun log(message: String) {
-            println(message)
-        }
+import kotlin.system.exitProcess
 
-        fun error(message: String) {
-            System.err.println(message)
-        }
+@PublishedApi
+internal object InternalLogger {
+    fun log(message: String) {
+        println(message)
+    }
+
+    fun error(message: String) {
+        System.err.println(message)
+    }
+
+    fun fatalError(message: String) {
+        System.err.println("[FATAL] $message")
+        exitProcess(-1)
     }
 }

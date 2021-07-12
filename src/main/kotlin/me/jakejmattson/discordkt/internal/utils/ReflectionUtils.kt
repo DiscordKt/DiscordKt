@@ -29,7 +29,7 @@ internal object ReflectionUtils {
 }
 
 internal val Class<*>.simplerName
-    get() = simpleName.substringAfterLast('.').substringBefore('$')
+    get() = toString().substringAfterLast('.').substringBefore('$')
 
 internal val KClass<*>.simplerName
     get() = java.simplerName

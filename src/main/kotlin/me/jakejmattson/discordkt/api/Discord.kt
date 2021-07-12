@@ -19,7 +19,6 @@ import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
 import me.jakejmattson.discordkt.internal.listeners.registerInteractionListener
 import me.jakejmattson.discordkt.internal.utils.*
 import kotlin.reflect.KClass
-import kotlin.system.exitProcess
 
 /**
  * @param library The current DiscordKt version.
@@ -92,7 +91,8 @@ abstract class Discord {
         }
 
         Validator.validateCommands(commands)
-        Validator.validateArgumentTypes(commands)
+        Validator.validateArguments(commands)
+        Validator.validatePermissions(commands, this)
         commands[locale.helpName] ?: produceHelpCommand(locale.helpCategory).register(this)
 
         if (configuration.generateCommandDocs)
@@ -145,10 +145,8 @@ abstract class Discord {
                 if (!file.exists()) {
                     writeToFile()
 
-                    if (killIfGenerated) {
-                        InternalLogger.error("Please fill in the following file before re-running: ${file.absolutePath}")
-                        exitProcess(-1)
-                    }
+                    if (killIfGenerated)
+                        InternalLogger.fatalError("Please fill in the following file before re-running: ${file.absolutePath}")
 
                     this
                 } else

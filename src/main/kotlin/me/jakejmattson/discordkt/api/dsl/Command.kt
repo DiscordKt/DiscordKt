@@ -61,14 +61,12 @@ sealed class Command(open val names: List<String>, open var description: String,
             val config = event.discord.configuration
             val permissionLevels = config.permissionLevels
             val permissionContext = PermissionContext(this, event.discord, event.author, event.channel, event.guild)
+            val level = permissionLevels.indexOfFirst { (it as PermissionSet).hasPermission(permissionContext) }
 
-            val level = permissionLevels
-                .indexOfFirst { (it as PermissionSet).hasPermission(permissionContext) }
-                .takeUnless { it == -1 }
-                ?: throw IllegalArgumentException("This is impossible, but you did it. Congrats.")
-
-            val requiredLevel = permissionLevels.indexOf(permissionContext.command.requiredPermission)
-            level <= requiredLevel
+            if (level != -1)
+                level <= permissionLevels.indexOf(permissionContext.command.requiredPermission)
+            else
+                false
         }
     }
 

@@ -5,7 +5,6 @@ import me.jakejmattson.discordkt.internal.utils.signature
 import me.jakejmattson.discordkt.internal.utils.simplerName
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
-import kotlin.system.exitProcess
 
 internal data class FailureBundle(val clazz: Class<*>, val parameters: List<Class<*>>)
 
@@ -48,7 +47,7 @@ internal class InjectionService {
             .map { (clazz, constructor) -> FailureBundle(clazz, constructor.parameterTypes.toList()) }
 
         if (failed.size == last)
-            InternalLogger.error(generateBadInjectionReport(sortedFailures)).also { exitProcess(-1) }
+            InternalLogger.fatalError(generateBadInjectionReport(sortedFailures))
 
         buildAllRecursively(failed, failed.size)
     }

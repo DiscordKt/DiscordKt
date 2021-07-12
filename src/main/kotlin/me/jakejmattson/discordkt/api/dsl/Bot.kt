@@ -81,7 +81,7 @@ class Bot(private val token: String, private val packageName: String) {
                 prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun,
                 permissionLevels = permissionLevels,
-                defaultPermissionLevel = defaultRequiredPermission
+                defaultRequiredPermission = defaultRequiredPermission
             )
         }
 

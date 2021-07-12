@@ -43,7 +43,7 @@ data class BotConfiguration(
     val intents: MutableSet<Intent>,
     val entitySupplyStrategy: EntitySupplyStrategy<*>,
     val permissionLevels: List<Enum<*>>,
-    val defaultPermissionLevel: Enum<*>,
+    val defaultRequiredPermission: Enum<*>,
 
     internal val prefix: suspend (DiscordContext) -> String,
     internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
