@@ -35,6 +35,7 @@ data class Execution<T : CommandEvent<*>>(val arguments: List<ArgumentType<*>>, 
  * @property description A brief description of the command - used in documentation.
  * @property category The category that this command belongs to - set automatically by CommandSet.
  * @property executions The list of [Execution] that this command can be run with.
+ * @property requiredPermission The permission level required to use this command.
  */
 sealed class Command(open val names: List<String>, open var description: String, open var requiredPermission: Enum<*>) {
     var category: String = ""

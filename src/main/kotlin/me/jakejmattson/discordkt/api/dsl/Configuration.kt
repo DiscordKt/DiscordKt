@@ -30,6 +30,8 @@ import java.awt.Color
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway intents to register manually.
  * @property entitySupplyStrategy [EntitySupplyStrategy] for use in Kord cache.
+ * @property permissionLevels A list of all permission levels available.
+ * @property defaultRequiredPermission The default level of permission required to use a command.
  */
 data class BotConfiguration(
     val packageName: String,
@@ -81,17 +83,21 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
                                var intents: Set<Intent> = setOf(),
                                var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback) {
     @PublishedApi
-    internal var permissionLevels: List<Enum<*>> = listOf(DefaultPermissions.NONE)
+    internal var permissionLevels: List<Enum<*>> = listOf(DefaultPermissions.EVERYONE)
 
     @PublishedApi
-    internal var defaultRequiredPermission: Enum<*> = DefaultPermissions.NONE
+    internal var defaultRequiredPermission: Enum<*> = DefaultPermissions.EVERYONE
 
+    /**
+     * Configure permissions for this bot with an enum that inherits from [PermissionSet].
+     * @sample DefaultPermissions
+     *
+     * @param defaultRequiredPermission The default permission that all commands should require.
+     */
     @NestedDSL
     inline fun <reified T : Enum<T>> permissions(defaultRequiredPermission: Enum<T>) {
         this.permissionLevels = enumValues<T>().toList()
         this.defaultRequiredPermission = defaultRequiredPermission
-
-        println(permissionLevels.map { it.name })
     }
 }
 
@@ -99,19 +105,27 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
  * Holds information used to determine if a command has permission to run.
  *
  * @param command The command invoked that needs to check for permission.
- * @param discord The discord instance.
+ * @param discord The [Discord] instance.
  * @param user The discord user who invoked the command.
  * @param channel The channel that this command was invoked in.
  * @param guild The guild that this command was invoked in.
  */
 data class PermissionContext(val command: Command, val discord: Discord, val user: User, val channel: MessageChannel, val guild: Guild?)
 
+/**
+ * The interface that all permission enums must inherit from.
+ */
 interface PermissionSet {
+    /**
+     * Whether or not an enum value can be applied to a given situation.
+     *
+     * @param context The event data used to determine value.
+     */
     suspend fun hasPermission(context: PermissionContext): Boolean
 }
 
-enum class DefaultPermissions : PermissionSet {
-    NONE {
+private enum class DefaultPermissions : PermissionSet {
+    EVERYONE {
         override suspend fun hasPermission(context: PermissionContext) = true
     }
 }
