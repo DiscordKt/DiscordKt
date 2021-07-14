@@ -59,13 +59,13 @@ sealed class Command(open val names: List<String>, open var description: String,
         this is DmCommand && event.isFromGuild() -> false
         this is GuildCommand && !event.isFromGuild() -> false
         else -> {
-            val config = event.discord.configuration
-            val permissionLevels = config.permissionLevels
-            val permissionContext = PermissionContext(this, event.discord, event.author, event.channel, event.guild)
+            val config = event.discord.permissions
+            val permissionLevels = config.levels
+            val permissionContext = PermissionContext(event.discord, event.author, event.guild)
             val level = permissionLevels.indexOfFirst { (it as PermissionSet).hasPermission(permissionContext) }
 
             if (level != -1)
-                level <= permissionLevels.indexOf(permissionContext.command.requiredPermission)
+                level <= permissionLevels.indexOf(requiredPermission)
             else
                 false
         }

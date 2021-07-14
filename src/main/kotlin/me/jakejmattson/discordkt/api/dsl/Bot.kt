@@ -65,6 +65,7 @@ class Bot(private val token: String, private val packageName: String) {
 
         val simpleConfiguration = SimpleConfiguration()
         configureFun.invoke(simpleConfiguration)
+        val permissionBundle = PermissionBundle(simpleConfiguration.permissionLevels, simpleConfiguration.commandDefault)
 
         val botConfiguration = with(simpleConfiguration) {
             BotConfiguration(
@@ -79,9 +80,7 @@ class Bot(private val token: String, private val packageName: String) {
                 intents = intents.toMutableSet(),
                 entitySupplyStrategy = entitySupplyStrategy,
                 prefix = prefixFun,
-                mentionEmbed = mentionEmbedFun,
-                permissionLevels = permissionLevels,
-                defaultRequiredPermission = defaultRequiredPermission
+                mentionEmbed = mentionEmbedFun
             )
         }
 
@@ -99,6 +98,7 @@ class Bot(private val token: String, private val packageName: String) {
             override val kord = kord
             override val configuration = botConfiguration
             override val locale = locale
+            override val permissions = permissionBundle
             override val commands = mutableListOf<Command>()
             override val preconditions = mutableListOf<Precondition>()
         }

@@ -88,7 +88,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String, private
 class CommandSet(private val category: String, private val requiredPermissionLevel: Enum<*>?, private val collector: CommandSetBuilder.() -> Unit) : BuilderRegister {
     /** @suppress */
     override fun register(discord: Discord) {
-        val permissionLevel = requiredPermissionLevel ?: discord.configuration.defaultRequiredPermission
+        val permissionLevel = requiredPermissionLevel ?: discord.permissions.commandDefault
         val commandSetBuilder = CommandSetBuilder(discord, category, permissionLevel)
         collector.invoke(commandSetBuilder)
         commandSetBuilder.registerCommands()

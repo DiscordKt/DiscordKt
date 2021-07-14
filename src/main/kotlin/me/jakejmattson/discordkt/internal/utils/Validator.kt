@@ -61,8 +61,8 @@ internal object Validator {
     }
 
     fun validatePermissions(commands: List<Command>, discord: Discord) {
-        val defaultRequiredPermission = discord.configuration.defaultRequiredPermission
-        val validPermissions = discord.configuration.permissionLevels
+        val defaultRequiredPermission = discord.permissions.commandDefault
+        val validPermissions = discord.permissions.levels
 
         if(defaultRequiredPermission !is PermissionSet)
             InternalLogger.fatalError("Permissions enum must extend ${PermissionSet::class.qualifiedName}")

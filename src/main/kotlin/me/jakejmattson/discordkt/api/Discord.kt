@@ -32,6 +32,7 @@ data class Versions(val library: String, val kotlin: String, val kord: String)
  * @property kord A Kord instance used to access the Discord API.
  * @property configuration All of the current configuration details for this bot.
  * @property locale Locale (language and customizations).
+ * @property permissions Permission values and helper functions.
  * @property commands All registered commands.
  * @property versions Properties for the core library.
  */
@@ -39,6 +40,7 @@ abstract class Discord {
     abstract val kord: Kord
     abstract val configuration: BotConfiguration
     abstract val locale: Locale
+    abstract val permissions: PermissionBundle
     abstract val commands: MutableList<Command>
     internal abstract val preconditions: MutableList<Precondition>
     val versions = Json.decodeFromString<Versions>(javaClass.getResource("/library-properties.json").readText())
