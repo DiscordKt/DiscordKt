@@ -64,7 +64,7 @@ internal object Validator {
         val defaultRequiredPermission = discord.permissions.commandDefault
         val validPermissions = discord.permissions.levels
 
-        if(defaultRequiredPermission !is PermissionSet)
+        if (defaultRequiredPermission !is PermissionSet)
             InternalLogger.fatalError("Permissions enum must extend ${PermissionSet::class.qualifiedName}")
 
         commands.forEach { command ->
