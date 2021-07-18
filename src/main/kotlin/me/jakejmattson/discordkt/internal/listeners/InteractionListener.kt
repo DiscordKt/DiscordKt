@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.internal.listeners
 
 import dev.kord.common.annotation.KordPreview
+import dev.kord.core.entity.Message
 import dev.kord.core.entity.interaction.CommandInteraction
 import dev.kord.core.entity.interaction.ComponentInteraction
 import dev.kord.core.entity.interaction.GuildInteraction
@@ -24,13 +25,13 @@ internal suspend fun registerInteractionListener(discord: Discord) = discord.kor
     if (interaction !is CommandInteraction)
         return@on
 
-    val dktCommand = discord.commands[interaction.command.rootName] as? GlobalSlashCommand ?: return@on
+    val dktCommand = discord.commandOfType<GuildSlashCommand>(interaction.command.rootName) ?: discord.commandOfType<GlobalSlashCommand>(interaction.command.rootName) ?: return@on
     val args = dktCommand.executions.first().arguments.joinToString(" ") { interaction.command.options[it.name.lowercase()]!!.value.toString() }
     val rawInputs = RawInputs("/${dktCommand.name} $args", dktCommand.name, prefixCount = 1)
-    val author = kord.getUser(interaction.data.user.value!!.id)!!
+    val author = interaction.user.asUser()
     val guild = (interaction as? GuildInteraction)?.getGuild()
     val channel = interaction.getChannel()
-    val event = SlashCommandEvent<TypeContainer>(rawInputs, discord, channel.getLastMessage()!!, author, channel, guild)
+    val event = SlashCommandEvent<TypeContainer>(rawInputs, discord, Message(interaction.data.message.value!!, kord), author, channel, guild)
 
     if (!arePreconditionsPassing(event)) return@on
 

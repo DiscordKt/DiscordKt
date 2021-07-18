@@ -42,7 +42,20 @@ data class CommandSetBuilder(val discord: Discord, val category: String, private
      * Create a slash command.
      */
     @InnerDSL
-    fun slash(name: String, body: GlobalSlashCommand.() -> Unit) {
+    fun slash(name: String, body: GuildSlashCommand.() -> Unit) {
+        val command = GuildSlashCommand(name, "", requiredPermission).apply {
+            this.category = this@CommandSetBuilder.category
+        }
+
+        command.body()
+        commands.add(command)
+    }
+
+    /**
+     * Create a slash command.
+     */
+    @InnerDSL
+    fun globalSlash(name: String, body: GlobalSlashCommand.() -> Unit) {
         val command = GlobalSlashCommand(name, "", requiredPermission).apply {
             this.category = this@CommandSetBuilder.category
         }

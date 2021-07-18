@@ -6,7 +6,9 @@ import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
 import dev.kord.core.behavior.createApplicationCommand
 import dev.kord.rest.builder.interaction.ApplicationCommandCreateBuilder
-import kotlinx.coroutines.flow.onEach
+import dev.kord.rest.request.KtorRequestException
+import dev.kord.x.emoji.Emojis
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -92,6 +94,8 @@ abstract class Discord {
             InternalLogger.log("-".repeat(header.length))
         }
 
+        registerSlashCommands()
+
         Validator.validateCommands(commands)
         Validator.validateArguments(commands)
         Validator.validatePermissions(commands, this)
@@ -113,13 +117,15 @@ abstract class Discord {
     private suspend fun registerSlashCommands() {
         fun ApplicationCommandCreateBuilder.unpack(command: Command) {
             command.executions.first().arguments.forEach { arg ->
+                val argName = arg.name.lowercase()
+
                 when (arg) {
-                    is IntegerArg -> int(arg.name, arg.description)
-                    is BooleanArg -> boolean(arg.name, arg.description)
-                    is UserArg -> user(arg.name, arg.description)
-                    is RoleArg -> role(arg.name, arg.description)
-                    is ChannelArg<*> -> channel(arg.name, arg.description)
-                    else -> string(arg.name, arg.description)
+                    is IntegerArg -> int(argName, arg.description)
+                    is BooleanArg -> boolean(argName, arg.description)
+                    is UserArg -> user(argName, arg.description)
+                    is RoleArg -> role(argName, arg.description)
+                    is ChannelArg<*> -> channel(argName, arg.description)
+                    else -> string(argName, arg.description)
                 }
             }
         }
@@ -131,9 +137,14 @@ abstract class Discord {
         }
 
         commands.filterIsInstance<GuildSlashCommand>().forEach { slashCommand ->
-            kord.guilds.onEach { guild ->
-                guild.createApplicationCommand(slashCommand.name, slashCommand.description.ifBlank { "<No Description>" }) {
-                    unpack(slashCommand)
+            kord.guilds.toList().forEach { guild ->
+                try {
+                    guild.createApplicationCommand(slashCommand.name.lowercase(), slashCommand.description.ifBlank { "<No Description>" }) {
+                        unpack(slashCommand)
+                    }
+                }
+                catch (e: KtorRequestException) {
+                    InternalLogger.error("${Emojis.x.unicode} ${slashCommand.name}: ${guild.name} - ${e.message}")
                 }
             }
         }
@@ -157,4 +168,6 @@ abstract class Discord {
 
             diService.inject(data)
         }.size
+
+    inline fun <reified T : Command> commandOfType(name: String) = commands.filterIsInstance<T>().firstOrNull { cmd -> cmd.names.any { it.equals(name, true) } }
 }

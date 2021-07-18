@@ -33,11 +33,17 @@ data class Execution<T : CommandEvent<*>>(val arguments: List<ArgumentType<*>>, 
 /**
  * @property names The name(s) this command can be executed by (case insensitive).
  * @property description A brief description of the command - used in documentation.
+ * @property requiredPermission The permission level required to use this command.
  * @property category The category that this command belongs to - set automatically by CommandSet.
  * @property executions The list of [Execution] that this command can be run with.
- * @property requiredPermission The permission level required to use this command.
  */
 sealed class Command(open val names: List<String>, open var description: String, open var requiredPermission: Enum<*>) {
+    /**
+     * The first name in the [names] list.
+     */
+    open val name: String
+        get() = names.first()
+
     var category: String = ""
     val executions: MutableList<Execution<*>> = mutableListOf()
 
@@ -189,14 +195,62 @@ class DmCommand(override val names: List<String>, override var description: Stri
  *
  * @property name The name of the slash command.
  */
-class GlobalSlashCommand(val name: String, override var description: String, override var requiredPermission: Enum<*>) : GlobalCommand(listOf(name), description, requiredPermission)
+class GlobalSlashCommand(override val name: String, override var description: String, override var requiredPermission: Enum<*>) : Command(listOf(name), description, requiredPermission) {
+    /** @suppress */
+    @NestedDSL
+    fun execute(execute: suspend SlashCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A> execute(a: ArgumentType<A>, execute: suspend SlashCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend SlashCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend SlashCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend SlashCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend SlashCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
+}
 
 /**
  * A command wrapper for a guild discord slash command.
  *
  * @property name The name of the slash command.
  */
-class GuildSlashCommand(val name: String, override var description: String, override var requiredPermission: Enum<*>) : GuildCommand(listOf(name), description, requiredPermission)
+class GuildSlashCommand(override val name: String, override var description: String, override var requiredPermission: Enum<*>) : Command(listOf(name), description, requiredPermission) {
+    /** @suppress */
+    @NestedDSL
+    fun execute(execute: suspend SlashCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A> execute(a: ArgumentType<A>, execute: suspend SlashCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend SlashCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend SlashCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend SlashCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend SlashCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
+}
 
 /**
  * Get a command by its name (case insensitive).
