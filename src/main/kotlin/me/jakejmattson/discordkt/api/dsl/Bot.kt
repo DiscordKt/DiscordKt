@@ -21,11 +21,12 @@ internal lateinit var internalLocale: Locale
 
 /**
  * Create an instance of your Discord bot! You can use the following blocks to modify bot configuration:
- * [configure][Bot.configure],
  * [prefix][Bot.prefix],
+ * [configure][Bot.configure],
  * [mentionEmbed][Bot.mentionEmbed],
- * [permissions][Bot.permissions],
- * [presence][Bot.presence]
+ * [presence][Bot.presence],
+ * [localeOf][Bot.localeOf],
+ * [onStart][Bot.onStart]
  *
  * @param token Your Discord bot token.
  */
@@ -164,7 +165,7 @@ class Bot(private val token: String, private val packageName: String) {
     }
 
     /**
-     * When setup is complete, execute these tasks.
+     * When setup is complete, execute this block.
      */
     @ConfigurationDSL
     fun onStart(start: suspend Discord.() -> Unit) {

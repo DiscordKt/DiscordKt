@@ -13,6 +13,9 @@ import me.jakejmattson.discordkt.api.Discord
  * @param guild The guild that this command was invoked in.
  */
 data class PermissionContext(val discord: Discord, val user: User, val guild: Guild?) {
+    /**
+     * Attempt to get the member in this context.
+     */
     suspend fun getMember() = guild?.id?.let { user.asMember(it) }
 }
 

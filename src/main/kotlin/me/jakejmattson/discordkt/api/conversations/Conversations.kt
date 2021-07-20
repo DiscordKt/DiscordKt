@@ -45,9 +45,7 @@ object Conversations {
     @OptIn(KordPreview::class)
     internal fun handleInteraction(interaction: ComponentInteraction) {
         runBlocking {
-            val user = interaction.kord.getUser(interaction.data.user.value!!.id)!! //TODO interaction.user.asUser() after Kord fix
-            val channel = interaction.getChannel()
-            getConversation(user, channel)?.acceptInteraction(interaction)
+            getConversation(interaction.user, interaction.getChannel())?.acceptInteraction(interaction)
         }
     }
 }

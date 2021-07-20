@@ -169,5 +169,8 @@ abstract class Discord {
             diService.inject(data)
         }.size
 
+    /**
+     * Get a [Command] of a given type by name.
+     */
     inline fun <reified T : Command> commandOfType(name: String) = commands.filterIsInstance<T>().firstOrNull { cmd -> cmd.names.any { it.equals(name, true) } }
 }
