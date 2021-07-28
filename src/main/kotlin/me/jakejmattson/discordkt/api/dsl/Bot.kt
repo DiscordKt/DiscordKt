@@ -78,7 +78,7 @@ class Bot(private val token: String, private val packageName: String) {
                 enableSearch = enableSearch,
                 commandReaction = commandReaction,
                 theme = theme,
-                intents = intents.toMutableSet(),
+                intents = intents.values.toMutableSet(),
                 entitySupplyStrategy = entitySupplyStrategy,
                 prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun

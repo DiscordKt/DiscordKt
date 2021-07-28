@@ -62,7 +62,7 @@ data class BotConfiguration(
  * @property enableSearch Allows searching for a command by typing 'search <command name>'.
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
- * @property intents Additional gateway intents to register manually.
+ * @property intents Additional gateway [Intents] to register manually.
  * @property entitySupplyStrategy [EntitySupplyStrategy] for use in Kord cache.
  */
 data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
@@ -72,7 +72,7 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
                                var enableSearch: Boolean = true,
                                var commandReaction: DiscordEmoji? = Emojis.eyes,
                                var theme: Color? = null,
-                               var intents: Set<Intent> = setOf(),
+                               var intents: Intents = Intents.none,
                                var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback) {
     @PublishedApi
     internal var permissionLevels: List<Enum<*>> = listOf(DefaultPermissions.EVERYONE)
