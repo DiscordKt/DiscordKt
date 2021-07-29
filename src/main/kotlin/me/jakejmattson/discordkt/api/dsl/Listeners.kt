@@ -28,8 +28,6 @@ data class ListenerBuilder(val discord: Discord) {
      */
     @InnerDSL
     inline fun <reified T : Event> on(crossinline listener: suspend T.() -> Unit) {
-        discord.configuration.enableEvent<T>()
-
         discord.kord.on<T> {
             listener(this)
         }

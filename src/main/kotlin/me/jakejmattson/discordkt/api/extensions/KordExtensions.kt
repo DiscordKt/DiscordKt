@@ -6,7 +6,9 @@ import dev.kord.common.annotation.KordPreview
 import dev.kord.common.entity.ButtonStyle
 import dev.kord.common.entity.DiscordPartialEmoji
 import dev.kord.common.entity.Snowflake
+import dev.kord.core.enableEvent
 import dev.kord.core.entity.ReactionEmoji
+import dev.kord.core.event.Event
 import dev.kord.gateway.Intent
 import dev.kord.gateway.Intents
 import dev.kord.rest.builder.component.ActionRowBuilder
@@ -34,6 +36,11 @@ fun String.toSnowflakeOrNull() = trimToID().toLongOrNull()?.let { Snowflake(it) 
  * Combine two [Intent] into a set.
  */
 operator fun Intent.plus(intent: Intent) = Intents(this, intent)
+
+/**
+ * Convert an [Event] to its [Intents].
+ */
+inline fun <reified T : Event> intentsOf() = Intents { enableEvent<T>() }
 
 /**
  * Convert a [DiscordEmoji] to a [DiscordPartialEmoji].

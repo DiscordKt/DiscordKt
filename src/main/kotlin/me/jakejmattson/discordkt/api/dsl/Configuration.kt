@@ -2,10 +2,7 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
-import dev.kord.core.enableEvent
-import dev.kord.core.event.Event
 import dev.kord.core.supplier.EntitySupplyStrategy
-import dev.kord.gateway.Intent
 import dev.kord.gateway.Intents
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.emoji.DiscordEmoji
@@ -24,7 +21,7 @@ import java.awt.Color
  * @property enableSearch Allows searching for a command by typing 'search <command name>'.
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
- * @property intents Additional gateway intents to register manually.
+ * @property intents Additional gateway [Intents] to register manually.
  * @property entitySupplyStrategy [EntitySupplyStrategy] for use in Kord cache.
  */
 data class BotConfiguration(
@@ -36,21 +33,12 @@ data class BotConfiguration(
     val enableSearch: Boolean,
     val commandReaction: DiscordEmoji?,
     val theme: Color?,
-    val intents: MutableSet<Intent>,
+    val intents: Intents,
     val entitySupplyStrategy: EntitySupplyStrategy<*>,
 
     internal val prefix: suspend (DiscordContext) -> String,
     internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
-) {
-    @PublishedApi
-    internal inline fun <reified T : Event> enableEvent() {
-        intents.addAll(
-            Intents {
-                this.enableEvent<T>()
-            }.values
-        )
-    }
-}
+)
 
 /**
  * Holds all basic configuration options.

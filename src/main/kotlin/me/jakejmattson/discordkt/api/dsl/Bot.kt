@@ -9,6 +9,7 @@ import dev.kord.gateway.builder.PresenceBuilder
 import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.Discord
+import me.jakejmattson.discordkt.api.extensions.intentsOf
 import me.jakejmattson.discordkt.api.locale.Language
 import me.jakejmattson.discordkt.api.locale.Locale
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
@@ -78,15 +79,12 @@ class Bot(private val token: String, private val packageName: String) {
                 enableSearch = enableSearch,
                 commandReaction = commandReaction,
                 theme = theme,
-                intents = intents.values.toMutableSet(),
+                intents = intents + intentsOf<MessageCreateEvent>() + intentsOf<InteractionCreateEvent>(),
                 entitySupplyStrategy = entitySupplyStrategy,
                 prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun
             )
         }
-
-        botConfiguration.enableEvent<MessageCreateEvent>()
-        botConfiguration.enableEvent<InteractionCreateEvent>()
 
         val kord = Kord(token) {
             intents = Intents(botConfiguration.intents)
