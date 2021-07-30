@@ -4,7 +4,6 @@ import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
-import dev.kord.gateway.Intents
 import dev.kord.gateway.builder.PresenceBuilder
 import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.runBlocking
@@ -87,7 +86,7 @@ class Bot(private val token: String, private val packageName: String) {
         }
 
         val kord = Kord(token) {
-            intents = Intents(botConfiguration.intents)
+            intents = botConfiguration.intents
             defaultStrategy = botConfiguration.entitySupplyStrategy
         }
 
