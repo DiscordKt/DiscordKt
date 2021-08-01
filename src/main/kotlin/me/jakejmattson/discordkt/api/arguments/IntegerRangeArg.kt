@@ -7,9 +7,10 @@ import me.jakejmattson.discordkt.api.locale.inject
 /**
  * Accepts an integer within a pre-defined range.
  */
-open class IntegerRangeArg(private val min: Int, private val max: Int, override val name: String = "Integer ($min-$max)") : ArgumentType<Int> {
-    override val description = internalLocale.integerRangeArgDescription.inject(min.toString(), max.toString())
-
+open class IntegerRangeArg(private val min: Int,
+                           private val max: Int,
+                           override val name: String = "Integer ($min-$max)",
+                           override val description: String = internalLocale.integerRangeArgDescription.inject(min.toString(), max.toString())) : ArgumentType<Int> {
     init {
         require(max > min) { "Maximum value must be greater than minimum value." }
     }

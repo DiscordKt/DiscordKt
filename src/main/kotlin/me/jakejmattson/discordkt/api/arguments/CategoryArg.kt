@@ -15,13 +15,14 @@ import me.jakejmattson.discordkt.internal.utils.resolveEntityByName
  * @param guildId The guild ID used to determine which guild to search in.
  * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
  */
-open class CategoryArg(override val name: String = "Category", private val guildId: Snowflake? = null, private val allowsGlobal: Boolean = false) : ArgumentType<Category> {
+open class CategoryArg(override val name: String = "Category",
+                       override val description: String = internalLocale.categoryArgDescription,
+                       private val guildId: Snowflake? = null,
+                       private val allowsGlobal: Boolean = false) : ArgumentType<Category> {
     /**
      * Accepts a Discord Category entity as an ID, a mention, or by name from within this guild.
      */
     companion object : CategoryArg()
-
-    override val description = internalLocale.categoryArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Category> {
         val guild = guildId?.let { event.discord.kord.getGuild(it) } ?: event.guild

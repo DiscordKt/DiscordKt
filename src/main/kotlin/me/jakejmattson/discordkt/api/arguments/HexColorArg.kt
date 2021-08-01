@@ -7,13 +7,12 @@ import java.awt.Color
 /**
  * Accepts a color in hexadecimal format. The '#' symbol is optional.
  */
-open class HexColorArg(override val name: String = "Hex Color") : ArgumentType<Color> {
+open class HexColorArg(override val name: String = "Hex Color",
+                       override val description: String = internalLocale.hexColorArgDescription) : ArgumentType<Color> {
     /**
      * Accepts a color in hexadecimal format. The '#' symbol is optional.
      */
     companion object : HexColorArg()
-
-    override val description = internalLocale.hexColorArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Color> {
         if (arg.length !in 6..7) return Error(internalLocale.invalidFormat)

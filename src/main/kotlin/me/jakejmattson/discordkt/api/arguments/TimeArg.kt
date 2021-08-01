@@ -7,13 +7,12 @@ import me.jakejmattson.discordkt.internal.utils.convertTimeString
 /**
  * Accepts a group of time elements and returns the number of seconds as a double.
  */
-open class TimeArg(override val name: String = "Time") : ArgumentType<Double> {
+open class TimeArg(override val name: String = "Time",
+                   override val description: String = internalLocale.timeArgDescription) : ArgumentType<Double> {
     /**
      * Accepts a group of time elements and returns the number of seconds as a double.
      */
     companion object : TimeArg()
-
-    override val description = internalLocale.timeArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) = convertTimeString(args)
 

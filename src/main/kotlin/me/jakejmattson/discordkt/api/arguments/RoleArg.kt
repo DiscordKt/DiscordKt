@@ -14,13 +14,14 @@ import me.jakejmattson.discordkt.internal.utils.resolveEntityByName
  * @param guildId The guild ID used to determine which guild to search in.
  * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
  */
-open class RoleArg(override val name: String = "Role", private val guildId: Snowflake? = null, private val allowsGlobal: Boolean = false) : ArgumentType<Role> {
+open class RoleArg(override val name: String = "Role",
+                   override val description: String = internalLocale.roleArgDescription,
+                   private val guildId: Snowflake? = null,
+                   private val allowsGlobal: Boolean = false) : ArgumentType<Role> {
     /**
      * Accepts a Discord Role entity as an ID, a mention, or by name from within this guild.
      */
     companion object : RoleArg()
-
-    override val description = internalLocale.roleArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Role> {
         val guild = guildId?.let { event.discord.kord.getGuild(it) } ?: event.guild

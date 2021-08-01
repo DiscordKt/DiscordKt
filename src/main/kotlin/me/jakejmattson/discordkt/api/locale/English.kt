@@ -37,7 +37,7 @@ data class LocaleEN(
     override var memberArgDescription: String = "A Discord member",
     override var messageArgDescription: String = "A Discord message",
     override var multipleArgDescription: String = "Any number of {0}",
-    override var optionalArgDescription: String = "An optional {0}",
+    override var optionalArgDescription: String = "[optional] {0}",
     override var quoteArgDescription: String = "Text between quotations",
     override var roleArgDescription: String = "A Discord role",
     override var splitterArgDescription: String = "Items split by {0}",

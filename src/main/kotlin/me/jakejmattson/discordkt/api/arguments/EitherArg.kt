@@ -43,9 +43,9 @@ sealed class Either<out L, out R> {
  * @param left The first [ArgumentType] to attempt to convert the data to.
  * @param right The second [ArgumentType] to attempt to convert the data to.
  */
-class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, name: String = "") : ArgumentType<Either<L, R>> {
+class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, name: String = "", description: String = "") : ArgumentType<Either<L, R>> {
     override val name = name.ifBlank { "${left.name} | ${right.name}" }
-    override val description = internalLocale.eitherArgDescription.inject(left.name, right.name)
+    override val description = description.ifBlank { internalLocale.eitherArgDescription.inject(left.name, right.name) }
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Either<L, R>> {
         val leftResult = left.convert(arg, args, event)

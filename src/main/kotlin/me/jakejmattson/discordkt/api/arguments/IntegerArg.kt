@@ -6,13 +6,12 @@ import me.jakejmattson.discordkt.api.dsl.internalLocale
 /**
  * Accept a whole number in the int range.
  */
-open class IntegerArg(override val name: String = "Integer") : ArgumentType<Int> {
+open class IntegerArg(override val name: String = "Integer",
+                      override val description: String = internalLocale.integerArgDescription) : ArgumentType<Int> {
     /**
      * Accept a whole number in the int range.
      */
     companion object : IntegerArg()
-
-    override val description = internalLocale.integerArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toIntOrNull()) {

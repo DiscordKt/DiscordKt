@@ -7,13 +7,12 @@ import me.jakejmattson.discordkt.api.dsl.internalLocale
 /**
  * Accepts a file as a message attachment.
  */
-open class AttachmentArg(override val name: String = "File") : ArgumentType<Attachment> {
+open class AttachmentArg(override val name: String = "Attachment",
+                         override val description: String = internalLocale.attachmentArgDescription) : ArgumentType<Attachment> {
     /**
      * Accepts a file as a message attachment.
      */
     companion object : AttachmentArg()
-
-    override val description = internalLocale.attachmentArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Attachment> {
         val attachments = event.message.attachments

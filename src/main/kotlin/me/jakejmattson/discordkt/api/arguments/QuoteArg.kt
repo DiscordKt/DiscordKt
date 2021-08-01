@@ -6,13 +6,12 @@ import me.jakejmattson.discordkt.api.dsl.internalLocale
 /**
  * Accepts a group of arguments surrounded by quotation marks.
  */
-open class QuoteArg(override val name: String = "Quote") : ArgumentType<String> {
+open class QuoteArg(override val name: String = "Quote",
+                    override val description: String = internalLocale.quoteArgDescription) : ArgumentType<String> {
     /**
      * Accepts a group of arguments surrounded by quotation marks.
      */
     companion object : QuoteArg()
-
-    override val description = internalLocale.quoteArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         val quotationMark = '"'

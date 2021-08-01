@@ -8,13 +8,12 @@ import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 /**
  * Accepts a Discord User entity as an ID or mention.
  */
-open class UserArg(override val name: String = "User") : ArgumentType<User> {
+open class UserArg(override val name: String = "User",
+                   override val description: String = internalLocale.userArgDescription) : ArgumentType<User> {
     /**
      * Accepts a Discord User entity as an ID or mention. Does not allow bots.
      */
     companion object : UserArg()
-
-    override val description = internalLocale.userArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<User> {
         val user = arg.toSnowflakeOrNull()?.let { event.discord.kord.getUser(it) }

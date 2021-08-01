@@ -9,10 +9,11 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
  *
  * @param choices The available choices. Can be any type, but associated by toString value.
  */
-open class ChoiceArg<T>(override val name: String, vararg choices: T) : ArgumentType<T> {
+open class ChoiceArg<T>(override val name: String,
+                        override val description: String = internalLocale.choiceArgDescription,
+                        vararg choices: T) : ArgumentType<T> {
     private val enumerations = choices.associateBy { it.toString().lowercase() }
     private val options = enumerations.keys
-    override val description = internalLocale.choiceArgDescription
 
     init {
         if (choices.size != options.size)

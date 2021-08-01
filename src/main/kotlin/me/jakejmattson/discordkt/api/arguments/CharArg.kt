@@ -6,13 +6,12 @@ import me.jakejmattson.discordkt.api.dsl.internalLocale
 /**
  * Accepts a single character.
  */
-open class CharArg(override val name: String = "Character") : ArgumentType<Char> {
+open class CharArg(override val name: String = "Character",
+                   override val description: String = internalLocale.charArgDescription) : ArgumentType<Char> {
     /**
      * Accepts a single character.
      */
     companion object : CharArg()
-
-    override val description = internalLocale.charArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Char> {
         return if (arg.length == 1)

@@ -9,13 +9,12 @@ import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 /**
  * Accepts a Discord Guild entity as an ID.
  */
-open class GuildArg(override val name: String = "Guild") : ArgumentType<Guild> {
+open class GuildArg(override val name: String = "Guild",
+                    override val description: String = internalLocale.guildArgDescription) : ArgumentType<Guild> {
     /**
      * Accepts a Discord Guild entity as an ID.
      */
     companion object : GuildArg()
-
-    override val description = internalLocale.guildArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Guild> {
         val guild = event.discord.kord.guilds.firstOrNull { it.id == arg.toSnowflakeOrNull() }

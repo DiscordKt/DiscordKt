@@ -7,13 +7,12 @@ import kotlin.random.Random
 /**
  * Accept a decimal number in the double range.
  */
-open class DoubleArg(override val name: String = "Double") : ArgumentType<Double> {
+open class DoubleArg(override val name: String = "Double",
+                     override val description: String = internalLocale.doubleArgDescription) : ArgumentType<Double> {
     /**
      * Accept a decimal number in the double range.
      */
     companion object : DoubleArg()
-
-    override val description = internalLocale.doubleArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) =
         when (val result = arg.toDoubleOrNull()) {

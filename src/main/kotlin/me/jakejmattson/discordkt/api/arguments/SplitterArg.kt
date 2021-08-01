@@ -9,13 +9,13 @@ import me.jakejmattson.discordkt.api.locale.inject
  *
  * @param splitter The character used to split the input.
  */
-open class SplitterArg(override val name: String = "TextWithSplitter", private val splitter: String = "|") : ArgumentType<List<String>> {
+open class SplitterArg(private val splitter: String = "|",
+                       override val name: String = "TextWithSplitter",
+                       override val description: String = internalLocale.splitterArgDescription.inject(splitter)) : ArgumentType<List<String>> {
     /**
-     * Consumes all arguments and returns a list of the results (split by '|' character).
+     * Consumes all arguments and returns a list of the results (split by splitter character).
      */
     companion object : SplitterArg()
-
-    override val description = internalLocale.splitterArgDescription.inject(splitter)
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<String>> {
         val joined = args.joinToString(" ")

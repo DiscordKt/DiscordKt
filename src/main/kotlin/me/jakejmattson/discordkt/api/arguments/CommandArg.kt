@@ -5,13 +5,12 @@ import me.jakejmattson.discordkt.api.dsl.*
 /**
  * Accepts a DiscordKt command by name.
  */
-open class CommandArg(override val name: String = "Command") : ArgumentType<Command> {
+open class CommandArg(override val name: String = "Command",
+                      override val description: String = internalLocale.commandArgDescription) : ArgumentType<Command> {
     /**
      * Accepts a DiscordKt command by name.
      */
     companion object : CommandArg()
-
-    override val description = internalLocale.commandArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Command> {
         val command = event.discord.commands[arg] ?: return Error(internalLocale.notFound)

@@ -12,13 +12,13 @@ import me.jakejmattson.discordkt.api.extensions.trimToID
  *
  * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
  */
-open class GuildEmojiArg(override val name: String = "Guild Emoji", private val allowsGlobal: Boolean = false) : ArgumentType<GuildEmoji> {
+open class GuildEmojiArg(override val name: String = "Guild Emoji",
+                         override val description: String = internalLocale.guildEmojiArgDescription,
+                         private val allowsGlobal: Boolean = false) : ArgumentType<GuildEmoji> {
     /**
      * Accepts a guild emote from within this guild.
      */
     companion object : GuildEmojiArg()
-
-    override val description = internalLocale.guildEmojiArgDescription
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<GuildEmoji> {
         val trimmed = arg.trimToID()

@@ -7,8 +7,9 @@ import me.jakejmattson.discordkt.api.locale.inject
 /**
  * An optional argument with a default value.
  */
-class OptionalArg<G>(override val name: String, private val type: ArgumentType<*>, private val default: suspend CommandEvent<*>.() -> G) : ArgumentType<G> {
-
+class OptionalArg<G>(override val name: String,
+                     private val type: ArgumentType<*>,
+                     private val default: suspend CommandEvent<*>.() -> G) : ArgumentType<G> {
     override val description = internalLocale.optionalArgDescription.inject(type.name)
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<G> {
