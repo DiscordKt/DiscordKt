@@ -61,14 +61,14 @@ class PermissionBundle(val levels: List<Enum<*>>, val commandDefault: Enum<*>) {
      *
      * @return true if the first context provided has a higher level than the second.
      */
-    suspend fun isHigherLevel(context1: PermissionContext, context2: PermissionContext) = compare(context1, context2) > 0
+    suspend fun isHigherLevel(context1: PermissionContext, context2: PermissionContext) = compare(context1, context2) < 0
 
     /**
      * Compare two [PermissionContext] by their permission level.
      *
      * @return true if the first context provided has a lower level than the second.
      */
-    suspend fun isLowerLevel(context1: PermissionContext, context2: PermissionContext) = compare(context1, context2) < 0
+    suspend fun isLowerLevel(context1: PermissionContext, context2: PermissionContext) = compare(context1, context2) > 0
 
     /**
      * Compare two [PermissionContext] by their permission level.
