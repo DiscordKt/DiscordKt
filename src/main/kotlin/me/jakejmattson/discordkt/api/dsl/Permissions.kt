@@ -24,7 +24,7 @@ data class PermissionContext(val discord: Discord, val user: User, val guild: Gu
  */
 interface PermissionSet {
     /**
-     * Whether or not an enum value can be applied to a given situation.
+     * Whether an enum value can be applied to a given situation.
      *
      * @param context The event data used to determine value.
      */
@@ -55,6 +55,12 @@ class PermissionBundle(val levels: List<Enum<*>>, val commandDefault: Enum<*>) {
      */
     suspend fun compare(context1: PermissionContext, context2: PermissionContext) =
         getPermissionLevel(context1).compareTo(getPermissionLevel(context2))
+
+    /**
+     * Check if a [Member] has the given permission level or higher.
+     */
+    suspend fun hasPermission(discord: Discord, member: Member, permission: Enum<*>) =
+        getPermissionLevel(PermissionContext(discord, member, member.getGuild())) <= permission.ordinal
 
     /**
      * Compare two [PermissionContext] by their permission level.
