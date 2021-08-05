@@ -51,7 +51,7 @@ internal suspend fun convertArguments(event: CommandEvent<*>, expected: List<Arg
     val error = formatDataMap(conversionData) +
         if (!hasFatalError && remainingArgs.isNotEmpty()) {
             hasFatalError = true
-            "\n\nRemaining Args: " + remainingArgs.joinToString(" ")
+            "\n\nUnused: " + remainingArgs.joinToString(" ")
         } else ""
 
     if (hasFatalError)

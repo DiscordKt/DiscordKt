@@ -4,7 +4,6 @@ import dev.kord.common.kColor
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.arguments.AnyArg
 import me.jakejmattson.discordkt.api.arguments.ArgumentType
-import me.jakejmattson.discordkt.api.arguments.OptionalArg
 import me.jakejmattson.discordkt.api.dsl.*
 import java.awt.Color
 
@@ -60,7 +59,7 @@ private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String,
         val commandInvocation = "${event.prefix()}$input"
 
         val helpBundle = this@sendHelpEmbed.executions.map {
-            """$commandInvocation ${it.generateStructure()}
+            """$commandInvocation ${it.structure}
                 ${
                 it.arguments.joinToString("\n") { arg ->
                     """- ${arg.name}: ${arg.description} (${arg.generateExample(event)})
@@ -80,8 +79,3 @@ private fun ArgumentType<*>.generateExample(event: CommandEvent<*>) =
         .takeIf { it.isNotEmpty() }
         ?.random()
         ?: "<Example>"
-
-private fun Execution<*>.generateStructure() = arguments.joinToString(" ") {
-    val type = it.name
-    if (it is OptionalArg) "[$type]" else type
-}

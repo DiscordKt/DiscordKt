@@ -7,6 +7,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.arguments.ArgumentType
+import me.jakejmattson.discordkt.api.arguments.OptionalArg
 import me.jakejmattson.discordkt.api.locale.inject
 import me.jakejmattson.discordkt.internal.annotations.NestedDSL
 import me.jakejmattson.discordkt.internal.command.ParseResult
@@ -17,12 +18,22 @@ import me.jakejmattson.discordkt.internal.command.convertArguments
  *
  * @param arguments The ArgumentTypes accepted by this execution.
  * @param action The code to be run when this execution is fired.
- *
- * @property signature Mocks a method signature using ArgumentType names, i.e. (a, b, c)
  */
 data class Execution<T : CommandEvent<*>>(val arguments: List<ArgumentType<*>>, val action: suspend T.() -> Unit) {
+    /**
+     * Mocks a method signature using [ArgumentType] names, ex: (a, b, c)
+     */
     val signature
         get() = "(${arguments.joinToString { it.name }})"
+
+    /**
+     * Each [ArgumentType] separated by a space ex: a b c
+     */
+    val structure
+        get() = arguments.joinToString(" ") {
+            val type = it.name
+            if (it is OptionalArg) "[$type]" else type
+        }
 
     /**
      * Run the command logic.
@@ -83,11 +94,20 @@ sealed class Command(open val names: List<String>, open var description: String,
     @OptIn(DelicateCoroutinesApi::class)
     fun invoke(event: CommandEvent<TypeContainer>, args: List<String>) {
         GlobalScope.launch {
-            val success = executions.map { it to convertArguments(event, it.arguments, args) }
-                .firstOrNull { it.second is ParseResult.Success }
+            val results = executions.map { it to convertArguments(event, it.arguments, args) }
+            val success = results.firstOrNull { it.second is ParseResult.Success }
 
             if (success == null) {
-                event.respond(internalLocale.badArgs.inject(event.rawInputs.commandName))
+                val failString = results.joinToString("\n") {
+                    val invocationExample =
+                        if (results.size > 1)
+                            "${event.rawInputs.rawMessageContent.substringBefore(" ")} ${it.first.structure}\n"
+                        else ""
+
+                    invocationExample + (it.second as ParseResult.Fail).reason
+                }
+
+                event.respond(internalLocale.badArgs.inject(event.rawInputs.commandName) + "\n$failString")
                 return@launch
             }
 
