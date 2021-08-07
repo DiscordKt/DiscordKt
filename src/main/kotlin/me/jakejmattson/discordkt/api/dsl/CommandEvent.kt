@@ -63,7 +63,7 @@ open class DiscordContext(val discord: Discord,
 open class CommandEvent<T : TypeContainer>(
     open val rawInputs: RawInputs,
     open val discord: Discord,
-    open val message: Message,
+    open val message: Message?,
     open val author: User,
     override val channel: MessageChannel,
     open val guild: Guild?) : Responder {
@@ -81,12 +81,12 @@ open class CommandEvent<T : TypeContainer>(
     /**
      * Determine the relevant prefix in the current context.
      */
-    suspend fun prefix() = discord.configuration.prefix.invoke(DiscordContext(discord, message, guild, author, channel))
+    suspend fun prefix() = message?.let { discord.configuration.prefix.invoke(DiscordContext(discord, it, guild, author, channel)) } ?: "/"
 
     /**
      * Add a reaction to the command invocation message.
      */
-    suspend fun reactWith(emoji: DiscordEmoji) = message.addReaction(emoji)
+    suspend fun reactWith(emoji: DiscordEmoji) = message?.addReaction(emoji)
 
     /**
      * Clone this event's context data with new inputs.
@@ -126,7 +126,7 @@ data class SlashCommandEvent<T : TypeContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     @Deprecated("A slash command cannot access its message.", level = DeprecationLevel.ERROR)
-    override val message: Message,
+    override val message: Message?,
     override val author: User,
     override val channel: MessageChannel,
     override val guild: Guild? = null) : CommandEvent<T>(rawInputs, discord, message, author, channel, null)

@@ -15,7 +15,7 @@ open class AttachmentArg(override val name: String = "Attachment",
     companion object : AttachmentArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Attachment> {
-        val attachments = event.message.attachments
+        val attachments = event.message!!.attachments
 
         if (attachments.isEmpty())
             return Error("No attachments")
