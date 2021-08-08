@@ -17,6 +17,8 @@ import me.jakejmattson.discordkt.api.arguments.*
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
 import me.jakejmattson.discordkt.api.dsl.RawInputs
 import me.jakejmattson.discordkt.api.dsl.Responder
+import java.util.*
+import kotlin.concurrent.schedule
 
 /** @suppress DSL backing
  *
@@ -28,11 +30,14 @@ import me.jakejmattson.discordkt.api.dsl.Responder
 data class ConversationBuilder(val discord: Discord,
                                val user: User,
                                override val channel: MessageChannel,
-                               private val exitString: String? = null) : Responder {
+                               private val exitString: String? = null,
+                               private val timeout: Long) : Responder {
     private val messageBuffer = Channel<Message>()
 
     @OptIn(KordPreview::class)
     private val interactionBuffer = Channel<ComponentInteraction>()
+
+    private val exceptionBuffer = Channel<TimeoutException>()
 
     /**
      * All ID's of messages sent by the bot in this conversation.
@@ -87,7 +92,7 @@ data class ConversationBuilder(val discord: Discord,
      * @param argumentType The [ArgumentType] that the prompt expects in response.
      * @param prompt The string message sent to the user as a prompt for information.
      */
-    @Throws(DmException::class)
+    @Throws(DmException::class, TimeoutException::class)
     fun <T> promptMessage(argumentType: ArgumentType<T>, prompt: String): T {
         require(argumentType !is OptionalArg<*>) { "Conversation arguments cannot be optional" }
         return retrieveValidTextResponse(argumentType, prompt)
@@ -99,7 +104,7 @@ data class ConversationBuilder(val discord: Discord,
      * @param argumentType The [ArgumentType] that the prompt expects in response.
      * @param prompt The embed sent to the user as a prompt for information.
      */
-    @Throws(DmException::class)
+    @Throws(DmException::class, TimeoutException::class)
     suspend fun <T> promptEmbed(argumentType: ArgumentType<T>, prompt: suspend EmbedBuilder.() -> Unit): T {
         require(argumentType !is OptionalArg<*>) { "Conversation arguments cannot be optional" }
 
@@ -118,7 +123,7 @@ data class ConversationBuilder(val discord: Discord,
      *
      * @param prompt The [builder][ButtonPromptBuilder]
      */
-    @Throws(DmException::class)
+    @Throws(DmException::class, TimeoutException::class)
     suspend fun <T> promptButton(prompt: suspend ButtonPromptBuilder<T>.() -> Unit): T {
         val builder = ButtonPromptBuilder<T>()
         prompt.invoke(builder)
@@ -135,11 +140,19 @@ data class ConversationBuilder(val discord: Discord,
     }
 
     private suspend fun <T> retrieveTextResponse(argumentType: ArgumentType<T>) = select<T?> {
+        val timer = createTimer()
+
+        exceptionBuffer.onReceive { timeoutException ->
+            throw timeoutException
+        }
+
         messageBuffer.onReceive { message ->
             userMessageIds.add(message.id)
 
             if (message.content == exitString)
                 throw ExitException()
+
+            timer?.cancel()
 
             when (val result = parseResponse(argumentType, message)) {
                 is Success<T> -> result.result
@@ -158,9 +171,17 @@ data class ConversationBuilder(val discord: Discord,
 
     @OptIn(KordPreview::class)
     private suspend fun <T> retrieveInteractionResponse(buttons: Map<String, T>) = select<T?> {
+        val timer = createTimer()
+
+        exceptionBuffer.onReceive { timeoutException ->
+            throw timeoutException
+        }
+
         messageBuffer.onReceive { message ->
-            if (message.content == exitString)
+            if (message.content == exitString) {
+                timer?.cancel()
                 throw ExitException()
+            }
             else
                 null
         }
@@ -169,6 +190,7 @@ data class ConversationBuilder(val discord: Discord,
             if (interaction.message?.id != previousBotMessageId)
                 return@onReceive null
 
+            timer?.cancel()
             interaction.acknowledgeEphemeralDeferredMessageUpdate()
             buttons[interaction.componentId]
         }
@@ -179,7 +201,15 @@ data class ConversationBuilder(val discord: Discord,
         val commandEvent = CommandEvent<TypeContainer>(rawInputs, discord, message, message.author!!, message.channel.asChannel(), message.getGuildOrNull())
         return argumentType.convert(message.content, commandEvent.rawInputs.commandArgs, commandEvent)
     }
+
+    private fun createTimer() =
+        timeout.takeIf { it > 0 }?.let { time ->
+            Timer("Timeout", false).schedule(time) {
+                runBlocking { exceptionBuffer.send(TimeoutException()) }
+            }
+        }
 }
 
+internal class TimeoutException : Exception("Prompt not answered in time.")
 internal class ExitException : Exception("Conversation exited early.")
 internal class DmException : Exception("Message failed to deliver.")

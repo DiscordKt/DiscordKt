@@ -14,14 +14,15 @@ import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
  * @param exitString A String entered by the user to exit the conversation.
  */
 @BuilderDSL
-fun conversation(exitString: String? = null, block: suspend ConversationBuilder.() -> Unit) = Conversation(exitString, block)
+fun conversation(exitString: String? = null, promptTimeout: Long = 0, block: suspend ConversationBuilder.() -> Unit) = Conversation(exitString, promptTimeout * 1000, block)
 
 /**
  * A class that represent a conversation.
  *
  * @param exitString A String entered by the user to exit the conversation.
+ * @param promptTimeout The amount of time (in seconds) before a prompt times out and is aborted.
  */
-class Conversation(var exitString: String? = null, private val block: suspend ConversationBuilder.() -> Unit) {
+class Conversation(var exitString: String? = null, var promptTimeout: Long, private val block: suspend ConversationBuilder.() -> Unit) {
     /**
      * Start a conversation with someone in their private messages.
      *
@@ -39,7 +40,7 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
         if (Conversations.hasConversation(user, channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val state = ConversationBuilder(discord, user, channel, exitString)
+        val state = ConversationBuilder(discord, user, channel, exitString, promptTimeout)
 
         return start(state)
     }
@@ -60,7 +61,7 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
         if (Conversations.hasConversation(user, channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val state = ConversationBuilder(discord, user, channel, exitString)
+        val state = ConversationBuilder(discord, user, channel, exitString, promptTimeout)
 
         return start(state)
     }
@@ -76,6 +77,8 @@ class Conversation(var exitString: String? = null, private val block: suspend Co
             Conversations.start(user, channel, this)
             block.invoke(conversationBuilder)
             ConversationResult.COMPLETE
+        } catch (e: TimeoutException) {
+            ConversationResult.TIMED_OUT
         } catch (e: ExitException) {
             ConversationResult.EXITED
         } catch (e: DmException) {
@@ -105,6 +108,9 @@ enum class ConversationResult {
 
     /** The target user already has a conversation. */
     HAS_CONVERSATION,
+
+    /** The conversation prompt timed out with no fallback. */
+    TIMED_OUT,
 
     /** The conversation has completed successfully. */
     COMPLETE,
