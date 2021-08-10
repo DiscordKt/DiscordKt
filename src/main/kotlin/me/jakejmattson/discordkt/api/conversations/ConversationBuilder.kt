@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.api.conversations
 
 import dev.kord.common.annotation.KordPreview
 import dev.kord.common.entity.Snowflake
-import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
@@ -76,45 +76,40 @@ data class ConversationBuilder(val discord: Discord,
      */
     @Throws(DmException::class)
     suspend fun <T> promptUntil(argumentType: ArgumentType<T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
-        var value: T = promptMessage(argumentType, prompt)
+        var value: T = prompt(argumentType, prompt)
 
         while (!isValid.invoke(value)) {
             channel.createMessage(error).also { it.let { botMessageIds.add(it.id) } }
-            value = promptMessage(argumentType, prompt)
+            value = prompt(argumentType, prompt)
         }
 
         return value
     }
 
     /**
-     * Prompt the user with a String. Re-prompt until the response converts correctly.
+     * Prompt the user with text and/or embed.
      *
      * @param argumentType The [ArgumentType] that the prompt expects in response.
-     * @param prompt The string message sent to the user as a prompt for information.
+     * @param text A String sent as part of the prompt.
+     * @param embed The embed sent as part of the prompt.
      */
     @Throws(DmException::class, TimeoutException::class)
-    fun <T> promptMessage(argumentType: ArgumentType<T>, prompt: String): T {
-        require(argumentType !is OptionalArg<*>) { "Conversation arguments cannot be optional" }
-        return retrieveValidTextResponse(argumentType, prompt)
-    }
-
-    /**
-     * Prompt the user with an embed. Re-prompt until the response converts correctly.
-     *
-     * @param argumentType The [ArgumentType] that the prompt expects in response.
-     * @param prompt The embed sent to the user as a prompt for information.
-     */
-    @Throws(DmException::class, TimeoutException::class)
-    suspend fun <T> promptEmbed(argumentType: ArgumentType<T>, prompt: suspend EmbedBuilder.() -> Unit): T {
+    suspend fun <T> prompt(argumentType: ArgumentType<T>, text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): T {
         require(argumentType !is OptionalArg<*>) { "Conversation arguments cannot be optional" }
 
-        val message = channel.createEmbed {
-            prompt.invoke(this)
+        val message = channel.createMessage {
+            content = text.takeIf { it.isNotBlank() }
+
+            if (embed != null) {
+                embed {
+                    embed.invoke(this)
+                }
+            }
         }
 
         botMessageIds.add(message.id)
 
-        return retrieveValidTextResponse(argumentType, null)
+        return retrieveValidTextResponse(argumentType)
     }
 
     /**
@@ -134,9 +129,8 @@ data class ConversationBuilder(val discord: Discord,
         return retrieveValidInteractionResponse(builder.valueMap)
     }
 
-    private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<T>, prompt: String?): T = runBlocking {
-        prompt?.let { channel.createMessage(it) }?.also { botMessageIds.add(it.id) }
-        retrieveTextResponse(argumentType) ?: retrieveValidTextResponse(argumentType, prompt)
+    private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<T>): T = runBlocking {
+        retrieveTextResponse(argumentType) ?: retrieveValidTextResponse(argumentType)
     }
 
     private suspend fun <T> retrieveTextResponse(argumentType: ArgumentType<T>) = select<T?> {
