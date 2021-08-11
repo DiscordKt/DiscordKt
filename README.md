@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://discord.gg/REZVVjA">
-      <img alt="Discord Banner" src="https://discordapp.com/api/guilds/453208597082406912/widget.png?style=banner2"/>
+      <img alt="Discord Banner" src="https://discord.com/api/guilds/453208597082406912/widget.png?style=banner2"/>
     </a>
     <br/>
     <a href="https://kotlinlang.org/">
@@ -13,7 +13,7 @@
       <img alt="Version" src="https://img.shields.io/badge/Version-0.22.0--SNAPSHOT-green?label=Version&logo=GitHub">
     </a>
     <br>
-    <a href="https://discordapp.com/users/254786431656919051/">
+    <a href="https://discord.com/users/254786431656919051/">
       <img alt="Discord JakeyWakey#1569" src="https://img.shields.io/badge/Personal-JakeyWakey%231569-%2300BFFF.svg?logo=discord">
     </a>
 </p>

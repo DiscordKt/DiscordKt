@@ -9,8 +9,7 @@ import me.jakejmattson.discordkt.api.locale.inject
  *
  * @param base The [ArgumentType] that you expect to be used to create the list.
  */
-class MultipleArg<T>(val base: ArgumentType<T>, name: String = "", description: String = "") : ArgumentType<List<T>> {
-    override val name = name.ifBlank { "${base.name}..." }
+class MultipleArg<T>(val base: ArgumentType<T>, override val name: String = "${base.name}...", description: String = "") : ArgumentType<List<T>> {
     override val description = description.ifBlank { internalLocale.multipleArgDescription.inject(base.name) }
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<T>> {

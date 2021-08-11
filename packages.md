@@ -10,6 +10,10 @@ Annotations used for dependency injection.
 
 Argument types for parsing command input.
 
+# Package me.jakejmattson.discordkt.api.conversation
+
+Contains all logic and builders for conversations.
+
 # Package me.jakejmattson.discordkt.api.dsl
 
 Primary builders and events used to develop bots. 

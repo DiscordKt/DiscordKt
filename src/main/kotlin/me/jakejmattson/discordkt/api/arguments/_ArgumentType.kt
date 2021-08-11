@@ -18,7 +18,7 @@ interface ArgumentType<T> : Cloneable {
     /**
      * Accept multiple inputs of this ArgumentType.
      */
-    fun multiple() = MultipleArg(this, name)
+    fun multiple() = MultipleArg(this)
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails.
