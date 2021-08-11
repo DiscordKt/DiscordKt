@@ -1,6 +1,8 @@
 package me.jakejmattson.discordkt.api.dsl
 
-import com.google.gson.*
+import com.google.gson.ExclusionStrategy
+import com.google.gson.FieldAttributes
+import com.google.gson.GsonBuilder
 import java.io.File
 
 /**

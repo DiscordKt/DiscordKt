@@ -1,9 +1,10 @@
 package me.jakejmattson.discordkt.internal.services
 
-import me.jakejmattson.discordkt.internal.utils.*
+import me.jakejmattson.discordkt.internal.utils.InternalLogger
+import me.jakejmattson.discordkt.internal.utils.signature
+import me.jakejmattson.discordkt.internal.utils.simplerName
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
-import kotlin.system.exitProcess
 
 internal data class FailureBundle(val clazz: Class<*>, val parameters: List<Class<*>>)
 
@@ -16,16 +17,16 @@ internal class InjectionService {
     }
 
     operator fun <T : Any> get(clazz: KClass<T>) = elementMap[clazz.java] as? T
-        ?: throw IllegalArgumentException("Could not inject class: ${clazz.simplerName}")
+        ?: throw IllegalArgumentException("Could not find ${clazz.simplerName}")
 
     internal inline fun <reified T> invokeMethod(method: Method): T {
-        val objects = determineArguments(method.parameterTypes)
+        val objects = determineArguments(method.parameterTypes, method.signature)
         return method.invoke(null, *objects) as T
     }
 
-    internal fun <T> invokeConstructor(clazz: Class<T>): T {
+    private fun <T> invokeConstructor(clazz: Class<T>): T {
         val constructor = clazz.constructors.first()
-        val objects = determineArguments(constructor.parameterTypes)
+        val objects = determineArguments(constructor.parameterTypes, constructor.signature)
         return constructor.newInstance(*objects) as T
     }
 
@@ -46,15 +47,15 @@ internal class InjectionService {
             .map { (clazz, constructor) -> FailureBundle(clazz, constructor.parameterTypes.toList()) }
 
         if (failed.size == last)
-            InternalLogger.error(generateBadInjectionReport(sortedFailures)).also { exitProcess(-1) }
+            InternalLogger.fatalError(generateBadInjectionReport(sortedFailures))
 
         buildAllRecursively(failed, failed.size)
     }
 
-    private fun determineArguments(parameters: Array<out Class<*>>) = if (parameters.isEmpty()) emptyArray() else
+    private fun determineArguments(parameters: Array<out Class<*>>, signature: String) = if (parameters.isEmpty()) emptyArray() else
         parameters.map { arg ->
             elementMap.entries.find { arg.isAssignableFrom(it.key) }?.value
-                ?: throw IllegalStateException("Couldn't inject of type '$arg' from registered objects.")
+                ?: throw IllegalStateException("Couldn't inject '${arg.simplerName}' into $signature")
         }.toTypedArray()
 
     private fun generateBadInjectionReport(failedInjections: List<FailureBundle>) = buildString {
@@ -88,7 +89,9 @@ internal class InjectionService {
             val failPaths = failed
                 .mapNotNull { getCyclicList(it) }
                 .distinctBy { it.toSet() }
-                .joinToString("\n") { it.joinToString(" -> ") { it.simplerName } }
+                .joinToString("\n") { classes ->
+                    classes.joinToString(" -> ") { it.simplerName }
+                }
 
             appendLine()
             appendLine("Infinite loop detected:")

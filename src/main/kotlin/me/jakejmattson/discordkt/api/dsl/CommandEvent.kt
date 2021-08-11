@@ -1,9 +1,16 @@
 package me.jakejmattson.discordkt.api.dsl
 
-import com.gitlab.kordlib.core.behavior.channel.MessageChannelBehavior
-import com.gitlab.kordlib.core.entity.*
-import com.gitlab.kordlib.core.entity.channel.*
-import me.jakejmattson.discordkt.api.*
+import dev.kord.core.behavior.channel.MessageChannelBehavior
+import dev.kord.core.entity.Guild
+import dev.kord.core.entity.Message
+import dev.kord.core.entity.User
+import dev.kord.core.entity.channel.DmChannel
+import dev.kord.core.entity.channel.MessageChannel
+import dev.kord.core.entity.channel.TextChannel
+import dev.kord.x.emoji.DiscordEmoji
+import dev.kord.x.emoji.addReaction
+import me.jakejmattson.discordkt.api.Discord
+import me.jakejmattson.discordkt.api.TypeContainer
 
 /**
  * Data class containing the raw information from the command execution.
@@ -16,8 +23,8 @@ import me.jakejmattson.discordkt.api.*
 data class RawInputs(
     val rawMessageContent: String,
     val commandName: String,
-    val commandArgs: List<String> = listOf(),
-    val prefixCount: Int
+    val prefixCount: Int,
+    val commandArgs: List<String> = rawMessageContent.split(" ").drop(1)
 )
 
 /**
@@ -56,7 +63,7 @@ open class DiscordContext(val discord: Discord,
 open class CommandEvent<T : TypeContainer>(
     open val rawInputs: RawInputs,
     open val discord: Discord,
-    open val message: Message,
+    open val message: Message?,
     open val author: User,
     override val channel: MessageChannel,
     open val guild: Guild?) : Responder {
@@ -74,7 +81,12 @@ open class CommandEvent<T : TypeContainer>(
     /**
      * Determine the relevant prefix in the current context.
      */
-    suspend fun prefix() = discord.configuration.prefix.invoke(DiscordContext(discord, message, guild, author, channel))
+    suspend fun prefix() = message?.let { discord.configuration.prefix.invoke(DiscordContext(discord, it, guild, author, channel)) } ?: "/"
+
+    /**
+     * Add a reaction to the command invocation message.
+     */
+    suspend fun reactWith(emoji: DiscordEmoji) = message?.addReaction(emoji)
 
     /**
      * Clone this event's context data with new inputs.
@@ -105,4 +117,16 @@ data class DmCommandEvent<T : TypeContainer>(
     override val author: User,
     override val channel: DmChannel,
     @Deprecated("There is no guild within a DmCommandEvent.", level = DeprecationLevel.ERROR)
+    override val guild: Guild? = null) : CommandEvent<T>(rawInputs, discord, message, author, channel, null)
+
+/**
+ * An event fired by a slash command.
+ */
+data class SlashCommandEvent<T : TypeContainer>(
+    override val rawInputs: RawInputs,
+    override val discord: Discord,
+    @Deprecated("A slash command cannot access its message.", level = DeprecationLevel.ERROR)
+    override val message: Message?,
+    override val author: User,
+    override val channel: MessageChannel,
     override val guild: Guild? = null) : CommandEvent<T>(rawInputs, discord, message, author, channel, null)

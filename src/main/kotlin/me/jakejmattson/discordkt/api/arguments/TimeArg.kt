@@ -1,12 +1,14 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
-import me.jakejmattson.discordkt.internal.arguments.convertTimeString
+import me.jakejmattson.discordkt.api.dsl.internalLocale
+import me.jakejmattson.discordkt.internal.utils.convertTimeString
 
 /**
  * Accepts a group of time elements and returns the number of seconds as a double.
  */
-open class TimeArg(override val name: String = "Time") : ArgumentType<Double>() {
+open class TimeArg(override val name: String = "Time",
+                   override val description: String = internalLocale.timeArgDescription) : ArgumentType<Double> {
     /**
      * Accepts a group of time elements and returns the number of seconds as a double.
      */
@@ -14,6 +16,6 @@ open class TimeArg(override val name: String = "Time") : ArgumentType<Double>() 
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>) = convertTimeString(args)
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf("5 seconds", "5s")
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf("5 seconds", "5s")
     override fun formatData(data: Double) = "$data seconds"
 }

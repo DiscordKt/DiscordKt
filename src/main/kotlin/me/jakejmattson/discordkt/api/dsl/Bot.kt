@@ -1,131 +1,119 @@
 package me.jakejmattson.discordkt.api.dsl
 
-import com.gitlab.kordlib.core.Kord
-import com.gitlab.kordlib.core.entity.*
-import com.gitlab.kordlib.core.entity.channel.MessageChannel
-import com.gitlab.kordlib.gateway.Intents
-import com.gitlab.kordlib.gateway.builder.PresenceBuilder
-import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
-import me.jakejmattson.discordkt.api.*
-import me.jakejmattson.discordkt.api.annotations.Service
-import me.jakejmattson.discordkt.api.extensions.pluralize
+import dev.kord.common.annotation.KordPreview
+import dev.kord.core.Kord
+import dev.kord.core.event.interaction.InteractionCreateEvent
+import dev.kord.core.event.message.MessageCreateEvent
+import dev.kord.gateway.builder.PresenceBuilder
+import dev.kord.rest.builder.message.EmbedBuilder
+import kotlinx.coroutines.runBlocking
+import me.jakejmattson.discordkt.api.Discord
+import me.jakejmattson.discordkt.api.extensions.intentsOf
+import me.jakejmattson.discordkt.api.locale.Language
+import me.jakejmattson.discordkt.api.locale.Locale
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
-import me.jakejmattson.discordkt.internal.listeners.*
-import me.jakejmattson.discordkt.internal.services.*
-import me.jakejmattson.discordkt.internal.utils.*
-import kotlin.system.exitProcess
+import me.jakejmattson.discordkt.internal.services.InjectionService
 
 @PublishedApi
 internal val diService = InjectionService()
 
+internal lateinit var internalLocale: Locale
+
 /**
  * Create an instance of your Discord bot! You can use the following blocks to modify bot configuration:
- * [configure][Bot.configure],
  * [prefix][Bot.prefix],
+ * [configure][Bot.configure],
  * [mentionEmbed][Bot.mentionEmbed],
- * [permissions][Bot.permissions],
- * [presence][Bot.presence]
+ * [presence][Bot.presence],
+ * [localeOf][Bot.localeOf],
+ * [onStart][Bot.onStart]
  *
  * @param token Your Discord bot token.
  */
+@KordPreview
 @ConfigurationDSL
-suspend fun bot(token: String, operate: suspend Bot.() -> Unit) {
-    val path = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
-    val bot = Bot(token, path)
-    bot.operate()
-    bot.buildBot()
+fun bot(token: String, configure: suspend Bot.() -> Unit) {
+    val packageName = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
+    val bot = Bot(token, packageName)
+
+    runBlocking {
+        bot.configure()
+        bot.buildBot()
+    }
 }
 
 /**
  * Backing class for [bot] function.
  */
-class Bot(private val token: String, private val globalPath: String) {
+class Bot(private val token: String, private val packageName: String) {
     private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
-                                        var prefix: suspend DiscordContext.() -> String = { "+" },
+                                        var prefix: suspend DiscordContext.() -> String = { "" },
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
-                                        var permissions: suspend (Command, Discord, User, MessageChannel, Guild?) -> Boolean = { _, _, _, _, _ -> true },
+                                        var locale: Locale = Language.EN.locale,
                                         var presence: PresenceBuilder.() -> Unit = {},
-                                        var intents: Intents.IntentsBuilder.() -> Unit = {},
                                         var onStart: suspend Discord.() -> Unit = {})
 
     private val startupBundle = StartupFunctions()
 
-    private suspend fun initCore(discord: Discord) {
-        diService.inject(discord)
-        val showStartupLog = discord.configuration.showStartupLog
-        val generateCommandDocs = discord.configuration.generateCommandDocs
-        val header = "------- DiscordKt ${discord.versions.library} -------"
-
-        if (showStartupLog)
-            InternalLogger.log(header)
-
-        val dataSize = registerData()
-        val services = registerServices()
-
-        ReflectionUtils.registerFunctions(globalPath, discord)
-        registerReactionListener(discord.api)
-        registerCommandListener(discord)
-
-        val commandSets = discord.commands.groupBy { it.category }.keys.size
-
-        if (showStartupLog) {
-            InternalLogger.log(commandSets.pluralize("CommandSet") + " -> " + discord.commands.size.pluralize("Command"))
-            InternalLogger.log(dataSize.pluralize("Data"))
-            InternalLogger.log(services.size.pluralize("Service"))
-            InternalLogger.log(discord.preconditions.size.pluralize("Precondition"))
-        }
-
-        registerHelpCommand(discord)
-
-        if (generateCommandDocs)
-            createDocumentation(discord.commands)
-
-        Validator.validateCommandMeta(discord.commands)
-
-        if (showStartupLog)
-            InternalLogger.log("-".repeat(header.length))
-    }
-
+    @KordPreview
     internal suspend fun buildBot() {
         val (configureFun,
             prefixFun,
             mentionEmbedFun,
-            permissionsFun,
+            locale,
             presenceFun,
-            intentsFun,
             startupFun) = startupBundle
 
         val simpleConfiguration = SimpleConfiguration()
         configureFun.invoke(simpleConfiguration)
+        val permissionBundle = PermissionBundle(simpleConfiguration.permissionLevels, simpleConfiguration.commandDefault)
 
         val botConfiguration = with(simpleConfiguration) {
             BotConfiguration(
+                packageName = packageName,
                 allowMentionPrefix = allowMentionPrefix,
                 showStartupLog = showStartupLog,
                 generateCommandDocs = generateCommandDocs,
                 recommendCommands = recommendCommands,
+                enableSearch = enableSearch,
                 commandReaction = commandReaction,
                 theme = theme,
+                intents = intents + intentsOf<MessageCreateEvent>() + intentsOf<InteractionCreateEvent>(),
+                entitySupplyStrategy = entitySupplyStrategy,
                 prefix = prefixFun,
-                mentionEmbed = mentionEmbedFun,
-                permissions = permissionsFun
+                mentionEmbed = mentionEmbedFun
             )
         }
 
         val kord = Kord(token) {
-            intents {
-                intentsFun.invoke(this)
-            }
+            intents = botConfiguration.intents
+            defaultStrategy = botConfiguration.entitySupplyStrategy
         }
 
-        val discord = buildDiscordClient(kord, botConfiguration)
+        internalLocale = locale
 
-        initCore(discord)
-        discord.api.login {
+        val discord = object : Discord() {
+            override val kord = kord
+            override val configuration = botConfiguration
+            override val locale = locale
+            override val permissions = permissionBundle
+            override val commands = mutableListOf<Command>()
+            override val preconditions = mutableListOf<Precondition>()
+        }
+
+        discord.initCore()
+
+        discord.kord.login {
             presenceFun.invoke(this)
             startupFun.invoke(discord)
         }
     }
+
+    /**
+     * Inject objects into the dependency injection pool.
+     */
+    @ConfigurationDSL
+    fun inject(vararg injectionObjects: Any) = injectionObjects.forEach { diService.inject(it) }
 
     /**
      * Modify simple configuration options.
@@ -136,12 +124,6 @@ class Bot(private val token: String, private val globalPath: String) {
     fun configure(config: suspend SimpleConfiguration.() -> Unit) {
         startupBundle.configure = config
     }
-
-    /**
-     * Inject objects into the dependency injection pool.
-     */
-    @ConfigurationDSL
-    fun inject(vararg injectionObjects: Any) = injectionObjects.forEach { diService.inject(it) }
 
     /**
      * Determine the prefix in a given context.
@@ -160,16 +142,15 @@ class Bot(private val token: String, private val globalPath: String) {
     }
 
     /**
-     * Determine if the given command has permission to be run in this context.
+     * Configure the locale for this bot.
      *
-     * @sample PermissionContext
+     * @param language The initial [Language] pack.
      */
     @ConfigurationDSL
-    fun permissions(predicate: suspend PermissionContext.() -> Boolean) {
-        startupBundle.permissions = { command, discord, user, messageChannel, guild ->
-            val context = PermissionContext(command, discord, user, messageChannel, guild)
-            predicate.invoke(context)
-        }
+    fun localeOf(language: Language, localeBuilder: Locale.() -> Unit) {
+        val localeType = language.locale
+        localeBuilder.invoke(localeType)
+        startupBundle.locale = localeType
     }
 
     /**
@@ -181,44 +162,10 @@ class Bot(private val token: String, private val globalPath: String) {
     }
 
     /**
-     * Configure the Discord Gateway intents for your bot.
-     */
-    @ConfigurationDSL
-    fun intents(intents: Intents.IntentsBuilder.() -> Unit) {
-        startupBundle.intents = intents
-    }
-
-    /**
-     * When setup is complete, execute these tasks.
+     * When setup is complete, execute this block.
      */
     @ConfigurationDSL
     fun onStart(start: suspend Discord.() -> Unit) {
         startupBundle.onStart = start
     }
-
-    private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(globalPath).apply { diService.buildAllRecursively(this) }
-    private fun registerHelpCommand(discord: Discord) = discord.commands["Help"]
-        ?: produceHelpCommand().register(discord)
-
-    private fun registerData() = ReflectionUtils.detectSubtypesOf<Data>(globalPath)
-        .map {
-            val default = it.getConstructor().newInstance()
-
-            val data = with(default) {
-                if (file.exists()) {
-                    readFromFile()
-                } else {
-                    writeToFile()
-
-                    if (killIfGenerated) {
-                        InternalLogger.error("Please fill in the following file before re-running: ${file.absolutePath}")
-                        exitProcess(-1)
-                    }
-
-                    this
-                }
-            }
-
-            diService.inject(data)
-        }.size
 }

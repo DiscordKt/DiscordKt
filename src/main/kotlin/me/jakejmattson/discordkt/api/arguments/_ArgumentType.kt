@@ -9,46 +9,44 @@ import me.jakejmattson.discordkt.internal.utils.simplerName
  * An object that represents a type and contains the logic to convert string arguments to the desired type.
  *
  * @property name The display name for this type in documentations and examples.
- * @property isOptional Whether or not this argument is strictly required.
+ * @property description A description of the data that this type represents.
  */
-abstract class ArgumentType<T> : Cloneable {
-    abstract val name: String
+interface ArgumentType<T> : Cloneable {
+    val name: String
+    val description: String
 
-    var isOptional: Boolean = false
-        private set
-
-    internal lateinit var defaultValue: suspend (CommandEvent<*>) -> T
-        private set
-
-    private fun <T> cloneToOptional() = (clone() as ArgumentType<T>).apply { isOptional = true }
+    /**
+     * Accept multiple inputs of this ArgumentType.
+     */
+    fun multiple() = MultipleArg(this)
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails.
      *
      * @param default A default value matching the expected type.
      */
-    fun makeOptional(default: T) = cloneToOptional<T>().apply { defaultValue = { default } }
+    fun optional(default: T) = OptionalArg(name, this) { default }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type.
      */
-    fun makeOptional(default: suspend (CommandEvent<*>) -> T) = cloneToOptional<T>().apply { defaultValue = default }
+    fun optional(default: suspend (CommandEvent<*>) -> T) = OptionalArg(name, this, default)
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails.
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    fun makeNullableOptional(default: T? = null) = cloneToOptional<T?>().apply { defaultValue = { default } }
+    fun optionalNullable(default: T? = null) = OptionalArg(name, this) { default }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    fun makeNullableOptional(default: suspend (CommandEvent<*>) -> T?) = cloneToOptional<T?>().apply { defaultValue = default }
+    fun optionalNullable(default: suspend (CommandEvent<*>) -> T?) = OptionalArg(name, this, default)
 
     /**
      * Consumes an argument or multiple arguments and converts them into some desired type.
@@ -58,22 +56,22 @@ abstract class ArgumentType<T> : Cloneable {
      * @param event The CommandEvent<*> triggered by the execution of the command.
      * @return ArgumentResult subtype [Success] or [Error].
      */
-    abstract suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
+    suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
 
     /**
      * A function called whenever an example of this type is needed.
      *
      * @param event Allows the list result to be generated with the relevant discord context.
      */
-    abstract fun generateExamples(event: CommandEvent<*>): List<String>
-
-    /** Determine the simpler name (just the class) and then remove the companion tag */
-    override fun toString() = this::class.simplerName
+    suspend fun generateExamples(event: CommandEvent<*>): List<String>
 
     /**
      * Create a custom formatter for the data this ArgumentType produces.
      */
-    open fun formatData(data: T): String = data.toString()
+    fun formatData(data: T) = data.toString()
+
+    /** Determine the simpler name (just the class) and then remove the companion tag */
+    fun toSimpleString() = this::class.simplerName
 }
 
 /**

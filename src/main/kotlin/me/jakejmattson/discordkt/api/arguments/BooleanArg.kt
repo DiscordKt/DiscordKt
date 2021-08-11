@@ -1,6 +1,8 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
+import me.jakejmattson.discordkt.api.locale.inject
 
 /**
  * Accepts either of two values. Defaults to true/false.
@@ -8,7 +10,10 @@ import me.jakejmattson.discordkt.api.dsl.CommandEvent
  * @param truthValue The string value that results in true.
  * @param falseValue The string value that results in false.
  */
-open class BooleanArg(override val name: String = "Boolean", private val truthValue: String = "true", private val falseValue: String = "false") : ArgumentType<Boolean>() {
+open class BooleanArg(override val name: String = "Boolean",
+                      private val truthValue: String = "true",
+                      private val falseValue: String = "false",
+                      override val description: String = internalLocale.booleanArgDescription.inject(truthValue, falseValue)) : ArgumentType<Boolean> {
     /**
      * Accepts either true or false.
      */
@@ -16,16 +21,16 @@ open class BooleanArg(override val name: String = "Boolean", private val truthVa
 
     init {
         require(truthValue.isNotEmpty() && falseValue.isNotEmpty()) { "Custom BooleanArg ($name) options cannot be empty!" }
-        require(truthValue.toLowerCase() != falseValue.toLowerCase()) { "Custom BooleanArg ($name) options cannot be the same!" }
+        require(!truthValue.equals(falseValue, ignoreCase = true)) { "Custom BooleanArg ($name) options cannot be the same!" }
     }
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Boolean> {
-        return when (arg.toLowerCase()) {
-            truthValue.toLowerCase() -> Success(true)
-            falseValue.toLowerCase() -> Success(false)
-            else -> Error("Must be '$truthValue' or '$falseValue'")
+        return when (arg.lowercase()) {
+            truthValue.lowercase() -> Success(true)
+            falseValue.lowercase() -> Success(false)
+            else -> Error(internalLocale.invalidBooleanArg.inject(truthValue, falseValue))
         }
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(truthValue, falseValue)
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf(truthValue, falseValue)
 }

@@ -2,7 +2,7 @@
 
 package me.jakejmattson.discordkt.api.extensions
 
-import com.gitlab.kordlib.core.entity.Message
+import dev.kord.core.entity.Message
 import kotlinx.coroutines.flow.count
 
 /**
@@ -19,6 +19,11 @@ fun Message.containsURL() = content.containsURl()
  * Checks whether or not this message's raw content mentions a user or role.
  */
 suspend fun Message.mentionsSomeone() = (mentionsEveryone || mentionedUsers.count() > 0 || mentionedRoles.count() > 0)
+
+/**
+ * Determine the Discord URL for this message (or null if in a DM).
+ */
+suspend fun Message.jumpLink() = getGuildOrNull()?.let { "https://discord.com/channels/${it.id.value}/${channel.id.value}/${id.value}" }
 
 /**
  * Checks whether or not this message has an attached image and has no text.

@@ -1,87 +1,76 @@
 package me.jakejmattson.discordkt.internal.command
 
-import me.jakejmattson.discordkt.api.*
+import me.jakejmattson.discordkt.api.TypeContainer
 import me.jakejmattson.discordkt.api.arguments.ArgumentType
-import me.jakejmattson.discordkt.api.dsl.*
-import me.jakejmattson.discordkt.internal.arguments.*
-import me.jakejmattson.discordkt.internal.utils.InternalLogger
+import me.jakejmattson.discordkt.api.arguments.Error
+import me.jakejmattson.discordkt.api.arguments.Success
+import me.jakejmattson.discordkt.api.bundleToContainer
+import me.jakejmattson.discordkt.api.dsl.CommandEvent
 
 /**
  * Intermediate result of manual parsing.
  */
 internal interface ParseResult {
-    /**
-     * The parsing succeeded.
-     *
-     * @param argumentContainer The parsing results.
-     */
     data class Success(val argumentContainer: TypeContainer) : ParseResult
-
-    /**
-     * Object indicating that an operation has failed.
-     *
-     * @param reason The reason for failure.
-     */
     data class Fail(val reason: String = "") : ParseResult
 }
 
-internal suspend fun parseInputToBundle(command: Command, event: CommandEvent<*>, actualArgs: List<String>): ParseResult {
-    val expected = command.arguments as List<ArgumentType<Any>>
+internal sealed class DataMap(val argument: ArgumentType<Any>)
+internal data class SuccessData<T>(private val arg: ArgumentType<Any>, val value: T) : DataMap(arg)
+internal data class ErrorData(private val arg: ArgumentType<Any>, val error: String) : DataMap(arg)
 
-    val error = when (val initialConversion = convertArguments(actualArgs, expected, event)) {
-        is ConversionSuccess -> return ParseResult.Success(bundleToContainer(initialConversion.results))
-        is ConversionError -> ParseResult.Fail(initialConversion.error)
-    }
+internal suspend fun convertArguments(event: CommandEvent<*>, expected: List<ArgumentType<*>>, actual: List<String>): ParseResult {
+    val remainingArgs = actual.filter { it.isNotBlank() }.toMutableList()
+    var hasFatalError = false
 
-    if (!command.isFlexible || expected.size < 2)
-        return error
+    expected as List<ArgumentType<Any>>
 
-    val successList = expected
-        .toMutableList()
-        .generatePermutations()
-        .mapNotNull {
-            when (val conversion = convertArguments(actualArgs, it, event)) {
-                is ConversionSuccess -> it to conversion.results
-                else -> null
+    val conversionData = expected.map { expectedArg ->
+        if (hasFatalError)
+            return@map ErrorData(expectedArg, "")
+
+        val firstArg = remainingArgs.firstOrNull() ?: ""
+
+        when (val conversionResult = expectedArg.convert(firstArg, remainingArgs, event)) {
+            is Success -> {
+                if (conversionResult.consumed > remainingArgs.size)
+                    throw IllegalArgumentException("ArgumentType ${expectedArg.name} consumed more arguments than available.")
+
+                if (remainingArgs.isNotEmpty())
+                    remainingArgs.slice(0 until conversionResult.consumed).forEach { remainingArgs.remove(it) }
+
+                SuccessData(expectedArg, conversionResult.result)
+            }
+            is Error -> {
+                hasFatalError = true
+                ErrorData(expectedArg, if (remainingArgs.isNotEmpty()) "<${conversionResult.error}>" else "<Missing>")
             }
         }
-        .map { (argumentTypes, results) -> argumentTypes.zip(results) }
-
-    val success = when (successList.size) {
-        0 -> return error
-        1 -> successList.first()
-        else -> {
-            InternalLogger.error(
-                """
-                    Flexible command resolved ambiguously.
-                    ${command.names.first()}(${expected.joinToString()})
-                    Input: ${actualArgs.joinToString(" ")}
-                """.trimIndent()
-            )
-
-            return error
-        }
     }
 
-    val orderedResult = expected.map { sortKey -> success.first { it.first == sortKey }.second }
+    val error = formatDataMap(conversionData) +
+        if (!hasFatalError && remainingArgs.isNotEmpty()) {
+            hasFatalError = true
+            "\n\nUnused: " + remainingArgs.joinToString(" ")
+        } else ""
 
-    return ParseResult.Success(bundleToContainer(orderedResult))
+    if (hasFatalError)
+        return ParseResult.Fail("```$error```")
+
+    return ParseResult.Success(bundleToContainer(conversionData.filterIsInstance<SuccessData<*>>().map { it.value }))
 }
 
-private fun <E> MutableList<E>.generatePermutations(): List<List<E>> {
-    if (isEmpty())
-        return listOf(listOf())
+private fun formatDataMap(successData: List<DataMap>): String {
+    val length = successData.map { it.argument.name.length }.maxOrNull() ?: 0
 
-    val firstElement = removeAt(0)
-    val returnValue = mutableListOf<List<E>>()
+    return successData.joinToString("\n") { data ->
+        val arg = data.argument
 
-    generatePermutations().forEach {
-        (0..it.size).forEach { index ->
-            val temp = it.toMutableList()
-            temp.add(index, firstElement)
-            returnValue.add(temp)
+        val value = when (data) {
+            is SuccessData<*> -> data.value?.let { arg.formatData(it) }
+            is ErrorData -> data.error
         }
-    }
 
-    return returnValue
+        "%-${length}s = %s".format(arg.name, value)
+    }
 }

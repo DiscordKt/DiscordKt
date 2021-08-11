@@ -2,9 +2,11 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
-import com.gitlab.kordlib.core.behavior.channel.*
-import com.gitlab.kordlib.core.entity.Message
-import com.gitlab.kordlib.rest.builder.message.EmbedBuilder
+import dev.kord.core.behavior.channel.MessageChannelBehavior
+import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.core.behavior.channel.createMessage
+import dev.kord.core.entity.Message
+import dev.kord.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.extensions.sanitiseMentions
 

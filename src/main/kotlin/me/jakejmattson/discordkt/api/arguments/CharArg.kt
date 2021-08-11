@@ -1,11 +1,13 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 
 /**
  * Accepts a single character.
  */
-open class CharArg(override val name: String = "Character") : ArgumentType<Char>() {
+open class CharArg(override val name: String = "Character",
+                   override val description: String = internalLocale.charArgDescription) : ArgumentType<Char> {
     /**
      * Accepts a single character.
      */
@@ -18,5 +20,5 @@ open class CharArg(override val name: String = "Character") : ArgumentType<Char>
             Error("Must be a single character")
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = ('a'..'z').map { it.toString() }
+    override suspend fun generateExamples(event: CommandEvent<*>) = ('a'..'z').map { it.toString() }
 }

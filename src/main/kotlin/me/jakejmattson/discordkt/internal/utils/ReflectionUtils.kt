@@ -4,6 +4,7 @@ import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.dsl.*
 import org.reflections.Reflections
 import org.reflections.scanners.MethodParameterScanner
+import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
@@ -28,7 +29,14 @@ internal object ReflectionUtils {
 }
 
 internal val Class<*>.simplerName
-    get() = simpleName.substringAfterLast(".").substringBefore("$")
+    get() = toString().substringAfterLast('.').substringBefore('$')
 
+@PublishedApi
 internal val KClass<*>.simplerName
     get() = java.simplerName
+
+internal val Method.signature
+    get() = "${name}(${parameterTypes.joinToString { it.simplerName }})"
+
+internal val Constructor<*>.signature
+    get() = "${name}(${parameterTypes.joinToString { it.simplerName }})"

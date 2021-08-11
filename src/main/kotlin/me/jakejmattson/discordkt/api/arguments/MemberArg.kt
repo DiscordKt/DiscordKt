@@ -1,7 +1,8 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import com.gitlab.kordlib.core.entity.Member
+import dev.kord.core.entity.Member
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 
 /**
@@ -9,7 +10,9 @@ import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
  *
  * @param allowsBot Whether or not a bot is a valid input.
  */
-open class MemberArg(override val name: String = "Member", private val allowsBot: Boolean = false) : ArgumentType<Member>() {
+open class MemberArg(override val name: String = "Member",
+                     override val description: String = internalLocale.memberArgDescription,
+                     private val allowsBot: Boolean = false) : ArgumentType<Member> {
     /**
      * Accepts a Discord Member entity as an ID or mention. Does not allow bots.
      */
@@ -18,14 +21,15 @@ open class MemberArg(override val name: String = "Member", private val allowsBot
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Member> {
         val guild = event.guild ?: return Error("No guild found")
 
-        val member = arg.toSnowflakeOrNull()?.let { guild.getMemberOrNull(it) } ?: return Error("Not found")
+        val member = arg.toSnowflakeOrNull()?.let { guild.getMemberOrNull(it) }
+            ?: return Error(internalLocale.notFound)
 
-        if (!allowsBot && member.isBot == true)
+        if (!allowsBot && member.isBot)
             return Error("Cannot be a bot")
 
         return Success(member)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) = listOf(event.author.mention)
+    override suspend fun generateExamples(event: CommandEvent<*>) = listOf(event.author.mention)
     override fun formatData(data: Member) = "@${data.tag}"
 }

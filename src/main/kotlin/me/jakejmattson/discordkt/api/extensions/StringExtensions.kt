@@ -11,7 +11,7 @@ private val urlRegexes = listOf(
     "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)"
 ).map { it.toRegex() }
 
-private val inviteRegex = "(\n|.)*((discord|discordapp).(gg|me|io|com/invite)/)(\n|.)*".toRegex()
+private val inviteRegex = "(\n|.)*((discord).(gg|me|io|com/invite)/)(\n|.)*".toRegex()
 private val roleRegex = "<@&(\\d+)>".toRegex()
 private val userRegex = "<@!?(\\d+)>".toRegex()
 private val hereRegex = "@+here".toRegex()
@@ -31,7 +31,7 @@ fun String.containsInvite() = inviteRegex.matches(this)
  * Whether or not this string is a valid boolean value (true/false/t/f).
  */
 fun String.isBooleanValue() =
-    when (toLowerCase()) {
+    when (lowercase()) {
         "true" -> true
         "false" -> true
         "t" -> true
@@ -64,7 +64,7 @@ private suspend fun String.cleanseRoles(discord: Discord): String {
     val roleMentions = roleRegex.findAll(this).map {
         runBlocking {
             val mention = it.value
-            val roles = discord.api.guilds.toList().flatMap { it.roles.toList() }.map { it.mention to it.name }.toMap()
+            val roles = discord.kord.guilds.toList().flatMap { it.roles.toList() }.associate { it.mention to it.name }
             val resolvedName = roles[mention] ?: ""
 
             mention to resolvedName
@@ -78,7 +78,7 @@ private suspend fun String.cleanseUsers(discord: Discord): String {
     val userMentions = userRegex.findAll(this).map {
         runBlocking {
             val mention = it.value
-            val replacement = mention.toSnowflakeOrNull()?.let { discord.api.getUser(it)?.tag } ?: ""
+            val replacement = mention.toSnowflakeOrNull()?.let { discord.kord.getUser(it)?.tag } ?: ""
 
             mention to replacement
         }

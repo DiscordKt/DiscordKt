@@ -1,14 +1,16 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.dsl.internalLocale
+import me.jakejmattson.discordkt.api.locale.inject
 
 /**
  * Accepts multiple arguments of the given type. Returns a list.
  *
  * @param base The [ArgumentType] that you expect to be used to create the list.
  */
-class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentType<List<T>>() {
-    override val name = if (name.isNotBlank()) name else "${base.name}..."
+class MultipleArg<T>(val base: ArgumentType<T>, override val name: String = "${base.name}...", description: String = "") : ArgumentType<List<T>> {
+    override val description = description.ifBlank { internalLocale.multipleArgDescription.inject(base.name) }
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<T>> {
         val totalResult = mutableListOf<T>()
@@ -36,7 +38,7 @@ class MultipleArg<T>(val base: ArgumentType<T>, name: String = "") : ArgumentTyp
         return Success(totalResult, totalConsumed)
     }
 
-    override fun generateExamples(event: CommandEvent<*>) =
+    override suspend fun generateExamples(event: CommandEvent<*>) =
         base.generateExamples(event).chunked(2).map { it.joinToString(" ") }
 
     override fun formatData(data: List<T>) = "[${data.joinToString { base.formatData(it) }}]"

@@ -1,7 +1,7 @@
 import org.jetbrains.dokka.Platform
 
 group = "me.jakejmattson"
-version = "0.21.3"
+version = "0.22.0"
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
@@ -13,51 +13,64 @@ plugins {
     //Publishing
     signing
     `maven-publish`
-    id("io.codearte.nexus-staging") version "0.22.0"
+    id("io.codearte.nexus-staging") version "0.30.0"
 
     //Misc
-    id("com.github.ben-manes.versions") version "0.33.0"
+    id("com.github.ben-manes.versions") version "0.39.0"
 }
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
-    //Internal Dependencies
-    implementation(Dependencies.coroutines)
-    implementation(Dependencies.reflections)
-    implementation(Dependencies.slf4j)
-    implementation(Dependencies.gson)
+    Dependencies.apply {
+        implementation(reflections)
+        implementation(gson)
 
-    //Library Dependencies
-    api(Dependencies.kord)
-    api(Dependencies.emojis)
+        api(kord)
+        api(emojis)
+        api(slf4j)
+
+        testImplementation(platform(`junit-platform`))
+        testImplementation(junit)
+        testImplementation(mockk)
+    }
 }
 
 tasks {
-    val resourcePath = "src/main/resources"
-
     compileKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+            freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+        }
+    }
+
+    compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
     }
 
+    test {
+        useJUnitPlatform()
+    }
+
     copy {
-        val path = "$resourcePath/templates/readme.md"
+        val path = "templates/readme.md"
 
         from(file(path))
         into(file("."))
         rename { "README.md" }
         expand(
-            "badges" to README.badges,
-            "imports" to README.createImport(group.toString(), version.toString(), isSnapshot)
+            "kotlin" to Versions.kotlin.replace("-", "--"),
+            "kord" to Versions.kord.replace("-", "--"),
+            "discordkt" to version.toString().replace("-", "--"),
+            "imports" to README.createImportBlock(group.toString(), version.toString(), isSnapshot)
         )
     }
 
     copy {
-        from(file("$resourcePath/templates/properties-template.json"))
-        into(file(resourcePath))
+        from(file("templates/properties-template.json"))
+        into(file("src/main/resources"))
         rename { "library-properties.json" }
         expand(
             "projectRepo" to Constants.projectUrl,
@@ -68,7 +81,7 @@ tasks {
     }
 
     dokkaHtml.configure {
-        outputDirectory.set(buildDir.resolve("javadoc"))
+        outputDirectory.set(buildDir.resolve("dokka"))
 
         dokkaSourceSets {
             configureEach {
@@ -79,8 +92,20 @@ tasks {
                 skipEmptyPackages.set(true)
                 reportUndocumented.set(true)
 
-                suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\api\\GenericContainers.kt")
+                includes.from("packages.md")
+                suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\api\\TypeContainers.kt")
             }
+        }
+    }
+
+    register("generateDocs") {
+        description = "Generate documentation for DiscordKt.github.io"
+        dependsOn(listOf(dokkaHtml))
+
+        copy {
+            delete(file("../DiscordKt.github.io/docs/dokka"))
+            from(buildDir.resolve("dokka"))
+            into(file("../DiscordKt.github.io/docs/dokka"))
         }
     }
 
@@ -89,16 +114,16 @@ tasks {
         doLast {
             val sizes = buildString {
                 val configuration = configurations["default"]
-                val size = configuration.map { it.length() / (1024.0 * 1024.0) }.sum()
-                val longestName = configuration.map { it.name.length }.max()
+                val size = configuration.sumOf { it.length() / (1024.0 * 1024.0) }
+                val longestName = configuration.map { it.name.length }.maxOrNull()
                 val formatStr = "%-${longestName}s   %5d KB"
 
-                appendln("Total Size: %.2f MB\n".format(size))
+                appendLine("Total Size: %.2f MB\n".format(size))
 
                 configuration
                     .sortedBy { -it.length() }
                     .forEach {
-                        appendln(formatStr.format(it.name, it.length() / 1024))
+                        appendLine(formatStr.format(it.name, it.length() / 1024))
                     }
             }
 
@@ -114,10 +139,9 @@ val sourcesJar by tasks.creating(Jar::class) {
 
 val dokkaJar by tasks.creating(Jar::class) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Assembles Kotlin docs with Dokka"
     archiveClassifier.set("javadoc")
-    from(tasks.dokkaHtml)
-    dependsOn(tasks.dokkaHtml)
+    from(tasks.dokkaJavadoc)
+    dependsOn(tasks.dokkaJavadoc)
 }
 
 publishing {
@@ -138,15 +162,6 @@ publishing {
                         email.set("JakeJMattson@gmail.com")
                     }
                 }
-                withXml {
-                    val repoNode = asNode().appendNode("repositories").appendNode("repository")
-
-                    with(repoNode) {
-                        appendNode("id", "jcenter")
-                        appendNode("name", "jcenter-bintray")
-                        appendNode("url", "https://jcenter.bintray.com")
-                    }
-                }
                 licenses {
                     license {
                         name.set("MIT")
@@ -154,8 +169,8 @@ publishing {
                     }
                 }
                 scm {
-                    connection.set("scm:git:ssh://github.com/JakeJMattson/DiscordKt.git")
-                    developerConnection.set("scm:git:ssh://git@github.com:JakeJMattson/DiscordKt.git")
+                    connection.set("scm:git:ssh://github.com/discordkt/discordkt.git")
+                    developerConnection.set("scm:git:ssh://git@github.com:discordkt/discordkt.git")
                     url.set(Constants.projectUrl)
                 }
             }

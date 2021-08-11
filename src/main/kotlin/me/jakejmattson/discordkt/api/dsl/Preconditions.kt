@@ -2,7 +2,8 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
-import me.jakejmattson.discordkt.api.*
+import me.jakejmattson.discordkt.api.Discord
+import me.jakejmattson.discordkt.api.TypeContainer
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.utils.BuilderRegister
 
@@ -31,7 +32,7 @@ data class PreconditionBuilder(private val event: CommandEvent<*>) : CommandEven
 /**
  * This is not for you...
  */
-data class Precondition(internal val priority: Int, private val construct: suspend PreconditionBuilder.() -> Unit) : BuilderRegister {
+class Precondition(internal val priority: Int, private val construct: suspend PreconditionBuilder.() -> Unit) : BuilderRegister {
     internal suspend fun check(event: CommandEvent<*>) = construct.invoke(PreconditionBuilder(event))
 
     /** @suppress */

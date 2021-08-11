@@ -2,31 +2,61 @@
 
 package me.jakejmattson.discordkt.api.dsl
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.arguments.ArgumentType
-import me.jakejmattson.discordkt.internal.command.*
+import me.jakejmattson.discordkt.api.arguments.OptionalArg
+import me.jakejmattson.discordkt.api.locale.inject
+import me.jakejmattson.discordkt.internal.annotations.NestedDSL
+import me.jakejmattson.discordkt.internal.command.ParseResult
+import me.jakejmattson.discordkt.internal.command.convertArguments
+
+/**
+ * The bundle of information to be executed when a command is invoked.
+ *
+ * @param arguments The ArgumentTypes accepted by this execution.
+ * @param action The code to be run when this execution is fired.
+ */
+data class Execution<T : CommandEvent<*>>(val arguments: List<ArgumentType<*>>, val action: suspend T.() -> Unit) {
+    /**
+     * Mocks a method signature using [ArgumentType] names, ex: (a, b, c)
+     */
+    val signature
+        get() = "(${arguments.joinToString { it.name }})"
+
+    /**
+     * Each [ArgumentType] separated by a space ex: a b c
+     */
+    val structure
+        get() = arguments.joinToString(" ") {
+            val type = it.name
+            if (it is OptionalArg) "[$type]" else type
+        }
+
+    /**
+     * Run the command logic.
+     */
+    suspend fun execute(event: T) = action.invoke(event)
+}
 
 /**
  * @property names The name(s) this command can be executed by (case insensitive).
  * @property description A brief description of the command - used in documentation.
+ * @property requiredPermission The permission level required to use this command.
  * @property category The category that this command belongs to - set automatically by CommandSet.
- * @property isFlexible Whether or not this command can accept arguments in any order.
- * @property arguments The ArgumentTypes that are required by this function to execute.
- * @property execute The logic that will run whenever this command is executed.
- *
- * @property parameterCount The number of arguments this command accepts.
+ * @property executions The list of [Execution] that this command can be run with.
  */
-sealed class Command(open val names: List<String>,
-                     open var description: String = "<No Description>",
-                     open var isFlexible: Boolean = false) {
+sealed class Command(open val names: List<String>, open var description: String, open var requiredPermission: Enum<*>) {
+    /**
+     * The first name in the [names] list.
+     */
+    open val name: String
+        get() = names.first()
 
     var category: String = ""
-    var arguments: List<ArgumentType<*>> = emptyList()
-    private var execute: suspend CommandEvent<*>.() -> Unit = {}
-
-    val parameterCount: Int
-        get() = arguments.size
+    val executions: MutableList<Execution<*>> = mutableListOf()
 
     /**
      * Whether or not the command can parse the given arguments into a container.
@@ -35,90 +65,214 @@ sealed class Command(open val names: List<String>,
      *
      * @return The result of the parsing operation.
      */
-    suspend fun canParse(event: CommandEvent<*>, args: List<String>) = parseInputToBundle(this, event, args) is ParseResult.Success
+    suspend fun canParse(event: CommandEvent<*>, execution: Execution<*>, args: List<String>) = convertArguments(event, execution.arguments, args) is ParseResult.Success
+
+    /**
+     * Whether or not this command has permission to run with the given event.
+     *
+     * @param event The event context that will attempt to run the command.
+     */
+    suspend fun hasPermissionToRun(event: CommandEvent<*>) = when {
+        this is DmCommand && event.isFromGuild() -> false
+        this is GuildCommand && !event.isFromGuild() -> false
+        else -> {
+            val config = event.discord.permissions
+            val permissionLevels = config.levels
+            val permissionContext = PermissionContext(event.discord, event.author, event.guild)
+            val level = permissionLevels.indexOfFirst { (it as PermissionSet).hasPermission(permissionContext) }
+
+            if (level != -1)
+                level <= permissionLevels.indexOf(requiredPermission)
+            else
+                false
+        }
+    }
 
     /**
      * Invoke this command with the given args.
      */
+    @OptIn(DelicateCoroutinesApi::class)
     fun invoke(event: CommandEvent<TypeContainer>, args: List<String>) {
         GlobalScope.launch {
-            when (val result = parseInputToBundle(this@Command, event, args)) {
-                is ParseResult.Success -> {
-                    event.args = result.argumentContainer
-                    execute.invoke(event)
+            val results = executions.map { it to convertArguments(event, it.arguments, args) }
+            val success = results.firstOrNull { it.second is ParseResult.Success }
+
+            if (success == null) {
+                val failString = results.joinToString("\n") {
+                    val invocationExample =
+                        if (results.size > 1)
+                            "${event.rawInputs.rawMessageContent.substringBefore(" ")} ${it.first.structure}\n"
+                        else ""
+
+                    invocationExample + (it.second as ParseResult.Fail).reason
                 }
-                is ParseResult.Fail -> event.respond(result.reason)
+
+                event.respond(internalLocale.badArgs.inject(event.rawInputs.commandName) + "\n$failString")
+                return@launch
             }
+
+            val (execution, result) = success
+
+            event.args = (result as ParseResult.Success).argumentContainer
+            (execution as Execution<CommandEvent<*>>).execute(event)
         }
     }
 
-    protected fun <T : CommandEvent<TypeContainer>> setExecute(argTypes: List<ArgumentType<*>>, event: suspend T.() -> Unit) {
-        arguments = argTypes
-        execute = event as suspend CommandEvent<*>.() -> Unit
+    protected fun <T : CommandEvent<*>> addExecution(argTypes: List<ArgumentType<*>>, execute: suspend T.() -> Unit) {
+        executions.add(Execution(argTypes, execute))
     }
 }
 
 /**
  * A command that can be executed from anywhere.
  */
-class GlobalCommand(override val names: List<String>,
-                    override var description: String = "<No Description>",
-                    override var isFlexible: Boolean = false) : Command(names, description, isFlexible) {
+open class GlobalCommand(override val names: List<String>, override var description: String, override var requiredPermission: Enum<*>) : Command(names, description, requiredPermission) {
     /** @suppress */
-    fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit) = setExecute(listOf(), execute)
+    @NestedDSL
+    fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
+
     /** @suppress */
-    fun <A> execute(a: ArgumentType<A>, execute: suspend CommandEvent<Args1<A>>.() -> Unit) = setExecute(listOf(a), execute)
+    @NestedDSL
+    fun <A> execute(a: ArgumentType<A>, execute: suspend CommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+
     /** @suppress */
-    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend CommandEvent<Args2<A, B>>.() -> Unit) = setExecute(listOf(a, b), execute)
+    @NestedDSL
+    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend CommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+
     /** @suppress */
-    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend CommandEvent<Args3<A, B, C>>.() -> Unit) = setExecute(listOf(a, b, c), execute)
+    @NestedDSL
+    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend CommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+
     /** @suppress */
-    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend CommandEvent<Args4<A, B, C, D>>.() -> Unit) = setExecute(listOf(a, b, c, d), execute)
+    @NestedDSL
+    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend CommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+
     /** @suppress */
-    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend CommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = setExecute(listOf(a, b, c, d, e), execute)
+    @NestedDSL
+    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend CommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
 
 /**
  * A command that can only be executed in a guild.
  */
-class GuildCommand(override val names: List<String>,
-                   override var description: String = "<No Description>",
-                   override var isFlexible: Boolean = false) : Command(names, description, isFlexible) {
+open class GuildCommand(override val names: List<String>, override var description: String, override var requiredPermission: Enum<*>) : Command(names, description, requiredPermission) {
     /** @suppress */
-    fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit) = setExecute(listOf(), execute)
+    @NestedDSL
+    fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
+
     /** @suppress */
-    fun <A> execute(a: ArgumentType<A>, execute: suspend GuildCommandEvent<Args1<A>>.() -> Unit) = setExecute(listOf(a), execute)
+    @NestedDSL
+    fun <A> execute(a: ArgumentType<A>, execute: suspend GuildCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+
     /** @suppress */
-    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend GuildCommandEvent<Args2<A, B>>.() -> Unit) = setExecute(listOf(a, b), execute)
+    @NestedDSL
+    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend GuildCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+
     /** @suppress */
-    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend GuildCommandEvent<Args3<A, B, C>>.() -> Unit) = setExecute(listOf(a, b, c), execute)
+    @NestedDSL
+    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend GuildCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+
     /** @suppress */
-    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend GuildCommandEvent<Args4<A, B, C, D>>.() -> Unit) = setExecute(listOf(a, b, c, d), execute)
+    @NestedDSL
+    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend GuildCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+
     /** @suppress */
-    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend GuildCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = setExecute(listOf(a, b, c, d, e), execute)
+    @NestedDSL
+    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend GuildCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
 
 /**
  * A command that can only be executed in a DM.
  */
-class DmCommand(override val names: List<String>,
-                override var description: String = "<No Description>",
-                override var isFlexible: Boolean = false) : Command(names, description, isFlexible) {
+class DmCommand(override val names: List<String>, override var description: String, override var requiredPermission: Enum<*>) : Command(names, description, requiredPermission) {
     /** @suppress */
-    fun execute(execute: suspend DmCommandEvent<NoArgs>.() -> Unit) = setExecute(listOf(), execute)
+    @NestedDSL
+    fun execute(execute: suspend DmCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
+
     /** @suppress */
-    fun <A> execute(a: ArgumentType<A>, execute: suspend DmCommandEvent<Args1<A>>.() -> Unit) = setExecute(listOf(a), execute)
+    @NestedDSL
+    fun <A> execute(a: ArgumentType<A>, execute: suspend DmCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+
     /** @suppress */
-    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend DmCommandEvent<Args2<A, B>>.() -> Unit) = setExecute(listOf(a, b), execute)
+    @NestedDSL
+    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend DmCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+
     /** @suppress */
-    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend DmCommandEvent<Args3<A, B, C>>.() -> Unit) = setExecute(listOf(a, b, c), execute)
+    @NestedDSL
+    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend DmCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+
     /** @suppress */
-    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend DmCommandEvent<Args4<A, B, C, D>>.() -> Unit) = setExecute(listOf(a, b, c, d), execute)
+    @NestedDSL
+    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend DmCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+
     /** @suppress */
-    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend DmCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = setExecute(listOf(a, b, c, d, e), execute)
+    @NestedDSL
+    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend DmCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
+}
+
+/**
+ * A command wrapper for a global discord slash command.
+ *
+ * @property name The name of the slash command.
+ */
+class GlobalSlashCommand(override val name: String, override var description: String, override var requiredPermission: Enum<*>) : Command(listOf(name), description, requiredPermission) {
+    /** @suppress */
+    @NestedDSL
+    fun execute(execute: suspend SlashCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A> execute(a: ArgumentType<A>, execute: suspend SlashCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend SlashCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend SlashCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend SlashCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend SlashCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
+}
+
+/**
+ * A command wrapper for a guild discord slash command.
+ *
+ * @property name The name of the slash command.
+ */
+class GuildSlashCommand(override val name: String, override var description: String, override var requiredPermission: Enum<*>) : Command(listOf(name), description, requiredPermission) {
+    /** @suppress */
+    @NestedDSL
+    fun execute(execute: suspend SlashCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A> execute(a: ArgumentType<A>, execute: suspend SlashCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend SlashCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend SlashCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend SlashCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+
+    /** @suppress */
+    @NestedDSL
+    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend SlashCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
 
 /**
  * Get a command by its name (case insensitive).
  */
-operator fun MutableList<Command>.get(name: String) = firstOrNull { name.toLowerCase() in it.names.map { it.toLowerCase() } }
+operator fun MutableList<Command>.get(query: String) = firstOrNull { cmd -> cmd.names.any { it.equals(query, true) } }
