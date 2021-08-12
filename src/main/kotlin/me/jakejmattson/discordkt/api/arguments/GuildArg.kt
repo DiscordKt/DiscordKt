@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.api.arguments
 
 import dev.kord.core.entity.Guild
 import dev.kord.core.firstOrNull
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.commands.CommandEvent
 import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 

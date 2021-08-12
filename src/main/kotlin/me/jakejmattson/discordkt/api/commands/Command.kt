@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.api.dsl
+package me.jakejmattson.discordkt.api.commands
 
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -8,6 +8,9 @@ import kotlinx.coroutines.launch
 import me.jakejmattson.discordkt.api.*
 import me.jakejmattson.discordkt.api.arguments.Argument
 import me.jakejmattson.discordkt.api.arguments.OptionalArg
+import me.jakejmattson.discordkt.api.dsl.PermissionContext
+import me.jakejmattson.discordkt.api.dsl.PermissionSet
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.locale.inject
 import me.jakejmattson.discordkt.internal.annotations.NestedDSL
 import me.jakejmattson.discordkt.internal.command.ParseResult

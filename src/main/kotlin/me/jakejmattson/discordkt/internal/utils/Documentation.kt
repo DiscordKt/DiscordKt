@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.api.arguments.MultipleArg
 import me.jakejmattson.discordkt.api.arguments.OptionalArg
-import me.jakejmattson.discordkt.api.dsl.Command
+import me.jakejmattson.discordkt.api.commands.Command
 import java.io.File
 import kotlin.math.max
 

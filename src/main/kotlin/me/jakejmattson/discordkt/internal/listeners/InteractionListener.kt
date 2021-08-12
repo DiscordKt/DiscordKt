@@ -11,6 +11,7 @@ import dev.kord.x.emoji.Emojis
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.TypeContainer
 import me.jakejmattson.discordkt.api.arguments.*
+import me.jakejmattson.discordkt.api.commands.*
 import me.jakejmattson.discordkt.api.conversations.Conversations
 import me.jakejmattson.discordkt.api.dsl.*
 

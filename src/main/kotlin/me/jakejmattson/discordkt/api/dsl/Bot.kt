@@ -8,6 +8,8 @@ import dev.kord.gateway.builder.PresenceBuilder
 import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.Discord
+import me.jakejmattson.discordkt.api.commands.Command
+import me.jakejmattson.discordkt.api.commands.DiscordContext
 import me.jakejmattson.discordkt.api.extensions.intentsOf
 import me.jakejmattson.discordkt.api.locale.Language
 import me.jakejmattson.discordkt.api.locale.Locale

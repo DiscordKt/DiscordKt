@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import dev.kord.core.entity.Attachment
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.commands.CommandEvent
 import me.jakejmattson.discordkt.api.dsl.internalLocale
 
 /**

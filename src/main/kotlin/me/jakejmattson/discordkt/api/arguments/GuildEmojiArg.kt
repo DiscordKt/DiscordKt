@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.api.arguments
 
 import dev.kord.core.entity.GuildEmoji
 import kotlinx.coroutines.flow.toList
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.commands.CommandEvent
 import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 import me.jakejmattson.discordkt.api.extensions.trimToID

@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.api.arguments
 
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.Emojis
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.commands.CommandEvent
 import me.jakejmattson.discordkt.api.dsl.internalLocale
 
 /**

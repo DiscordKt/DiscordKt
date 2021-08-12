@@ -4,7 +4,7 @@ import dev.kord.common.kColor
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.arguments.AnyArg
 import me.jakejmattson.discordkt.api.arguments.Argument
-import me.jakejmattson.discordkt.api.dsl.*
+import me.jakejmattson.discordkt.api.commands.*
 import java.awt.Color
 
 internal fun produceHelpCommand(category: String) = commands(category) {

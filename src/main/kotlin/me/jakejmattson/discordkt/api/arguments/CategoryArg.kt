@@ -4,7 +4,7 @@ import dev.kord.common.entity.Snowflake
 import dev.kord.core.entity.channel.Category
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.toList
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.commands.CommandEvent
 import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 import me.jakejmattson.discordkt.internal.utils.resolveEntityByName

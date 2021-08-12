@@ -5,7 +5,7 @@ import me.jakejmattson.discordkt.api.arguments.Argument
 import me.jakejmattson.discordkt.api.arguments.Error
 import me.jakejmattson.discordkt.api.arguments.Success
 import me.jakejmattson.discordkt.api.bundleToContainer
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.commands.CommandEvent
 
 /**
  * Intermediate result of manual parsing.

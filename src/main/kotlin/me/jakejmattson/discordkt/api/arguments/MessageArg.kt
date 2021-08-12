@@ -3,7 +3,7 @@ package me.jakejmattson.discordkt.api.arguments
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.channel.GuildMessageChannel
 import kotlinx.coroutines.flow.firstOrNull
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
+import me.jakejmattson.discordkt.api.commands.CommandEvent
 import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 

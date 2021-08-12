@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.internal.command
 
-import me.jakejmattson.discordkt.api.dsl.RawInputs
+import me.jakejmattson.discordkt.api.commands.RawInputs
 
 internal fun stripPrefixInvocation(message: String, prefix: String): RawInputs {
     val prefixSeq = generateSequence(prefix) { it + prefix }

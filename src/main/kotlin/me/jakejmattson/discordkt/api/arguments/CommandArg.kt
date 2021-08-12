@@ -1,6 +1,9 @@
 package me.jakejmattson.discordkt.api.arguments
 
-import me.jakejmattson.discordkt.api.dsl.*
+import me.jakejmattson.discordkt.api.commands.Command
+import me.jakejmattson.discordkt.api.commands.CommandEvent
+import me.jakejmattson.discordkt.api.commands.get
+import me.jakejmattson.discordkt.api.dsl.internalLocale
 
 /**
  * Accepts a DiscordKt command by name.

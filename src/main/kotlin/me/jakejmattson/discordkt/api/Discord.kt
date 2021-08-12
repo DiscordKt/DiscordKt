@@ -14,6 +14,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import me.jakejmattson.discordkt.api.annotations.Service
 import me.jakejmattson.discordkt.api.arguments.*
+import me.jakejmattson.discordkt.api.commands.*
 import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.pluralize
 import me.jakejmattson.discordkt.api.locale.Locale

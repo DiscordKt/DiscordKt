@@ -14,8 +14,8 @@ import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.TypeContainer
 import me.jakejmattson.discordkt.api.arguments.*
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
-import me.jakejmattson.discordkt.api.dsl.RawInputs
+import me.jakejmattson.discordkt.api.commands.CommandEvent
+import me.jakejmattson.discordkt.api.commands.RawInputs
 import me.jakejmattson.discordkt.api.dsl.Responder
 import java.util.*
 import kotlin.concurrent.schedule

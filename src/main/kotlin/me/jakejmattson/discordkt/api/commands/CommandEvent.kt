@@ -1,4 +1,4 @@
-package me.jakejmattson.discordkt.api.dsl
+package me.jakejmattson.discordkt.api.commands
 
 import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.entity.Guild
@@ -11,6 +11,7 @@ import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.addReaction
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.TypeContainer
+import me.jakejmattson.discordkt.api.dsl.Responder
 
 /**
  * Data class containing the raw information from the command execution.

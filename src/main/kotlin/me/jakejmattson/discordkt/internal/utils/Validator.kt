@@ -2,8 +2,8 @@ package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.arguments.EitherArg
-import me.jakejmattson.discordkt.api.dsl.Command
-import me.jakejmattson.discordkt.api.dsl.GlobalSlashCommand
+import me.jakejmattson.discordkt.api.commands.Command
+import me.jakejmattson.discordkt.api.commands.GlobalSlashCommand
 import me.jakejmattson.discordkt.api.dsl.PermissionSet
 
 @PublishedApi

@@ -7,6 +7,7 @@ import dev.kord.gateway.Intents
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.Emojis
+import me.jakejmattson.discordkt.api.commands.DiscordContext
 import me.jakejmattson.discordkt.internal.annotations.NestedDSL
 import java.awt.Color
 

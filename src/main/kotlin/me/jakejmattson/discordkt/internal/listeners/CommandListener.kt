@@ -9,8 +9,8 @@ import dev.kord.x.emoji.Emojis
 import dev.kord.x.emoji.addReaction
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.TypeContainer
+import me.jakejmattson.discordkt.api.commands.*
 import me.jakejmattson.discordkt.api.conversations.Conversations
-import me.jakejmattson.discordkt.api.dsl.*
 import me.jakejmattson.discordkt.api.extensions.trimToID
 import me.jakejmattson.discordkt.internal.command.stripMentionInvocation
 import me.jakejmattson.discordkt.internal.command.stripPrefixInvocation
