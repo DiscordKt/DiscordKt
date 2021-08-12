@@ -49,7 +49,7 @@ internal suspend fun registerInteractionListener(discord: Discord) = discord.kor
 }
 
 @OptIn(KordPreview::class)
-private fun simplifySlashArgs(complexArgs: List<Pair<ArgumentType<*>, OptionValue<*>>>) =
+private fun simplifySlashArgs(complexArgs: List<Pair<Argument<*>, OptionValue<*>>>) =
     complexArgs.joinToString(" ") { (arg, optionalValue) ->
         when (arg) {
             is IntegerArg -> optionalValue.int().toString()

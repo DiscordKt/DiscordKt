@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.internal.command
 
 import me.jakejmattson.discordkt.api.TypeContainer
-import me.jakejmattson.discordkt.api.arguments.ArgumentType
+import me.jakejmattson.discordkt.api.arguments.Argument
 import me.jakejmattson.discordkt.api.arguments.Error
 import me.jakejmattson.discordkt.api.arguments.Success
 import me.jakejmattson.discordkt.api.bundleToContainer
@@ -15,15 +15,15 @@ internal interface ParseResult {
     data class Fail(val reason: String = "") : ParseResult
 }
 
-internal sealed class DataMap(val argument: ArgumentType<Any>)
-internal data class SuccessData<T>(private val arg: ArgumentType<Any>, val value: T) : DataMap(arg)
-internal data class ErrorData(private val arg: ArgumentType<Any>, val error: String) : DataMap(arg)
+internal sealed class DataMap(val argument: Argument<Any>)
+internal data class SuccessData<T>(private val arg: Argument<Any>, val value: T) : DataMap(arg)
+internal data class ErrorData(private val arg: Argument<Any>, val error: String) : DataMap(arg)
 
-internal suspend fun convertArguments(event: CommandEvent<*>, expected: List<ArgumentType<*>>, actual: List<String>): ParseResult {
+internal suspend fun convertArguments(event: CommandEvent<*>, expected: List<Argument<*>>, actual: List<String>): ParseResult {
     val remainingArgs = actual.filter { it.isNotBlank() }.toMutableList()
     var hasFatalError = false
 
-    expected as List<ArgumentType<Any>>
+    expected as List<Argument<Any>>
 
     val conversionData = expected.map { expectedArg ->
         if (hasFatalError)
@@ -34,7 +34,7 @@ internal suspend fun convertArguments(event: CommandEvent<*>, expected: List<Arg
         when (val conversionResult = expectedArg.convert(firstArg, remainingArgs, event)) {
             is Success -> {
                 if (conversionResult.consumed > remainingArgs.size)
-                    throw IllegalArgumentException("ArgumentType ${expectedArg.name} consumed more arguments than available.")
+                    throw IllegalArgumentException("Argument ${expectedArg.name} consumed more arguments than available.")
 
                 if (remainingArgs.isNotEmpty())
                     remainingArgs.slice(0 until conversionResult.consumed).forEach { remainingArgs.remove(it) }

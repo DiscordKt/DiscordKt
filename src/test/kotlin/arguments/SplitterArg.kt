@@ -4,7 +4,7 @@ import me.jakejmattson.discordkt.api.arguments.SplitterArg
 import utilities.ArgumentTestFactory
 
 class SplitterArgTest : ArgumentTestFactory {
-    override val argumentType = SplitterArg
+    override val argument = SplitterArg
 
     override val validArgs = listOf(
         "Hello|World" to listOf("Hello", "World"),

@@ -3,7 +3,7 @@ package me.jakejmattson.discordkt.internal.utils
 import dev.kord.common.kColor
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.arguments.AnyArg
-import me.jakejmattson.discordkt.api.arguments.ArgumentType
+import me.jakejmattson.discordkt.api.arguments.Argument
 import me.jakejmattson.discordkt.api.dsl.*
 import java.awt.Color
 
@@ -74,7 +74,7 @@ private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String,
         }
     }
 
-private fun ArgumentType<*>.generateExample(event: CommandEvent<*>) =
+private fun Argument<*>.generateExample(event: CommandEvent<*>) =
     runBlocking { generateExamples(event) }
         .takeIf { it.isNotEmpty() }
         ?.random()

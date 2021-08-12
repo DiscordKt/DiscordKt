@@ -7,7 +7,7 @@ import me.jakejmattson.discordkt.api.dsl.internalLocale
  * Accepts a group of arguments surrounded by quotation marks.
  */
 open class QuoteArg(override val name: String = "Quote",
-                    override val description: String = internalLocale.quoteArgDescription) : ArgumentType<String> {
+                    override val description: String = internalLocale.quoteArgDescription) : Argument<String> {
     /**
      * Accepts a group of arguments surrounded by quotation marks.
      */

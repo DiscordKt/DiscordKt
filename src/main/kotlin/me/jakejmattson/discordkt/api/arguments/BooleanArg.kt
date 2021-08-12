@@ -13,7 +13,7 @@ import me.jakejmattson.discordkt.api.locale.inject
 open class BooleanArg(override val name: String = "Boolean",
                       private val truthValue: String = "true",
                       private val falseValue: String = "false",
-                      override val description: String = internalLocale.booleanArgDescription.inject(truthValue, falseValue)) : ArgumentType<Boolean> {
+                      override val description: String = internalLocale.booleanArgDescription.inject(truthValue, falseValue)) : Argument<Boolean> {
     /**
      * Accepts either true or false.
      */

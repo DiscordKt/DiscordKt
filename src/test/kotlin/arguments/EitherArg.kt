@@ -4,7 +4,7 @@ import me.jakejmattson.discordkt.api.arguments.*
 import utilities.ArgumentTestFactory
 
 class EitherArgTest : ArgumentTestFactory {
-    override val argumentType = EitherArg(IntegerArg, QuoteArg)
+    override val argument = EitherArg(IntegerArg, QuoteArg)
 
     override val validArgs = listOf(
         "1" to Left(1),

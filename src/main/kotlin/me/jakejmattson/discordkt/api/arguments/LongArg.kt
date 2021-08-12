@@ -7,7 +7,7 @@ import me.jakejmattson.discordkt.api.dsl.internalLocale
  * Accept a whole number in the long range.
  */
 open class LongArg(override val name: String = "Long",
-                   override val description: String = internalLocale.longArgDescription) : ArgumentType<Long> {
+                   override val description: String = internalLocale.longArgDescription) : Argument<Long> {
     /**
      * Accept a whole number in the long range.
      */

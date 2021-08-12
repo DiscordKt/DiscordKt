@@ -18,7 +18,7 @@ import me.jakejmattson.discordkt.internal.utils.resolveEntityByName
 open class CategoryArg(override val name: String = "Category",
                        override val description: String = internalLocale.categoryArgDescription,
                        private val guildId: Snowflake? = null,
-                       private val allowsGlobal: Boolean = false) : ArgumentType<Category> {
+                       private val allowsGlobal: Boolean = false) : Argument<Category> {
     /**
      * Accepts a Discord Category entity as an ID, a mention, or by name from within this guild.
      */

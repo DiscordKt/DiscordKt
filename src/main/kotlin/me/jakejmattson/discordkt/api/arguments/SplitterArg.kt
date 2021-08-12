@@ -11,7 +11,7 @@ import me.jakejmattson.discordkt.api.locale.inject
  */
 open class SplitterArg(private val splitter: String = "|",
                        override val name: String = "TextWithSplitter",
-                       override val description: String = internalLocale.splitterArgDescription.inject(splitter)) : ArgumentType<List<String>> {
+                       override val description: String = internalLocale.splitterArgDescription.inject(splitter)) : Argument<List<String>> {
     /**
      * Consumes all arguments and returns a list of the results (split by splitter character).
      */

@@ -8,7 +8,7 @@ import me.jakejmattson.discordkt.api.dsl.internalLocale
  * Accepts a file as a message attachment.
  */
 open class AttachmentArg(override val name: String = "Attachment",
-                         override val description: String = internalLocale.attachmentArgDescription) : ArgumentType<Attachment> {
+                         override val description: String = internalLocale.attachmentArgDescription) : Argument<Attachment> {
     /**
      * Accepts a file as a message attachment.
      */

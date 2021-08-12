@@ -8,7 +8,7 @@ import me.jakejmattson.discordkt.internal.utils.convertTimeString
  * Accepts a group of time elements and returns the number of seconds as a double.
  */
 open class TimeArg(override val name: String = "Time",
-                   override val description: String = internalLocale.timeArgDescription) : ArgumentType<Double> {
+                   override val description: String = internalLocale.timeArgDescription) : Argument<Double> {
     /**
      * Accepts a group of time elements and returns the number of seconds as a double.
      */

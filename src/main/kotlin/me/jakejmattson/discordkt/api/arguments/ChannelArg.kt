@@ -13,7 +13,7 @@ import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
  */
 open class ChannelArg<T : GuildChannel>(override val name: String = "Channel",
                                         override val description: String = internalLocale.channelArgDescription,
-                                        private val allowsGlobal: Boolean = false) : ArgumentType<T> {
+                                        private val allowsGlobal: Boolean = false) : Argument<T> {
     /**
      * Accepts a Discord TextChannel entity as an ID or mention from within this guild.
      */

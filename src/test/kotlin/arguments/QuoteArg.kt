@@ -4,7 +4,7 @@ import me.jakejmattson.discordkt.api.arguments.QuoteArg
 import utilities.ArgumentTestFactory
 
 class QuoteArgTest : ArgumentTestFactory {
-    override val argumentType = QuoteArg
+    override val argument = QuoteArg
 
     override val validArgs = listOf(
         "\"\"" to "",

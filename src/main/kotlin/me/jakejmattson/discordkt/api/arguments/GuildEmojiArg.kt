@@ -14,7 +14,7 @@ import me.jakejmattson.discordkt.api.extensions.trimToID
  */
 open class GuildEmojiArg(override val name: String = "Guild Emoji",
                          override val description: String = internalLocale.guildEmojiArgDescription,
-                         private val allowsGlobal: Boolean = false) : ArgumentType<GuildEmoji> {
+                         private val allowsGlobal: Boolean = false) : Argument<GuildEmoji> {
     /**
      * Accepts a guild emote from within this guild.
      */

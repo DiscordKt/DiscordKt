@@ -11,13 +11,13 @@ import org.junit.jupiter.api.*
 private val commandEventMock = mockk<CommandEvent<*>> { }
 
 interface ArgumentTestFactory {
-    val argumentType: ArgumentType<*>
+    val argument: Argument<*>
     val validArgs: List<Pair<String, *>>
     val invalidArgs: List<String>
 
     @TestFactory
     fun `valid input`() = validArgs.map { (input, expected) ->
-        when (val conversionResult = argumentType.attemptConvert(input)) {
+        when (val conversionResult = argument.attemptConvert(input)) {
             is Success<*> -> {
                 DynamicTest.dynamicTest("\"$input\" -> $expected") {
                     Assertions.assertEquals(conversionResult.result, expected)
@@ -33,7 +33,7 @@ interface ArgumentTestFactory {
 
     @TestFactory
     fun `invalid input`() = invalidArgs.map { input ->
-        when (val conversionResult = argumentType.attemptConvert(input)) {
+        when (val conversionResult = argument.attemptConvert(input)) {
             is Error<*> -> {
                 DynamicTest.dynamicTest("\"$input\" -> ${conversionResult.error}") {
                     Assertions.assertTrue(true)
@@ -56,7 +56,7 @@ interface ArgumentTestFactory {
     }
 }
 
-private fun ArgumentType<*>.attemptConvert(input: String): ArgumentResult<*> {
+private fun Argument<*>.attemptConvert(input: String): ArgumentResult<*> {
     val split = input.split(" ")
     var result: ArgumentResult<*>
 

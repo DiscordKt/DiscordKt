@@ -8,7 +8,7 @@ import kotlin.random.Random
  * Accept a decimal number in the double range.
  */
 open class DoubleArg(override val name: String = "Double",
-                     override val description: String = internalLocale.doubleArgDescription) : ArgumentType<Double> {
+                     override val description: String = internalLocale.doubleArgDescription) : Argument<Double> {
     /**
      * Accept a decimal number in the double range.
      */

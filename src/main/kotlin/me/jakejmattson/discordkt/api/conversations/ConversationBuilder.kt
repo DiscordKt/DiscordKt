@@ -69,18 +69,18 @@ data class ConversationBuilder(val discord: Discord,
     /**
      * Prompt the user with a String. Re-prompt until the response converts correctly. Then apply a custom predicate as an additional check.
      *
-     * @param argumentType The [ArgumentType] that the prompt expects in response.
+     * @param argument The [Argument] that the prompt expects in response.
      * @param prompt The string message sent to the user as a prompt for information.
      * @param error The error String to send when the input fails the custom check.
      * @param isValid A predicate to determine whether or not the input is accepted.
      */
     @Throws(DmException::class)
-    suspend fun <T> promptUntil(argumentType: ArgumentType<T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
-        var value: T = prompt(argumentType, prompt)
+    suspend fun <T> promptUntil(argument: Argument<T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
+        var value: T = prompt(argument, prompt)
 
         while (!isValid.invoke(value)) {
             channel.createMessage(error).also { it.let { botMessageIds.add(it.id) } }
-            value = prompt(argumentType, prompt)
+            value = prompt(argument, prompt)
         }
 
         return value
@@ -89,13 +89,13 @@ data class ConversationBuilder(val discord: Discord,
     /**
      * Prompt the user with text and/or embed.
      *
-     * @param argumentType The [ArgumentType] that the prompt expects in response.
+     * @param argument The [Argument] that the prompt expects in response.
      * @param text A String sent as part of the prompt.
      * @param embed The embed sent as part of the prompt.
      */
     @Throws(DmException::class, TimeoutException::class)
-    suspend fun <T> prompt(argumentType: ArgumentType<T>, text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): T {
-        require(argumentType !is OptionalArg<*>) { "Conversation arguments cannot be optional" }
+    suspend fun <T> prompt(argument: Argument<T>, text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): T {
+        require(argument !is OptionalArg<*>) { "Conversation arguments cannot be optional" }
 
         val message = channel.createMessage {
             content = text.takeIf { it.isNotBlank() }
@@ -109,7 +109,7 @@ data class ConversationBuilder(val discord: Discord,
 
         botMessageIds.add(message.id)
 
-        return retrieveValidTextResponse(argumentType)
+        return retrieveValidTextResponse(argument)
     }
 
     /**
@@ -129,11 +129,11 @@ data class ConversationBuilder(val discord: Discord,
         return retrieveValidInteractionResponse(builder.valueMap)
     }
 
-    private fun <T> retrieveValidTextResponse(argumentType: ArgumentType<T>): T = runBlocking {
-        retrieveTextResponse(argumentType) ?: retrieveValidTextResponse(argumentType)
+    private fun <T> retrieveValidTextResponse(argument: Argument<T>): T = runBlocking {
+        retrieveTextResponse(argument) ?: retrieveValidTextResponse(argument)
     }
 
-    private suspend fun <T> retrieveTextResponse(argumentType: ArgumentType<T>) = select<T?> {
+    private suspend fun <T> retrieveTextResponse(argument: Argument<T>) = select<T?> {
         val timer = createTimer()
 
         exceptionBuffer.onReceive { timeoutException ->
@@ -148,7 +148,7 @@ data class ConversationBuilder(val discord: Discord,
 
             timer?.cancel()
 
-            when (val result = parseResponse(argumentType, message)) {
+            when (val result = parseResponse(argument, message)) {
                 is Success<T> -> result.result
                 is Error<T> -> {
                     respond(result.error)
@@ -190,10 +190,10 @@ data class ConversationBuilder(val discord: Discord,
         }
     }
 
-    private suspend fun <T> parseResponse(argumentType: ArgumentType<T>, message: Message): ArgumentResult<T> {
+    private suspend fun <T> parseResponse(argument: Argument<T>, message: Message): ArgumentResult<T> {
         val rawInputs = RawInputs(message.content, "", 0, message.content.split(" "))
         val commandEvent = CommandEvent<TypeContainer>(rawInputs, discord, message, message.author!!, message.channel.asChannel(), message.getGuildOrNull())
-        return argumentType.convert(message.content, commandEvent.rawInputs.commandArgs, commandEvent)
+        return argument.convert(message.content, commandEvent.rawInputs.commandArgs, commandEvent)
     }
 
     private fun createTimer() =

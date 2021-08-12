@@ -14,7 +14,7 @@ import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
  */
 open class MessageArg(override val name: String = "Message",
                       override val description: String = internalLocale.messageArgDescription,
-                      private val allowsGlobal: Boolean = false) : ArgumentType<Message> {
+                      private val allowsGlobal: Boolean = false) : Argument<Message> {
     /**
      * Accepts a Discord Message entity as an ID or a link from within this guild.
      */

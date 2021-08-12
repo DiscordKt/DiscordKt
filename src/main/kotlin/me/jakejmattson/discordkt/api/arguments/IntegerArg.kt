@@ -7,7 +7,7 @@ import me.jakejmattson.discordkt.api.dsl.internalLocale
  * Accept a whole number in the int range.
  */
 open class IntegerArg(override val name: String = "Integer",
-                      override val description: String = internalLocale.integerArgDescription) : ArgumentType<Int> {
+                      override val description: String = internalLocale.integerArgDescription) : Argument<Int> {
     /**
      * Accept a whole number in the int range.
      */

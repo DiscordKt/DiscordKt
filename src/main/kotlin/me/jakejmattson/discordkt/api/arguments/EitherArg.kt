@@ -38,12 +38,12 @@ sealed class Either<out L, out R> {
 }
 
 /**
- * Accept either the left argument or the right [ArgumentType].
+ * Accept either the left argument or the right [Argument].
  *
- * @param left The first [ArgumentType] to attempt to convert the data to.
- * @param right The second [ArgumentType] to attempt to convert the data to.
+ * @param left The first [Argument] to attempt to convert the data to.
+ * @param right The second [Argument] to attempt to convert the data to.
  */
-class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, name: String = "", description: String = "") : ArgumentType<Either<L, R>> {
+class EitherArg<L, R>(val left: Argument<L>, val right: Argument<R>, name: String = "", description: String = "") : Argument<Either<L, R>> {
     override val name = name.ifBlank { "${left.name} | ${right.name}" }
     override val description = description.ifBlank { internalLocale.eitherArgDescription.inject(left.name, right.name) }
 
@@ -69,4 +69,4 @@ class EitherArg<L, R>(val left: ArgumentType<L>, val right: ArgumentType<R>, nam
 /**
  * Syntactic sugar for creating an EitherArg from the two given types.
  */
-infix fun <L, R> ArgumentType<L>.or(right: ArgumentType<R>) = EitherArg(this, right)
+infix fun <L, R> Argument<L>.or(right: Argument<R>) = EitherArg(this, right)

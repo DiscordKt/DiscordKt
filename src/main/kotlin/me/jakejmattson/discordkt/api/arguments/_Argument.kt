@@ -11,12 +11,12 @@ import me.jakejmattson.discordkt.internal.utils.simplerName
  * @property name The display name for this type in documentations and examples.
  * @property description A description of the data that this type represents.
  */
-interface ArgumentType<T> : Cloneable {
+interface Argument<T> : Cloneable {
     val name: String
     val description: String
 
     /**
-     * Accept multiple inputs of this ArgumentType.
+     * Accept multiple inputs of this Argument.
      */
     fun multiple() = MultipleArg(this)
 
@@ -66,7 +66,7 @@ interface ArgumentType<T> : Cloneable {
     suspend fun generateExamples(event: CommandEvent<*>): List<String>
 
     /**
-     * Create a custom formatter for the data this ArgumentType produces.
+     * Create a custom formatter for the data this [Argument] produces.
      */
     fun formatData(data: T) = data.toString()
 

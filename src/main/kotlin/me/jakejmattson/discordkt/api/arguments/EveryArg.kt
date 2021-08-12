@@ -7,7 +7,7 @@ import me.jakejmattson.discordkt.api.dsl.internalLocale
  * Consumes all remaining arguments. Does not accept empty strings.
  */
 open class EveryArg(override val name: String = "Text",
-                    override val description: String = internalLocale.everyArgDescription) : ArgumentType<String> {
+                    override val description: String = internalLocale.everyArgDescription) : Argument<String> {
     /**
      * Consumes all remaining arguments. Does not accept empty strings.
      */

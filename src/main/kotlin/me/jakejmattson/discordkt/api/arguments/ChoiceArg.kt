@@ -11,7 +11,7 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
  */
 open class ChoiceArg<T>(override val name: String,
                         override val description: String = internalLocale.choiceArgDescription,
-                        vararg choices: T) : ArgumentType<T> {
+                        vararg choices: T) : Argument<T> {
     private val enumerations = choices.associateBy { it.toString().lowercase() }
     private val options = enumerations.keys
 

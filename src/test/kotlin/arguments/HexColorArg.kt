@@ -5,7 +5,7 @@ import utilities.ArgumentTestFactory
 import java.awt.Color
 
 class HexColorArgTest : ArgumentTestFactory {
-    override val argumentType = HexColorArg
+    override val argument = HexColorArg
 
     override val validArgs = listOf(
         "#000000" to Color(0x000000),

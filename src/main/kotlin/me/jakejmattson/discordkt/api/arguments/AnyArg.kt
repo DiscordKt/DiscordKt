@@ -7,7 +7,7 @@ import me.jakejmattson.discordkt.api.dsl.internalLocale
  * Accepts any (single) argument. Does not accept empty strings.
  */
 open class AnyArg(override val name: String = "Any",
-                  override val description: String = internalLocale.anyArgDescription) : ArgumentType<String> {
+                  override val description: String = internalLocale.anyArgDescription) : Argument<String> {
     /**
      * Accepts any (single) argument. Does not accept empty strings.
      */

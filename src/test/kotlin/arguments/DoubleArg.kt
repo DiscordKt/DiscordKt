@@ -4,7 +4,7 @@ import me.jakejmattson.discordkt.api.arguments.DoubleArg
 import utilities.ArgumentTestFactory
 
 class DoubleArgTest : ArgumentTestFactory {
-    override val argumentType = DoubleArg
+    override val argument = DoubleArg
 
     override val validArgs = listOf(
         "100" to 100.0,

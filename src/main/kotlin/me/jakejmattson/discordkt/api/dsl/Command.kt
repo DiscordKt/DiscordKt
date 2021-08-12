@@ -6,7 +6,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.jakejmattson.discordkt.api.*
-import me.jakejmattson.discordkt.api.arguments.ArgumentType
+import me.jakejmattson.discordkt.api.arguments.Argument
 import me.jakejmattson.discordkt.api.arguments.OptionalArg
 import me.jakejmattson.discordkt.api.locale.inject
 import me.jakejmattson.discordkt.internal.annotations.NestedDSL
@@ -16,18 +16,18 @@ import me.jakejmattson.discordkt.internal.command.convertArguments
 /**
  * The bundle of information to be executed when a command is invoked.
  *
- * @param arguments The ArgumentTypes accepted by this execution.
+ * @param arguments The [Argument]s accepted by this execution.
  * @param action The code to be run when this execution is fired.
  */
-data class Execution<T : CommandEvent<*>>(val arguments: List<ArgumentType<*>>, val action: suspend T.() -> Unit) {
+data class Execution<T : CommandEvent<*>>(val arguments: List<Argument<*>>, val action: suspend T.() -> Unit) {
     /**
-     * Mocks a method signature using [ArgumentType] names, ex: (a, b, c)
+     * Mocks a method signature using [Argument] names, ex: (a, b, c)
      */
     val signature
         get() = "(${arguments.joinToString { it.name }})"
 
     /**
-     * Each [ArgumentType] separated by a space ex: a b c
+     * Each [Argument] separated by a space ex: a b c
      */
     val structure
         get() = arguments.joinToString(" ") {
@@ -118,7 +118,7 @@ sealed class Command(open val names: List<String>, open var description: String,
         }
     }
 
-    protected fun <T : CommandEvent<*>> addExecution(argTypes: List<ArgumentType<*>>, execute: suspend T.() -> Unit) {
+    protected fun <T : CommandEvent<*>> addExecution(argTypes: List<Argument<*>>, execute: suspend T.() -> Unit) {
         executions.add(Execution(argTypes, execute))
     }
 }
@@ -133,23 +133,23 @@ open class GlobalCommand(override val names: List<String>, override var descript
 
     /** @suppress */
     @NestedDSL
-    fun <A> execute(a: ArgumentType<A>, execute: suspend CommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+    fun <A> execute(a: Argument<A>, execute: suspend CommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend CommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+    fun <A, B> execute(a: Argument<A>, b: Argument<B>, execute: suspend CommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend CommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+    fun <A, B, C> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, execute: suspend CommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend CommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+    fun <A, B, C, D> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, d: Argument<D>, execute: suspend CommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend CommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
+    fun <A, B, C, D, E> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, d: Argument<D>, e: Argument<E>, execute: suspend CommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
 
 /**
@@ -162,23 +162,23 @@ open class GuildCommand(override val names: List<String>, override var descripti
 
     /** @suppress */
     @NestedDSL
-    fun <A> execute(a: ArgumentType<A>, execute: suspend GuildCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+    fun <A> execute(a: Argument<A>, execute: suspend GuildCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend GuildCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+    fun <A, B> execute(a: Argument<A>, b: Argument<B>, execute: suspend GuildCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend GuildCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+    fun <A, B, C> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, execute: suspend GuildCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend GuildCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+    fun <A, B, C, D> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, d: Argument<D>, execute: suspend GuildCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend GuildCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
+    fun <A, B, C, D, E> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, d: Argument<D>, e: Argument<E>, execute: suspend GuildCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
 
 /**
@@ -191,23 +191,23 @@ class DmCommand(override val names: List<String>, override var description: Stri
 
     /** @suppress */
     @NestedDSL
-    fun <A> execute(a: ArgumentType<A>, execute: suspend DmCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+    fun <A> execute(a: Argument<A>, execute: suspend DmCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend DmCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+    fun <A, B> execute(a: Argument<A>, b: Argument<B>, execute: suspend DmCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend DmCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+    fun <A, B, C> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, execute: suspend DmCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend DmCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+    fun <A, B, C, D> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, d: Argument<D>, execute: suspend DmCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend DmCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
+    fun <A, B, C, D, E> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, d: Argument<D>, e: Argument<E>, execute: suspend DmCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
 
 /**
@@ -222,23 +222,23 @@ class GlobalSlashCommand(override val name: String, override var description: St
 
     /** @suppress */
     @NestedDSL
-    fun <A> execute(a: ArgumentType<A>, execute: suspend SlashCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+    fun <A> execute(a: Argument<A>, execute: suspend SlashCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend SlashCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+    fun <A, B> execute(a: Argument<A>, b: Argument<B>, execute: suspend SlashCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend SlashCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+    fun <A, B, C> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, execute: suspend SlashCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend SlashCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+    fun <A, B, C, D> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, d: Argument<D>, execute: suspend SlashCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend SlashCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
+    fun <A, B, C, D, E> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, d: Argument<D>, e: Argument<E>, execute: suspend SlashCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
 
 /**
@@ -253,23 +253,23 @@ class GuildSlashCommand(override val name: String, override var description: Str
 
     /** @suppress */
     @NestedDSL
-    fun <A> execute(a: ArgumentType<A>, execute: suspend SlashCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
+    fun <A> execute(a: Argument<A>, execute: suspend SlashCommandEvent<Args1<A>>.() -> Unit) = addExecution(listOf(a), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B> execute(a: ArgumentType<A>, b: ArgumentType<B>, execute: suspend SlashCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
+    fun <A, B> execute(a: Argument<A>, b: Argument<B>, execute: suspend SlashCommandEvent<Args2<A, B>>.() -> Unit) = addExecution(listOf(a, b), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, execute: suspend SlashCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
+    fun <A, B, C> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, execute: suspend SlashCommandEvent<Args3<A, B, C>>.() -> Unit) = addExecution(listOf(a, b, c), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C, D> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, execute: suspend SlashCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
+    fun <A, B, C, D> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, d: Argument<D>, execute: suspend SlashCommandEvent<Args4<A, B, C, D>>.() -> Unit) = addExecution(listOf(a, b, c, d), execute)
 
     /** @suppress */
     @NestedDSL
-    fun <A, B, C, D, E> execute(a: ArgumentType<A>, b: ArgumentType<B>, c: ArgumentType<C>, d: ArgumentType<D>, e: ArgumentType<E>, execute: suspend SlashCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
+    fun <A, B, C, D, E> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, d: Argument<D>, e: Argument<E>, execute: suspend SlashCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
 
 /**

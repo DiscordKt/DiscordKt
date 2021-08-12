@@ -4,7 +4,7 @@ import me.jakejmattson.discordkt.api.arguments.AnyArg
 import utilities.ArgumentTestFactory
 
 class AnyArgTest : ArgumentTestFactory {
-    override val argumentType = AnyArg
+    override val argument = AnyArg
 
     override val validArgs = listOf(
         "Hello" to "Hello",

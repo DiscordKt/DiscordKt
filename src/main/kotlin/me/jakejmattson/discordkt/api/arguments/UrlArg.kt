@@ -8,7 +8,7 @@ import me.jakejmattson.discordkt.api.extensions.containsURl
  * Accepts a string that matches the URL regex.
  */
 open class UrlArg(override val name: String = "URL",
-                  override val description: String = internalLocale.urlArgDescription) : ArgumentType<String> {
+                  override val description: String = internalLocale.urlArgDescription) : Argument<String> {
     /**
      * Accepts a string that matches the URL regex.
      */

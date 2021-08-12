@@ -12,7 +12,7 @@ private const val month = 2592000.0
 private const val year = 31536000.0
 
 class TimeArgTest : ArgumentTestFactory {
-    override val argumentType = TimeArg
+    override val argument = TimeArg
 
     override val validArgs = listOf(
         "1s" to second,

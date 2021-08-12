@@ -7,7 +7,7 @@ import me.jakejmattson.discordkt.api.dsl.internalLocale
  * Accepts a single character.
  */
 open class CharArg(override val name: String = "Character",
-                   override val description: String = internalLocale.charArgDescription) : ArgumentType<Char> {
+                   override val description: String = internalLocale.charArgDescription) : Argument<Char> {
     /**
      * Accepts a single character.
      */

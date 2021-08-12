@@ -9,7 +9,7 @@ import me.jakejmattson.discordkt.api.dsl.internalLocale
  * Accepts a unicode emoji.
  */
 open class UnicodeEmojiArg(override val name: String = "Emoji",
-                           override val description: String = internalLocale.unicodeEmojiArgDescription) : ArgumentType<DiscordEmoji> {
+                           override val description: String = internalLocale.unicodeEmojiArgDescription) : Argument<DiscordEmoji> {
     /**
      * Accepts a unicode emoji.
      */

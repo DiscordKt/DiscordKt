@@ -4,7 +4,7 @@ import me.jakejmattson.discordkt.api.arguments.IntegerArg
 import utilities.ArgumentTestFactory
 
 class IntegerArgTest : ArgumentTestFactory {
-    override val argumentType = IntegerArg
+    override val argument = IntegerArg
 
     override val validArgs = listOf(
         "100" to 100,

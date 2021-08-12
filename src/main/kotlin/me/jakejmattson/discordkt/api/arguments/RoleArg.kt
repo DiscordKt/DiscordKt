@@ -17,7 +17,7 @@ import me.jakejmattson.discordkt.internal.utils.resolveEntityByName
 open class RoleArg(override val name: String = "Role",
                    override val description: String = internalLocale.roleArgDescription,
                    private val guildId: Snowflake? = null,
-                   private val allowsGlobal: Boolean = false) : ArgumentType<Role> {
+                   private val allowsGlobal: Boolean = false) : Argument<Role> {
     /**
      * Accepts a Discord Role entity as an ID, a mention, or by name from within this guild.
      */

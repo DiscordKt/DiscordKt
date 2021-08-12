@@ -12,7 +12,7 @@ import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
  */
 open class MemberArg(override val name: String = "Member",
                      override val description: String = internalLocale.memberArgDescription,
-                     private val allowsBot: Boolean = false) : ArgumentType<Member> {
+                     private val allowsBot: Boolean = false) : Argument<Member> {
     /**
      * Accepts a Discord Member entity as an ID or mention. Does not allow bots.
      */

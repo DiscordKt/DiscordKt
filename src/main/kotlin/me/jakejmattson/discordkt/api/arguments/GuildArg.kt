@@ -10,7 +10,7 @@ import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
  * Accepts a Discord Guild entity as an ID.
  */
 open class GuildArg(override val name: String = "Guild",
-                    override val description: String = internalLocale.guildArgDescription) : ArgumentType<Guild> {
+                    override val description: String = internalLocale.guildArgDescription) : Argument<Guild> {
     /**
      * Accepts a Discord Guild entity as an ID.
      */
