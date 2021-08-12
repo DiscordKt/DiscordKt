@@ -101,9 +101,9 @@ data class ConversationBuilder(val discord: Discord,
             content = text.takeIf { it.isNotBlank() }
 
             if (embed != null) {
-                embed {
-                    embed.invoke(this)
-                }
+                val builder = EmbedBuilder()
+                embed.invoke(builder)
+                embeds[0] = builder
             }
         }
 

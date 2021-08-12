@@ -13,9 +13,9 @@ object Versions {
     const val reflections = "0.9.12"
     const val gson = "2.8.7"
 
-    const val kord = "0.7.4"
+    const val kord = "0.8.0-M4"
     const val emojis = "0.5.0"
-    const val slf4j = "2.0.0-alpha2"
+    const val slf4j = "2.0.0-alpha3"
 
     const val junit = "5.8.0-M1"
     const val mockk = "1.12.0"

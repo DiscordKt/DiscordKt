@@ -12,6 +12,7 @@ import dev.kord.core.entity.Message
 import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.entity.interaction.ComponentInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
+import dev.kord.rest.builder.message.create.actionRow
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
 import me.jakejmattson.discordkt.api.extensions.toPartialEmoji
@@ -171,7 +172,7 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
         }
 
         val message = channel.createMessage {
-            embed = pages.first()
+            embeds[0] = pages.first()
 
             buttons.forEach {
                 actionRow {
@@ -218,7 +219,7 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
                     action.invoke(menu)
 
                     message.edit {
-                        embed = menu.page
+                        embeds?.set(0, menu.page)
                     }
                 }
                 is Edit -> {
@@ -228,7 +229,7 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
                     menu.updatePage(page)
 
                     message.edit {
-                        embed = page
+                        embeds?.set(0, page)
                     }
                 }
                 is Action -> action.invoke(interaction)

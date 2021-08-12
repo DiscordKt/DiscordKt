@@ -39,7 +39,7 @@ interface Responder {
      */
     suspend fun respond(message: String, construct: suspend EmbedBuilder.() -> Unit) = channel.createMessage {
         content = message
-        construct.invoke(embed!!)
+        construct.invoke(embeds.first())
     }
 
     /**
