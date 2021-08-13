@@ -13,7 +13,7 @@ import me.jakejmattson.discordkt.api.TypeContainer
 import me.jakejmattson.discordkt.api.arguments.*
 import me.jakejmattson.discordkt.api.commands.*
 import me.jakejmattson.discordkt.api.conversations.Conversations
-import me.jakejmattson.discordkt.api.dsl.*
+import me.jakejmattson.discordkt.api.dsl.Menu
 
 @OptIn(KordUnsafe::class)
 @KordPreview

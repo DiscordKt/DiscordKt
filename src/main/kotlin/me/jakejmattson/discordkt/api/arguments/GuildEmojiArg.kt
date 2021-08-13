@@ -10,7 +10,7 @@ import me.jakejmattson.discordkt.api.extensions.trimToID
 /**
  * Accepts a guild emoji.
  *
- * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
+ * @param allowsGlobal Whether this entity can be retrieved from outside this guild.
  */
 open class GuildEmojiArg(override val name: String = "Guild Emoji",
                          override val description: String = internalLocale.guildEmojiArgDescription,

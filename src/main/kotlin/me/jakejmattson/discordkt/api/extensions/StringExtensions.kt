@@ -18,24 +18,22 @@ private val hereRegex = "@+here".toRegex()
 private val everyoneRegex = "@+everyone".toRegex()
 
 /**
- * Whether ot not this string matches a URL regex.
+ * Whether this string matches a URL regex.
  */
 fun String.containsURl() = urlRegexes.any { replace("\n", "").contains(it) }
 
 /**
- * Whether or not this string matches the invite regex.
+ * Whether this string matches the invite regex.
  */
 fun String.containsInvite() = inviteRegex.matches(this)
 
 /**
- * Whether or not this string is a valid boolean value (true/false/t/f).
+ * Whether this string is a valid boolean value (true/false/t/f).
  */
 fun String.isBooleanValue() =
     when (lowercase()) {
-        "true" -> true
-        "false" -> true
-        "t" -> true
-        "f" -> true
+        "true", "t" -> true
+        "false", "f" -> true
         else -> false
     }
 

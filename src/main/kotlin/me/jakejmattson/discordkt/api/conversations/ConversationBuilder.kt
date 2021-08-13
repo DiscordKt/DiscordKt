@@ -72,7 +72,7 @@ data class ConversationBuilder(val discord: Discord,
      * @param argument The [Argument] that the prompt expects in response.
      * @param prompt The string message sent to the user as a prompt for information.
      * @param error The error String to send when the input fails the custom check.
-     * @param isValid A predicate to determine whether or not the input is accepted.
+     * @param isValid A predicate to determine whether the input is accepted.
      */
     @Throws(DmException::class)
     suspend fun <T> promptUntil(argument: Argument<T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
@@ -175,8 +175,7 @@ data class ConversationBuilder(val discord: Discord,
             if (message.content == exitString) {
                 timer?.cancel()
                 throw ExitException()
-            }
-            else
+            } else
                 null
         }
 

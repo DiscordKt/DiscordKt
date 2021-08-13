@@ -9,7 +9,7 @@ import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 /**
  * Accepts a Discord TextChannel entity as an ID or mention.
  *
- * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
+ * @param allowsGlobal Whether this entity can be retrieved from outside this guild.
  */
 open class ChannelArg<T : GuildChannel>(override val name: String = "Channel",
                                         override val description: String = internalLocale.channelArgDescription,

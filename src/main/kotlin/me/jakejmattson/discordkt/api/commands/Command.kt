@@ -62,7 +62,7 @@ sealed class Command(open val names: List<String>, open var description: String,
     val executions: MutableList<Execution<*>> = mutableListOf()
 
     /**
-     * Whether or not the command can parse the given arguments into a container.
+     * Whether the command can parse the given arguments into a container.
      *
      * @param args The raw string arguments to be provided to the command.
      *
@@ -71,7 +71,7 @@ sealed class Command(open val names: List<String>, open var description: String,
     suspend fun canParse(event: CommandEvent<*>, execution: Execution<*>, args: List<String>) = convertArguments(event, execution.arguments, args) is ParseResult.Success
 
     /**
-     * Whether or not this command has permission to run with the given event.
+     * Whether this command has permission to run with the given event.
      *
      * @param event The event context that will attempt to run the command.
      */

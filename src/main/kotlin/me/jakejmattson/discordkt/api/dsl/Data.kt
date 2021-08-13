@@ -9,7 +9,7 @@ import java.io.File
  * A class that represents some data in a JSON file. This will be registered into the dependency pool automatically.
  *
  * @property path The file path on the system where the data is located.
- * @property killIfGenerated Whether or not the program should exit if this file was not present.
+ * @property killIfGenerated Whether the program should exit if this file was not present.
  * @property file The file obtained from the provided path.
  */
 abstract class Data(val path: String, val killIfGenerated: Boolean = true) {

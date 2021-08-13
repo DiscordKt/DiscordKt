@@ -2,7 +2,9 @@ package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.commands.CommandSet
-import me.jakejmattson.discordkt.api.dsl.*
+import me.jakejmattson.discordkt.api.dsl.Listeners
+import me.jakejmattson.discordkt.api.dsl.Precondition
+import me.jakejmattson.discordkt.api.dsl.diService
 import org.reflections.Reflections
 import org.reflections.scanners.MethodParameterScanner
 import java.lang.reflect.Constructor

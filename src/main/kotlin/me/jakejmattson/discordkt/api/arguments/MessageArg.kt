@@ -10,7 +10,7 @@ import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 /**
  * Accepts a Discord Message entity as an ID or a link.
  *
- * @param allowsGlobal Whether or not this entity can be retrieved from outside this guild.
+ * @param allowsGlobal Whether this entity can be retrieved from outside this guild.
  */
 open class MessageArg(override val name: String = "Message",
                       override val description: String = internalLocale.messageArgDescription,

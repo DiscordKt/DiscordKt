@@ -32,7 +32,7 @@ object Conversations {
     private fun getConversation(user: User, channel: MessageChannel) = activeConversations[ConversationLocation(user.id, channel.id)]
 
     /**
-     * Whether or not a conversation with the given context already exists.
+     * Whether a conversation with the given context already exists.
      */
     fun hasConversation(user: User, channel: MessageChannel) = getConversation(user, channel) != null
 

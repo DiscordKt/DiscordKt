@@ -143,8 +143,7 @@ abstract class Discord {
                     guild.createApplicationCommand(slashCommand.name.lowercase(), slashCommand.description.ifBlank { "<No Description>" }) {
                         unpack(slashCommand)
                     }
-                }
-                catch (e: KtorRequestException) {
+                } catch (e: KtorRequestException) {
                     InternalLogger.error("${Emojis.x.unicode} ${slashCommand.name}: ${guild.name} - ${e.message}")
                 }
             }

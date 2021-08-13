@@ -34,7 +34,7 @@ class MenuButtonRowBuilder {
      * @param label The Button text
      * @param emoji The Button [emoji][DiscordEmoji]
      * @param style The Button [style][ButtonStyle]
-     * @param disabled Whether or not this button is disabled
+     * @param disabled Whether this button is disabled
      */
     @OptIn(KordPreview::class)
     fun button(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend Menu.() -> Unit) {
@@ -49,7 +49,7 @@ class MenuButtonRowBuilder {
      * @param label The Button text
      * @param emoji The Button [emoji][DiscordEmoji]
      * @param style The Button [style][ButtonStyle]
-     * @param disabled Whether or not this button is disabled
+     * @param disabled Whether this button is disabled
      */
     @OptIn(KordPreview::class)
     fun editButton(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend EmbedBuilder.() -> Unit) {
@@ -64,7 +64,7 @@ class MenuButtonRowBuilder {
      * @param label The Button text
      * @param emoji The Button [emoji][DiscordEmoji]
      * @param style The Button [style][ButtonStyle]
-     * @param disabled Whether or not this button is disabled
+     * @param disabled Whether this button is disabled
      */
     @OptIn(KordPreview::class)
     fun actionButton(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend ComponentInteraction.() -> Unit) {
@@ -79,7 +79,7 @@ class MenuButtonRowBuilder {
      * @param url The link this button will open.
      * @param label The Button text
      * @param emoji The Button [emoji][DiscordEmoji]
-     * @param disabled Whether or not this button is disabled
+     * @param disabled Whether this button is disabled
      */
     fun linkButton(label: String?, emoji: DiscordEmoji?, url: String, disabled: Boolean = false) {
         val button = LinkButton(label, emoji?.toReaction(), disabled, url)
@@ -244,7 +244,7 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
  *
  * @property label Optional button text
  * @property emoji Optional button emoji
- * @property disabled Whether or not the button is disabled.
+ * @property disabled Whether the button is disabled.
  */
 interface DktButton {
     val label: String?

@@ -8,7 +8,7 @@ import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
 /**
  * Accepts a Discord Member entity as an ID or mention.
  *
- * @param allowsBot Whether or not a bot is a valid input.
+ * @param allowsBot Whether a bot is a valid input.
  */
 open class MemberArg(override val name: String = "Member",
                      override val description: String = internalLocale.memberArgDescription,
