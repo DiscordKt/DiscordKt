@@ -103,7 +103,7 @@ data class ConversationBuilder(val discord: Discord,
             if (embed != null) {
                 val builder = EmbedBuilder()
                 embed.invoke(builder)
-                embeds[0] = builder
+                embeds.add(builder)
             }
         }
 

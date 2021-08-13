@@ -7,6 +7,7 @@ import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.rest.builder.message.create.actionRow
+import dev.kord.rest.builder.message.create.embed
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
 import me.jakejmattson.discordkt.api.extensions.toPartialEmoji
@@ -50,7 +51,7 @@ class ButtonPromptBuilder<T> {
 
     @OptIn(KordPreview::class)
     internal suspend fun create(channel: MessageChannel) = channel.createMessage {
-        embed {
+        this.embed {
             promptEmbed.invoke(this)
         }
 

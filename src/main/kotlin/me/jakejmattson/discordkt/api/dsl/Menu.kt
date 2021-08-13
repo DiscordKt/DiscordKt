@@ -172,7 +172,7 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
         }
 
         val message = channel.createMessage {
-            embeds[0] = pages.first()
+            embeds.add(pages.first())
 
             buttons.forEach {
                 actionRow {
@@ -219,7 +219,7 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
                     action.invoke(menu)
 
                     message.edit {
-                        embeds?.set(0, menu.page)
+                        embeds = mutableListOf(menu.page)
                     }
                 }
                 is Edit -> {
@@ -229,7 +229,7 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
                     menu.updatePage(page)
 
                     message.edit {
-                        embeds?.set(0, page)
+                        embeds = mutableListOf(page)
                     }
                 }
                 is Action -> action.invoke(interaction)
