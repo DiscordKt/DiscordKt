@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.internal.listeners
 
 import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.entity.channel.DmChannel
-import dev.kord.core.entity.channel.TextChannel
+import dev.kord.core.entity.channel.GuildMessageChannel
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
 import dev.kord.x.emoji.Emojis
@@ -55,7 +55,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     if (commandName.isBlank()) return@on
 
     val event = getGuild()?.let {
-        GuildCommandEvent<TypeContainer>(rawInputs, discord, message, author, channel as TextChannel, it)
+        GuildCommandEvent<TypeContainer>(rawInputs, discord, message, author, channel as GuildMessageChannel, it)
     } ?: DmCommandEvent(rawInputs, discord, message, author, channel as DmChannel)
 
     if (!arePreconditionsPassing(event)) return@on

@@ -5,8 +5,8 @@ import dev.kord.core.entity.Guild
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.DmChannel
+import dev.kord.core.entity.channel.GuildMessageChannel
 import dev.kord.core.entity.channel.MessageChannel
-import dev.kord.core.entity.channel.TextChannel
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.addReaction
 import me.jakejmattson.discordkt.api.Discord
@@ -82,7 +82,8 @@ open class CommandEvent<T : TypeContainer>(
     /**
      * Determine the relevant prefix in the current context.
      */
-    suspend fun prefix() = message?.let { discord.configuration.prefix.invoke(DiscordContext(discord, it, guild, author, channel)) } ?: "/"
+    suspend fun prefix() = message?.let { discord.configuration.prefix.invoke(DiscordContext(discord, it, guild, author, channel)) }
+        ?: "/"
 
     /**
      * Add a reaction to the command invocation message.
@@ -105,7 +106,7 @@ data class GuildCommandEvent<T : TypeContainer>(
     override val discord: Discord,
     override val message: Message,
     override val author: User,
-    override val channel: TextChannel,
+    override val channel: GuildMessageChannel,
     override val guild: Guild) : CommandEvent<T>(rawInputs, discord, message, author, channel, guild)
 
 /**
