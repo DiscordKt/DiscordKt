@@ -7,7 +7,9 @@ import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ComponentInteraction
+import dev.kord.core.entity.interaction.SelectMenuInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
+import dev.kord.rest.builder.message.create.actionRow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
@@ -129,6 +131,34 @@ data class ConversationBuilder(val discord: Discord,
         return retrieveValidInteractionResponse(builder.valueMap)
     }
 
+    /**
+     * Prompt the user with a select menu.
+     *
+     * @param options The options that can be selected by the user
+     * @param embed The embed sent as part of the prompt.
+     */
+    @OptIn(KordPreview::class)
+    @Throws(DmException::class, TimeoutException::class)
+    suspend fun promptSelect(vararg options: String, embed: suspend EmbedBuilder.() -> Unit): String {
+        val message = channel.createMessage {
+            val builder = EmbedBuilder()
+            embed.invoke(builder)
+            embeds.add(builder)
+
+            actionRow {
+                selectMenu(UUID.randomUUID().toString()) {
+                    options.forEach {
+                        option(it, it)
+                    }
+                }
+            }
+        }
+
+        botMessageIds.add(message.id)
+
+        return retrieveValidInteractionResponse(options.associateWith { it })
+    }
+
     private fun <T> retrieveValidTextResponse(argument: Argument<T>): T = runBlocking {
         retrieveTextResponse(argument) ?: retrieveValidTextResponse(argument)
     }
@@ -185,7 +215,11 @@ data class ConversationBuilder(val discord: Discord,
 
             timer?.cancel()
             interaction.acknowledgeEphemeralDeferredMessageUpdate()
-            buttons[interaction.componentId]
+
+            if (interaction is SelectMenuInteraction)
+                interaction.values.first() as T
+            else
+                buttons[interaction.componentId]
         }
     }
 
