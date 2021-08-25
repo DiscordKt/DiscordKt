@@ -15,37 +15,58 @@ import me.jakejmattson.discordkt.api.arguments.*
 import me.jakejmattson.discordkt.api.commands.*
 import me.jakejmattson.discordkt.api.conversations.Conversations
 import me.jakejmattson.discordkt.api.dsl.Menu
+import me.jakejmattson.discordkt.internal.utils.InternalLogger
 
 @OptIn(KordUnsafe::class)
 @KordPreview
 internal suspend fun registerInteractionListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
-    val interaction = interaction
-
-    if (interaction is ComponentInteraction) {
-        Menu.handleButtonPress(interaction)
-        Conversations.handleInteraction(interaction)
-        return@on
+    when (val interaction = interaction) {
+        is ChatInputCommandInteraction -> handleSlashCommand(interaction, discord)
+        is MessageCommandInteraction -> handleMessageContext(interaction, discord)
+        is UserCommandInteraction -> handleUserContext(interaction, discord)
+        is SelectMenuInteraction -> Conversations.handleInteraction(interaction)
+        is ButtonInteraction -> {
+            Menu.handleButtonPress(interaction)
+            Conversations.handleInteraction(interaction)
+        }
+        else -> InternalLogger.error("Unknown interaction received.")
     }
+}
 
-    if (interaction !is ChatInputCommandInteraction)
-        return@on
+private suspend fun handleUserContext(interaction: UserCommandInteraction, discord: Discord) {
+    handleApplicationCommand(interaction, discord) {
+        interaction.users?.values?.first()?.id?.asString ?: ""
+    }
+}
 
-    val dktCommand = discord.commandOfType<GuildSlashCommand>(interaction.command.rootName)
-        ?: discord.commandOfType<GlobalSlashCommand>(interaction.command.rootName) ?: return@on
+private suspend fun handleMessageContext(interaction: MessageCommandInteraction, discord: Discord) {
+    handleApplicationCommand(interaction, discord) {
+        interaction.messages?.values?.first()?.id?.asString ?: ""
+    }
+}
+
+private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction, discord: Discord) {
+    handleApplicationCommand(interaction, discord) {
+        simplifySlashArgs(executions.first().arguments.map { it to interaction.command.options[it.name.lowercase()]!! })
+    }
+}
+
+private suspend fun handleApplicationCommand(interaction: ApplicationCommandInteraction, discord: Discord, args: suspend Command.() -> String) {
+    val dktCommand = discord.commands.filterIsInstance<GuildSlashCommand>().firstOrNull { it.appName == interaction.name || it.name.equals(interaction.name, true) }
+        ?: discord.commands.filterIsInstance<GlobalSlashCommand>().firstOrNull { it.appName == interaction.name || it.name.equals(interaction.name, true) }
+        ?: return
 
     interaction.acknowledgePublic().followUp {
         content = Emojis.whiteCheckMark.unicode
     }
 
-    val complexArgs = dktCommand.executions.first().arguments.map { it to interaction.command.options[it.name.lowercase()]!! }
-    val args = simplifySlashArgs(complexArgs)
-    val rawInputs = RawInputs("/${dktCommand.name} $args", dktCommand.name, prefixCount = 1)
+    val rawInputs = RawInputs("/${dktCommand.name} ${args.invoke(dktCommand)}", dktCommand.name, prefixCount = 1)
     val author = interaction.user.asUser()
     val guild = (interaction as? GuildInteractionBehavior)?.getGuild()
     val channel = interaction.getChannel()
-    val event = SlashCommandEvent<TypeContainer>(rawInputs, discord, interaction.data.message.value?.let { Message(it, kord) }, author, channel, guild)
+    val event = SlashCommandEvent<TypeContainer>(rawInputs, discord, interaction.data.message.value?.let { Message(it, discord.kord) }, author, channel, guild)
 
-    if (!arePreconditionsPassing(event)) return@on
+    if (!arePreconditionsPassing(event)) return
 
     dktCommand.invoke(event, rawInputs.commandArgs)
 }

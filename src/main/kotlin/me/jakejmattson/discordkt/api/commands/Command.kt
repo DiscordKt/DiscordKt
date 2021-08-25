@@ -218,7 +218,7 @@ class DmCommand(override val names: List<String>, override var description: Stri
  *
  * @property name The name of the slash command.
  */
-class GlobalSlashCommand(override val name: String, override var description: String, override var requiredPermission: Enum<*>) : Command(listOf(name), description, requiredPermission) {
+class GlobalSlashCommand(override val name: String, override var description: String, val appName: String, override var requiredPermission: Enum<*>) : Command(listOf(name), description, requiredPermission) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend SlashCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -249,7 +249,7 @@ class GlobalSlashCommand(override val name: String, override var description: St
  *
  * @property name The name of the slash command.
  */
-class GuildSlashCommand(override val name: String, override var description: String, override var requiredPermission: Enum<*>) : Command(listOf(name), description, requiredPermission) {
+class GuildSlashCommand(override val name: String, override var description: String, val appName: String, override var requiredPermission: Enum<*>) : Command(listOf(name), description, requiredPermission) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend SlashCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)

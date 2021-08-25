@@ -10,6 +10,7 @@ import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.behavior.edit
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.ReactionEmoji
+import dev.kord.core.entity.interaction.ButtonInteraction
 import dev.kord.core.entity.interaction.ComponentInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.rest.builder.message.create.actionRow
@@ -202,7 +203,7 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
 
     internal companion object {
         @OptIn(KordPreview::class)
-        internal suspend fun handleButtonPress(interaction: ComponentInteraction) {
+        internal suspend fun handleButtonPress(interaction: ButtonInteraction) {
             val firedButton = interaction.component ?: return
 
             if (firedButton.data.url.value != null)

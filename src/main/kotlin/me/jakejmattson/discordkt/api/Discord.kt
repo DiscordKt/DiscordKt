@@ -5,6 +5,8 @@ package me.jakejmattson.discordkt.api
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
 import dev.kord.core.behavior.createChatInputCommand
+import dev.kord.core.behavior.createMessageCommand
+import dev.kord.core.behavior.createUserCommand
 import dev.kord.rest.builder.interaction.*
 import dev.kord.rest.request.KtorRequestException
 import dev.kord.x.emoji.Emojis
@@ -132,6 +134,17 @@ abstract class Discord {
         }
 
         commands.filterIsInstance<GlobalSlashCommand>().forEach { slashCommand ->
+            val singleExecutions = slashCommand.executions.filter { it.arguments.size == 1 }
+
+            singleExecutions.forEach {
+                val arg = it.arguments.first()
+
+                if (arg == MessageArg)
+                    kord.createGlobalMessageCommand(slashCommand.appName)
+                else if (arg == UserArg)
+                    kord.createGlobalUserCommand(slashCommand.appName)
+            }
+
             kord.createGlobalChatInputCommand(slashCommand.name, slashCommand.description.ifBlank { "<No Description>" }) {
                 unpack(slashCommand)
             }
@@ -140,6 +153,17 @@ abstract class Discord {
         commands.filterIsInstance<GuildSlashCommand>().forEach { slashCommand ->
             kord.guilds.toList().forEach { guild ->
                 try {
+                    val singleExecutions = slashCommand.executions.filter { it.arguments.size == 1 }
+
+                    singleExecutions.forEach {
+                        val arg = it.arguments.first()
+
+                        if (arg == MessageArg)
+                            guild.createMessageCommand(slashCommand.appName)
+                        else if (arg == UserArg)
+                            guild.createUserCommand(slashCommand.appName)
+                    }
+
                     guild.createChatInputCommand(slashCommand.name.lowercase(), slashCommand.description.ifBlank { "<No Description>" }) {
                         unpack(slashCommand)
                     }
