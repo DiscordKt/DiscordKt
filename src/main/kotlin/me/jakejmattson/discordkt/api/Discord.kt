@@ -4,8 +4,8 @@ package me.jakejmattson.discordkt.api
 
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
-import dev.kord.core.behavior.createApplicationCommand
-import dev.kord.rest.builder.interaction.ApplicationCommandCreateBuilder
+import dev.kord.core.behavior.createChatInputCommand
+import dev.kord.rest.builder.interaction.*
 import dev.kord.rest.request.KtorRequestException
 import dev.kord.x.emoji.Emojis
 import kotlinx.coroutines.flow.toList
@@ -116,7 +116,7 @@ abstract class Discord {
 
     @KordPreview
     private suspend fun registerSlashCommands() {
-        fun ApplicationCommandCreateBuilder.unpack(command: Command) {
+        fun ChatInputCreateBuilder.unpack(command: Command) {
             command.executions.first().arguments.forEach { arg ->
                 val argName = arg.name.lowercase()
 
@@ -132,7 +132,7 @@ abstract class Discord {
         }
 
         commands.filterIsInstance<GlobalSlashCommand>().forEach { slashCommand ->
-            kord.createGlobalApplicationCommand(slashCommand.name, slashCommand.description.ifBlank { "<No Description>" }) {
+            kord.createGlobalChatInputCommand(slashCommand.name, slashCommand.description.ifBlank { "<No Description>" }) {
                 unpack(slashCommand)
             }
         }
@@ -140,7 +140,7 @@ abstract class Discord {
         commands.filterIsInstance<GuildSlashCommand>().forEach { slashCommand ->
             kord.guilds.toList().forEach { guild ->
                 try {
-                    guild.createApplicationCommand(slashCommand.name.lowercase(), slashCommand.description.ifBlank { "<No Description>" }) {
+                    guild.createChatInputCommand(slashCommand.name.lowercase(), slashCommand.description.ifBlank { "<No Description>" }) {
                         unpack(slashCommand)
                     }
                 } catch (e: KtorRequestException) {
