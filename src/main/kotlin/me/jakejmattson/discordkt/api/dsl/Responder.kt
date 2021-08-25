@@ -22,7 +22,7 @@ interface Responder {
     /**
      * Send this message with no sanitization.
      */
-    suspend fun respond(message: Any) = chunkRespond(message.toString())
+    suspend fun respond(message: Any) { chunkRespond(message.toString()) }
 
     /**
      * Respond with a message and sanitize mentions.
@@ -32,7 +32,9 @@ interface Responder {
     /**
      * Respond with an embed.
      */
-    suspend fun respond(construct: suspend EmbedBuilder.() -> Unit) = channel.createEmbed { construct.invoke(this) }
+    suspend fun respond(construct: suspend EmbedBuilder.() -> Unit) {
+        channel.createEmbed { construct.invoke(this) }
+    }
 
     /**
      * Respond with a message and an embed.

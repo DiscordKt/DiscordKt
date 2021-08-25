@@ -3,12 +3,10 @@ package me.jakejmattson.discordkt.internal.listeners
 import dev.kord.common.annotation.KordPreview
 import dev.kord.common.annotation.KordUnsafe
 import dev.kord.core.behavior.GuildInteractionBehavior
-import dev.kord.core.behavior.interaction.followUp
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.interaction.*
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.on
-import dev.kord.x.emoji.Emojis
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.TypeContainer
 import me.jakejmattson.discordkt.api.arguments.*
@@ -56,15 +54,11 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
         ?: discord.commands.filterIsInstance<GlobalSlashCommand>().firstOrNull { it.appName == interaction.name || it.name.equals(interaction.name, true) }
         ?: return
 
-    interaction.acknowledgePublic().followUp {
-        content = Emojis.whiteCheckMark.unicode
-    }
-
     val rawInputs = RawInputs("/${dktCommand.name} ${args.invoke(dktCommand)}", dktCommand.name, prefixCount = 1)
     val author = interaction.user.asUser()
     val guild = (interaction as? GuildInteractionBehavior)?.getGuild()
     val channel = interaction.getChannel()
-    val event = SlashCommandEvent<TypeContainer>(rawInputs, discord, interaction.data.message.value?.let { Message(it, discord.kord) }, author, channel, guild)
+    val event = SlashCommandEvent<TypeContainer>(rawInputs, discord, interaction.data.message.value?.let { Message(it, discord.kord) }, author, channel, guild, interaction.acknowledgeEphemeral())
 
     if (!arePreconditionsPassing(event)) return
 

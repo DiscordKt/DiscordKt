@@ -1,12 +1,16 @@
 package me.jakejmattson.discordkt.api.commands
 
 import dev.kord.core.behavior.channel.MessageChannelBehavior
+import dev.kord.core.behavior.interaction.EphemeralInteractionResponseBehavior
+import dev.kord.core.behavior.interaction.followUpEphemeral
 import dev.kord.core.entity.Guild
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.DmChannel
 import dev.kord.core.entity.channel.GuildMessageChannel
 import dev.kord.core.entity.channel.MessageChannel
+import dev.kord.rest.builder.message.EmbedBuilder
+import dev.kord.rest.builder.message.create.embed
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.addReaction
 import me.jakejmattson.discordkt.api.Discord
@@ -131,4 +135,19 @@ data class SlashCommandEvent<T : TypeContainer>(
     override val message: Message?,
     override val author: User,
     override val channel: MessageChannel,
-    override val guild: Guild? = null) : CommandEvent<T>(rawInputs, discord, message, author, channel, null)
+    override val guild: Guild? = null,
+    val ephemeralInteractionResponseBehavior: EphemeralInteractionResponseBehavior) : CommandEvent<T>(rawInputs, discord, message, author, channel, null) {
+    override suspend fun respond(message: Any) {
+        ephemeralInteractionResponseBehavior.followUpEphemeral {
+            content = message.toString()
+        }
+    }
+
+    override suspend fun respond(construct: suspend EmbedBuilder.() -> Unit) {
+        ephemeralInteractionResponseBehavior.followUpEphemeral {
+            embed {
+                construct.invoke(this)
+            }
+        }
+    }
+}
