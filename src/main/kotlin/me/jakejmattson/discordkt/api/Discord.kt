@@ -4,9 +4,7 @@ package me.jakejmattson.discordkt.api
 
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
-import dev.kord.core.behavior.createChatInputCommand
-import dev.kord.core.behavior.createMessageCommand
-import dev.kord.core.behavior.createUserCommand
+import dev.kord.core.behavior.createApplicationCommands
 import dev.kord.rest.builder.interaction.*
 import dev.kord.rest.request.KtorRequestException
 import dev.kord.x.emoji.Emojis
@@ -133,43 +131,52 @@ abstract class Discord {
             }
         }
 
-        commands.filterIsInstance<GlobalSlashCommand>().forEach { slashCommand ->
-            val singleExecutions = slashCommand.executions.filter { it.arguments.size == 1 }
+        val globalSlashCommands = commands.filterIsInstance<GlobalSlashCommand>()
 
-            singleExecutions.forEach {
-                val arg = it.arguments.first()
+        kord.createGlobalApplicationCommands {
+            globalSlashCommands.forEach { slashCommand ->
+                val singleExecutions = slashCommand.executions.filter { it.arguments.size == 1 }
 
-                if (arg == MessageArg)
-                    kord.createGlobalMessageCommand(slashCommand.appName)
-                else if (arg == UserArg)
-                    kord.createGlobalUserCommand(slashCommand.appName)
-            }
+                singleExecutions.forEach {
+                    val arg = it.arguments.first()
 
-            kord.createGlobalChatInputCommand(slashCommand.name, slashCommand.description.ifBlank { "<No Description>" }) {
-                unpack(slashCommand)
+                    if (arg == MessageArg)
+                        message(slashCommand.appName) {}
+                    else if (arg == UserArg)
+                        user(slashCommand.appName) {}
+                }
+
+                input(slashCommand.name, slashCommand.description.ifBlank { "<No Description>" }) {
+                    unpack(slashCommand)
+                }
             }
         }
 
-        commands.filterIsInstance<GuildSlashCommand>().forEach { slashCommand ->
-            kord.guilds.toList().forEach { guild ->
-                try {
-                    val singleExecutions = slashCommand.executions.filter { it.arguments.size == 1 }
 
-                    singleExecutions.forEach {
-                        val arg = it.arguments.first()
+        val guildSlashCommands = commands.filterIsInstance<GuildSlashCommand>()
 
-                        if (arg == MessageArg)
-                            guild.createMessageCommand(slashCommand.appName)
-                        else if (arg == UserArg)
-                            guild.createUserCommand(slashCommand.appName)
+        kord.guilds.toList().forEach { guild ->
+            try {
+                guild.createApplicationCommands {
+                    guildSlashCommands.forEach { slashCommand ->
+                        val singleExecutions = slashCommand.executions.filter { it.arguments.size == 1 }
+
+                        singleExecutions.forEach {
+                            val arg = it.arguments.first()
+
+                            if (arg == MessageArg)
+                                message(slashCommand.appName) {}
+                            else if (arg == UserArg)
+                                user(slashCommand.appName) {}
+                        }
+
+                        input(slashCommand.name.lowercase(), slashCommand.description.ifBlank { "<No Description>" }) {
+                            unpack(slashCommand)
+                        }
                     }
-
-                    guild.createChatInputCommand(slashCommand.name.lowercase(), slashCommand.description.ifBlank { "<No Description>" }) {
-                        unpack(slashCommand)
-                    }
-                } catch (e: KtorRequestException) {
-                    InternalLogger.error("${Emojis.x.unicode} ${slashCommand.name}: ${guild.name} - ${e.message}")
                 }
+            } catch (e: KtorRequestException) {
+                InternalLogger.error("[SLASH] ${Emojis.x.unicode} ${guild.name} - ${e.message}")
             }
         }
     }
