@@ -16,18 +16,22 @@ open class QuoteArg(override val name: String = "Quote",
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         val quotationMark = '"'
 
-        if (!arg.startsWith(quotationMark))
+        // Handles Apple phone quotation marks
+        val rightOpeningQuotationMark = '“'
+        val leftClosingQuotationMark = '”'
+
+        if (!arg.startsWith(quotationMark) && !arg.startsWith(rightOpeningQuotationMark))
             return Error("No opening quotation mark")
 
-        val rawQuote = if (!arg.endsWith(quotationMark))
+        val rawQuote = if (!arg.endsWith(quotationMark) && !arg.endsWith(leftClosingQuotationMark))
             args.takeUntil { !it.endsWith(quotationMark) }.joinToString(" ")
         else
             arg
 
-        if (!rawQuote.endsWith(quotationMark))
+        if (!rawQuote.endsWith(quotationMark) && !rawQuote.endsWith(leftClosingQuotationMark))
             return Error("No closing quotation mark")
 
-        val quote = rawQuote.trim(quotationMark)
+        val quote = rawQuote.trim(quotationMark, rightOpeningQuotationMark, leftClosingQuotationMark)
         val consumedCount = quote.split(" ").size
 
         return Success(quote, consumedCount)
