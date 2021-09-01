@@ -14,24 +14,29 @@ open class QuoteArg(override val name: String = "Quote",
     companion object : QuoteArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
-        val quotationMark = '"'
+        //https://unicode-table.com/en/sets/quotation-marks/
+        val quotationMarks = listOf(
+            '"', //Double universal
+            '\u201C', //English double left
+            '\u201D', //English double right
+            '\u2018', //English single left
+            '\u2019', //English single right
+        )
+        val first = arg.first()
+        val last = arg.last()
 
-        // Handles Apple phone quotation marks
-        val rightOpeningQuotationMark = '“'
-        val leftClosingQuotationMark = '”'
-
-        if (!arg.startsWith(quotationMark) && !arg.startsWith(rightOpeningQuotationMark))
+        if (first !in quotationMarks)
             return Error("No opening quotation mark")
 
-        val rawQuote = if (!arg.endsWith(quotationMark) && !arg.endsWith(leftClosingQuotationMark))
-            args.takeUntil { !it.endsWith(quotationMark) }.joinToString(" ")
+        val rawQuote = if (last !in quotationMarks)
+            args.takeUntil { it.last() !in quotationMarks }.joinToString(" ")
         else
             arg
 
-        if (!rawQuote.endsWith(quotationMark) && !rawQuote.endsWith(leftClosingQuotationMark))
+        if (rawQuote.last() !in quotationMarks)
             return Error("No closing quotation mark")
 
-        val quote = rawQuote.trim(quotationMark, rightOpeningQuotationMark, leftClosingQuotationMark)
+        val quote = rawQuote.trim(*quotationMarks.toCharArray())
         val consumedCount = quote.split(" ").size
 
         return Success(quote, consumedCount)

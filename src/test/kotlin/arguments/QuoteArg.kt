@@ -10,7 +10,8 @@ class QuoteArgTest : ArgumentTestFactory {
         "\"\"" to "",
         "\"Hello\"" to "Hello",
         "\"Hello World\"" to "Hello World",
-        "“Hello World”" to "Hello World"
+        "“Hello World”" to "Hello World",
+        "‘Hello World’" to "Hello World"
     )
 
     override val invalidArgs = listOf(
@@ -21,7 +22,6 @@ class QuoteArgTest : ArgumentTestFactory {
         "\"Leading Multiple",
         "Trailing Multiple\"",
         "I\"nterrupt\"",
-        "\"Interrup\"t",
-        "”Invalid order“"
+        "\"Interrup\"t"
     )
 }
