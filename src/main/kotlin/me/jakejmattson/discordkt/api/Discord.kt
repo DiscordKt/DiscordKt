@@ -116,7 +116,7 @@ abstract class Discord {
 
     @KordPreview
     private suspend fun registerSlashCommands() {
-        fun ChatInputCreateBuilder.unpack(command: Command) {
+        fun ChatInputCreateBuilder.mapArgs(command: Command) {
             command.executions.first().arguments.forEach { arg ->
                 val argName = arg.name.lowercase()
 
@@ -132,46 +132,40 @@ abstract class Discord {
         }
 
         val globalSlashCommands = commands.filterIsInstance<GlobalSlashCommand>()
+        val guildSlashCommands = commands.filterIsInstance<GuildSlashCommand>()
 
         kord.createGlobalApplicationCommands {
             globalSlashCommands.forEach { slashCommand ->
-                val singleExecutions = slashCommand.executions.filter { it.arguments.size == 1 }
-
-                singleExecutions.forEach {
-                    val arg = it.arguments.first()
-
-                    if (arg == MessageArg)
-                        message(slashCommand.appName) {}
-                    else if (arg == UserArg)
-                        user(slashCommand.appName) {}
-                }
+                slashCommand.executions
+                    .filter { it.arguments.size == 1 }
+                    .forEach {
+                        when (it.arguments.first()) {
+                            MessageArg -> message(slashCommand.appName) {}
+                            UserArg -> user(slashCommand.appName) {}
+                        }
+                    }
 
                 input(slashCommand.name, slashCommand.description.ifBlank { "<No Description>" }) {
-                    unpack(slashCommand)
+                    mapArgs(slashCommand)
                 }
             }
         }
-
-
-        val guildSlashCommands = commands.filterIsInstance<GuildSlashCommand>()
 
         kord.guilds.toList().forEach { guild ->
             try {
                 guild.createApplicationCommands {
                     guildSlashCommands.forEach { slashCommand ->
-                        val singleExecutions = slashCommand.executions.filter { it.arguments.size == 1 }
-
-                        singleExecutions.forEach {
-                            val arg = it.arguments.first()
-
-                            if (arg == MessageArg)
-                                message(slashCommand.appName) {}
-                            else if (arg == UserArg)
-                                user(slashCommand.appName) {}
-                        }
+                        slashCommand.executions
+                            .filter { it.arguments.size == 1 }
+                            .forEach {
+                                when (it.arguments.first()) {
+                                    MessageArg -> message(slashCommand.appName) {}
+                                    UserArg -> user(slashCommand.appName) {}
+                                }
+                            }
 
                         input(slashCommand.name.lowercase(), slashCommand.description.ifBlank { "<No Description>" }) {
-                            unpack(slashCommand)
+                            mapArgs(slashCommand)
                         }
                     }
                 }

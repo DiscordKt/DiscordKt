@@ -213,12 +213,14 @@ class DmCommand(override val names: List<String>, override var description: Stri
     fun <A, B, C, D, E> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, d: Argument<D>, e: Argument<E>, execute: suspend DmCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
 
+open class SlashCommand(override val name: String, override var description: String, open val appName: String, override var requiredPermission: Enum<*>) : Command(listOf(name), description, requiredPermission)
+
 /**
  * A command wrapper for a global discord slash command.
  *
  * @property name The name of the slash command.
  */
-class GlobalSlashCommand(override val name: String, override var description: String, val appName: String, override var requiredPermission: Enum<*>) : Command(listOf(name), description, requiredPermission) {
+class GlobalSlashCommand(override val name: String, override var description: String, override val appName: String, override var requiredPermission: Enum<*>) : SlashCommand(name, description, appName, requiredPermission) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend SlashCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -249,7 +251,7 @@ class GlobalSlashCommand(override val name: String, override var description: St
  *
  * @property name The name of the slash command.
  */
-class GuildSlashCommand(override val name: String, override var description: String, val appName: String, override var requiredPermission: Enum<*>) : Command(listOf(name), description, requiredPermission) {
+class GuildSlashCommand(override val name: String, override var description: String, override val appName: String, override var requiredPermission: Enum<*>) : SlashCommand(name, description, appName, requiredPermission) {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend SlashCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
