@@ -26,10 +26,50 @@ data class CommandSetBuilder(val discord: Discord, val category: String, private
     private val commands = mutableListOf<Command>()
 
     /**
+     * Create a guild command.
+     */
+    @InnerDSL
+    fun command(vararg names: String, body: GuildCommand.() -> Unit) {
+        val command = GuildCommand(names.toList(), "", requiredPermission).apply {
+            this.category = this@CommandSetBuilder.category
+        }
+
+        command.body()
+        commands.add(command)
+    }
+
+    /**
+     * Create a guild command.
+     */
+    @InnerDSL
+    @Deprecated("Guild commands are now the default 'command' behavior", level = DeprecationLevel.WARNING)
+    fun guildCommand(vararg names: String, body: GuildCommand.() -> Unit) {
+        val command = GuildCommand(names.toList(), "", requiredPermission).apply {
+            this.category = this@CommandSetBuilder.category
+        }
+
+        command.body()
+        commands.add(command)
+    }
+
+    /**
+     * Create a dm command.
+     */
+    @InnerDSL
+    fun dmCommand(vararg names: String, body: DmCommand.() -> Unit) {
+        val command = DmCommand(names.toList(), "", requiredPermission).apply {
+            this.category = this@CommandSetBuilder.category
+        }
+
+        command.body()
+        commands.add(command)
+    }
+
+    /**
      * Create a global command.
      */
     @InnerDSL
-    fun command(vararg names: String, body: GlobalCommand.() -> Unit) {
+    fun globalCommand(vararg names: String, body: GlobalCommand.() -> Unit) {
         val command = GlobalCommand(names.toList(), "", requiredPermission).apply {
             this.category = this@CommandSetBuilder.category
         }
@@ -57,32 +97,6 @@ data class CommandSetBuilder(val discord: Discord, val category: String, private
     @InnerDSL
     fun globalSlash(name: String, appName: String = name, body: GlobalSlashCommand.() -> Unit) {
         val command = GlobalSlashCommand(name, "", appName, requiredPermission).apply {
-            this.category = this@CommandSetBuilder.category
-        }
-
-        command.body()
-        commands.add(command)
-    }
-
-    /**
-     * Create a guild command.
-     */
-    @InnerDSL
-    fun guildCommand(vararg names: String, body: GuildCommand.() -> Unit) {
-        val command = GuildCommand(names.toList(), "", requiredPermission).apply {
-            this.category = this@CommandSetBuilder.category
-        }
-
-        command.body()
-        commands.add(command)
-    }
-
-    /**
-     * Create a dm command.
-     */
-    @InnerDSL
-    fun dmCommand(vararg names: String, body: DmCommand.() -> Unit) {
-        val command = DmCommand(names.toList(), "", requiredPermission).apply {
             this.category = this@CommandSetBuilder.category
         }
 
