@@ -117,16 +117,17 @@ abstract class Discord {
     @KordPreview
     private suspend fun registerSlashCommands() {
         fun ChatInputCreateBuilder.mapArgs(command: Command) {
-            command.executions.first().arguments.forEach { arg ->
+            command.executions.first().arguments.forEach {
+                val (arg, isRequired) = if (it is OptionalArg<*>) it.type to false else it to true
                 val argName = arg.name.lowercase()
 
                 when (arg) {
-                    is IntegerArg -> int(argName, arg.description)
-                    is BooleanArg -> boolean(argName, arg.description)
-                    is UserArg -> user(argName, arg.description)
-                    is RoleArg -> role(argName, arg.description)
-                    is ChannelArg<*> -> channel(argName, arg.description)
-                    else -> string(argName, arg.description)
+                    is IntegerArg -> int(argName, arg.description) { required = isRequired }
+                    is BooleanArg -> boolean(argName, arg.description) { required = isRequired }
+                    is UserArg -> user(argName, arg.description) { required = isRequired }
+                    is RoleArg -> role(argName, arg.description) { required = isRequired }
+                    is ChannelArg<*> -> channel(argName, arg.description) { required = isRequired }
+                    else -> string(argName, arg.description) { required = isRequired }
                 }
             }
         }
