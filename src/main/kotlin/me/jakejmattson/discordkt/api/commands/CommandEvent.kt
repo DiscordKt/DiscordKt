@@ -136,18 +136,18 @@ data class SlashCommandEvent<T : TypeContainer>(
     override val author: User,
     override val channel: MessageChannel,
     override val guild: Guild? = null,
-    val ephemeralInteractionResponseBehavior: EphemeralInteractionResponseBehavior) : CommandEvent<T>(rawInputs, discord, message, author, channel, null) {
+    val ephemeralInteractionResponseBehavior: EphemeralInteractionResponseBehavior?) : CommandEvent<T>(rawInputs, discord, message, author, channel, null) {
     override suspend fun respond(message: Any) {
-        ephemeralInteractionResponseBehavior.followUpEphemeral {
+        ephemeralInteractionResponseBehavior?.followUpEphemeral {
             content = message.toString()
-        }
+        } ?: super.respond(message)
     }
 
     override suspend fun respond(construct: suspend EmbedBuilder.() -> Unit) {
-        ephemeralInteractionResponseBehavior.followUpEphemeral {
+        ephemeralInteractionResponseBehavior?.followUpEphemeral {
             embed {
                 construct.invoke(this)
             }
-        }
+        } ?: super.respond(construct)
     }
 }

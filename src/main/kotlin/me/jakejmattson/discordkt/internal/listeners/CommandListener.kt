@@ -1,8 +1,10 @@
 package me.jakejmattson.discordkt.internal.listeners
 
 import dev.kord.core.behavior.channel.createEmbed
-import dev.kord.core.entity.channel.DmChannel
-import dev.kord.core.entity.channel.GuildMessageChannel
+import dev.kord.core.entity.Guild
+import dev.kord.core.entity.Message
+import dev.kord.core.entity.User
+import dev.kord.core.entity.channel.*
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
 import dev.kord.x.emoji.Emojis
@@ -54,13 +56,18 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
 
     if (commandName.isBlank()) return@on
 
-    val event = getGuild()?.let {
-        GuildCommandEvent<TypeContainer>(rawInputs, discord, message, author, channel as GuildMessageChannel, it)
-    } ?: DmCommandEvent(rawInputs, discord, message, author, channel as DmChannel)
+    val potentialCommand = discord.commands[commandName]
+    val event = potentialCommand?.buildRequiredEvent(discord, rawInputs, message, author, channel, getGuild())
+
+    if (event == null) {
+        val abortEvent = CommandEvent<TypeContainer>(rawInputs, discord, message, author, channel, getGuild())
+        Recommender.sendRecommendation(abortEvent, commandName)
+        return@on
+    }
 
     if (!arePreconditionsPassing(event)) return@on
 
-    val command = discord.commands[commandName]?.takeUnless { !it.hasPermissionToRun(event) }
+    val command = potentialCommand.takeUnless { !it.hasPermissionToRun(event) }
         ?: return@on Recommender.sendRecommendation(event, commandName)
 
     config.commandReaction?.let {
@@ -68,6 +75,21 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     }
 
     command.invoke(event, rawInputs.commandArgs)
+    println("--------------------")
+}
+
+private fun Command.buildRequiredEvent(discord: Discord, rawInputs: RawInputs, message: Message?, author: User, channel: Channel, guild: Guild?): CommandEvent<TypeContainer>? {
+    return try {
+        when (this) {
+            is GlobalCommand -> CommandEvent(rawInputs, discord, message, author, channel as MessageChannel, guild)
+            is GuildCommand -> GuildCommandEvent(rawInputs, discord, message!!, author, channel as GuildMessageChannel, guild!!)
+            is DmCommand -> DmCommandEvent(rawInputs, discord, message!!, author, channel as DmChannel)
+            is SlashCommand -> SlashCommandEvent(rawInputs, discord, message, author, channel as MessageChannel, guild, null)
+        }
+    }
+    catch (e: Exception) {
+        null
+    }
 }
 
 internal suspend fun arePreconditionsPassing(event: CommandEvent<*>): Boolean {
