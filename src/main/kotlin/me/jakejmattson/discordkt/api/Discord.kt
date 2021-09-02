@@ -152,6 +152,9 @@ abstract class Discord {
             }
         }
 
+        if (guildSlashCommands.isEmpty())
+            return
+
         kord.guilds.toList().forEach { guild ->
             try {
                 guild.createApplicationCommands {
