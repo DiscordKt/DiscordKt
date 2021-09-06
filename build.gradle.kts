@@ -6,9 +6,9 @@ val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
     //Core
-    kotlin("jvm") version Versions.kotlin
-    kotlin("plugin.serialization") version Versions.kotlin
-    id("org.jetbrains.dokka") version Versions.dokka
+    kotlin("jvm") version Constants.kotlin
+    kotlin("plugin.serialization") version Constants.kotlin
+    id("org.jetbrains.dokka") version Constants.dokka
 
     //Publishing
     signing
@@ -24,18 +24,16 @@ repositories {
 }
 
 dependencies {
-    Dependencies.apply {
-        implementation(reflections)
-        implementation(gson)
+    implementation("org.reflections:reflections:0.9.12")
+    implementation("com.google.code.gson:gson:2.8.8")
 
-        api(kord)
-        api(emojis)
-        api(slf4j)
+    api("dev.kord:kord-core:0.8.0-M5")
+    api("dev.kord.x:emoji:0.5.0")
+    api("org.slf4j:slf4j-simple:2.0.0-alpha5")
 
-        testImplementation(platform(`junit-platform`))
-        testImplementation(junit)
-        testImplementation(mockk)
-    }
+    testImplementation(platform("org.junit:junit-bom:5.8.0-RC1"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("io.mockk:mockk:1.12.0")
 }
 
 tasks {
@@ -61,8 +59,8 @@ tasks {
         into(file("."))
         rename { "README.md" }
         expand(
-            "kotlin" to Versions.kotlin.replace("-", "--"),
-            "kord" to Versions.kord.replace("-", "--"),
+            "kotlin" to Constants.kotlin.replace("-", "--"),
+            "kord" to Constants.kord.replace("-", "--"),
             "discordkt" to version.toString().replace("-", "--"),
             "imports" to README.createImportBlock(group.toString(), version.toString(), isSnapshot)
         )
@@ -75,8 +73,8 @@ tasks {
         expand(
             "projectRepo" to Constants.projectUrl,
             "projectVersion" to version,
-            "kotlinVersion" to Versions.kotlin,
-            "kordVersion" to Versions.kord
+            "kotlinVersion" to Constants.kotlin,
+            "kordVersion" to Constants.kord
         )
     }
 
