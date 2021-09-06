@@ -5,6 +5,7 @@ package me.jakejmattson.discordkt.api.extensions
 import dev.kord.core.behavior.MemberBehavior
 import dev.kord.core.behavior.UserBehavior
 import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.core.entity.User
 import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.flow.filter
 
@@ -39,3 +40,21 @@ fun UserBehavior.isSelf() = id == kord.selfId
  * Checks whether this member is the bot.
  */
 fun MemberBehavior.isSelf() = id == kord.selfId
+
+/**
+ * User entity formatted to a readable String.
+ * username#1234 :: <@username>
+ */
+fun User.descriptor() = "$username#$discriminator :: $mention"
+
+/**
+ * User entity formatted to a readable String.
+ * <@username> (username#1234)
+ */
+fun User.simpleDescriptor() = "$mention ($username#$discriminator)"
+
+/**
+ * User entity formatted to a readable String.
+ * username#1234 :: 123456789123456789
+ */
+fun User.idDescriptor() = "$username#$discriminator :: ${id.value}"
