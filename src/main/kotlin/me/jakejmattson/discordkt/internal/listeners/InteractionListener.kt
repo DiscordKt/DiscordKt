@@ -70,6 +70,7 @@ private fun simplifySlashArgs(complexArgs: List<Pair<Argument<*>, OptionValue<*>
     complexArgs.joinToString(" ") { (arg, optionalValue) ->
         when (arg) {
             is IntegerArg -> optionalValue.int().toString()
+            is DoubleArg -> optionalValue.number().toString()
             is BooleanArg -> optionalValue.boolean().toString()
             is UserArg -> optionalValue.user().id.asString
             is RoleArg -> optionalValue.role().id.asString

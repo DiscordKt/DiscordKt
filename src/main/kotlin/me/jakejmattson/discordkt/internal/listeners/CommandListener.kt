@@ -75,7 +75,6 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     }
 
     command.invoke(event, rawInputs.commandArgs)
-    println("--------------------")
 }
 
 private fun Command.buildRequiredEvent(discord: Discord, rawInputs: RawInputs, message: Message?, author: User, channel: Channel, guild: Guild?): CommandEvent<TypeContainer>? {
@@ -88,7 +87,10 @@ private fun Command.buildRequiredEvent(discord: Discord, rawInputs: RawInputs, m
         }
     }
     catch (e: Exception) {
-        null
+        when (e) {
+            is KotlinNullPointerException, is ClassCastException -> null
+            else -> throw e
+        }
     }
 }
 

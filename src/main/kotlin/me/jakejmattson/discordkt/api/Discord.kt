@@ -119,15 +119,17 @@ abstract class Discord {
         fun ChatInputCreateBuilder.mapArgs(command: Command) {
             command.executions.first().arguments.forEach {
                 val (arg, isRequired) = if (it is OptionalArg<*>) it.type to false else it to true
-                val argName = arg.name.lowercase()
+                val name = arg.name.lowercase()
+                val description = arg.description
 
                 when (arg) {
-                    is IntegerArg -> int(argName, arg.description) { required = isRequired }
-                    is BooleanArg -> boolean(argName, arg.description) { required = isRequired }
-                    is UserArg -> user(argName, arg.description) { required = isRequired }
-                    is RoleArg -> role(argName, arg.description) { required = isRequired }
-                    is ChannelArg<*> -> channel(argName, arg.description) { required = isRequired }
-                    else -> string(argName, arg.description) { required = isRequired }
+                    is IntegerArg -> int(name, description) { required = isRequired }
+                    is DoubleArg -> number(name, description)
+                    is BooleanArg -> boolean(name, description) { required = isRequired }
+                    is UserArg -> user(name, description) { required = isRequired }
+                    is RoleArg -> role(name, description) { required = isRequired }
+                    is ChannelArg<*> -> channel(name, description) { required = isRequired }
+                    else -> string(name, description) { required = isRequired }
                 }
             }
         }
