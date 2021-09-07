@@ -213,6 +213,11 @@ class DmCommand(override val names: List<String>, override var description: Stri
     fun <A, B, C, D, E> execute(a: Argument<A>, b: Argument<B>, c: Argument<C>, d: Argument<D>, e: Argument<E>, execute: suspend DmCommandEvent<Args5<A, B, C, D, E>>.() -> Unit) = addExecution(listOf(a, b, c, d, e), execute)
 }
 
+/**
+ * Abstract slash command representation.
+ *
+ * @property appName The name used for a contextual app (if applicable).
+ */
 open class SlashCommand(override val name: String, override var description: String, open val appName: String, override var requiredPermission: Enum<*>) : Command(listOf(name), description, requiredPermission)
 
 /**

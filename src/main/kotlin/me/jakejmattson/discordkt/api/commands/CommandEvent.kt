@@ -127,6 +127,7 @@ data class DmCommandEvent<T : TypeContainer>(
 
 /**
  * An event fired by a slash command.
+ * @param ephemeralAck [EphemeralInteractionResponseBehavior] used for follow up.
  */
 open class SlashCommandEvent<T : TypeContainer>(
     override val rawInputs: RawInputs,
@@ -136,15 +137,15 @@ open class SlashCommandEvent<T : TypeContainer>(
     override val author: User,
     override val channel: MessageChannel,
     override val guild: Guild? = null,
-    open val ephemeralInteractionResponseBehavior: EphemeralInteractionResponseBehavior?) : CommandEvent<T>(rawInputs, discord, message, author, channel, null) {
+    open val ephemeralAck: EphemeralInteractionResponseBehavior?) : CommandEvent<T>(rawInputs, discord, message, author, channel, null) {
     override suspend fun respond(message: Any) {
-        ephemeralInteractionResponseBehavior?.followUpEphemeral {
+        ephemeralAck?.followUpEphemeral {
             content = message.toString()
         } ?: super.respond(message)
     }
 
     override suspend fun respond(construct: suspend EmbedBuilder.() -> Unit) {
-        ephemeralInteractionResponseBehavior?.followUpEphemeral {
+        ephemeralAck?.followUpEphemeral {
             embed {
                 construct.invoke(this)
             }
@@ -152,6 +153,9 @@ open class SlashCommandEvent<T : TypeContainer>(
     }
 }
 
+/**
+ * An event fired by a guild slash command.
+ */
 data class GuildSlashCommandEvent<T : TypeContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
@@ -160,5 +164,5 @@ data class GuildSlashCommandEvent<T : TypeContainer>(
     override val author: User,
     override val channel: MessageChannel,
     override val guild: Guild,
-    override val ephemeralInteractionResponseBehavior: EphemeralInteractionResponseBehavior?
-) : SlashCommandEvent<T>(rawInputs, discord, message, author, channel, guild, ephemeralInteractionResponseBehavior)
+    override val ephemeralAck: EphemeralInteractionResponseBehavior?
+) : SlashCommandEvent<T>(rawInputs, discord, message, author, channel, guild, ephemeralAck)
