@@ -128,7 +128,7 @@ data class DmCommandEvent<T : TypeContainer>(
 /**
  * An event fired by a slash command.
  */
-data class SlashCommandEvent<T : TypeContainer>(
+open class SlashCommandEvent<T : TypeContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     @Deprecated("A slash command cannot access its message.", level = DeprecationLevel.ERROR)
@@ -136,7 +136,7 @@ data class SlashCommandEvent<T : TypeContainer>(
     override val author: User,
     override val channel: MessageChannel,
     override val guild: Guild? = null,
-    val ephemeralInteractionResponseBehavior: EphemeralInteractionResponseBehavior?) : CommandEvent<T>(rawInputs, discord, message, author, channel, null) {
+    open val ephemeralInteractionResponseBehavior: EphemeralInteractionResponseBehavior?) : CommandEvent<T>(rawInputs, discord, message, author, channel, null) {
     override suspend fun respond(message: Any) {
         ephemeralInteractionResponseBehavior?.followUpEphemeral {
             content = message.toString()
@@ -151,3 +151,14 @@ data class SlashCommandEvent<T : TypeContainer>(
         } ?: super.respond(construct)
     }
 }
+
+data class GuildSlashCommandEvent<T : TypeContainer>(
+    override val rawInputs: RawInputs,
+    override val discord: Discord,
+    @Deprecated("A slash command cannot access its message.", level = DeprecationLevel.ERROR)
+    override val message: Message?,
+    override val author: User,
+    override val channel: MessageChannel,
+    override val guild: Guild,
+    override val ephemeralInteractionResponseBehavior: EphemeralInteractionResponseBehavior?
+) : SlashCommandEvent<T>(rawInputs, discord, message, author, channel, guild, ephemeralInteractionResponseBehavior)

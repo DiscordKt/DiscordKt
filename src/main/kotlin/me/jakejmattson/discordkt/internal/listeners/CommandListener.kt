@@ -83,6 +83,7 @@ private fun Command.buildRequiredEvent(discord: Discord, rawInputs: RawInputs, m
             is GlobalCommand -> CommandEvent(rawInputs, discord, message, author, channel as MessageChannel, guild)
             is GuildCommand -> GuildCommandEvent(rawInputs, discord, message!!, author, channel as GuildMessageChannel, guild!!)
             is DmCommand -> DmCommandEvent(rawInputs, discord, message!!, author, channel as DmChannel)
+            is GuildSlashCommand -> GuildSlashCommandEvent(rawInputs, discord, message, author, channel as MessageChannel, guild!!, null)
             is SlashCommand -> SlashCommandEvent(rawInputs, discord, message, author, channel as MessageChannel, guild, null)
         }
     }
