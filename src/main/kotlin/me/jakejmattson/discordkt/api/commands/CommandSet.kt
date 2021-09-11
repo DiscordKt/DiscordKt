@@ -30,7 +30,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String, private
      */
     @InnerDSL
     fun command(vararg names: String, body: GuildCommand.() -> Unit) {
-        val command = GuildCommand(names.toList(), "", requiredPermission).apply {
+        val command = GuildCommand(names.toList(), requiredPermission = requiredPermission).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -44,7 +44,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String, private
     @InnerDSL
     @Deprecated("Guild commands are now the default 'command' behavior", level = DeprecationLevel.WARNING)
     fun guildCommand(vararg names: String, body: GuildCommand.() -> Unit) {
-        val command = GuildCommand(names.toList(), "", requiredPermission).apply {
+        val command = GuildCommand(names.toList(), requiredPermission = requiredPermission).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -57,7 +57,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String, private
      */
     @InnerDSL
     fun dmCommand(vararg names: String, body: DmCommand.() -> Unit) {
-        val command = DmCommand(names.toList(), "", requiredPermission).apply {
+        val command = DmCommand(names.toList(), requiredPermission = requiredPermission).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -70,7 +70,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String, private
      */
     @InnerDSL
     fun globalCommand(vararg names: String, body: GlobalCommand.() -> Unit) {
-        val command = GlobalCommand(names.toList(), "", requiredPermission).apply {
+        val command = GlobalCommand(names.toList(), requiredPermission = requiredPermission).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -83,7 +83,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String, private
      */
     @InnerDSL
     fun slash(name: String, appName: String = name, body: GuildSlashCommand.() -> Unit) {
-        val command = GuildSlashCommand(name, "", appName, requiredPermission).apply {
+        val command = GuildSlashCommand(name, appName, requiredPermission = requiredPermission).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -96,7 +96,7 @@ data class CommandSetBuilder(val discord: Discord, val category: String, private
      */
     @InnerDSL
     fun globalSlash(name: String, appName: String = name, body: GlobalSlashCommand.() -> Unit) {
-        val command = GlobalSlashCommand(name, "", appName, requiredPermission).apply {
+        val command = GlobalSlashCommand(name, appName, requiredPermission = requiredPermission).apply {
             this.category = this@CommandSetBuilder.category
         }
 

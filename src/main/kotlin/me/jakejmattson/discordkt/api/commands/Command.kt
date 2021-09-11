@@ -45,21 +45,24 @@ data class Execution<T : CommandEvent<*>>(val arguments: List<Argument<*>>, val 
 }
 
 /**
- * @property names The name(s) this command can be executed by (case insensitive).
+ * @property names The name(s) this command can be executed by (case-insensitive).
  * @property description A brief description of the command - used in documentation.
  * @property requiredPermission The permission level required to use this command.
  * @property category The category that this command belongs to - set automatically by CommandSet.
  * @property executions The list of [Execution] that this command can be run with.
  */
-sealed class Command(open val names: List<String>, open var description: String, open var requiredPermission: Enum<*>) {
+sealed interface Command {
+    val names: List<String>
+    var description: String
+    var category: String
+    var requiredPermission: Enum<*>
+    val executions: MutableList<Execution<*>>
+
     /**
      * The first name in the [names] list.
      */
-    open val name: String
+    val name: String
         get() = names.first()
-
-    var category: String = ""
-    val executions: MutableList<Execution<*>> = mutableListOf()
 
     /**
      * Whether the command can parse the given arguments into a container.
@@ -121,15 +124,33 @@ sealed class Command(open val names: List<String>, open var description: String,
         }
     }
 
-    protected fun <T : CommandEvent<*>> addExecution(argTypes: List<Argument<*>>, execute: suspend T.() -> Unit) {
+    fun <T : CommandEvent<*>> addExecution(argTypes: List<Argument<*>>, execute: suspend T.() -> Unit) {
         executions.add(Execution(argTypes, execute))
     }
 }
 
 /**
+ * Abstract message command representation.
+ */
+sealed interface MessageCommand : Command
+
+/**
+ * Abstract slash command representation.
+ *
+ * @property appName The name used for a contextual app (if applicable).
+ */
+sealed interface SlashCommand : Command {
+    val appName: String
+}
+
+/**
  * A command that can be executed from anywhere.
  */
-open class GlobalCommand(override val names: List<String>, override var description: String, override var requiredPermission: Enum<*>) : Command(names, description, requiredPermission) {
+open class GlobalCommand(override val names: List<String>,
+                         override var description: String = "",
+                         override var category: String = "",
+                         override val executions: MutableList<Execution<*>> = mutableListOf(),
+                         override var requiredPermission: Enum<*>) : MessageCommand {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -158,7 +179,11 @@ open class GlobalCommand(override val names: List<String>, override var descript
 /**
  * A command that can only be executed in a guild.
  */
-open class GuildCommand(override val names: List<String>, override var description: String, override var requiredPermission: Enum<*>) : Command(names, description, requiredPermission) {
+open class GuildCommand(override val names: List<String>,
+                        override var description: String = "",
+                        override var category: String = "",
+                        override val executions: MutableList<Execution<*>> = mutableListOf(),
+                        override var requiredPermission: Enum<*>) : MessageCommand {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -187,7 +212,11 @@ open class GuildCommand(override val names: List<String>, override var descripti
 /**
  * A command that can only be executed in a DM.
  */
-class DmCommand(override val names: List<String>, override var description: String, override var requiredPermission: Enum<*>) : Command(names, description, requiredPermission) {
+class DmCommand(override val names: List<String>,
+                override var description: String = "",
+                override var category: String = "",
+                override val executions: MutableList<Execution<*>> = mutableListOf(),
+                override var requiredPermission: Enum<*>) : MessageCommand {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend DmCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -214,18 +243,17 @@ class DmCommand(override val names: List<String>, override var description: Stri
 }
 
 /**
- * Abstract slash command representation.
- *
- * @property appName The name used for a contextual app (if applicable).
- */
-open class SlashCommand(override val name: String, override var description: String, open val appName: String, override var requiredPermission: Enum<*>) : Command(listOf(name), description, requiredPermission)
-
-/**
  * A command wrapper for a global discord slash command.
  *
  * @property name The name of the slash command.
  */
-class GlobalSlashCommand(override val name: String, override var description: String, override val appName: String, override var requiredPermission: Enum<*>) : SlashCommand(name, description, appName, requiredPermission) {
+class GlobalSlashCommand(override val name: String,
+                         override val appName: String,
+                         override val names: List<String> = listOf(name),
+                         override var description: String = "",
+                         override var category: String = "",
+                         override val executions: MutableList<Execution<*>> = mutableListOf(),
+                         override var requiredPermission: Enum<*>) : SlashCommand {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend SlashCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -256,7 +284,13 @@ class GlobalSlashCommand(override val name: String, override var description: St
  *
  * @property name The name of the slash command.
  */
-class GuildSlashCommand(override val name: String, override var description: String, override val appName: String, override var requiredPermission: Enum<*>) : SlashCommand(name, description, appName, requiredPermission) {
+class GuildSlashCommand(override val name: String,
+                        override val appName: String,
+                        override val names: List<String> = listOf(name),
+                        override var description: String = "",
+                        override var category: String = "",
+                        override val executions: MutableList<Execution<*>> = mutableListOf(),
+                        override var requiredPermission: Enum<*>) : SlashCommand {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend GuildSlashCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -283,6 +317,6 @@ class GuildSlashCommand(override val name: String, override var description: Str
 }
 
 /**
- * Get a command by its name (case insensitive).
+ * Get a command by its name (case-insensitive).
  */
 operator fun MutableList<Command>.get(query: String) = firstOrNull { cmd -> cmd.names.any { it.equals(query, true) } }
