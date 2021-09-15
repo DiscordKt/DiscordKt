@@ -31,8 +31,8 @@ dependencies {
     api("dev.kord.x:emoji:0.5.0")
     api("org.slf4j:slf4j-simple:2.0.0-alpha5")
 
-    testImplementation(platform("org.junit:junit-bom:5.8.0-RC1"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation(platform("org.junit:junit-bom:5.8.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.0")
     testImplementation("io.mockk:mockk:1.12.0")
 }
 

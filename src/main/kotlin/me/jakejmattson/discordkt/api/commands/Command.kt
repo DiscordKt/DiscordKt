@@ -146,11 +146,11 @@ sealed interface SlashCommand : Command {
 /**
  * A command that can be executed from anywhere.
  */
-open class GlobalCommand(override val names: List<String>,
-                         override var description: String = "",
-                         override var category: String = "",
-                         override val executions: MutableList<Execution<*>> = mutableListOf(),
-                         override var requiredPermission: Enum<*>) : MessageCommand {
+class GlobalCommand(override val names: List<String>,
+                    override var description: String = "",
+                    override var category: String = "",
+                    override val executions: MutableList<Execution<*>> = mutableListOf(),
+                    override var requiredPermission: Enum<*>) : MessageCommand {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
@@ -179,11 +179,11 @@ open class GlobalCommand(override val names: List<String>,
 /**
  * A command that can only be executed in a guild.
  */
-open class GuildCommand(override val names: List<String>,
-                        override var description: String = "",
-                        override var category: String = "",
-                        override val executions: MutableList<Execution<*>> = mutableListOf(),
-                        override var requiredPermission: Enum<*>) : MessageCommand {
+class GuildCommand(override val names: List<String>,
+                   override var description: String = "",
+                   override var category: String = "",
+                   override val executions: MutableList<Execution<*>> = mutableListOf(),
+                   override var requiredPermission: Enum<*>) : MessageCommand {
     /** @suppress */
     @NestedDSL
     fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit) = addExecution(listOf(), execute)
