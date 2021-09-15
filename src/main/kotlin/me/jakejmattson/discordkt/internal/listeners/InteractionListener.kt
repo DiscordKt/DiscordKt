@@ -77,6 +77,7 @@ private fun simplifySlashArgs(complexArgs: List<Pair<Argument<*>, OptionValue<*>
             is DoubleArg -> optionalValue.number().toString()
             is BooleanArg -> optionalValue.boolean().toString()
             is UserArg -> optionalValue.user().id.asString
+            is MemberArg -> optionalValue.member().id.asString
             is RoleArg -> optionalValue.role().id.asString
             is ChannelArg<*> -> optionalValue.channel().id.asString
             else -> optionalValue.string()

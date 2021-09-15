@@ -3,6 +3,7 @@
 package me.jakejmattson.discordkt.api.extensions
 
 import dev.kord.core.entity.Message
+import dev.kord.core.entity.ReactionEmoji
 import kotlinx.coroutines.flow.count
 
 /**
@@ -34,3 +35,13 @@ fun Message.isImagePost() =
     } else {
         false
     }
+
+/**
+ * Add multiple [ReactionEmoji] to a [Message].
+ */
+suspend fun Message.addReactions(vararg reactions: ReactionEmoji) = reactions.forEach { addReaction(it) }
+
+/**
+ * Add multiple [ReactionEmoji] to a [Message].
+ */
+suspend fun Message.addReactions(reactions: List<ReactionEmoji>) = reactions.forEach { addReaction(it) }

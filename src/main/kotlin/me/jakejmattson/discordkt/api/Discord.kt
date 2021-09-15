@@ -124,9 +124,9 @@ abstract class Discord {
 
                 when (arg) {
                     is IntegerArg -> int(name, description) { required = isRequired }
-                    is DoubleArg -> number(name, description)
+                    is DoubleArg -> number(name, description) { required = isRequired}
                     is BooleanArg -> boolean(name, description) { required = isRequired }
-                    is UserArg -> user(name, description) { required = isRequired }
+                    is UserArg, MemberArg -> user(name, description) { required = isRequired }
                     is RoleArg -> role(name, description) { required = isRequired }
                     is ChannelArg<*> -> channel(name, description) { required = isRequired }
                     else -> string(name, description) { required = isRequired }
@@ -142,9 +142,11 @@ abstract class Discord {
                 slashCommand.executions
                     .filter { it.arguments.size == 1 }
                     .forEach {
-                        when (it.arguments.first()) {
+                        val potentialArg = it.arguments.first()
+
+                        when (if (potentialArg is OptionalArg) potentialArg.type else potentialArg) {
                             MessageArg -> message(slashCommand.appName) {}
-                            UserArg -> user(slashCommand.appName) {}
+                            UserArg, MemberArg -> user(slashCommand.appName) {}
                         }
                     }
 
@@ -164,9 +166,11 @@ abstract class Discord {
                         slashCommand.executions
                             .filter { it.arguments.size == 1 }
                             .forEach {
-                                when (it.arguments.first()) {
+                                val potentialArg = it.arguments.first()
+
+                                when (if (potentialArg is OptionalArg) potentialArg.type else potentialArg) {
                                     MessageArg -> message(slashCommand.appName) {}
-                                    UserArg -> user(slashCommand.appName) {}
+                                    UserArg, MemberArg -> user(slashCommand.appName) {}
                                 }
                             }
 

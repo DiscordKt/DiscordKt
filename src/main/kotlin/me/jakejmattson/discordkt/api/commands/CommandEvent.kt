@@ -138,19 +138,25 @@ open class SlashCommandEvent<T : TypeContainer>(
     override val channel: MessageChannel,
     override val guild: Guild? = null,
     open val ephemeralAck: EphemeralInteractionResponseBehavior?) : CommandEvent<T>(rawInputs, discord, message, author, channel, null) {
-    override suspend fun respond(message: Any) {
-        ephemeralAck?.followUpEphemeral {
-            content = message.toString()
-        } ?: super.respond(message)
-    }
 
-    override suspend fun respond(construct: suspend EmbedBuilder.() -> Unit) {
-        ephemeralAck?.followUpEphemeral {
-            embed {
-                construct.invoke(this)
+    override suspend fun respond(message: Any) =
+        if (ephemeralAck != null) {
+            ephemeralAck!!.followUpEphemeral {
+                content = message.toString()
             }
-        } ?: super.respond(construct)
-    }
+
+            emptyList()
+        } else super.respond(message)
+
+    override suspend fun respond(construct: suspend EmbedBuilder.() -> Unit) =
+        if (ephemeralAck != null) {
+            ephemeralAck?.followUpEphemeral {
+                embed {
+                    construct.invoke(this)
+                }
+            }
+            null
+        } else super.respond(construct)
 }
 
 /**
