@@ -72,7 +72,7 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
 @OptIn(KordPreview::class)
 private fun simplifySlashArgs(complexArgs: List<Pair<Argument<*>, OptionValue<*>>>) =
     complexArgs.joinToString(" ") { (arg, optionalValue) ->
-        when (arg) {
+        when (if (arg is OptionalArg) arg.type else arg) {
             is IntegerArg -> optionalValue.int().toString()
             is DoubleArg -> optionalValue.number().toString()
             is BooleanArg -> optionalValue.boolean().toString()

@@ -9,6 +9,7 @@ import dev.kord.rest.builder.interaction.*
 import dev.kord.rest.request.KtorRequestException
 import dev.kord.x.emoji.Emojis
 import kotlinx.coroutines.flow.toList
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -46,7 +47,9 @@ abstract class Discord {
     abstract val permissions: PermissionBundle
     abstract val commands: MutableList<Command>
     internal abstract val preconditions: MutableList<Precondition>
-    val versions = Json.decodeFromString<Versions>(javaClass.getResource("/library-properties.json").readText())
+
+    @ExperimentalSerializationApi
+    val versions = Json.decodeFromString<Versions>(javaClass.getResource("/library-properties.json")!!.readText())
 
     /** Fetch an object from the DI pool by its type */
     inline fun <reified A : Any> getInjectionObjects() = diService[A::class]
@@ -134,25 +137,29 @@ abstract class Discord {
             }
         }
 
+        fun MultiApplicationCommandBuilder.register(command: SlashCommand) {
+            command.executions
+                .filter { it.arguments.size == 1 }
+                .forEach {
+                    val potentialArg = it.arguments.first()
+
+                    when (if (potentialArg is OptionalArg) potentialArg.type else potentialArg) {
+                        MessageArg -> message(command.appName) {}
+                        UserArg, MemberArg -> user(command.appName) {}
+                    }
+                }
+
+            input(command.name.lowercase(), command.description.ifBlank { "<No Description>" }) {
+                mapArgs(command)
+            }
+        }
+
         val globalSlashCommands = commands.filterIsInstance<GlobalSlashCommand>()
         val guildSlashCommands = commands.filterIsInstance<GuildSlashCommand>()
 
         kord.createGlobalApplicationCommands {
-            globalSlashCommands.forEach { slashCommand ->
-                slashCommand.executions
-                    .filter { it.arguments.size == 1 }
-                    .forEach {
-                        val potentialArg = it.arguments.first()
-
-                        when (if (potentialArg is OptionalArg) potentialArg.type else potentialArg) {
-                            MessageArg -> message(slashCommand.appName) {}
-                            UserArg, MemberArg -> user(slashCommand.appName) {}
-                        }
-                    }
-
-                input(slashCommand.name, slashCommand.description.ifBlank { "<No Description>" }) {
-                    mapArgs(slashCommand)
-                }
+            globalSlashCommands.forEach {
+                register(it)
             }
         }
 
@@ -162,21 +169,8 @@ abstract class Discord {
         kord.guilds.toList().forEach { guild ->
             try {
                 guild.createApplicationCommands {
-                    guildSlashCommands.forEach { slashCommand ->
-                        slashCommand.executions
-                            .filter { it.arguments.size == 1 }
-                            .forEach {
-                                val potentialArg = it.arguments.first()
-
-                                when (if (potentialArg is OptionalArg) potentialArg.type else potentialArg) {
-                                    MessageArg -> message(slashCommand.appName) {}
-                                    UserArg, MemberArg -> user(slashCommand.appName) {}
-                                }
-                            }
-
-                        input(slashCommand.name.lowercase(), slashCommand.description.ifBlank { "<No Description>" }) {
-                            mapArgs(slashCommand)
-                        }
+                    guildSlashCommands.forEach {
+                        register(it)
                     }
                 }
             } catch (e: KtorRequestException) {
