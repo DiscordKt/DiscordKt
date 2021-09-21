@@ -45,11 +45,11 @@ private suspend fun handleMessageContext(interaction: MessageCommandInteraction,
 
 private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction, discord: Discord) {
     handleApplicationCommand(interaction, discord) {
-        simplifySlashArgs(executions.first().arguments.map { it to interaction.command.options[it.name.lowercase()]!! })
+        simplifySlashArgs(execution.arguments.map { it to interaction.command.options[it.name.lowercase()]!! })
     }
 }
 
-private suspend fun handleApplicationCommand(interaction: ApplicationCommandInteraction, discord: Discord, args: suspend Command.() -> String) {
+private suspend fun handleApplicationCommand(interaction: ApplicationCommandInteraction, discord: Discord, args: suspend SlashCommand.() -> String) {
     val dktCommand = discord.commands.filterIsInstance<GuildSlashCommand>().firstOrNull { it.appName == interaction.name || it.name.equals(interaction.name, true) }
         ?: discord.commands.filterIsInstance<GlobalSlashCommand>().firstOrNull { it.appName == interaction.name || it.name.equals(interaction.name, true) }
         ?: return

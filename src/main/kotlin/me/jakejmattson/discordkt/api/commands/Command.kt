@@ -138,6 +138,7 @@ sealed interface MessageCommand : Command
  * Abstract slash command representation.
  *
  * @property appName The name used for a contextual app (if applicable).
+ * @property execution The single execution of slash command.
  */
 sealed interface SlashCommand : Command {
     val appName: String

@@ -32,12 +32,12 @@ val UserBehavior.profileLink
     get() = "https://discord.com/users/${id.value}/"
 
 /**
- * Checks whether this user is the bot.
+ * Checks if this [User] is itself.
  */
 fun UserBehavior.isSelf() = id == kord.selfId
 
 /**
- * Checks whether this member is the bot.
+ * Checks if this [Member][MemberBehavior] is itself.
  */
 fun MemberBehavior.isSelf() = id == kord.selfId
 

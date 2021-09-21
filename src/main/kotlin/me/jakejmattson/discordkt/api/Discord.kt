@@ -117,8 +117,8 @@ abstract class Discord {
 
     @KordPreview
     private suspend fun registerSlashCommands() {
-        fun ChatInputCreateBuilder.mapArgs(command: Command) {
-            command.executions.first().arguments.forEach {
+        fun ChatInputCreateBuilder.mapArgs(command: SlashCommand) {
+            command.execution.arguments.forEach {
                 val (arg, isRequired) = if (it is OptionalArg<*>) it.type to false else it to true
                 val name = arg.name.lowercase()
                 val description = arg.description

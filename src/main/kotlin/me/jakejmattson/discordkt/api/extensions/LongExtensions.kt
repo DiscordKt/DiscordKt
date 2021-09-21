@@ -13,7 +13,7 @@ import java.time.temporal.ChronoUnit
 fun Number.pluralize(unit: String) = "$this ${if (this.toLong() == 1L) unit else "${unit}s"}"
 
 /**
- * Convert this long value to a time string
+ * Convert this long value to a time string.
  *
  * @param trimLeadingZeroes Trim all zero values before the first non-zero value.
  * @param trimTrailingZeros Trim all zero values after the last non-zero value.

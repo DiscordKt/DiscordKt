@@ -5,7 +5,7 @@ package me.jakejmattson.discordkt.api.extensions
 import dev.kord.rest.builder.message.EmbedBuilder
 
 /**
- * Utility function to create a field.
+ * Add a field to an embed. Shorthand for the equivalent builder.
  */
 fun EmbedBuilder.addField(name: String, value: String) = field {
     this.name = name.validOrBlank()
@@ -14,7 +14,7 @@ fun EmbedBuilder.addField(name: String, value: String) = field {
 }
 
 /**
- * Utility function to create an inline field.
+ * Add an inline field to an embed. Shorthand for the equivalent builder.
  */
 fun EmbedBuilder.addInlineField(name: String, value: String) = field {
     this.name = name.validOrBlank()
