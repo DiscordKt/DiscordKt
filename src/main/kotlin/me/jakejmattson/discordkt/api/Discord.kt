@@ -34,7 +34,7 @@ data class Versions(val library: String, val kotlin: String, val kord: String)
 
 /**
  * @property kord A Kord instance used to access the Discord API.
- * @property configuration All of the current configuration details for this bot.
+ * @property configuration All configured values for this bot.
  * @property locale Locale (language and customizations).
  * @property permissions Permission values and helper functions.
  * @property commands All registered commands.
@@ -98,11 +98,9 @@ abstract class Discord {
             InternalLogger.log("-".repeat(header.length))
         }
 
+        validate()
         registerSlashCommands()
 
-        Validator.validateCommands(commands)
-        Validator.validateArguments(commands)
-        Validator.validatePermissions(commands, this)
         commands[locale.helpName] ?: produceHelpCommand(locale.helpCategory).register(this)
 
         if (configuration.generateCommandDocs)
@@ -127,7 +125,7 @@ abstract class Discord {
 
                 when (arg) {
                     is IntegerArg -> int(name, description) { required = isRequired }
-                    is DoubleArg -> number(name, description) { required = isRequired}
+                    is DoubleArg -> number(name, description) { required = isRequired }
                     is BooleanArg -> boolean(name, description) { required = isRequired }
                     is UserArg, MemberArg -> user(name, description) { required = isRequired }
                     is RoleArg -> role(name, description) { required = isRequired }

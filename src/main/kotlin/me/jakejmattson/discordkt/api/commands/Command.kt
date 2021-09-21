@@ -141,6 +141,9 @@ sealed interface MessageCommand : Command
  */
 sealed interface SlashCommand : Command {
     val appName: String
+
+    val execution: Execution<*>
+        get() = executions.first()
 }
 
 /**
