@@ -6,12 +6,12 @@ import me.jakejmattson.discordkt.api.dsl.internalLocale
 /**
  * Consumes all remaining arguments. Does not accept empty strings.
  */
-open class EveryArg(override val name: String = "Text",
+public open class EveryArg(override val name: String = "Text",
                     override val description: String = internalLocale.everyArgDescription) : Argument<String> {
     /**
      * Consumes all remaining arguments. Does not accept empty strings.
      */
-    companion object : EveryArg()
+    public companion object : EveryArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         if (args.size in 0..1 && arg.isEmpty())
@@ -20,5 +20,5 @@ open class EveryArg(override val name: String = "Text",
         return Success(args.joinToString(" "), args.size)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>) = listOf("This is a sample sentence.")
+    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf("This is a sample sentence.")
 }

@@ -18,19 +18,19 @@ import me.jakejmattson.discordkt.internal.utils.simplerName
  * @param construct The builder function.
  */
 @BuilderDSL
-fun listeners(construct: ListenerBuilder.() -> Unit) = Listeners(construct)
+public fun listeners(construct: ListenerBuilder.() -> Unit): Listeners = Listeners(construct)
 
 /**
  * @suppress Used in DSL
  *
  * @param discord The discord instance.
  */
-data class ListenerBuilder(val discord: Discord) {
+public data class ListenerBuilder(val discord: Discord) {
     /**
      * Create a new listener.
      */
     @InnerDSL
-    inline fun <reified T : Event> on(crossinline listener: suspend T.() -> Unit) {
+    public inline fun <reified T : Event> on(crossinline listener: suspend T.() -> Unit) {
         val requiredIntents = intentsOf<T>()
         val intentNames = requiredIntents.values.joinToString { it::class.simpleName!! }
 
@@ -46,7 +46,7 @@ data class ListenerBuilder(val discord: Discord) {
 /**
  * This is not for you...
  */
-class Listeners(private val collector: ListenerBuilder.() -> Unit) : BuilderRegister {
+public class Listeners(private val collector: ListenerBuilder.() -> Unit) : BuilderRegister {
     /** @suppress */
     override fun register(discord: Discord) {
         collector.invoke(ListenerBuilder(discord))

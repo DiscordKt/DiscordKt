@@ -9,7 +9,7 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
  *
  * @param choices The available choices. Can be any type, but associated by toString value.
  */
-open class ChoiceArg<T>(override val name: String,
+public open class ChoiceArg<T>(override val name: String,
                         override val description: String = internalLocale.choiceArgDescription,
                         vararg choices: T) : Argument<T> {
     private val enumerations = choices.associateBy { it.toString().lowercase() }
@@ -27,5 +27,5 @@ open class ChoiceArg<T>(override val name: String,
         return Success(selection)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>) = options.toList()
+    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = options.toList()
 }

@@ -6,12 +6,12 @@ import me.jakejmattson.discordkt.api.dsl.internalLocale
 /**
  * Accepts a group of arguments surrounded by quotation marks.
  */
-open class QuoteArg(override val name: String = "Quote",
+public open class QuoteArg(override val name: String = "Quote",
                     override val description: String = internalLocale.quoteArgDescription) : Argument<String> {
     /**
      * Accepts a group of arguments surrounded by quotation marks.
      */
-    companion object : QuoteArg()
+    public companion object : QuoteArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
         //https://unicode-table.com/en/sets/quotation-marks/
@@ -42,8 +42,8 @@ open class QuoteArg(override val name: String = "Quote",
         return Success(quote, consumedCount)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>) = listOf("\"A Quote\"")
-    override fun formatData(data: String) = "\"$data\""
+    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf("\"A Quote\"")
+    override fun formatData(data: String): String = "\"$data\""
 }
 
 private fun List<String>.takeUntil(predicate: (String) -> Boolean): List<String> {

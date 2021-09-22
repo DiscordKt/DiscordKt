@@ -12,13 +12,13 @@ import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
  *
  * @param allowsGlobal Whether this entity can be retrieved from outside this guild.
  */
-open class MessageArg(override val name: String = "Message",
+public open class MessageArg(override val name: String = "Message",
                       override val description: String = internalLocale.messageArgDescription,
                       private val allowsGlobal: Boolean = false) : Argument<Message> {
     /**
      * Accepts a Discord Message entity as an ID or a link from within this guild.
      */
-    companion object : MessageArg()
+    public companion object : MessageArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Message> {
         val publicRegex = "https://discord(app)?.com/channels/\\d+/\\d+/\\d+".toRegex()
@@ -45,5 +45,5 @@ open class MessageArg(override val name: String = "Message",
         return Success(message)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>) = listOf(event.message!!.id.asString)
+    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf(event.message!!.id.asString)
 }

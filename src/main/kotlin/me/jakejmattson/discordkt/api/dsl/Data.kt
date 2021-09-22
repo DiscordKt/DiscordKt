@@ -12,8 +12,8 @@ import java.io.File
  * @property killIfGenerated Whether the program should exit if this file was not present.
  * @property file The file obtained from the provided path.
  */
-abstract class Data(val path: String, val killIfGenerated: Boolean = true) {
-    val file = File(path)
+public abstract class Data(public val path: String, public val killIfGenerated: Boolean = true) {
+    public val file: File = File(path)
     private val gson = GsonBuilder()
         .setExclusionStrategies(object : ExclusionStrategy {
             override fun shouldSkipClass(clazz: Class<*>) = false
@@ -35,7 +35,7 @@ abstract class Data(val path: String, val killIfGenerated: Boolean = true) {
     /**
      * Save the modified data object back into the injection pool and write to file.
      */
-    fun save() {
+    public fun save() {
         writeToFile()
         diService.inject(this)
     }

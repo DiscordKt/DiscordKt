@@ -1,14 +1,14 @@
 package me.jakejmattson.discordkt.api
 
 /** A container for data that saves type information. */
-interface TypeContainer
+public interface TypeContainer
 
-class NoArgs : TypeContainer
-data class Args1<A>(val first: A) : TypeContainer
-data class Args2<A, B>(val first: A, val second: B) : TypeContainer
-data class Args3<A, B, C>(val first: A, val second: B, val third: C) : TypeContainer
-data class Args4<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D) : TypeContainer
-data class Args5<A, B, C, D, E>(val first: A, val second: B, val third: C, val fourth: D, val fifth: E) : TypeContainer
+public class NoArgs : TypeContainer
+public data class Args1<A>(val first: A) : TypeContainer
+public data class Args2<A, B>(val first: A, val second: B) : TypeContainer
+public data class Args3<A, B, C>(val first: A, val second: B, val third: C) : TypeContainer
+public data class Args4<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D) : TypeContainer
+public data class Args5<A, B, C, D, E>(val first: A, val second: B, val third: C, val fourth: D, val fifth: E) : TypeContainer
 
 internal fun bundleToContainer(arguments: List<Any?>) = when (arguments.size) {
     0 -> NoArgs()

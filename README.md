@@ -1,4 +1,4 @@
-<p align="center">
+<p style="text-align: center">
     <a href="https://discord.gg/REZVVjA">
       <img alt="Discord Banner" src="https://discord.com/api/guilds/453208597082406912/widget.png?style=banner2"/>
     </a>

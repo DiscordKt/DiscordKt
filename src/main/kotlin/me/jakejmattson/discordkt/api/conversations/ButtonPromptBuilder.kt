@@ -26,7 +26,7 @@ internal class ConversationButton<T>(
 /**
  * Builder for a button prompt
  */
-class ButtonPromptBuilder<T> {
+public class ButtonPromptBuilder<T> {
     private lateinit var promptEmbed: suspend EmbedBuilder.() -> Unit
     private val buttonRows: MutableList<MutableList<ConversationButton<T>>> = mutableListOf()
 
@@ -36,14 +36,14 @@ class ButtonPromptBuilder<T> {
     /**
      * Create the embed prompting the user for input.
      */
-    fun embed(prompt: suspend EmbedBuilder.() -> Unit) {
+    public fun embed(prompt: suspend EmbedBuilder.() -> Unit) {
         promptEmbed = prompt
     }
 
     /**
      * Create a new row of buttons using the [button][ConversationButtonRowBuilder.button] builder.
      */
-    fun buttons(rowBuilder: ConversationButtonRowBuilder<T>.() -> Unit) {
+    public fun buttons(rowBuilder: ConversationButtonRowBuilder<T>.() -> Unit) {
         val builder = ConversationButtonRowBuilder<T>()
         rowBuilder.invoke(builder)
         buttonRows.add(builder.buttons)
@@ -71,7 +71,7 @@ class ButtonPromptBuilder<T> {
 /**
  * Builder functions for conversation buttons.
  */
-class ConversationButtonRowBuilder<T> {
+public class ConversationButtonRowBuilder<T> {
     internal val buttons = mutableListOf<ConversationButton<T>>()
 
     /**
@@ -84,7 +84,7 @@ class ConversationButtonRowBuilder<T> {
      * @param style The Button [style][ButtonStyle]
      */
     @OptIn(KordPreview::class)
-    fun button(label: String?, emoji: DiscordEmoji?, value: T, style: ButtonStyle = ButtonStyle.Secondary) {
+    public fun button(label: String?, emoji: DiscordEmoji?, value: T, style: ButtonStyle = ButtonStyle.Secondary) {
         val button = ConversationButton(label, emoji?.toReaction(), UUID.randomUUID().toString(), value, style)
         buttons.add(button)
     }

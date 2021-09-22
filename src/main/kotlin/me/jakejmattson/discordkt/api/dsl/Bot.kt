@@ -17,7 +17,7 @@ import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.services.InjectionService
 
 @PublishedApi
-internal val diService = InjectionService()
+internal val diService: InjectionService = InjectionService()
 
 internal lateinit var internalLocale: Locale
 
@@ -34,7 +34,7 @@ internal lateinit var internalLocale: Locale
  */
 @KordPreview
 @ConfigurationDSL
-fun bot(token: String, configure: suspend Bot.() -> Unit) {
+public fun bot(token: String, configure: suspend Bot.() -> Unit) {
     val packageName = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
     val bot = Bot(token, packageName)
 
@@ -47,7 +47,7 @@ fun bot(token: String, configure: suspend Bot.() -> Unit) {
 /**
  * Backing class for [bot] function.
  */
-class Bot(private val token: String, private val packageName: String) {
+public class Bot(private val token: String, private val packageName: String) {
     private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
                                         var prefix: suspend DiscordContext.() -> String = { "" },
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
@@ -115,7 +115,7 @@ class Bot(private val token: String, private val packageName: String) {
      * Inject objects into the dependency injection pool.
      */
     @ConfigurationDSL
-    fun inject(vararg injectionObjects: Any) = injectionObjects.forEach { diService.inject(it) }
+    public fun inject(vararg injectionObjects: Any): Unit = injectionObjects.forEach { diService.inject(it) }
 
     /**
      * Modify simple configuration options.
@@ -123,7 +123,7 @@ class Bot(private val token: String, private val packageName: String) {
      * @sample SimpleConfiguration
      */
     @ConfigurationDSL
-    fun configure(config: suspend SimpleConfiguration.() -> Unit) {
+    public fun configure(config: suspend SimpleConfiguration.() -> Unit) {
         startupBundle.configure = config
     }
 
@@ -131,7 +131,7 @@ class Bot(private val token: String, private val packageName: String) {
      * Determine the prefix in a given context.
      */
     @ConfigurationDSL
-    fun prefix(construct: suspend DiscordContext.() -> String) {
+    public fun prefix(construct: suspend DiscordContext.() -> String) {
         startupBundle.prefix = construct
     }
 
@@ -139,7 +139,7 @@ class Bot(private val token: String, private val packageName: String) {
      * An embed that will be sent anytime someone (solely) mentions the bot.
      */
     @ConfigurationDSL
-    fun mentionEmbed(construct: suspend EmbedBuilder.(DiscordContext) -> Unit) {
+    public fun mentionEmbed(construct: suspend EmbedBuilder.(DiscordContext) -> Unit) {
         startupBundle.mentionEmbed = construct
     }
 
@@ -149,7 +149,7 @@ class Bot(private val token: String, private val packageName: String) {
      * @param language The initial [Language] pack.
      */
     @ConfigurationDSL
-    fun localeOf(language: Language, localeBuilder: Locale.() -> Unit) {
+    public fun localeOf(language: Language, localeBuilder: Locale.() -> Unit) {
         val localeType = language.locale
         localeBuilder.invoke(localeType)
         startupBundle.locale = localeType
@@ -159,7 +159,7 @@ class Bot(private val token: String, private val packageName: String) {
      * Configure the Discord presence for this bot.
      */
     @ConfigurationDSL
-    fun presence(presence: PresenceBuilder.() -> Unit) {
+    public fun presence(presence: PresenceBuilder.() -> Unit) {
         startupBundle.presence = presence
     }
 
@@ -167,7 +167,7 @@ class Bot(private val token: String, private val packageName: String) {
      * When setup is complete, execute this block.
      */
     @ConfigurationDSL
-    fun onStart(start: suspend Discord.() -> Unit) {
+    public fun onStart(start: suspend Discord.() -> Unit) {
         startupBundle.onStart = start
     }
 }

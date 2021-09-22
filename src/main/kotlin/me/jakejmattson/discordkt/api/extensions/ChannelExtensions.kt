@@ -19,7 +19,7 @@ import me.jakejmattson.discordkt.api.dsl.MenuBuilder
 /**
  * Create a new [TextChannel] under this [Category].
  */
-suspend fun Category.createTextChannel(name: String, builder: TextChannelCreateBuilder.() -> Unit = {}): TextChannel = getGuild().createTextChannel(name) {
+public suspend fun Category.createTextChannel(name: String, builder: TextChannelCreateBuilder.() -> Unit = {}): TextChannel = getGuild().createTextChannel(name) {
     parentId = id
     builder.invoke(this)
 }
@@ -27,7 +27,7 @@ suspend fun Category.createTextChannel(name: String, builder: TextChannelCreateB
 /**
  * Create a new [VoiceChannel] under this [Category].
  */
-suspend fun Category.createVoiceChannel(name: String, builder: VoiceChannelCreateBuilder.() -> Unit = {}): VoiceChannel = getGuild().createVoiceChannel(name) {
+public suspend fun Category.createVoiceChannel(name: String, builder: VoiceChannelCreateBuilder.() -> Unit = {}): VoiceChannel = getGuild().createVoiceChannel(name) {
     parentId = id
     builder.invoke(this)
 }
@@ -35,17 +35,17 @@ suspend fun Category.createVoiceChannel(name: String, builder: VoiceChannelCreat
 /**
  * Move this [Member] to a new voice channel.
  */
-suspend fun VoiceState.move(channel: VoiceChannel): Member = getMember().edit { voiceChannelId = channel.id }
+public suspend fun VoiceState.move(channel: VoiceChannel): Member = getMember().edit { voiceChannelId = channel.id }
 
 /**
  * Disconnect this [Member] from their [VoiceChannel].
  */
-suspend fun VoiceState.disconnect() = getMember().edit { voiceChannelId = null }
+public suspend fun VoiceState.disconnect(): Member = getMember().edit { voiceChannelId = null }
 
 /**
  * Create a new menu in a message channel.
  */
-suspend fun MessageChannelBehavior.createMenu(construct: suspend MenuBuilder.() -> Unit): Message? {
+public suspend fun MessageChannelBehavior.createMenu(construct: suspend MenuBuilder.() -> Unit): Message? {
     val handle = MenuBuilder()
     handle.construct()
     return handle.build().send(this)

@@ -7,7 +7,7 @@ import me.jakejmattson.discordkt.api.locale.inject
 /**
  * Accepts an integer within a pre-defined range.
  */
-open class IntegerRangeArg(private val min: Int,
+public open class IntegerRangeArg(private val min: Int,
                            private val max: Int,
                            override val name: String = "Integer ($min-$max)",
                            override val description: String = internalLocale.integerRangeArgDescription.inject(min.toString(), max.toString())) : Argument<Int> {
@@ -25,5 +25,5 @@ open class IntegerRangeArg(private val min: Int,
         return Success(int)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>) = listOf((min..max).random().toString())
+    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf((min..max).random().toString())
 }

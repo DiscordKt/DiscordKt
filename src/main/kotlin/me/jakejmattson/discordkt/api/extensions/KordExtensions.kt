@@ -20,43 +20,43 @@ import java.util.*
 /**
  * Convert a Long ID to a [Snowflake].
  */
-fun Long.toSnowflake() = Snowflake(this)
+public fun Long.toSnowflake(): Snowflake = Snowflake(this)
 
 /**
  * Convert a String ID or mention to a [Snowflake].
  */
-fun String.toSnowflake() = Snowflake(this)
+public fun String.toSnowflake(): Snowflake = Snowflake(this)
 
 /**
  * Convert an ID or mention to a [Snowflake].
  */
-fun String.toSnowflakeOrNull() = trimToID().toLongOrNull()?.let { Snowflake(it) }
+public fun String.toSnowflakeOrNull(): Snowflake? = trimToID().toLongOrNull()?.let { Snowflake(it) }
 
 /**
- * Combine two [Intent] into a set.
+ * Combine two [Intent] into [Intents].
  */
-operator fun Intent.plus(intent: Intent) = Intents(this, intent)
+public operator fun Intent.plus(intent: Intent): Intents = Intents(this, intent)
 
 /**
  * Convert an [Event] to its [Intents].
  */
-inline fun <reified T : Event> intentsOf() = Intents { enableEvent<T>() }
+public inline fun <reified T : Event> intentsOf(): Intents = Intents { enableEvent<T>() }
 
 /**
  * Convert a [DiscordEmoji] to a [DiscordPartialEmoji].
  */
-fun DiscordEmoji.toPartialEmoji() = toReaction().toPartialEmoji()
+public fun DiscordEmoji.toPartialEmoji(): DiscordPartialEmoji = toReaction().toPartialEmoji()
 
 /**
  * Convert a [ReactionEmoji] to a [DiscordPartialEmoji].
  */
-fun ReactionEmoji.toPartialEmoji() = DiscordPartialEmoji(name = this.name)
+public fun ReactionEmoji.toPartialEmoji(): DiscordPartialEmoji = DiscordPartialEmoji(name = this.name)
 
 /**
  * Create an interaction button with a [UUID].
  */
 @OptIn(KordPreview::class)
-fun ActionRowBuilder.button(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: ButtonBuilder.InteractionButtonBuilder.() -> Unit) {
+public fun ActionRowBuilder.button(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: ButtonBuilder.InteractionButtonBuilder.() -> Unit) {
     interactionButton(style, UUID.randomUUID().toString()) {
         this.label = label
         this.emoji = emoji?.toPartialEmoji()

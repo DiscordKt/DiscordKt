@@ -10,13 +10,13 @@ import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
  *
  * @param allowsBot Whether a bot is a valid input.
  */
-open class MemberArg(override val name: String = "Member",
+public open class MemberArg(override val name: String = "Member",
                      override val description: String = internalLocale.memberArgDescription,
                      private val allowsBot: Boolean = false) : Argument<Member> {
     /**
      * Accepts a Discord Member entity as an ID or mention. Does not allow bots.
      */
-    companion object : MemberArg()
+    public companion object : MemberArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Member> {
         val guild = event.guild ?: return Error("No guild found")
@@ -30,6 +30,6 @@ open class MemberArg(override val name: String = "Member",
         return Success(member)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>) = listOf(event.author.mention)
-    override fun formatData(data: Member) = "@${data.tag}"
+    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf(event.author.mention)
+    override fun formatData(data: Member): String = "@${data.tag}"
 }

@@ -25,7 +25,7 @@ private val menus = mutableMapOf<Snowflake, Menu>()
 /**
  * Builder functions for menu buttons.
  */
-class MenuButtonRowBuilder {
+public class MenuButtonRowBuilder {
     internal val buttons = mutableListOf<DktButton>()
 
     /**
@@ -38,7 +38,7 @@ class MenuButtonRowBuilder {
      * @param disabled Whether this button is disabled
      */
     @OptIn(KordPreview::class)
-    fun button(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend Menu.() -> Unit) {
+    public fun button(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend Menu.() -> Unit) {
         val button = SimpleButton(label, emoji?.toReaction(), disabled, UUID.randomUUID().toString(), Nav(action), style)
         buttons.add(button)
     }
@@ -53,7 +53,7 @@ class MenuButtonRowBuilder {
      * @param disabled Whether this button is disabled
      */
     @OptIn(KordPreview::class)
-    fun editButton(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend EmbedBuilder.() -> Unit) {
+    public fun editButton(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend EmbedBuilder.() -> Unit) {
         val button = SimpleButton(label, emoji?.toReaction(), disabled, UUID.randomUUID().toString(), Edit(action), style)
         buttons.add(button)
     }
@@ -68,7 +68,7 @@ class MenuButtonRowBuilder {
      * @param disabled Whether this button is disabled
      */
     @OptIn(KordPreview::class)
-    fun actionButton(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend ComponentInteraction.() -> Unit) {
+    public fun actionButton(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend ComponentInteraction.() -> Unit) {
         val button = SimpleButton(label, emoji?.toReaction(), disabled, UUID.randomUUID().toString(), Action(action), style)
         buttons.add(button)
     }
@@ -82,7 +82,7 @@ class MenuButtonRowBuilder {
      * @param emoji The Button [emoji][DiscordEmoji]
      * @param disabled Whether this button is disabled
      */
-    fun linkButton(label: String?, emoji: DiscordEmoji?, url: String, disabled: Boolean = false) {
+    public fun linkButton(label: String?, emoji: DiscordEmoji?, url: String, disabled: Boolean = false) {
         val button = LinkButton(label, emoji?.toReaction(), disabled, url)
         buttons.add(button)
     }
@@ -91,14 +91,14 @@ class MenuButtonRowBuilder {
 /**
  * Type-safe builder for creating paginated embeds with button components.
  */
-class MenuBuilder {
+public class MenuBuilder {
     private val pages = mutableListOf<EmbedBuilder>()
     private val componentRows = mutableListOf<MutableList<DktButton>>()
 
     /**
      * Add a new page to this menu using an EmbedBuilder.
      */
-    suspend fun page(construct: suspend EmbedBuilder.() -> Unit) {
+    public suspend fun page(construct: suspend EmbedBuilder.() -> Unit) {
         val embed = EmbedBuilder()
         construct.invoke(embed)
         pages.add(embed)
@@ -107,7 +107,7 @@ class MenuBuilder {
     /**
      * Create a new row of buttons using the [button][MenuButtonRowBuilder.editButton] or [linkButton][MenuButtonRowBuilder.linkButton] builders.
      */
-    fun buttons(rowBuilder: MenuButtonRowBuilder.() -> Unit) {
+    public fun buttons(rowBuilder: MenuButtonRowBuilder.() -> Unit) {
         val builder = MenuButtonRowBuilder()
         rowBuilder.invoke(builder)
         componentRows.add(builder.buttons)
@@ -119,8 +119,8 @@ class MenuBuilder {
 /**
  * Contains menu data and navigation functions.
  */
-data class Menu(internal val pages: MutableList<EmbedBuilder>,
-                internal val buttons: MutableList<MutableList<DktButton>>) {
+public data class Menu(internal val pages: MutableList<EmbedBuilder>,
+                       internal val buttons: MutableList<MutableList<DktButton>>) {
     private var index = 0
 
     internal val page: EmbedBuilder
@@ -129,19 +129,19 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
     /**
      * Navigate to the previous page (wraps)
      */
-    fun previousPage() = navigate(-1)
+    public fun previousPage(): EmbedBuilder = navigate(-1)
 
     /**
      * Navigate to the next page (wraps)
      */
-    fun nextPage() = navigate(1)
+    public fun nextPage(): EmbedBuilder = navigate(1)
 
     /**
      * Load a specific page by index
      *
      * @param page The index of the desired page
      */
-    fun loadPage(page: Int): EmbedBuilder {
+    public fun loadPage(page: Int): EmbedBuilder {
         if (page !in pages.indices)
             throw IllegalArgumentException("Invalid page index $page for ${pages.size} pages.")
 
@@ -247,10 +247,10 @@ data class Menu(internal val pages: MutableList<EmbedBuilder>,
  * @property emoji Optional button emoji
  * @property disabled Whether the button is disabled.
  */
-interface DktButton {
-    val label: String?
-    val emoji: ReactionEmoji?
-    var disabled: Boolean
+public interface DktButton {
+    public val label: String?
+    public val emoji: ReactionEmoji?
+    public var disabled: Boolean
 }
 
 private class SimpleButton<T>(

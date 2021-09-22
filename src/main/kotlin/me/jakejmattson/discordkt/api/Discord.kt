@@ -30,7 +30,7 @@ import kotlin.reflect.KClass
  * @param kord The version of Kord used by DiscordKt.
  */
 @Serializable
-data class Versions(val library: String, val kotlin: String, val kord: String)
+public data class Versions(val library: String, val kotlin: String, val kord: String)
 
 /**
  * @property kord A Kord instance used to access the Discord API.
@@ -40,41 +40,41 @@ data class Versions(val library: String, val kotlin: String, val kord: String)
  * @property commands All registered commands.
  * @property versions Properties for the core library.
  */
-abstract class Discord {
-    abstract val kord: Kord
-    abstract val configuration: BotConfiguration
-    abstract val locale: Locale
-    abstract val permissions: PermissionBundle
-    abstract val commands: MutableList<Command>
+public abstract class Discord {
+    public abstract val kord: Kord
+    public abstract val configuration: BotConfiguration
+    public abstract val locale: Locale
+    public abstract val permissions: PermissionBundle
+    public abstract val commands: MutableList<Command>
     internal abstract val preconditions: MutableList<Precondition>
 
     @ExperimentalSerializationApi
-    val versions = Json.decodeFromString<Versions>(javaClass.getResource("/library-properties.json")!!.readText())
+    public val versions: Versions = Json.decodeFromString(javaClass.getResource("/library-properties.json")!!.readText())
 
     /** Fetch an object from the DI pool by its type */
-    inline fun <reified A : Any> getInjectionObjects() = diService[A::class]
+    public inline fun <reified A : Any> getInjectionObjects(): A = diService[A::class]
 
     /** Fetch an object from the DI pool by its type */
-    inline fun <reified A : Any> getInjectionObjects(a: KClass<A>) = diService[a]
+    public inline fun <reified A : Any> getInjectionObjects(a: KClass<A>): A = diService[a]
 
     /** Fetch an object from the DI pool by its type */
-    inline fun <reified A : Any, reified B : Any>
-        getInjectionObjects(a: KClass<A>, b: KClass<B>) =
+    public inline fun <reified A : Any, reified B : Any>
+        getInjectionObjects(a: KClass<A>, b: KClass<B>): Args2<A, B> =
         Args2(diService[a], diService[b])
 
     /** Fetch an object from the DI pool by its type */
-    inline fun <reified A : Any, reified B : Any, reified C : Any>
-        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>) =
+    public inline fun <reified A : Any, reified B : Any, reified C : Any>
+        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>): Args3<A, B, C> =
         Args3(diService[a], diService[b], diService[c])
 
     /** Fetch an object from the DI pool by its type */
-    inline fun <reified A : Any, reified B : Any, reified C : Any, reified D : Any>
-        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>) =
+    public inline fun <reified A : Any, reified B : Any, reified C : Any, reified D : Any>
+        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>): Args4<A, B, C, D> =
         Args4(diService[a], diService[b], diService[c], diService[d])
 
     /** Fetch an object from the DI pool by its type */
-    inline fun <reified A : Any, reified B : Any, reified C : Any, reified D : Any, reified E : Any>
-        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>, e: KClass<E>) =
+    public inline fun <reified A : Any, reified B : Any, reified C : Any, reified D : Any, reified E : Any>
+        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>, e: KClass<E>): Args5<A, B, C, D, E> =
         Args5(diService[a], diService[b], diService[c], diService[d], diService[e])
 
     @KordPreview
@@ -195,9 +195,4 @@ abstract class Discord {
 
             diService.inject(data)
         }.size
-
-    /**
-     * Get a [Command] of a given type by name.
-     */
-    inline fun <reified T : Command> commandOfType(name: String) = commands.filterIsInstance<T>().firstOrNull { cmd -> cmd.names.any { it.equals(name, true) } }
 }

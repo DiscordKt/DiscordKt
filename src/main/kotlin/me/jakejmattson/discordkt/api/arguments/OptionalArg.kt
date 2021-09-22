@@ -7,10 +7,10 @@ import me.jakejmattson.discordkt.api.locale.inject
 /**
  * An optional argument with a default value.
  */
-class OptionalArg<G>(override val name: String,
+public class OptionalArg<G>(override val name: String,
                      internal val type: Argument<*>,
                      private val default: suspend CommandEvent<*>.() -> G) : Argument<G> {
-    override val description = internalLocale.optionalArgDescription.inject(type.name)
+    override val description: String = internalLocale.optionalArgDescription.inject(type.name)
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<G> {
         val conversion = type.convert(arg, args, event)
@@ -21,5 +21,5 @@ class OptionalArg<G>(override val name: String,
             Success(default.invoke(event), 0)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>) = type.generateExamples(event)
+    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = type.generateExamples(event)
 }

@@ -29,11 +29,11 @@ import kotlin.concurrent.schedule
  * @param channel The channel that the conversation is happening in.
  * @param exitString A String entered by the user to exit the conversation.
  */
-data class ConversationBuilder(val discord: Discord,
-                               val user: User,
-                               override val channel: MessageChannel,
-                               private val exitString: String? = null,
-                               private val timeout: Long) : Responder {
+public data class ConversationBuilder(val discord: Discord,
+                                      val user: User,
+                                      override val channel: MessageChannel,
+                                      private val exitString: String? = null,
+                                      private val timeout: Long) : Responder {
     private val messageBuffer = Channel<Message>()
 
     @OptIn(KordPreview::class)
@@ -44,23 +44,23 @@ data class ConversationBuilder(val discord: Discord,
     /**
      * All ID's of messages sent by the bot in this conversation.
      */
-    val botMessageIds = mutableListOf<Snowflake>()
+    val botMessageIds: MutableList<Snowflake> = mutableListOf()
 
     /**
      * All ID's of messages sent by the user in this conversation.
      */
-    val userMessageIds = mutableListOf<Snowflake>()
+    val userMessageIds: MutableList<Snowflake> = mutableListOf()
 
     /**
      * The ID of the most recent message sent by the bot in this conversation.
      */
-    val previousBotMessageId
+    val previousBotMessageId: Snowflake
         get() = botMessageIds.last()
 
     /**
      * The ID of the most recent message sent by the user in this conversation.
      */
-    val previousUserMessageId
+    val previousUserMessageId: Snowflake
         get() = userMessageIds.last()
 
     internal suspend fun acceptMessage(message: Message) = messageBuffer.send(message)
@@ -77,7 +77,7 @@ data class ConversationBuilder(val discord: Discord,
      * @param isValid A predicate to determine whether the input is accepted.
      */
     @Throws(DmException::class)
-    suspend fun <T> promptUntil(argument: Argument<T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
+    public suspend fun <T> promptUntil(argument: Argument<T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
         var value: T = prompt(argument, prompt)
 
         while (!isValid.invoke(value)) {
@@ -96,7 +96,7 @@ data class ConversationBuilder(val discord: Discord,
      * @param embed The embed sent as part of the prompt.
      */
     @Throws(DmException::class, TimeoutException::class)
-    suspend fun <T> prompt(argument: Argument<T>, text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): T {
+    public suspend fun <T> prompt(argument: Argument<T>, text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): T {
         require(argument !is OptionalArg<*>) { "Conversation arguments cannot be optional" }
 
         val message = channel.createMessage {
@@ -121,7 +121,7 @@ data class ConversationBuilder(val discord: Discord,
      * @param prompt The [builder][ButtonPromptBuilder]
      */
     @Throws(DmException::class, TimeoutException::class)
-    suspend fun <T> promptButton(prompt: suspend ButtonPromptBuilder<T>.() -> Unit): T {
+    public suspend fun <T> promptButton(prompt: suspend ButtonPromptBuilder<T>.() -> Unit): T {
         val builder = ButtonPromptBuilder<T>()
         prompt.invoke(builder)
         val message = builder.create(channel)
@@ -139,7 +139,7 @@ data class ConversationBuilder(val discord: Discord,
      */
     @OptIn(KordPreview::class)
     @Throws(DmException::class, TimeoutException::class)
-    suspend fun promptSelect(vararg options: String, embed: suspend EmbedBuilder.() -> Unit): String {
+    public suspend fun promptSelect(vararg options: String, embed: suspend EmbedBuilder.() -> Unit): String {
         val message = channel.createMessage {
             val builder = EmbedBuilder()
             embed.invoke(builder)

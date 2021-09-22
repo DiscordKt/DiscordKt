@@ -25,7 +25,7 @@ import java.awt.Color
  * @property intents Additional gateway [Intents] to register manually.
  * @property entitySupplyStrategy [EntitySupplyStrategy] for use in Kord cache.
  */
-data class BotConfiguration(
+public data class BotConfiguration(
     val packageName: String,
     val allowMentionPrefix: Boolean,
     val showStartupLog: Boolean,
@@ -54,15 +54,15 @@ data class BotConfiguration(
  * @property intents Additional gateway [Intents] to register manually.
  * @property entitySupplyStrategy [EntitySupplyStrategy] for use in Kord cache.
  */
-data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
-                               var showStartupLog: Boolean = true,
-                               var generateCommandDocs: Boolean = true,
-                               var recommendCommands: Boolean = true,
-                               var enableSearch: Boolean = true,
-                               var commandReaction: DiscordEmoji? = Emojis.eyes,
-                               var theme: Color? = null,
-                               var intents: Intents = Intents.none,
-                               var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback) {
+public data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
+                                      var showStartupLog: Boolean = true,
+                                      var generateCommandDocs: Boolean = true,
+                                      var recommendCommands: Boolean = true,
+                                      var enableSearch: Boolean = true,
+                                      var commandReaction: DiscordEmoji? = Emojis.eyes,
+                                      var theme: Color? = null,
+                                      var intents: Intents = Intents.none,
+                                      var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback) {
     @PublishedApi
     internal var permissionLevels: List<Enum<*>> = listOf(DefaultPermissions.EVERYONE)
 
@@ -76,7 +76,7 @@ data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
      * @param commandDefault The default permission that all commands require.
      */
     @NestedDSL
-    inline fun <reified T : Enum<T>> permissions(commandDefault: Enum<T>) {
+    public inline fun <reified T : Enum<T>> permissions(commandDefault: Enum<T>) {
         this.permissionLevels = enumValues<T>().toList()
         this.commandDefault = commandDefault
     }

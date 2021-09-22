@@ -11,7 +11,7 @@ import kotlinx.coroutines.runBlocking
 /**
  * Object to keep tracking of running conversations.
  */
-object Conversations {
+public object Conversations {
     private data class ConversationLocation(val userId: Snowflake, val channelId: Snowflake)
 
     private val activeConversations = mutableMapOf<ConversationLocation, Conversation>()
@@ -34,7 +34,7 @@ object Conversations {
     /**
      * Whether a conversation with the given context already exists.
      */
-    fun hasConversation(user: User, channel: MessageChannel) = getConversation(user, channel) != null
+    public fun hasConversation(user: User, channel: MessageChannel): Boolean = getConversation(user, channel) != null
 
     internal fun handleMessage(message: Message) {
         runBlocking {

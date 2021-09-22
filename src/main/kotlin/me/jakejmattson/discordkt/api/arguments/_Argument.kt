@@ -3,7 +3,6 @@
 package me.jakejmattson.discordkt.api.arguments
 
 import me.jakejmattson.discordkt.api.commands.CommandEvent
-import me.jakejmattson.discordkt.internal.utils.simplerName
 
 /**
  * An object that represents a type and contains the logic to convert string arguments to the desired type.
@@ -11,42 +10,42 @@ import me.jakejmattson.discordkt.internal.utils.simplerName
  * @property name The display name for this type in documentations and examples.
  * @property description A description of the data that this type represents.
  */
-interface Argument<T> : Cloneable {
-    val name: String
-    val description: String
+public interface Argument<T> : Cloneable {
+    public val name: String
+    public val description: String
 
     /**
      * Accept multiple inputs of this Argument.
      */
-    fun multiple() = MultipleArg(this)
+    public fun multiple(): MultipleArg<T> = MultipleArg(this)
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails.
      *
      * @param default A default value matching the expected type.
      */
-    fun optional(default: T) = OptionalArg(name, this) { default }
+    public fun optional(default: T): OptionalArg<T> = OptionalArg(name, this) { default }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type.
      */
-    fun optional(default: suspend (CommandEvent<*>) -> T) = OptionalArg(name, this, default)
+    public fun optional(default: suspend (CommandEvent<*>) -> T): OptionalArg<T> = OptionalArg(name, this, default)
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails.
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    fun optionalNullable(default: T? = null) = OptionalArg(name, this) { default }
+    public fun optionalNullable(default: T? = null): OptionalArg<T?> = OptionalArg(name, this) { default }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    fun optionalNullable(default: suspend (CommandEvent<*>) -> T?) = OptionalArg(name, this, default)
+    public fun optionalNullable(default: suspend (CommandEvent<*>) -> T?): OptionalArg<T?> = OptionalArg(name, this, default)
 
     /**
      * Consumes an argument or multiple arguments and converts them into some desired type.
@@ -56,28 +55,25 @@ interface Argument<T> : Cloneable {
      * @param event The CommandEvent<*> triggered by the execution of the command.
      * @return ArgumentResult subtype [Success] or [Error].
      */
-    suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
+    public suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T>
 
     /**
      * A function called whenever an example of this type is needed.
      *
      * @param event Allows the list result to be generated with the relevant discord context.
      */
-    suspend fun generateExamples(event: CommandEvent<*>): List<String>
+    public suspend fun generateExamples(event: CommandEvent<*>): List<String>
 
     /**
      * Create a custom formatter for the data this [Argument] produces.
      */
-    fun formatData(data: T) = data.toString()
-
-    /** Determine the simpler name (just the class) and then remove the companion tag */
-    fun toSimpleString() = this::class.simplerName
+    public fun formatData(data: T): String = data.toString()
 }
 
 /**
  * The result of an argument conversion.
  */
-sealed class ArgumentResult<T>
+public sealed class ArgumentResult<T>
 
 /**
  * ArgumentResult indicating that a conversion was successful.
@@ -85,11 +81,11 @@ sealed class ArgumentResult<T>
  * @param result The conversion result of the appropriate type.
  * @param consumed The number of arguments consumed in this operation.
  */
-data class Success<T>(val result: T, val consumed: Int = 1) : ArgumentResult<T>()
+public data class Success<T>(val result: T, val consumed: Int = 1) : ArgumentResult<T>()
 
 /**
  * ArgumentResult indicating that a conversion was failed.
  *
  * @param error The reason why the conversion failed.
  */
-data class Error<T>(val error: String) : ArgumentResult<T>()
+public data class Error<T>(val error: String) : ArgumentResult<T>()

@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit
  *
  * @param unit The unit string applied to this number.
  */
-fun Number.pluralize(unit: String) = "$this ${if (this.toLong() == 1L) unit else "${unit}s"}"
+public fun Number.pluralize(unit: String): String = "$this ${if (this.toLong() == 1L) unit else "${unit}s"}"
 
 /**
  * Convert this long value to a time string.
@@ -18,7 +18,7 @@ fun Number.pluralize(unit: String) = "$this ${if (this.toLong() == 1L) unit else
  * @param trimLeadingZeroes Trim all zero values before the first non-zero value.
  * @param trimTrailingZeros Trim all zero values after the last non-zero value.
  */
-fun Long.toTimeString(trimLeadingZeroes: Boolean = true, trimTrailingZeros: Boolean = true) = with(Duration.of(this, ChronoUnit.SECONDS)) {
+public fun Long.toTimeString(trimLeadingZeroes: Boolean = true, trimTrailingZeros: Boolean = true): String = with(Duration.of(this, ChronoUnit.SECONDS)) {
     val timeString =
         "${toDaysPart().pluralize("day")} " +
             "${toHoursPart().pluralize("hour")} " +

@@ -7,7 +7,7 @@ import dev.kord.rest.builder.message.EmbedBuilder
 /**
  * Add a field to an embed. Shorthand for the equivalent builder.
  */
-fun EmbedBuilder.addField(name: String, value: String) = field {
+public fun EmbedBuilder.addField(name: String, value: String): Unit = field {
     this.name = name.validOrBlank()
     this.value = value.validOrBlank()
     this.inline = false
@@ -16,7 +16,7 @@ fun EmbedBuilder.addField(name: String, value: String) = field {
 /**
  * Add an inline field to an embed. Shorthand for the equivalent builder.
  */
-fun EmbedBuilder.addInlineField(name: String, value: String) = field {
+public fun EmbedBuilder.addInlineField(name: String, value: String): Unit = field {
     this.name = name.validOrBlank()
     this.value = value.validOrBlank()
     this.inline = true

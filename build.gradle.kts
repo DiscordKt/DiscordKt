@@ -37,6 +37,10 @@ dependencies {
 }
 
 tasks {
+    kotlin {
+        explicitApi()
+    }
+
     compileKotlin {
         kotlinOptions {
             jvmTarget = "1.8"

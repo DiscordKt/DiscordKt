@@ -35,7 +35,7 @@ internal val Class<*>.simplerName
     get() = toString().substringAfterLast('.').substringBefore('$')
 
 @PublishedApi
-internal val KClass<*>.simplerName
+internal val KClass<*>.simplerName: String
     get() = java.simplerName
 
 internal val Method.signature

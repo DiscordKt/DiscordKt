@@ -21,18 +21,18 @@ private val everyoneRegex = "@+everyone".toRegex()
  * Whether this string matches a URL regex.
  * @sample urlRegexes
  */
-fun String.containsURl() = urlRegexes.any { replace("\n", "").contains(it) }
+public fun String.containsURl(): Boolean = urlRegexes.any { replace("\n", "").contains(it) }
 
 /**
  * Whether this string matches the invite regex.
  * @sample inviteRegex
  */
-fun String.containsInvite() = inviteRegex.matches(this)
+public fun String.containsInvite(): Boolean = inviteRegex.matches(this)
 
 /**
  * Whether this string is a valid boolean value (true/false/t/f).
  */
-fun String.isBooleanValue() =
+public fun String.isBooleanValue(): Boolean =
     when (lowercase()) {
         "true", "t" -> true
         "false", "f" -> true
@@ -42,7 +42,7 @@ fun String.isBooleanValue() =
 /**
  * Sanitize all mentions and replace them with their resolved discord names.
  */
-suspend fun String.sanitiseMentions(discord: Discord) = cleanseRoles(discord)
+public suspend fun String.sanitiseMentions(discord: Discord): String = cleanseRoles(discord)
     .cleanseUsers(discord)
     .cleanseHere()
     .cleanseEveryone()
@@ -51,7 +51,7 @@ suspend fun String.sanitiseMentions(discord: Discord) = cleanseRoles(discord)
 /**
  * Trim any type of mention into an ID.
  */
-fun String.trimToID() = takeUnless { startsWith("<") && endsWith(">") }
+public fun String.trimToID(): String = takeUnless { startsWith("<") && endsWith(">") }
     ?: replaceAll(listOf("<", ">", "@", "!", "&", "#").zip(listOf("", "", "", "", "", "")))
 
 private fun String.replaceAll(replacements: List<Pair<String, String>>): String {

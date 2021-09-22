@@ -9,8 +9,8 @@ import me.jakejmattson.discordkt.api.locale.inject
  *
  * @param base The [Argument] that you expect to be used to create the list.
  */
-class MultipleArg<T>(val base: Argument<T>, override val name: String = "${base.name}...", description: String = "") : Argument<List<T>> {
-    override val description = description.ifBlank { internalLocale.multipleArgDescription.inject(base.name) }
+public class MultipleArg<T>(public val base: Argument<T>, override val name: String = "${base.name}...", description: String = "") : Argument<List<T>> {
+    override val description: String = description.ifBlank { internalLocale.multipleArgDescription.inject(base.name) }
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<T>> {
         val totalResult = mutableListOf<T>()
@@ -38,8 +38,8 @@ class MultipleArg<T>(val base: Argument<T>, override val name: String = "${base.
         return Success(totalResult, totalConsumed)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>) =
+    override suspend fun generateExamples(event: CommandEvent<*>): List<String> =
         base.generateExamples(event).chunked(2).map { it.joinToString(" ") }
 
-    override fun formatData(data: List<T>) = "[${data.joinToString { base.formatData(it) }}]"
+    override fun formatData(data: List<T>): String = "[${data.joinToString { base.formatData(it) }}]"
 }

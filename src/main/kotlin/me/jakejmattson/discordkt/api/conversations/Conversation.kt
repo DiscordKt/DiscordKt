@@ -14,7 +14,7 @@ import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
  * @param exitString A String entered by the user to exit the conversation.
  */
 @BuilderDSL
-fun conversation(exitString: String? = null, promptTimeout: Long = 0, block: suspend ConversationBuilder.() -> Unit) = Conversation(exitString, promptTimeout * 1000, block)
+public fun conversation(exitString: String? = null, promptTimeout: Long = 0, block: suspend ConversationBuilder.() -> Unit): Conversation = Conversation(exitString, promptTimeout * 1000, block)
 
 /**
  * A class that represent a conversation.
@@ -22,7 +22,7 @@ fun conversation(exitString: String? = null, promptTimeout: Long = 0, block: sus
  * @param exitString A String entered by the user to exit the conversation.
  * @param promptTimeout The amount of time (in seconds) before a prompt times out and is aborted.
  */
-class Conversation(var exitString: String? = null, var promptTimeout: Long, private val block: suspend ConversationBuilder.() -> Unit) {
+public class Conversation(public var exitString: String? = null, public var promptTimeout: Long, private val block: suspend ConversationBuilder.() -> Unit) {
     /**
      * Start a conversation with someone in their private messages.
      *
@@ -31,7 +31,7 @@ class Conversation(var exitString: String? = null, var promptTimeout: Long, priv
      * @return The result of the conversation indicated by an enum.
      * @sample ConversationResult
      */
-    suspend inline fun startPrivately(discord: Discord, user: User): ConversationResult {
+    public suspend inline fun startPrivately(discord: Discord, user: User): ConversationResult {
         if (user.isBot)
             return ConversationResult.INVALID_USER
 
@@ -54,7 +54,7 @@ class Conversation(var exitString: String? = null, var promptTimeout: Long, priv
      * @return The result of the conversation indicated by an enum.
      * @sample ConversationResult
      */
-    suspend inline fun startPublicly(discord: Discord, user: User, channel: MessageChannel): ConversationResult {
+    public suspend inline fun startPublicly(discord: Discord, user: User, channel: MessageChannel): ConversationResult {
         if (user.isBot)
             return ConversationResult.INVALID_USER
 
@@ -89,17 +89,17 @@ class Conversation(var exitString: String? = null, var promptTimeout: Long, priv
     }
 
     @PublishedApi
-    internal suspend fun acceptMessage(message: Message) = builder.acceptMessage(message)
+    internal suspend fun acceptMessage(message: Message): Unit = builder.acceptMessage(message)
 
     @OptIn(KordPreview::class)
     @PublishedApi
-    internal suspend fun acceptInteraction(interaction: ComponentInteraction) = builder.acceptInteraction(interaction)
+    internal suspend fun acceptInteraction(interaction: ComponentInteraction): Unit = builder.acceptInteraction(interaction)
 }
 
 /**
  * An enum representing possible ways that a conversation can end.
  */
-enum class ConversationResult {
+public enum class ConversationResult {
     /** The target user cannot be reached - a bot or no shared guild. */
     INVALID_USER,
 

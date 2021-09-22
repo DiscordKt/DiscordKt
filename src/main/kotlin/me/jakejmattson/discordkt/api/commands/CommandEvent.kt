@@ -3,9 +3,7 @@ package me.jakejmattson.discordkt.api.commands
 import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.behavior.interaction.EphemeralInteractionResponseBehavior
 import dev.kord.core.behavior.interaction.followUpEphemeral
-import dev.kord.core.entity.Guild
-import dev.kord.core.entity.Message
-import dev.kord.core.entity.User
+import dev.kord.core.entity.*
 import dev.kord.core.entity.channel.DmChannel
 import dev.kord.core.entity.channel.GuildMessageChannel
 import dev.kord.core.entity.channel.MessageChannel
@@ -25,7 +23,7 @@ import me.jakejmattson.discordkt.api.dsl.Responder
  * @property commandArgs The arguments provided to the command execution.
  * @property prefixCount The number of prefixes used to invoke this command.
  */
-data class RawInputs(
+public data class RawInputs(
     val rawMessageContent: String,
     val commandName: String,
     val prefixCount: Int,
@@ -42,15 +40,15 @@ data class RawInputs(
  * @property channel The MessageChannel this command was invoked in.
  * @property prefix The prefix used to invoke this command.
  */
-open class DiscordContext(val discord: Discord,
-                          open val message: Message,
-                          open val guild: Guild?,
-                          val author: User = message.author!!,
-                          override val channel: MessageChannelBehavior = message.channel) : Responder {
+public open class DiscordContext(public val discord: Discord,
+                                 public open val message: Message,
+                                 public open val guild: Guild?,
+                                 public val author: User = message.author!!,
+                                 override val channel: MessageChannelBehavior = message.channel) : Responder {
     /**
      * Determine the relevant prefix from the configured prefix block.
      */
-    suspend fun prefix() = discord.configuration.prefix.invoke(this)
+    public suspend fun prefix(): String = discord.configuration.prefix.invoke(this)
 }
 
 /**
@@ -65,39 +63,39 @@ open class DiscordContext(val discord: Discord,
  * @property args The parsed input to the command.
  * @property command The [Command] that is resolved from the invocation.
  */
-open class CommandEvent<T : TypeContainer>(
-    open val rawInputs: RawInputs,
-    open val discord: Discord,
-    open val message: Message?,
-    open val author: User,
+public open class CommandEvent<T : TypeContainer>(
+    public open val rawInputs: RawInputs,
+    public open val discord: Discord,
+    public open val message: Message?,
+    public open val author: User,
     override val channel: MessageChannel,
-    open val guild: Guild?) : Responder {
+    public open val guild: Guild?) : Responder {
 
-    lateinit var args: T
+    public lateinit var args: T
 
-    val command
+    public val command: Command?
         get() = discord.commands[rawInputs.commandName]
 
     /**
      * Try to resolve the member from the user/guild data.
      */
-    suspend fun getMember() = guild?.getMember(author.id)
+    public suspend fun getMember(): Member? = guild?.getMember(author.id)
 
     /**
      * Determine the relevant prefix in the current context.
      */
-    suspend fun prefix() = message?.let { discord.configuration.prefix.invoke(DiscordContext(discord, it, guild, author, channel)) }
+    public suspend fun prefix(): String = message?.let { discord.configuration.prefix.invoke(DiscordContext(discord, it, guild, author, channel)) }
         ?: "/"
 
     /**
      * Add a reaction to the command invocation message.
      */
-    suspend fun reactWith(emoji: DiscordEmoji) = message?.addReaction(emoji)
+    public suspend fun reactWith(emoji: DiscordEmoji): Unit? = message?.addReaction(emoji)
 
     /**
      * Clone this event's context data with new inputs.
      */
-    open fun clone(input: RawInputs) = CommandEvent<T>(input, discord, message, author, channel, guild)
+    public open fun clone(input: RawInputs): CommandEvent<T> = CommandEvent<T>(input, discord, message, author, channel, guild)
 
     internal fun isFromGuild() = guild != null
 }
@@ -105,7 +103,7 @@ open class CommandEvent<T : TypeContainer>(
 /**
  * An event that can only be fired in a guild.
  */
-data class GuildCommandEvent<T : TypeContainer>(
+public data class GuildCommandEvent<T : TypeContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     override val message: Message,
@@ -116,7 +114,7 @@ data class GuildCommandEvent<T : TypeContainer>(
 /**
  * An event that can only be fired in a DM.
  */
-data class DmCommandEvent<T : TypeContainer>(
+public data class DmCommandEvent<T : TypeContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     override val message: Message,
@@ -129,7 +127,7 @@ data class DmCommandEvent<T : TypeContainer>(
  * An event fired by a slash command.
  * @param ephemeralAck [EphemeralInteractionResponseBehavior] used for follow up.
  */
-open class SlashCommandEvent<T : TypeContainer>(
+public open class SlashCommandEvent<T : TypeContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     @Deprecated("A slash command cannot access its message.", level = DeprecationLevel.ERROR)
@@ -137,9 +135,9 @@ open class SlashCommandEvent<T : TypeContainer>(
     override val author: User,
     override val channel: MessageChannel,
     override val guild: Guild? = null,
-    open val ephemeralAck: EphemeralInteractionResponseBehavior?) : CommandEvent<T>(rawInputs, discord, message, author, channel, null) {
+    public open val ephemeralAck: EphemeralInteractionResponseBehavior?) : CommandEvent<T>(rawInputs, discord, message, author, channel, null) {
 
-    override suspend fun respond(message: Any) =
+    override suspend fun respond(message: Any): List<Message> =
         if (ephemeralAck != null) {
             ephemeralAck!!.followUpEphemeral {
                 content = message.toString()
@@ -148,7 +146,7 @@ open class SlashCommandEvent<T : TypeContainer>(
             emptyList()
         } else super.respond(message)
 
-    override suspend fun respond(construct: suspend EmbedBuilder.() -> Unit) =
+    override suspend fun respond(construct: suspend EmbedBuilder.() -> Unit): Message? =
         if (ephemeralAck != null) {
             ephemeralAck?.followUpEphemeral {
                 embed {
@@ -162,7 +160,7 @@ open class SlashCommandEvent<T : TypeContainer>(
 /**
  * An event fired by a guild slash command.
  */
-data class GuildSlashCommandEvent<T : TypeContainer>(
+public data class GuildSlashCommandEvent<T : TypeContainer>(
     override val rawInputs: RawInputs,
     override val discord: Discord,
     @Deprecated("A slash command cannot access its message.", level = DeprecationLevel.ERROR)

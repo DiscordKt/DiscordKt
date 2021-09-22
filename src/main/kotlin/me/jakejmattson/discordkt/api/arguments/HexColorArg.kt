@@ -7,12 +7,12 @@ import java.awt.Color
 /**
  * Accepts a color in hexadecimal format. The '#' symbol is optional.
  */
-open class HexColorArg(override val name: String = "Hex Color",
+public open class HexColorArg(override val name: String = "Hex Color",
                        override val description: String = internalLocale.hexColorArgDescription) : Argument<Color> {
     /**
      * Accepts a color in hexadecimal format. The '#' symbol is optional.
      */
-    companion object : HexColorArg()
+    public companion object : HexColorArg()
 
     override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Color> {
         if (arg.length !in 6..7) return Error(internalLocale.invalidFormat)
@@ -28,8 +28,8 @@ open class HexColorArg(override val name: String = "Hex Color",
         return Success(color)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>) = listOf(formatData(Color((0..255).random(), (0..255).random(), (0..255).random())))
-    override fun formatData(data: Color) = with(data) {
+    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf(formatData(Color((0..255).random(), (0..255).random(), (0..255).random())))
+    override fun formatData(data: Color): String = with(data) {
         String.format("#%02X%02X%02X", red, green, blue)
     }
 }
