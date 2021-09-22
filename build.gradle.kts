@@ -101,11 +101,11 @@ tasks {
     }
 
     register("generateDocs") {
-        description = "Generate documentation for DiscordKt.github.io"
+        description = "Generate documentation for discordkt.github.io"
         dependsOn(listOf(dokkaHtml))
 
         copy {
-            val docsPath = "../DiscordKt.github.io/docs/${if (isSnapshot) "snapshot" else "release"}/dokka"
+            val docsPath = "../discordkt.github.io/docs/${if (isSnapshot) "snapshot" else "release"}/dokka"
 
             delete(file(docsPath))
             from(buildDir.resolve("dokka"))
