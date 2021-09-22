@@ -105,9 +105,11 @@ tasks {
         dependsOn(listOf(dokkaHtml))
 
         copy {
-            delete(file("../DiscordKt.github.io/docs/dokka"))
+            val docsPath = "../DiscordKt.github.io/docs/${if (isSnapshot) "snapshot" else "release"}/dokka"
+
+            delete(file(docsPath))
             from(buildDir.resolve("dokka"))
-            into(file("../DiscordKt.github.io/docs/dokka"))
+            into(file(docsPath))
         }
     }
 
