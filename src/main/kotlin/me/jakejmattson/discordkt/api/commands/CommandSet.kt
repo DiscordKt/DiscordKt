@@ -39,20 +39,6 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
     }
 
     /**
-     * Create a guild command.
-     */
-    @InnerDSL
-    @Deprecated("Guild commands are now the default 'command' behavior", level = DeprecationLevel.WARNING)
-    public fun guildCommand(vararg names: String, body: GuildCommand.() -> Unit) {
-        val command = GuildCommand(names.toList(), requiredPermission = requiredPermission).apply {
-            this.category = this@CommandSetBuilder.category
-        }
-
-        command.body()
-        commands.add(command)
-    }
-
-    /**
      * Create a dm command.
      */
     @InnerDSL
