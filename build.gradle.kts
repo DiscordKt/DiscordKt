@@ -1,5 +1,3 @@
-import org.jetbrains.dokka.Platform
-
 group = "me.jakejmattson"
 version = "0.23.0-SNAPSHOT"
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
@@ -31,8 +29,8 @@ dependencies {
     api("dev.kord.x:emoji:0.5.0")
     api("org.slf4j:slf4j-simple:2.0.0-alpha5")
 
-    testImplementation(platform("org.junit:junit-bom:5.8.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.0")
+    testImplementation(platform("org.junit:junit-bom:5.8.1"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
     testImplementation("io.mockk:mockk:1.12.0")
 }
 
@@ -56,6 +54,23 @@ tasks {
         useJUnitPlatform()
     }
 
+    dokkaHtml.configure {
+        outputDirectory.set(buildDir.resolve("dokka"))
+
+        dokkaSourceSets {
+            configureEach {
+                platform.set(org.jetbrains.dokka.Platform.jvm)
+
+                includeNonPublic.set(false)
+                skipEmptyPackages.set(true)
+                reportUndocumented.set(true)
+
+                includes.from("packages.md")
+                suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\api\\TypeContainers.kt")
+            }
+        }
+    }
+
     copy {
         val path = "templates/readme.md"
 
@@ -66,7 +81,7 @@ tasks {
             "kotlin" to Constants.kotlin.replace("-", "--"),
             "kord" to Constants.kord.replace("-", "--"),
             "discordkt" to version.toString().replace("-", "--"),
-            "imports" to README.createImportBlock(group.toString(), version.toString(), isSnapshot)
+            "imports" to Docs.generateImports(group.toString(), version.toString(), isSnapshot)
         )
     }
 
@@ -82,34 +97,20 @@ tasks {
         )
     }
 
-    dokkaHtml.configure {
-        outputDirectory.set(buildDir.resolve("dokka"))
-
-        dokkaSourceSets {
-            configureEach {
-                platform.set(Platform.jvm)
-                jdkVersion.set(8)
-
-                includeNonPublic.set(false)
-                skipEmptyPackages.set(true)
-                reportUndocumented.set(true)
-
-                includes.from("packages.md")
-                suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\api\\TypeContainers.kt")
-            }
-        }
-    }
-
     register("generateDocs") {
         description = "Generate documentation for discordkt.github.io"
-        dependsOn(listOf(dokkaHtml))
+        dependsOn(dokkaHtml)
 
         copy {
-            val docsPath = "../discordkt.github.io/docs/${if (isSnapshot) "snapshot" else "release"}/dokka"
+            val docsPath = "../discordkt.github.io/docs/${if (isSnapshot) "snapshot" else "release"}"
 
-            delete(file(docsPath))
+            delete(file("$docsPath/dokka"))
             from(buildDir.resolve("dokka"))
-            into(file(docsPath))
+            into(file("$docsPath/dokka"))
+
+            file("$docsPath/index.md").writeText(
+                Docs.generateImports(group.toString(), version.toString(), isSnapshot, true)
+            )
         }
     }
 

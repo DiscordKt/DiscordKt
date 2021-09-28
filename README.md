@@ -34,6 +34,7 @@ dependencies {
     implementation("me.jakejmattson:DiscordKt:0.23.0-SNAPSHOT")
 }
 ```
+
 ### Gradle (Groovy)
 ```groovy
 repositories {
