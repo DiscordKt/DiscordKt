@@ -7,6 +7,7 @@ import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.gateway.builder.PresenceBuilder
 import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.decodeFromString
 import me.jakejmattson.discordkt.api.Discord
 import me.jakejmattson.discordkt.api.commands.Command
 import me.jakejmattson.discordkt.api.commands.DiscordContext
@@ -15,6 +16,7 @@ import me.jakejmattson.discordkt.api.locale.Language
 import me.jakejmattson.discordkt.api.locale.Locale
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.services.InjectionService
+import java.io.File
 
 @PublishedApi
 internal val diService: InjectionService = InjectionService()
@@ -116,6 +118,26 @@ public class Bot(private val token: String, private val packageName: String) {
      */
     @ConfigurationDSL
     public fun inject(vararg injectionObjects: Any): Unit = injectionObjects.forEach { diService.inject(it) }
+
+    @ConfigurationDSL
+    public inline fun <reified T : Data> data(path: String, fallback: () -> T): T {
+        val targetFile = File(path)
+        Data.subclass<T>()
+
+        val data =
+            if (!targetFile.exists())
+                fallback.invoke().apply {
+                    file = targetFile
+                    save()
+                }
+            else
+                Data.serializer.decodeFromString<T>(targetFile.readText()).apply {
+                    file = targetFile
+                }
+
+        inject(data)
+        return data
+    }
 
     /**
      * Modify simple configuration options.

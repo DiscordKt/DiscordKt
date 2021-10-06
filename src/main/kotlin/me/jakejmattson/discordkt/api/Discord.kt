@@ -9,7 +9,6 @@ import dev.kord.rest.builder.interaction.*
 import dev.kord.rest.request.KtorRequestException
 import dev.kord.x.emoji.Emojis
 import kotlinx.coroutines.flow.toList
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -48,7 +47,6 @@ public abstract class Discord {
     public abstract val commands: MutableList<Command>
     internal abstract val preconditions: MutableList<Precondition>
 
-    @ExperimentalSerializationApi
     public val versions: Versions = Json.decodeFromString(javaClass.getResource("/library-properties.json")!!.readText())
 
     /** Fetch an object from the DI pool by its type */
@@ -80,7 +78,6 @@ public abstract class Discord {
     @KordPreview
     internal suspend fun initCore() {
         diService.inject(this)
-        val dataSize = registerData()
         val services = registerServices()
 
         ReflectionUtils.registerFunctions(configuration.packageName, this)
@@ -92,7 +89,6 @@ public abstract class Discord {
 
             InternalLogger.log(header)
             InternalLogger.log(commandSets.pluralize("CommandSet") + " -> " + commands.size.pluralize("Command"))
-            InternalLogger.log(dataSize.pluralize("Data"))
             InternalLogger.log(services.size.pluralize("Service"))
             InternalLogger.log(preconditions.size.pluralize("Precondition"))
             InternalLogger.log("-".repeat(header.length))
@@ -176,23 +172,4 @@ public abstract class Discord {
             }
         }
     }
-
-    private fun registerData() = ReflectionUtils.detectSubtypesOf<Data>(configuration.packageName)
-        .map {
-            val default = it.getConstructor().newInstance()
-
-            val data = with(default) {
-                if (!file.exists()) {
-                    writeToFile()
-
-                    if (killIfGenerated)
-                        InternalLogger.fatalError("Please fill in the following file before re-running: ${file.absolutePath}")
-
-                    this
-                } else
-                    readFromFile()
-            }
-
-            diService.inject(data)
-        }.size
 }

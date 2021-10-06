@@ -1,42 +1,53 @@
 package me.jakejmattson.discordkt.api.dsl
 
-import com.google.gson.ExclusionStrategy
-import com.google.gson.FieldAttributes
-import com.google.gson.GsonBuilder
+import kotlinx.serialization.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.*
 import java.io.File
 
 /**
- * A class that represents some data in a JSON file. This will be registered into the dependency pool automatically.
- *
- * @property path The file path on the system where the data is located.
- * @property killIfGenerated Whether the program should exit if this file was not present.
- * @property file The file obtained from the provided path.
+ * A serializable class that represents some data.
  */
-public abstract class Data(public val path: String, public val killIfGenerated: Boolean = true) {
-    public val file: File = File(path)
-    private val gson = GsonBuilder()
-        .setExclusionStrategies(object : ExclusionStrategy {
-            override fun shouldSkipClass(clazz: Class<*>) = false
-            override fun shouldSkipField(f: FieldAttributes?) = f?.declaringClass == Data::class.java
-        })
-        .setPrettyPrinting()
-        .create()
+@Serializable @Polymorphic
+public abstract class Data {
+    @PublishedApi
+    @Transient
+    internal lateinit var file: File
 
-    internal fun readFromFile() = gson.fromJson(file.readText(), this::class.java)
-    internal fun writeToFile() {
+    /**
+     * Write the data object content to its file as JSON.
+     */
+    public fun save() {
         val parent = file.parentFile
 
         if (parent != null && !parent.exists())
             parent.mkdirs()
 
-        File(path).writeText(gson.toJson(this))
+        file.writeText(serializer.encodeToString(this))
     }
 
-    /**
-     * Save the modified data object back into the injection pool and write to file.
-     */
-    public fun save() {
-        writeToFile()
-        diService.inject(this)
+    public companion object {
+        @PublishedApi
+        @Transient
+        internal var module: SerializersModule = SerializersModule {}
+
+        @PublishedApi
+        @Transient
+        internal val serializer: Json
+            get() = Json {
+                prettyPrint = true
+                encodeDefaults = true
+                ignoreUnknownKeys = true
+                serializersModule = module
+            }
+
+        @PublishedApi
+        internal inline fun <reified T : Data> subclass() {
+            module += SerializersModule {
+                polymorphic(Data::class) {
+                    subclass(T::class)
+                }
+            }
+        }
     }
 }

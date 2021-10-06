@@ -22,12 +22,12 @@ repositories {
 }
 
 dependencies {
-    implementation("org.reflections:reflections:0.9.12")
-    implementation("com.google.code.gson:gson:2.8.8")
-
     api("dev.kord:kord-core:0.8.0-M5")
     api("dev.kord.x:emoji:0.5.0")
     api("org.slf4j:slf4j-simple:2.0.0-alpha5")
+
+    implementation("org.reflections:reflections:0.9.12")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
 
     testImplementation(platform("org.junit:junit-bom:5.8.1"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
