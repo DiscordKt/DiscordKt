@@ -1,11 +1,10 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import dev.kord.common.kColor
+import dev.kord.common.Color
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.api.arguments.AnyArg
 import me.jakejmattson.discordkt.api.arguments.Argument
 import me.jakejmattson.discordkt.api.commands.*
-import java.awt.Color
 
 internal fun produceHelpCommand(category: String) = commands(category) {
     command(discord.locale.helpName) {
@@ -27,7 +26,7 @@ private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
     respond {
         title = discord.locale.helpName
         description = discord.locale.helpEmbedDescription
-        color = embedColor?.kColor
+        color = embedColor
 
         discord.commands
             .filter { it.hasPermissionToRun(this@sendDefaultEmbed) }
@@ -51,7 +50,7 @@ private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
 private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String, embedColor: Color?) =
     event.respond {
         title = names.joinToString()
-        color = embedColor?.kColor
+        color = embedColor
 
         if (this@sendHelpEmbed.description.isNotBlank())
             description = this@sendHelpEmbed.description

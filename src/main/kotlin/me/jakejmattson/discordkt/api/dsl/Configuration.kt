@@ -33,7 +33,7 @@ public data class BotConfiguration(
     val recommendCommands: Boolean,
     val enableSearch: Boolean,
     val commandReaction: DiscordEmoji?,
-    val theme: Color?,
+    val theme: dev.kord.common.Color?,
     val intents: Intents,
     val entitySupplyStrategy: EntitySupplyStrategy<*>,
 

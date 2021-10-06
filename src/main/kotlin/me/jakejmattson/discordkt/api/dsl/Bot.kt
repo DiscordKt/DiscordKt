@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.api.dsl
 
 import dev.kord.common.annotation.KordPreview
+import dev.kord.common.kColor
 import dev.kord.core.Kord
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
@@ -81,7 +82,7 @@ public class Bot(private val token: String, private val packageName: String) {
                 recommendCommands = recommendCommands,
                 enableSearch = enableSearch,
                 commandReaction = commandReaction,
-                theme = theme,
+                theme = theme?.kColor,
                 intents = intents + intentsOf<MessageCreateEvent>() + intentsOf<InteractionCreateEvent>(),
                 entitySupplyStrategy = entitySupplyStrategy,
                 prefix = prefixFun,
