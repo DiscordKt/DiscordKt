@@ -17,6 +17,7 @@ import me.jakejmattson.discordkt.api.locale.Language
 import me.jakejmattson.discordkt.api.locale.Locale
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.services.InjectionService
+import me.jakejmattson.discordkt.internal.utils.InternalLogger
 import java.io.File
 
 @PublishedApi
@@ -37,8 +38,12 @@ internal lateinit var internalLocale: Locale
  */
 @KordPreview
 @ConfigurationDSL
-public fun bot(token: String, configure: suspend Bot.() -> Unit) {
+public fun bot(token: String?, configure: suspend Bot.() -> Unit) {
     val packageName = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
+
+    if (token.isNullOrEmpty())
+        return InternalLogger.fatalError("Missing token!")
+
     val bot = Bot(token, packageName)
 
     runBlocking {
