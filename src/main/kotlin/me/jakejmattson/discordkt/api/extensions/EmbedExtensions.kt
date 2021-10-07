@@ -2,7 +2,38 @@
 
 package me.jakejmattson.discordkt.api.extensions
 
+import dev.kord.core.entity.User
 import dev.kord.rest.builder.message.EmbedBuilder
+
+/**
+ * Create an author field from the given [User]. Set's the name, icon, and url.
+ */
+public fun EmbedBuilder.author(user: User) {
+    author {
+        this.name = "${user.username}#${user.discriminator}"
+        this.icon = user.pfpUrl
+        this.url = user.profileLink
+    }
+}
+
+/**
+ * Set the thumbnail of an embed given a URL.
+ */
+public fun EmbedBuilder.thumbnail(url: String) {
+    thumbnail {
+        this.url = url
+    }
+}
+
+/**
+ * Set the footer of an embed given its text and optional icon.
+ */
+public fun EmbedBuilder.footer(text: String, icon: String? = null) {
+    footer {
+        this.text = text
+        this.icon = icon
+    }
+}
 
 /**
  * Add a field to an embed. Shorthand for the equivalent builder.
