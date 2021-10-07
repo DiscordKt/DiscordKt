@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    api("dev.kord:kord-core:0.8.0-M5")
+    api("dev.kord:kord-core:0.8.0-M6")
     api("dev.kord.x:emoji:0.5.0")
     api("org.slf4j:slf4j-simple:2.0.0-alpha5")
 

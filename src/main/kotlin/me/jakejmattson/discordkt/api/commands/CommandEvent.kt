@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.api.commands
 
 import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.behavior.interaction.EphemeralInteractionResponseBehavior
-import dev.kord.core.behavior.interaction.followUpEphemeral
+import dev.kord.core.behavior.interaction.followUp
 import dev.kord.core.entity.*
 import dev.kord.core.entity.channel.DmChannel
 import dev.kord.core.entity.channel.GuildMessageChannel
@@ -139,7 +139,7 @@ public open class SlashCommandEvent<T : TypeContainer>(
 
     override suspend fun respond(message: Any): List<Message> =
         if (ephemeralAck != null) {
-            ephemeralAck!!.followUpEphemeral {
+            ephemeralAck!!.followUp {
                 content = message.toString()
             }
 
@@ -148,7 +148,7 @@ public open class SlashCommandEvent<T : TypeContainer>(
 
     override suspend fun respond(construct: suspend EmbedBuilder.() -> Unit): Message? =
         if (ephemeralAck != null) {
-            ephemeralAck?.followUpEphemeral {
+            ephemeralAck?.followUp {
                 embed {
                     construct.invoke(this)
                 }

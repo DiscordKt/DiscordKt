@@ -95,7 +95,6 @@ public class Bot(private val token: String, private val packageName: String) {
         }
 
         val kord = Kord(token) {
-            intents = botConfiguration.intents
             defaultStrategy = botConfiguration.entitySupplyStrategy
         }
 
@@ -113,7 +112,11 @@ public class Bot(private val token: String, private val packageName: String) {
         discord.initCore()
 
         discord.kord.login {
-            presenceFun.invoke(this)
+            presence {
+                presenceFun.invoke(this)
+            }
+
+            intents = botConfiguration.intents
             startupFun.invoke(discord)
         }
     }
