@@ -13,16 +13,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 
 /**
- * Send the user a private string message.
- */
-public suspend fun UserBehavior.sendPrivateMessage(message: String): Message = getDmChannel().createMessage(message)
-
-/**
- * Send the user a private embed message.
- */
-public suspend fun UserBehavior.sendPrivateMessage(embed: suspend EmbedBuilder.() -> Unit): Message = getDmChannel().createEmbed { embed.invoke(this) }
-
-/**
  * Get guilds shared between the user and the bot.
  */
 public val UserBehavior.mutualGuilds: Flow<Guild>
@@ -33,6 +23,22 @@ public val UserBehavior.mutualGuilds: Flow<Guild>
  */
 public val UserBehavior.profileLink: String
     get() = "https://discord.com/users/${id.value}/"
+
+/**
+ * A link to this user's profile picture.
+ */
+public val User.pfpUrl: String
+    get() = avatar?.url ?: defaultAvatar.url
+
+/**
+ * Send the user a private string message.
+ */
+public suspend fun UserBehavior.sendPrivateMessage(message: String): Message = getDmChannel().createMessage(message)
+
+/**
+ * Send the user a private embed message.
+ */
+public suspend fun UserBehavior.sendPrivateMessage(embed: suspend EmbedBuilder.() -> Unit): Message = getDmChannel().createEmbed { embed.invoke(this) }
 
 /**
  * Checks if this [User] is itself.
