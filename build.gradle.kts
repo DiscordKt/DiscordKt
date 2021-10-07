@@ -1,5 +1,6 @@
 group = "me.jakejmattson"
 version = "0.23.0-SNAPSHOT"
+val projectGroup = group.toString()
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
@@ -81,7 +82,7 @@ tasks {
             "kotlin" to Constants.kotlin.replace("-", "--"),
             "kord" to Constants.kord.replace("-", "--"),
             "discordkt" to version.toString().replace("-", "--"),
-            "imports" to Docs.generateImports(group.toString(), version.toString(), isSnapshot)
+            "imports" to Docs.generateImports(projectGroup, version.toString(), isSnapshot)
         )
     }
 
@@ -109,7 +110,7 @@ tasks {
             into(file("$docsPath/dokka"))
 
             file("$docsPath/index.md").writeText(
-                Docs.generateImports(group.toString(), version.toString(), isSnapshot, true)
+                Docs.generateImports(projectGroup, version.toString(), isSnapshot, true)
             )
         }
     }

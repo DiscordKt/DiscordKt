@@ -124,6 +124,11 @@ public sealed interface Command {
         }
     }
 
+    /**
+     * Add an [Execution] to this [Command].
+     * Called automatically by each execute block.
+     * You should not need to call this manually.
+     */
     public fun <T : CommandEvent<*>> addExecution(argTypes: List<Argument<*>>, execute: suspend T.() -> Unit) {
         executions.add(Execution(argTypes, execute))
     }
