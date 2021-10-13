@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    api("dev.kord:kord-core:0.8.0-M6")
+    api("dev.kord:kord-core:0.8.0-M7")
     api("dev.kord.x:emoji:0.5.0")
     api("org.slf4j:slf4j-simple:2.0.0-alpha5")
 
@@ -73,9 +73,7 @@ tasks {
     }
 
     copy {
-        val path = "templates/readme.md"
-
-        from(file(path))
+        from(file("templates/readme.md"))
         into(file("."))
         rename { "README.md" }
         expand(

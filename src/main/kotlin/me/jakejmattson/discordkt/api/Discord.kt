@@ -29,7 +29,9 @@ import kotlin.reflect.KClass
  * @param kord The version of Kord used by DiscordKt.
  */
 @Serializable
-public data class Versions(val library: String, val kotlin: String, val kord: String)
+public data class Versions(val library: String, val kotlin: String, val kord: String) {
+    override fun toString(): String = "$library - $kord - $kotlin"
+}
 
 /**
  * @property kord A Kord instance used to access the Discord API.

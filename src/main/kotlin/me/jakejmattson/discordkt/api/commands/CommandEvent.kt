@@ -95,7 +95,7 @@ public open class CommandEvent<T : TypeContainer>(
     /**
      * Clone this event's context data with new inputs.
      */
-    public open fun clone(input: RawInputs): CommandEvent<T> = CommandEvent<T>(input, discord, message, author, channel, guild)
+    public open fun clone(input: RawInputs): CommandEvent<T> = CommandEvent(input, discord, message, author, channel, guild)
 
     internal fun isFromGuild() = guild != null
 }

@@ -33,13 +33,13 @@ internal suspend fun registerInteractionListener(discord: Discord) = discord.kor
 
 private suspend fun handleUserContext(interaction: UserCommandInteraction, discord: Discord) {
     handleApplicationCommand(interaction, discord) {
-        interaction.users?.values?.first()?.id?.asString ?: ""
+        interaction.users.values.first().id.asString
     }
 }
 
 private suspend fun handleMessageContext(interaction: MessageCommandInteraction, discord: Discord) {
     handleApplicationCommand(interaction, discord) {
-        interaction.messages?.values?.first()?.id?.asString ?: ""
+        interaction.messages.values.first().id.asString
     }
 }
 
