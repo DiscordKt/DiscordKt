@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    api("dev.kord:kord-core:0.8.0-M7")
+    api("dev.kord:kord-core:${Constants.kord}")
     api("dev.kord.x:emoji:0.5.0")
     api("org.slf4j:slf4j-simple:2.0.0-alpha5")
 
@@ -89,10 +89,9 @@ tasks {
         into(file("src/main/resources"))
         rename { "library-properties.json" }
         expand(
-            "projectRepo" to Constants.projectUrl,
-            "projectVersion" to version,
-            "kotlinVersion" to Constants.kotlin,
-            "kordVersion" to Constants.kord
+            "project" to version,
+            "kotlin" to Constants.kotlin,
+            "kord" to Constants.kord
         )
     }
 
