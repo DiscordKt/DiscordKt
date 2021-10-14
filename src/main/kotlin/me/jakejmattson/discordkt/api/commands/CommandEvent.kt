@@ -1,12 +1,14 @@
 package me.jakejmattson.discordkt.api.commands
 
 import dev.kord.core.behavior.channel.MessageChannelBehavior
-import dev.kord.core.behavior.interaction.EphemeralInteractionResponseBehavior
+import dev.kord.core.behavior.interaction.InteractionResponseBehavior
 import dev.kord.core.behavior.interaction.followUp
+import dev.kord.core.behavior.interaction.followUpEphemeral
 import dev.kord.core.entity.*
 import dev.kord.core.entity.channel.DmChannel
 import dev.kord.core.entity.channel.GuildMessageChannel
 import dev.kord.core.entity.channel.MessageChannel
+import dev.kord.core.entity.interaction.ApplicationCommandInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.rest.builder.message.create.embed
 import dev.kord.x.emoji.DiscordEmoji
@@ -125,7 +127,7 @@ public data class DmCommandEvent<T : TypeContainer>(
 
 /**
  * An event fired by a slash command.
- * @param ephemeralAck [EphemeralInteractionResponseBehavior] used for follow up.
+ * @param interaction Initial [ApplicationCommandInteraction] event.
  */
 public open class SlashCommandEvent<T : TypeContainer>(
     override val rawInputs: RawInputs,
@@ -135,26 +137,50 @@ public open class SlashCommandEvent<T : TypeContainer>(
     override val author: User,
     override val channel: MessageChannel,
     override val guild: Guild? = null,
-    public open val ephemeralAck: EphemeralInteractionResponseBehavior?) : CommandEvent<T>(rawInputs, discord, message, author, channel, null) {
+    public open val interaction: ApplicationCommandInteraction?) : CommandEvent<T>(rawInputs, discord, message, author, channel, null) {
 
-    override suspend fun respond(message: Any): List<Message> =
-        if (ephemeralAck != null) {
-            ephemeralAck!!.followUp {
+    public suspend fun respond(message: Any, ephemeral: Boolean = true): InteractionResponseBehavior? =
+        if (interaction != null)
+            if (ephemeral)
+                interaction!!.acknowledgeEphemeral().apply {
+                    followUpEphemeral { content = message.toString() }
+                }
+            else
+                interaction!!.acknowledgePublic().apply {
+                    followUp { content = message.toString() }
+                }
+        else {
+            super.respond(message)
+            null
+        }
+
+    override suspend fun respond(message: Any): List<Message> {
+        val ack = interaction?.acknowledgeEphemeral()
+
+        if (ack != null)
+            ack.followUpEphemeral {
                 content = message.toString()
             }
+        else
+            super.respond(message)
 
-            emptyList()
-        } else super.respond(message)
+        return emptyList()
+    }
 
-    override suspend fun respond(construct: suspend EmbedBuilder.() -> Unit): Message? =
-        if (ephemeralAck != null) {
-            ephemeralAck?.followUp {
+    override suspend fun respond(construct: suspend EmbedBuilder.() -> Unit): Message? {
+        val ack = interaction?.acknowledgeEphemeral()
+
+        if (ack != null)
+            ack.followUpEphemeral {
                 embed {
                     construct.invoke(this)
                 }
             }
-            null
-        } else super.respond(construct)
+        else
+            super.respond(construct)
+
+        return null
+    }
 }
 
 /**
@@ -168,5 +194,5 @@ public data class GuildSlashCommandEvent<T : TypeContainer>(
     override val author: User,
     override val channel: MessageChannel,
     override val guild: Guild,
-    override val ephemeralAck: EphemeralInteractionResponseBehavior?
-) : SlashCommandEvent<T>(rawInputs, discord, message, author, channel, guild, ephemeralAck)
+    override val interaction: ApplicationCommandInteraction?
+) : SlashCommandEvent<T>(rawInputs, discord, message, author, channel, guild, interaction)
