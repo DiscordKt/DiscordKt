@@ -7,7 +7,7 @@ import me.jakejmattson.discordkt.api.arguments.Argument
 import me.jakejmattson.discordkt.api.commands.*
 
 internal fun produceHelpCommand(category: String) = commands(category) {
-    command(discord.locale.helpName) {
+    globalCommand(discord.locale.helpName) {
         description = discord.locale.helpDescription
         execute(AnyArg("Command").optional("")) {
             val input = args.first
