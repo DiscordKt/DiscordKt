@@ -81,8 +81,7 @@ public abstract class Discord {
     internal suspend fun initCore() {
         diService.inject(this)
         val services = registerServices()
-
-        ReflectionUtils.registerFunctions(configuration.packageName, this)
+        Reflection.registerFunctions(this)
         registerListeners(this)
 
         if (configuration.showStartupLog) {
@@ -105,7 +104,7 @@ public abstract class Discord {
             createDocumentation(commands)
     }
 
-    private fun registerServices() = ReflectionUtils.detectClassesWith<Service>(configuration.packageName).apply { diService.buildAllRecursively(this) }
+    private fun registerServices() = Reflection.detectClassesWith<Service>().apply { diService.buildAllRecursively(this) }
 
     @KordPreview
     private suspend fun registerListeners(discord: Discord) {

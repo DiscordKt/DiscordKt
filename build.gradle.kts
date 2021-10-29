@@ -27,7 +27,7 @@ dependencies {
     api("dev.kord.x:emoji:0.5.0")
     api("org.slf4j:slf4j-simple:2.0.0-alpha5")
 
-    implementation("org.reflections:reflections:0.9.12")
+    implementation("org.reflections:reflections:0.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
 
     testImplementation(platform("org.junit:junit-bom:5.8.1"))

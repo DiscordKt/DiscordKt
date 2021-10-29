@@ -17,6 +17,8 @@ import me.jakejmattson.discordkt.api.locale.Locale
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.services.InjectionService
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
+import me.jakejmattson.discordkt.internal.utils.Reflection
+import me.jakejmattson.discordkt.internal.utils.ReflectionUtils
 import java.io.File
 
 @PublishedApi
@@ -43,6 +45,7 @@ public fun bot(token: String?, configure: suspend Bot.() -> Unit) {
     if (token.isNullOrEmpty())
         return InternalLogger.fatalError("Missing token!")
 
+    Reflection = ReflectionUtils(packageName)
     val bot = Bot(token, packageName)
 
     runBlocking {

@@ -6,7 +6,9 @@ import me.jakejmattson.discordkt.api.dsl.Listeners
 import me.jakejmattson.discordkt.api.dsl.Precondition
 import me.jakejmattson.discordkt.api.dsl.diService
 import org.reflections.Reflections
-import org.reflections.scanners.MethodParameterScanner
+import org.reflections.scanners.Scanners.MethodsReturn
+import org.reflections.scanners.Scanners.SubTypes
+import org.reflections.scanners.Scanners.TypesAnnotated
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
@@ -15,20 +17,25 @@ internal interface BuilderRegister {
     fun register(discord: Discord)
 }
 
-internal object ReflectionUtils {
-    fun registerFunctions(path: String, discord: Discord) {
-        register<CommandSet>(path, discord)
-        register<Listeners>(path, discord)
-        register<Precondition>(path, discord)
+internal lateinit var Reflection: ReflectionUtils
+
+internal class ReflectionUtils(path: String) {
+    private val reflections = Reflections(path, SubTypes, TypesAnnotated, MethodsReturn)
+
+    fun registerFunctions(discord: Discord) {
+        register<CommandSet>(discord)
+        register<Listeners>(discord)
+        register<Precondition>(discord)
     }
 
-    private inline fun <reified T : BuilderRegister> register(path: String, discord: Discord) = detectMethodsReturning<T>(path).forEach {
-        diService.invokeMethod<T>(it).register(discord)
-    }
+    private inline fun <reified T : BuilderRegister> register(discord: Discord) = reflections
+        .get(MethodsReturn.with(T::class.java).`as`(Method::class.java))
+        .forEach {
+            diService.invokeMethod<T>(it).register(discord)
+        }
 
-    inline fun <reified T : Annotation> detectClassesWith(path: String): Set<Class<*>> = Reflections(path).getTypesAnnotatedWith(T::class.java)
-    inline fun <reified T> detectSubtypesOf(path: String): Set<Class<out T>> = Reflections(path).getSubTypesOf(T::class.java)
-    private inline fun <reified T> detectMethodsReturning(path: String): MutableSet<Method> = Reflections(path, MethodParameterScanner()).getMethodsReturn(T::class.java)
+    inline fun <reified T : Annotation> detectClassesWith(): Set<Class<*>> = reflections.get(SubTypes.of<T>(TypesAnnotated.with(T::class.java)).asClass<T>())
+    inline fun <reified T> detectSubtypesOf(): Set<Class<*>> = reflections.get(TypesAnnotated.with(T::class.java).asClass<T>())
 }
 
 internal val Class<*>.simplerName
