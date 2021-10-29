@@ -1,8 +1,8 @@
 package me.jakejmattson.discordkt.api.arguments
 
+import dev.kord.core.behavior.getChannelOfOrNull
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.channel.GuildMessageChannel
-import kotlinx.coroutines.flow.firstOrNull
 import me.jakejmattson.discordkt.api.commands.CommandEvent
 import me.jakejmattson.discordkt.api.dsl.internalLocale
 import me.jakejmattson.discordkt.api.extensions.toSnowflakeOrNull
@@ -33,7 +33,7 @@ public open class MessageArg(override val name: String = "Message",
 
                 val guild = guildId?.let { event.discord.kord.getGuild(it) } ?: return Error("Invalid guild")
 
-                val channel = guild.channels.firstOrNull { it.id == channelId } as? GuildMessageChannel
+                val channel = channelId?.let { guild.getChannelOfOrNull<GuildMessageChannel>(it) }
                     ?: return Error("Invalid channel")
 
                 messageId?.let { channel.getMessageOrNull(it) } ?: return Error("Invalid message")
