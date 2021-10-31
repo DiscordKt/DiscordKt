@@ -1,10 +1,10 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.commands.CommandSet
-import me.jakejmattson.discordkt.api.dsl.Listeners
-import me.jakejmattson.discordkt.api.dsl.Precondition
-import me.jakejmattson.discordkt.api.dsl.diService
+import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.commands.CommandSet
+import me.jakejmattson.discordkt.dsl.Listeners
+import me.jakejmattson.discordkt.dsl.Precondition
+import me.jakejmattson.discordkt.dsl.diService
 import org.reflections.Reflections
 import org.reflections.scanners.Scanners.MethodsReturn
 import org.reflections.scanners.Scanners.SubTypes

@@ -1,6 +1,6 @@
 package arguments
 
-import me.jakejmattson.discordkt.api.arguments.SplitterArg
+import me.jakejmattson.discordkt.arguments.SplitterArg
 import utilities.ArgumentTestFactory
 
 class SplitterArgTest : ArgumentTestFactory {

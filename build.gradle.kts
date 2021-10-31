@@ -67,7 +67,7 @@ tasks {
                 reportUndocumented.set(true)
 
                 includes.from("packages.md")
-                suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\api\\TypeContainers.kt")
+                suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\TypeContainers.kt")
             }
         }
     }

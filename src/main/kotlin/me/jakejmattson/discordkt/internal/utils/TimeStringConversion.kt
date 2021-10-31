@@ -1,8 +1,8 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import me.jakejmattson.discordkt.api.arguments.ArgumentResult
-import me.jakejmattson.discordkt.api.arguments.Error
-import me.jakejmattson.discordkt.api.arguments.Success
+import me.jakejmattson.discordkt.arguments.ArgumentResult
+import me.jakejmattson.discordkt.arguments.Error
+import me.jakejmattson.discordkt.arguments.Success
 
 private data class TimePair(val quantity: Double, val quantifier: String) {
     val seconds: Double

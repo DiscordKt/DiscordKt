@@ -1,6 +1,6 @@
 package arguments
 
-import me.jakejmattson.discordkt.api.arguments.IntegerArg
+import me.jakejmattson.discordkt.arguments.IntegerArg
 import utilities.ArgumentTestFactory
 
 class IntegerArgTest : ArgumentTestFactory {

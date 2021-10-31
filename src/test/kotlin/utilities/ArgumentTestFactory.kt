@@ -2,10 +2,10 @@ package utilities
 
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import me.jakejmattson.discordkt.api.arguments.*
-import me.jakejmattson.discordkt.api.commands.CommandEvent
-import me.jakejmattson.discordkt.api.dsl.internalLocale
-import me.jakejmattson.discordkt.api.locale.LocaleEN
+import me.jakejmattson.discordkt.arguments.*
+import me.jakejmattson.discordkt.commands.CommandEvent
+import me.jakejmattson.discordkt.dsl.internalLocale
+import me.jakejmattson.discordkt.locale.LocaleEN
 import org.junit.jupiter.api.*
 
 private val commandEventMock = mockk<CommandEvent<*>> { }

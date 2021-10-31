@@ -9,11 +9,11 @@ import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
 import dev.kord.x.emoji.Emojis
 import dev.kord.x.emoji.addReaction
-import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.TypeContainer
-import me.jakejmattson.discordkt.api.commands.*
-import me.jakejmattson.discordkt.api.conversations.Conversations
-import me.jakejmattson.discordkt.api.extensions.trimToID
+import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.TypeContainer
+import me.jakejmattson.discordkt.commands.*
+import me.jakejmattson.discordkt.conversations.Conversations
+import me.jakejmattson.discordkt.extensions.trimToID
 import me.jakejmattson.discordkt.internal.command.stripMentionInvocation
 import me.jakejmattson.discordkt.internal.command.stripPrefixInvocation
 import me.jakejmattson.discordkt.internal.utils.Recommender
@@ -86,8 +86,7 @@ private fun Command.buildRequiredEvent(discord: Discord, rawInputs: RawInputs, m
             is GuildSlashCommand -> GuildSlashCommandEvent(rawInputs, discord, message, author, channel as MessageChannel, guild!!, null)
             is SlashCommand -> SlashCommandEvent(rawInputs, discord, message, author, channel as MessageChannel, guild, null)
         }
-    }
-    catch (e: Exception) {
+    } catch (e: Exception) {
         when (e) {
             is KotlinNullPointerException, is ClassCastException -> null
             else -> throw e

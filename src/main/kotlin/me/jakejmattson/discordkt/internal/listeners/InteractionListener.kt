@@ -7,12 +7,12 @@ import dev.kord.core.entity.Message
 import dev.kord.core.entity.interaction.*
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.on
-import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.TypeContainer
-import me.jakejmattson.discordkt.api.arguments.*
-import me.jakejmattson.discordkt.api.commands.*
-import me.jakejmattson.discordkt.api.conversations.Conversations
-import me.jakejmattson.discordkt.api.dsl.Menu
+import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.TypeContainer
+import me.jakejmattson.discordkt.arguments.*
+import me.jakejmattson.discordkt.commands.*
+import me.jakejmattson.discordkt.conversations.Conversations
+import me.jakejmattson.discordkt.dsl.Menu
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
 
 @OptIn(KordUnsafe::class)

@@ -1,8 +1,8 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import me.jakejmattson.discordkt.api.arguments.ArgumentResult
-import me.jakejmattson.discordkt.api.arguments.Error
-import me.jakejmattson.discordkt.api.arguments.Success
+import me.jakejmattson.discordkt.arguments.ArgumentResult
+import me.jakejmattson.discordkt.arguments.Error
+import me.jakejmattson.discordkt.arguments.Success
 
 internal fun <T> resolveEntityByName(args: List<String>, entities: List<T>, name: T.() -> String): ArgumentResult<T> {
     val rawInput = args.joinToString(" ").lowercase()

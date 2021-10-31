@@ -1,6 +1,6 @@
 package arguments
 
-import me.jakejmattson.discordkt.api.arguments.QuoteArg
+import me.jakejmattson.discordkt.arguments.QuoteArg
 import utilities.ArgumentTestFactory
 
 class QuoteArgTest : ArgumentTestFactory {

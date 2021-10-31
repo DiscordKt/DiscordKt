@@ -1,8 +1,8 @@
 package me.jakejmattson.discordkt.internal.utils
 
 import dev.kord.common.kColor
-import me.jakejmattson.discordkt.api.commands.CommandEvent
-import me.jakejmattson.discordkt.api.locale.inject
+import me.jakejmattson.discordkt.commands.CommandEvent
+import me.jakejmattson.discordkt.locale.inject
 import java.awt.Color
 
 internal object Recommender {

@@ -1,10 +1,10 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.arguments.Argument
-import me.jakejmattson.discordkt.api.commands.MessageCommand
-import me.jakejmattson.discordkt.api.commands.SlashCommand
-import me.jakejmattson.discordkt.api.dsl.PermissionSet
+import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.arguments.Argument
+import me.jakejmattson.discordkt.commands.MessageCommand
+import me.jakejmattson.discordkt.commands.SlashCommand
+import me.jakejmattson.discordkt.dsl.PermissionSet
 
 private val slashRegex = "^[\\w-]{1,32}$".toRegex()
 

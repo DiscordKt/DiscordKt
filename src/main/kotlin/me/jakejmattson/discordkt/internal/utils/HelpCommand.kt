@@ -2,9 +2,9 @@ package me.jakejmattson.discordkt.internal.utils
 
 import dev.kord.common.Color
 import kotlinx.coroutines.runBlocking
-import me.jakejmattson.discordkt.api.arguments.AnyArg
-import me.jakejmattson.discordkt.api.arguments.Argument
-import me.jakejmattson.discordkt.api.commands.*
+import me.jakejmattson.discordkt.arguments.AnyArg
+import me.jakejmattson.discordkt.arguments.Argument
+import me.jakejmattson.discordkt.commands.*
 
 internal fun produceHelpCommand(category: String) = commands(category) {
     globalCommand(discord.locale.helpName) {

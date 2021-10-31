@@ -1,6 +1,6 @@
 package arguments
 
-import me.jakejmattson.discordkt.api.arguments.HexColorArg
+import me.jakejmattson.discordkt.arguments.HexColorArg
 import utilities.ArgumentTestFactory
 import java.awt.Color
 

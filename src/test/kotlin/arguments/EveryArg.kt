@@ -1,6 +1,6 @@
 package arguments
 
-import me.jakejmattson.discordkt.api.arguments.EveryArg
+import me.jakejmattson.discordkt.arguments.EveryArg
 import utilities.ArgumentTestFactory
 
 class EveryArgTest : ArgumentTestFactory {

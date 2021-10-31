@@ -1,6 +1,6 @@
 package arguments
 
-import me.jakejmattson.discordkt.api.arguments.TimeArg
+import me.jakejmattson.discordkt.arguments.TimeArg
 import utilities.ArgumentTestFactory
 
 private const val second = 1.0

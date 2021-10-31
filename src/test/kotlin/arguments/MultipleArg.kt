@@ -1,8 +1,8 @@
 package arguments
 
-import me.jakejmattson.discordkt.api.arguments.IntegerArg
-import me.jakejmattson.discordkt.api.arguments.MultipleArg
-import me.jakejmattson.discordkt.api.arguments.QuoteArg
+import me.jakejmattson.discordkt.arguments.IntegerArg
+import me.jakejmattson.discordkt.arguments.MultipleArg
+import me.jakejmattson.discordkt.arguments.QuoteArg
 import utilities.ArgumentTestFactory
 
 class SingleMultipleArgTest : ArgumentTestFactory {
