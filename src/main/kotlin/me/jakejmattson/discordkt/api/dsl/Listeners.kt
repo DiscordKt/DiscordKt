@@ -38,7 +38,13 @@ public data class ListenerBuilder(val discord: Discord) {
             InternalLogger.error("${T::class.simplerName} missing intent: $intentNames")
 
         discord.kord.on<T> {
-            listener(this)
+            try {
+                listener(this)
+            } catch (up: IllegalArgumentException) {
+                if (!discord.configuration.ignoreIllegalArgumentExceptionInListeners) {
+                    throw up
+                }
+            }
         }
     }
 }

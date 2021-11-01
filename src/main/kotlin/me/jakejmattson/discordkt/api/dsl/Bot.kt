@@ -93,7 +93,8 @@ public class Bot(private val token: String, private val packageName: String) {
                 intents = intents + intentsOf<MessageCreateEvent>() + intentsOf<InteractionCreateEvent>(),
                 entitySupplyStrategy = entitySupplyStrategy,
                 prefix = prefixFun,
-                mentionEmbed = mentionEmbedFun
+                mentionEmbed = mentionEmbedFun,
+                ignoreIllegalArgumentExceptionInListeners = ignoreIllegalArgumentExceptionInListeners
             )
         }
 
