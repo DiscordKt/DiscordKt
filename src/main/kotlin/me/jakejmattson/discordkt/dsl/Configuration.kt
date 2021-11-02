@@ -36,6 +36,7 @@ public data class BotConfiguration(
     val theme: dev.kord.common.Color?,
     val intents: Intents,
     val entitySupplyStrategy: EntitySupplyStrategy<*>,
+    val ignoreIllegalArgumentExceptionInListeners: Boolean,
 
     internal val prefix: suspend (DiscordContext) -> String,
     internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
@@ -54,15 +55,18 @@ public data class BotConfiguration(
  * @property intents Additional gateway [Intents] to register manually.
  * @property entitySupplyStrategy [EntitySupplyStrategy] for use in Kord cache.
  */
-public data class SimpleConfiguration(var allowMentionPrefix: Boolean = true,
-                                      var showStartupLog: Boolean = true,
-                                      var generateCommandDocs: Boolean = true,
-                                      var recommendCommands: Boolean = true,
-                                      var enableSearch: Boolean = true,
-                                      var commandReaction: DiscordEmoji? = Emojis.eyes,
-                                      var theme: Color? = null,
-                                      var intents: Intents = Intents.none,
-                                      var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback) {
+public data class SimpleConfiguration(
+    var allowMentionPrefix: Boolean = true,
+    var showStartupLog: Boolean = true,
+    var generateCommandDocs: Boolean = true,
+    var recommendCommands: Boolean = true,
+    var enableSearch: Boolean = true,
+    var commandReaction: DiscordEmoji? = Emojis.eyes,
+    var theme: Color? = null,
+    var intents: Intents = Intents.none,
+    var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback,
+    var ignoreIllegalArgumentExceptionInListeners: Boolean = true
+) {
     @PublishedApi
     internal var permissionLevels: List<Enum<*>> = listOf(DefaultPermissions.EVERYONE)
 
