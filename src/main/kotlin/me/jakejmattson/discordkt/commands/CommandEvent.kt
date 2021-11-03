@@ -139,6 +139,12 @@ public open class SlashCommandEvent<T : TypeContainer>(
     override val guild: Guild? = null,
     public open val interaction: ApplicationCommandInteraction?) : CommandEvent<T>(rawInputs, discord, message, author, channel, null) {
 
+    /**
+     * Custom ephemeral respond function.
+     *
+     * @param message The content of the message to respond.
+     * @param ephemeral Whether this message should be ephemeral.
+     */
     public suspend fun respond(message: Any, ephemeral: Boolean = true): InteractionResponseBehavior? =
         if (interaction != null)
             if (ephemeral)
