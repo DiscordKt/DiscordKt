@@ -40,10 +40,8 @@ public data class ListenerBuilder(val discord: Discord) {
         discord.kord.on<T> {
             try {
                 listener(this)
-            } catch (up: IllegalArgumentException) {
-                if (!discord.configuration.ignoreIllegalArgumentExceptionInListeners) {
-                    throw up
-                }
+            } catch (e: Exception) {
+                discord.configuration.exceptionHandler.invoke(ListenerException(e, this))
             }
         }
     }

@@ -61,6 +61,7 @@ public class Bot(private val token: String, private val packageName: String) {
     private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
                                         var prefix: suspend DiscordContext.() -> String = { "" },
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
+                                        var exceptionHandler: suspend DktException<*>.() -> Unit = {},
                                         var locale: Locale = Language.EN.locale,
                                         var presence: PresenceBuilder.() -> Unit = {},
                                         var onStart: suspend Discord.() -> Unit = {})
@@ -72,6 +73,7 @@ public class Bot(private val token: String, private val packageName: String) {
         val (configureFun,
             prefixFun,
             mentionEmbedFun,
+            exceptionHandlerFun,
             locale,
             presenceFun,
             startupFun) = startupBundle
@@ -94,7 +96,7 @@ public class Bot(private val token: String, private val packageName: String) {
                 entitySupplyStrategy = entitySupplyStrategy,
                 prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun,
-                ignoreIllegalArgumentExceptionInListeners = ignoreIllegalArgumentExceptionInListeners
+                exceptionHandler = exceptionHandlerFun
             )
         }
 
@@ -166,6 +168,14 @@ public class Bot(private val token: String, private val packageName: String) {
     @ConfigurationDSL
     public fun mentionEmbed(construct: suspend EmbedBuilder.(DiscordContext) -> Unit) {
         startupBundle.mentionEmbed = construct
+    }
+
+    /**
+     * Function to handle any exception that occur during runtime.
+     */
+    @ConfigurationDSL
+    public fun handleExceptions(handler: suspend DktException<*>.() -> Unit) {
+        startupBundle.exceptionHandler = handler
     }
 
     /**

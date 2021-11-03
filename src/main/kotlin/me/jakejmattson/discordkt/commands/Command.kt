@@ -8,9 +8,7 @@ import kotlinx.coroutines.launch
 import me.jakejmattson.discordkt.*
 import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.arguments.OptionalArg
-import me.jakejmattson.discordkt.dsl.PermissionContext
-import me.jakejmattson.discordkt.dsl.PermissionSet
-import me.jakejmattson.discordkt.dsl.internalLocale
+import me.jakejmattson.discordkt.dsl.*
 import me.jakejmattson.discordkt.internal.annotations.NestedDSL
 import me.jakejmattson.discordkt.internal.command.ParseResult
 import me.jakejmattson.discordkt.internal.command.convertArguments
@@ -120,7 +118,12 @@ public sealed interface Command {
             val (execution, result) = success
 
             event.args = (result as ParseResult.Success).argumentContainer
-            (execution as Execution<CommandEvent<*>>).execute(event)
+
+            try {
+                (execution as Execution<CommandEvent<*>>).execute(event)
+            } catch (e: Exception) {
+                event.discord.configuration.exceptionHandler.invoke(CommandException(e, event))
+            }
         }
     }
 
