@@ -61,7 +61,7 @@ public class Bot(private val token: String, private val packageName: String) {
     private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
                                         var prefix: suspend DiscordContext.() -> String = { "" },
                                         var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
-                                        var exceptionHandler: suspend DktException<*>.() -> Unit = {},
+                                        var exceptionHandler: suspend DktException<*>.() -> Unit = { exception.printStackTrace() },
                                         var locale: Locale = Language.EN.locale,
                                         var presence: PresenceBuilder.() -> Unit = {},
                                         var onStart: suspend Discord.() -> Unit = {})
@@ -174,7 +174,7 @@ public class Bot(private val token: String, private val packageName: String) {
      * Function to handle any exception that occur during runtime.
      */
     @ConfigurationDSL
-    public fun handleExceptions(handler: suspend DktException<*>.() -> Unit) {
+    public fun onException(handler: suspend DktException<*>.() -> Unit) {
         startupBundle.exceptionHandler = handler
     }
 
