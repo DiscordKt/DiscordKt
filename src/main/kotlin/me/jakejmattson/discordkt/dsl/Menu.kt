@@ -234,7 +234,6 @@ public data class Menu(internal val pages: MutableList<EmbedBuilder>,
                     }
                 }
                 is Action -> action.invoke(interaction)
-                else -> return
             }
         }
     }
