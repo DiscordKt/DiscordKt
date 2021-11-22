@@ -11,7 +11,7 @@ private val urlRegexes = listOf(
     "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)"
 ).map { it.toRegex() }
 
-private val inviteRegex = "(discord\\.(gg|me|io|com/invite)/)([^\\s]+)".toRegex()
+private val inviteRegex = "(https?://)?(www\\.)?(discord\\.(gg|me|io|com/invite)/)([^\\s]+)".toRegex()
 private val roleRegex = "<@&(\\d+)>".toRegex()
 private val userRegex = "<@!?(\\d+)>".toRegex()
 private val hereRegex = "@+here".toRegex()
