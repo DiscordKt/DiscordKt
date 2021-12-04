@@ -23,7 +23,7 @@ public open class GuildArg(override val name: String = "Guild",
         return Success(guild)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = event.guild?.let { listOf(it.id.asString) }
+    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = event.guild?.let { listOf(it.id.toString()) }
         ?: listOf()
 
     override fun formatData(data: Guild): String = data.name

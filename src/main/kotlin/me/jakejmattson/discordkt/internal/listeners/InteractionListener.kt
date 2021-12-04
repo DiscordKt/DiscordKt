@@ -33,18 +33,18 @@ internal suspend fun registerInteractionListener(discord: Discord) = discord.kor
 
 private suspend fun handleUserContext(interaction: UserCommandInteraction, discord: Discord) {
     handleApplicationCommand(interaction, discord) {
-        interaction.users.values.first().id.asString
+        interaction.users.values.first().id.toString()
     }
 }
 
 private suspend fun handleMessageContext(interaction: MessageCommandInteraction, discord: Discord) {
     handleApplicationCommand(interaction, discord) {
-        interaction.messages.values.first().id.asString
+        interaction.messages.values.first().id.toString()
     }
 }
 
 private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction, discord: Discord) {
-    handleApplicationCommand(interaction, discord) {
+    handleApplicationCommand(interaction as ApplicationCommandInteraction, discord) {
         simplifySlashArgs(execution.arguments.map { it to interaction.command.options[it.name.lowercase()]!! })
     }
 }
@@ -76,10 +76,10 @@ private fun simplifySlashArgs(complexArgs: List<Pair<Argument<*>, OptionValue<*>
             is IntegerArg -> optionalValue.int().toString()
             is DoubleArg -> optionalValue.number().toString()
             is BooleanArg -> optionalValue.boolean().toString()
-            is UserArg -> optionalValue.user().id.asString
-            is MemberArg -> optionalValue.member().id.asString
-            is RoleArg -> optionalValue.role().id.asString
-            is ChannelArg<*> -> optionalValue.channel().id.asString
+            is UserArg -> optionalValue.user().id.toString()
+            is MemberArg -> optionalValue.member().id.toString()
+            is RoleArg -> optionalValue.role().id.toString()
+            is ChannelArg<*> -> optionalValue.channel().id.toString()
             else -> optionalValue.string()
         }
     }

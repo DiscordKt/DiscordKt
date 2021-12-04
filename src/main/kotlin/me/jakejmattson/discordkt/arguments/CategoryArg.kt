@@ -44,6 +44,6 @@ public open class CategoryArg(override val name: String = "Category",
         return resolveEntityByName(args, categories) { name }
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf(event.channel.id.asString)
+    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf(event.channel.id.toString())
     override fun formatData(data: Category): String = data.name
 }
