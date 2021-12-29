@@ -20,6 +20,11 @@ plugins {
 
 repositories {
     mavenCentral()
+    // For kord snapshots
+    maven {
+        name = "Sonatype Snapshots"
+        url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+    }
 }
 
 dependencies {
