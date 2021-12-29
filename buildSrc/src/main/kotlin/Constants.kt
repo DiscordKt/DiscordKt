@@ -6,7 +6,7 @@ object Constants {
     const val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
 
     const val kotlin = "1.6.10"
-    const val dokka = "1.5.31"
+    const val dokka = "1.6.0"
     const val kord = "0.8.x-SNAPSHOT"
 }
 
