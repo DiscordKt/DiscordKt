@@ -19,8 +19,7 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
 @KordPreview
 internal suspend fun registerInteractionListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
     when (val interaction = interaction) {
-        is GuildChatInputCommandInteraction -> handleGuildSlashCommand(interaction, discord)
-        is GlobalChatInputCommandInteraction -> handleGlobalSlashCommand(interaction, discord)
+        is ChatInputCommandInvocationInteraction -> handleSlashCommand(interaction, discord)
         is MessageCommandInteraction -> handleMessageContext(interaction, discord)
         is UserCommandInteraction -> handleUserContext(interaction, discord)
         is SelectMenuInteraction -> Conversations.handleInteraction(interaction)
@@ -44,13 +43,7 @@ private suspend fun handleMessageContext(interaction: MessageCommandInteraction,
     }
 }
 
-private suspend fun handleGuildSlashCommand(interaction: GuildChatInputCommandInteraction, discord: Discord) {
-    handleApplicationCommand(interaction, discord) {
-        simplifySlashArgs(execution.arguments.map { it to interaction.command.options[it.name.lowercase()]!! })
-    }
-}
-
-private suspend fun handleGlobalSlashCommand(interaction: GlobalChatInputCommandInteraction, discord: Discord) {
+private suspend fun handleSlashCommand(interaction: ChatInputCommandInvocationInteraction, discord: Discord) {
     handleApplicationCommand(interaction, discord) {
         simplifySlashArgs(execution.arguments.map { it to interaction.command.options[it.name.lowercase()]!! })
     }
