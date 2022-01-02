@@ -160,17 +160,38 @@ public open class SlashCommandEvent<T : TypeContainer>(
             null
         }
 
+    /**
+     * Custom ephemeral respond function.
+     *
+     * @param ephemeral Whether this message should be ephemeral.
+     * @param embedBuilder
+     */
+    public suspend fun respond(ephemeral: Boolean = true, embedBuilder: suspend EmbedBuilder.() -> Unit): InteractionResponseBehavior? =
+        if (interaction != null)
+            if (ephemeral)
+                interaction!!.acknowledgeEphemeral().apply {
+                    followUpEphemeral { embed { embedBuilder.invoke(this) } }
+                }
+            else
+                interaction!!.acknowledgePublic().apply {
+                    followUp { embed { embedBuilder.invoke(this) } }
+                }
+        else {
+            super.respond(embedBuilder)
+            null
+        }
+
     override suspend fun respond(message: Any): List<Message> =
         interaction?.acknowledgeEphemeral()?.let {
             it.followUpEphemeral { content = message.toString() }
             emptyList()
         } ?: super.respond(message)
 
-    override suspend fun respond(construct: suspend EmbedBuilder.() -> Unit): Message? =
+    override suspend fun respond(embedBuilder: suspend EmbedBuilder.() -> Unit): Message? =
         if (interaction == null) {
-            super.respond(construct)
+            super.respond(embedBuilder)
         } else {
-            interaction!!.acknowledgeEphemeral().followUpEphemeral { embed { construct.invoke(this) } }
+            interaction!!.acknowledgeEphemeral().followUpEphemeral { embed { embedBuilder.invoke(this) } }
             null
         }
 }

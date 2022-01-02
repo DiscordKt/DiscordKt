@@ -32,22 +32,22 @@ public interface Responder {
     /**
      * Respond with an embed.
      */
-    public suspend fun respond(construct: suspend EmbedBuilder.() -> Unit): Message? = channel.createEmbed { construct.invoke(this) }
+    public suspend fun respond(embedBuilder: suspend EmbedBuilder.() -> Unit): Message? = channel.createEmbed { embedBuilder.invoke(this) }
 
     /**
      * Respond with a message and an embed.
      */
-    public suspend fun respond(message: String, construct: suspend EmbedBuilder.() -> Unit): Message? = channel.createMessage {
+    public suspend fun respond(message: String, embedBuilder: suspend EmbedBuilder.() -> Unit): Message? = channel.createMessage {
         content = message
-        construct.invoke(embeds.first())
+        embedBuilder.invoke(embeds.first())
     }
 
     /**
      * Respond with a menu.
      */
-    public suspend fun respondMenu(construct: suspend MenuBuilder.() -> Unit): Message? {
+    public suspend fun respondMenu(menuBuilder: suspend MenuBuilder.() -> Unit): Message? {
         val handle = MenuBuilder()
-        handle.construct()
+        handle.menuBuilder()
         return handle.build().send(channel)
     }
 
