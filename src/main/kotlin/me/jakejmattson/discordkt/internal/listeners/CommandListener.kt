@@ -34,6 +34,8 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
 
         if (discord.commands[query] != null)
             message.addReaction(Emojis.whiteCheckMark)
+        else if (discord.commands.any { it.names.any { it.contains(query, ignoreCase = true) } })
+            message.addReaction(Emojis.ballotBoxWithCheck)
     }
 
     val rawInputs = when {
