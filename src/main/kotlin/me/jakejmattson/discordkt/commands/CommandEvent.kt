@@ -167,10 +167,12 @@ public open class SlashCommandEvent<T : TypeContainer>(
         } ?: super.respond(message)
 
     override suspend fun respond(construct: suspend EmbedBuilder.() -> Unit): Message? =
-        interaction?.acknowledgeEphemeral()?.let {
-            it.followUpEphemeral { embed { construct.invoke(this) } }
+        if (interaction == null) {
+            super.respond(construct)
+        } else {
+            interaction!!.acknowledgeEphemeral().followUpEphemeral { embed { construct.invoke(this) } }
             null
-        } ?: super.respond(construct)
+        }
 }
 
 /**
