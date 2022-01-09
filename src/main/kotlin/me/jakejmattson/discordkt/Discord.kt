@@ -45,7 +45,7 @@ public abstract class Discord {
     public abstract val kord: Kord
     public abstract val configuration: BotConfiguration
     public abstract val locale: Locale
-    public abstract val permissions: PermissionBundle
+    public abstract val permissions: PermissionSet
     public abstract val commands: MutableList<Command>
     internal abstract val preconditions: MutableList<Precondition>
 
@@ -97,6 +97,12 @@ public abstract class Discord {
 
         validate()
         registerSlashCommands()
+
+        kord.guilds.toList().forEach { guild ->
+            permissions.hierarchy.forEach {
+                it.calculate(this, guild)
+            }
+        }
 
         commands[locale.helpName] ?: produceHelpCommand(locale.helpCategory).register(this)
 

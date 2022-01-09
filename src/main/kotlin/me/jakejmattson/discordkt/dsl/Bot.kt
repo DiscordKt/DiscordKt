@@ -80,7 +80,6 @@ public class Bot(private val token: String, private val packageName: String) {
 
         val simpleConfiguration = SimpleConfiguration()
         configureFun.invoke(simpleConfiguration)
-        val permissionBundle = PermissionBundle(simpleConfiguration.permissionLevels, simpleConfiguration.commandDefault)
 
         val botConfiguration = with(simpleConfiguration) {
             BotConfiguration(
@@ -110,7 +109,7 @@ public class Bot(private val token: String, private val packageName: String) {
             override val kord = kord
             override val configuration = botConfiguration
             override val locale = locale
-            override val permissions = permissionBundle
+            override val permissions = simpleConfiguration.permissions
             override val commands = mutableListOf<Command>()
             override val preconditions = mutableListOf<Precondition>()
         }

@@ -3,6 +3,7 @@
 package me.jakejmattson.discordkt.commands
 
 import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.dsl.Permission
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.annotations.InnerDSL
 import me.jakejmattson.discordkt.internal.utils.BuilderRegister
@@ -14,7 +15,7 @@ import me.jakejmattson.discordkt.internal.utils.BuilderRegister
  * @param construct The builder function.
  */
 @BuilderDSL
-public fun commands(category: String, requiredPermissionLevel: Enum<*>? = null, construct: CommandSetBuilder.() -> Unit): CommandSet = CommandSet(category, requiredPermissionLevel, construct)
+public fun commands(category: String, requiredPermissionLevel: Permission? = null, construct: CommandSetBuilder.() -> Unit): CommandSet = CommandSet(category, requiredPermissionLevel, construct)
 
 /**
  * DSL used to build a set of commands.
@@ -22,7 +23,7 @@ public fun commands(category: String, requiredPermissionLevel: Enum<*>? = null, 
  * @param discord The discord instance.
  * @param category The category these commands will be under.
  */
-public data class CommandSetBuilder(val discord: Discord, val category: String, private val requiredPermission: Enum<*>) {
+public data class CommandSetBuilder(val discord: Discord, val category: String, private val requiredPermission: Permission) {
     private val commands = mutableListOf<Command>()
 
     /**
@@ -98,7 +99,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
 /**
  * This is not for you...
  */
-public class CommandSet(private val category: String, private val requiredPermissionLevel: Enum<*>?, private val collector: CommandSetBuilder.() -> Unit) : BuilderRegister {
+public class CommandSet(private val category: String, private val requiredPermissionLevel: Permission?, private val collector: CommandSetBuilder.() -> Unit) : BuilderRegister {
     /** @suppress */
     override fun register(discord: Discord) {
         val permissionLevel = requiredPermissionLevel ?: discord.permissions.commandDefault

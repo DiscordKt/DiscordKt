@@ -1,120 +1,80 @@
 package me.jakejmattson.discordkt.dsl
 
-import dev.kord.core.entity.Guild
-import dev.kord.core.entity.Member
-import dev.kord.core.entity.User
+import dev.kord.common.entity.Snowflake
+import dev.kord.core.entity.*
 import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
+import me.jakejmattson.discordkt.internal.annotations.NestedDSL
 
-/**
- * Holds information used to determine if a command has permission to run.
- *
- * @param discord The [Discord] instance.
- * @param user The discord user who invoked the command.
- * @param guild The guild that this command was invoked in.
- */
-public data class PermissionContext(val discord: Discord, val user: User, val guild: Guild?) {
-    /**
-     * Attempt to get the member in this context.
-     */
-    public suspend fun getMember(): Member? = guild?.id?.let { user.asMember(it) }
+public data class PermissionBuilder(val discord: Discord, val guild: Guild?) {
+    internal val users = mutableSetOf<Snowflake>()
+    internal val roles = mutableSetOf<Snowflake>()
+
+    @NestedDSL
+    public fun users(vararg users: User) {
+        this.users.addAll(users.map { it.id })
+    }
+
+    @NestedDSL
+    public fun users(vararg users: Snowflake) {
+        this.users.addAll(users)
+    }
+
+    @NestedDSL
+    public fun roles(vararg roles: Role) {
+        this.roles.addAll(roles.map { it.id })
+    }
+
+    @NestedDSL
+    public fun roles(vararg roles: Snowflake) {
+        this.roles.addAll(roles)
+    }
 }
 
-/**
- * The interface that all permission enums must inherit from.
- */
-public interface PermissionSet {
-    /**
-     * Whether an enum value can be applied to a given situation.
-     *
-     * @param context The event data used to determine value.
-     */
-    public suspend fun hasPermission(context: PermissionContext): Boolean
+public data class Permission(private val action: PermissionBuilder.() -> Unit) {
+    private val users = mutableMapOf<Guild?, MutableList<Snowflake>>()
+    private val roles = mutableMapOf<Guild?, MutableList<Snowflake>>()
+
+    internal fun calculate(discord: Discord, guild: Guild?) {
+        val builder = PermissionBuilder(discord, guild)
+        action.invoke(builder)
+        this.users.getOrPut(guild) { mutableListOf() }.addAll(builder.users)
+        this.roles.getOrPut(guild) { mutableListOf() }.addAll(builder.roles)
+    }
+
+    public fun hasPermission(guild: Guild?, snowflake: Snowflake): Boolean = snowflake in users.getOrDefault(guild, emptyList()) || snowflake in roles.getOrDefault(guild, emptyList())
 }
+
+@BuilderDSL
+public fun permission(builder: PermissionBuilder.() -> Unit): Permission = Permission(builder)
 
 /**
  * Permission values and helper functions.
  *
- * @param levels A list of all permission levels available.
- * @param commandDefault The default level of permission required to use a command.
+ * @property hierarchy A list of all permission levels available - lowest to highest.
+ * @property commandDefault The default level of permission required to use a command.
  */
-public class PermissionBundle(public val levels: List<Enum<*>>, public val commandDefault: Enum<*>) {
+public interface PermissionSet {
+    public val hierarchy: List<Permission>
+    public val commandDefault: Permission
+
+    public operator fun Permission.compareTo(permission: Permission): Int = hierarchy.indexOf(this).compareTo(hierarchy.indexOf(permission))
+
     /**
-     * Get the highest (first) permission achievable in this context.
+     * Get the highest permission achievable to this user or role.
      */
-    public suspend fun getPermission(permissionContext: PermissionContext): Enum<*>? =
-        levels.firstOrNull { (it as PermissionSet).hasPermission(permissionContext) }
+    public suspend fun getPermission(guild: Guild?, snowflake: Snowflake): Permission? =
+        hierarchy.lastOrNull { it.hasPermission(guild, snowflake) }
 
     /**
      * Get the index of the highest permission achievable in this context. [Int.MAX_VALUE] if none apply.
      */
-    public suspend fun getPermissionLevel(permissionContext: PermissionContext): Int =
-        getPermission(permissionContext)?.let { levels.indexOf(it) } ?: Int.MAX_VALUE
-
-    /**
-     * Compare two [PermissionContext] by their permission level, obtained with [getPermissionLevel].
-     */
-    public suspend fun compare(context1: PermissionContext, context2: PermissionContext): Int =
-        getPermissionLevel(context1).compareTo(getPermissionLevel(context2))
+    public suspend fun getPermissionLevel(guild: Guild?, snowflake: Snowflake): Int =
+        getPermission(guild, snowflake)?.let { hierarchy.indexOf(it) } ?: -1
 
     /**
      * Check if a [Member] has the given permission level or higher.
      */
-    public suspend fun hasPermission(discord: Discord, member: Member, permission: Enum<*>): Boolean =
-        getPermissionLevel(PermissionContext(discord, member, member.getGuild())) <= permission.ordinal
-
-    /**
-     * Compare two [PermissionContext] by their permission level.
-     *
-     * @return true if the first context provided has a higher level than the second.
-     */
-    public suspend fun isHigherLevel(context1: PermissionContext, context2: PermissionContext): Boolean = compare(context1, context2) < 0
-
-    /**
-     * Compare two [PermissionContext] by their permission level.
-     *
-     * @return true if the first context provided has a lower level than the second.
-     */
-    public suspend fun isLowerLevel(context1: PermissionContext, context2: PermissionContext): Boolean = compare(context1, context2) > 0
-
-    /**
-     * Compare two [PermissionContext] by their permission level.
-     *
-     * @return true if the first context provided has the same level as the second.
-     */
-    public suspend fun isSameLevel(context1: PermissionContext, context2: PermissionContext): Boolean = compare(context1, context2) == 0
-
-    private suspend fun Member.toPermissionContext(discord: Discord) = PermissionContext(discord, asUser(), guild.asGuild())
-
-    /**
-     * Compare two [Member] by converting to a [PermissionContext] and the finding their resulting permission level.
-     *
-     * @return true if the first member provided has a higher level than the second.
-     */
-    public suspend fun isHigherLevel(discord: Discord, member1: Member, member2: Member): Boolean {
-        val context1 = member1.toPermissionContext(discord)
-        val context2 = member2.toPermissionContext(discord)
-        return isHigherLevel(context1, context2)
-    }
-
-    /**
-     * Compare two [Member] by converting to a [PermissionContext] and the finding their resulting permission level.
-     *
-     * @return true if the first member provided has a lower level than the second.
-     */
-    public suspend fun isLowerLevel(discord: Discord, member1: Member, member2: Member): Boolean {
-        val context1 = member1.toPermissionContext(discord)
-        val context2 = member2.toPermissionContext(discord)
-        return isLowerLevel(context1, context2)
-    }
-
-    /**
-     * Compare two [Member] by converting to a [PermissionContext] and the finding their resulting permission level.
-     *
-     * @return true if the first member provided has the same level as the second.
-     */
-    public suspend fun isSameLevel(discord: Discord, member1: Member, member2: Member): Boolean {
-        val context1 = member1.toPermissionContext(discord)
-        val context2 = member2.toPermissionContext(discord)
-        return isSameLevel(context1, context2)
-    }
+    public suspend fun hasPermission(permission: Permission, discord: Discord, user: User, guild: Guild?): Boolean =
+        getPermissionLevel(guild, user.id) >= hierarchy.indexOf(permission)
 }

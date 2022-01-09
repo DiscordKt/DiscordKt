@@ -8,7 +8,9 @@ import kotlinx.coroutines.launch
 import me.jakejmattson.discordkt.*
 import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.arguments.OptionalArg
-import me.jakejmattson.discordkt.dsl.*
+import me.jakejmattson.discordkt.dsl.CommandException
+import me.jakejmattson.discordkt.dsl.Permission
+import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.internal.annotations.NestedDSL
 import me.jakejmattson.discordkt.internal.command.ParseResult
 import me.jakejmattson.discordkt.internal.command.convertArguments
@@ -53,7 +55,7 @@ public sealed interface Command {
     public val names: List<String>
     public var description: String
     public var category: String
-    public var requiredPermission: Enum<*>
+    public var requiredPermission: Permission
     public val executions: MutableList<Execution<*>>
 
     /**
@@ -80,15 +82,7 @@ public sealed interface Command {
         this is DmCommand && event.isFromGuild() -> false
         this is GuildCommand && !event.isFromGuild() -> false
         else -> {
-            val config = event.discord.permissions
-            val permissionLevels = config.levels
-            val permissionContext = PermissionContext(event.discord, event.author, event.guild)
-            val level = permissionLevels.indexOfFirst { (it as PermissionSet).hasPermission(permissionContext) }
-
-            if (level != -1)
-                level <= permissionLevels.indexOf(requiredPermission)
-            else
-                false
+            event.discord.permissions.hasPermission(requiredPermission, event.discord, event.author, event.guild)
         }
     }
 
@@ -162,7 +156,7 @@ public class GlobalCommand(override val names: List<String>,
                            override var description: String = "",
                            override var category: String = "",
                            override val executions: MutableList<Execution<*>> = mutableListOf(),
-                           override var requiredPermission: Enum<*>) : MessageCommand {
+                           override var requiredPermission: Permission) : MessageCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -195,7 +189,7 @@ public class GuildCommand(override val names: List<String>,
                           override var description: String = "",
                           override var category: String = "",
                           override val executions: MutableList<Execution<*>> = mutableListOf(),
-                          override var requiredPermission: Enum<*>) : MessageCommand {
+                          override var requiredPermission: Permission) : MessageCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -228,7 +222,7 @@ public class DmCommand(override val names: List<String>,
                        override var description: String = "",
                        override var category: String = "",
                        override val executions: MutableList<Execution<*>> = mutableListOf(),
-                       override var requiredPermission: Enum<*>) : MessageCommand {
+                       override var requiredPermission: Permission) : MessageCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend DmCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -265,7 +259,7 @@ public class GlobalSlashCommand(override val name: String,
                                 override var description: String = "",
                                 override var category: String = "",
                                 override val executions: MutableList<Execution<*>> = mutableListOf(),
-                                override var requiredPermission: Enum<*>) : SlashCommand {
+                                override var requiredPermission: Permission) : SlashCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend SlashCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -302,7 +296,7 @@ public class GuildSlashCommand(override val name: String,
                                override var description: String = "",
                                override var category: String = "",
                                override val executions: MutableList<Execution<*>> = mutableListOf(),
-                               override var requiredPermission: Enum<*>) : SlashCommand {
+                               override var requiredPermission: Permission) : SlashCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend GuildSlashCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)

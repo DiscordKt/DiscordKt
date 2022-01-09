@@ -4,23 +4,18 @@ import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.commands.MessageCommand
 import me.jakejmattson.discordkt.commands.SlashCommand
-import me.jakejmattson.discordkt.dsl.PermissionSet
 
 private val slashRegex = "^[\\w-]{1,32}$".toRegex()
 
 private fun Discord.validatePermissions() {
-    val defaultRequiredPermission = permissions.commandDefault
-    val validPermissions = permissions.levels
-
-    if (defaultRequiredPermission !is PermissionSet)
-        InternalLogger.fatalError("Permissions enum must extend ${PermissionSet::class.qualifiedName}")
+    val validPermissions = permissions.hierarchy
 
     commands.forEach { command ->
         val requiredPermission = command.requiredPermission
 
         if (requiredPermission !in validPermissions)
-            InternalLogger.error("${requiredPermission::class.simplerName}.${requiredPermission.name} provided to command " +
-                "(${command.category} - ${command.names.first()}) did not match expected type ${defaultRequiredPermission::class.simplerName}")
+            InternalLogger.error("Unknown permission in (${command.category} - ${command.names.first()}). " +
+                "See [${permissions::class.qualifiedName}] hierarchy.")
     }
 }
 

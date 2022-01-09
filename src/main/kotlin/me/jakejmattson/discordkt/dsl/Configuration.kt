@@ -8,7 +8,6 @@ import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.Emojis
 import me.jakejmattson.discordkt.commands.DiscordContext
-import me.jakejmattson.discordkt.internal.annotations.NestedDSL
 import java.awt.Color
 
 /**
@@ -66,29 +65,12 @@ public data class SimpleConfiguration(
     var commandReaction: DiscordEmoji? = Emojis.eyes,
     var theme: Color? = null,
     var intents: Intents = Intents.none,
+    var permissions: PermissionSet = DefaultPermissions,
     var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback,
-) {
-    @PublishedApi
-    internal var permissionLevels: List<Enum<*>> = listOf(DefaultPermissions.EVERYONE)
+)
 
-    @PublishedApi
-    internal var commandDefault: Enum<*> = DefaultPermissions.EVERYONE
-
-    /**
-     * Configure permissions for this bot with an enum that inherits from [PermissionSet].
-     * @sample DefaultPermissions
-     *
-     * @param commandDefault The default permission that all commands require.
-     */
-    @NestedDSL
-    public inline fun <reified T : Enum<T>> permissions(commandDefault: Enum<T>) {
-        this.permissionLevels = enumValues<T>().toList()
-        this.commandDefault = commandDefault
-    }
-}
-
-private enum class DefaultPermissions : PermissionSet {
-    EVERYONE {
-        override suspend fun hasPermission(context: PermissionContext) = true
-    }
+private object DefaultPermissions : PermissionSet {
+    val EVERYONE = permission { roles(guild!!.everyoneRole.id) }
+    override val hierarchy: List<Permission> = listOf(EVERYONE)
+    override val commandDefault: Permission = EVERYONE
 }
