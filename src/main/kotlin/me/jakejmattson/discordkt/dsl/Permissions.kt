@@ -2,6 +2,7 @@ package me.jakejmattson.discordkt.dsl
 
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.entity.*
+import kotlinx.coroutines.flow.toList
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.annotations.NestedDSL
@@ -42,7 +43,9 @@ public data class Permission(private val action: PermissionBuilder.() -> Unit) {
         this.roles.getOrPut(guild) { mutableListOf() }.addAll(builder.roles)
     }
 
-    public fun hasPermission(guild: Guild?, snowflake: Snowflake): Boolean = snowflake in users.getOrDefault(guild, emptyList()) || snowflake in roles.getOrDefault(guild, emptyList())
+    public fun hasPermission(guild: Guild?, user: User): Boolean = user.id in users.getOrDefault(guild, emptyList())
+
+    public fun hasPermission(guild: Guild?, role: Role): Boolean = role.id in roles.getOrDefault(guild, emptyList())
 }
 
 @BuilderDSL
@@ -61,20 +64,33 @@ public interface PermissionSet {
     public operator fun Permission.compareTo(permission: Permission): Int = hierarchy.indexOf(this).compareTo(hierarchy.indexOf(permission))
 
     /**
-     * Get the highest permission achievable to this user or role.
+     * Get the highest permission achievable to this user.
      */
-    public suspend fun getPermission(guild: Guild?, snowflake: Snowflake): Permission? =
-        hierarchy.lastOrNull { it.hasPermission(guild, snowflake) }
+    public suspend fun getPermission(guild: Guild?, user: User): Permission? =
+        hierarchy.lastOrNull { it.hasPermission(guild, user) }
 
     /**
-     * Get the index of the highest permission achievable in this context. [Int.MAX_VALUE] if none apply.
+     * Get the highest permission achievable to this user.
      */
-    public suspend fun getPermissionLevel(guild: Guild?, snowflake: Snowflake): Int =
-        getPermission(guild, snowflake)?.let { hierarchy.indexOf(it) } ?: -1
+    public suspend fun getPermission(guild: Guild?, role: Role): Permission? =
+        hierarchy.lastOrNull { it.hasPermission(guild, role) }
 
-    /**
-     * Check if a [Member] has the given permission level or higher.
-     */
-    public suspend fun hasPermission(permission: Permission, discord: Discord, user: User, guild: Guild?): Boolean =
-        getPermissionLevel(guild, user.id) >= hierarchy.indexOf(permission)
+    public suspend fun getPermissionLevel(guild: Guild?, user: User): Int =
+        getPermission(guild, user)?.let { hierarchy.indexOf(it) } ?: -1
+
+    public suspend fun getPermissionLevel(guild: Guild?, role: Role): Int =
+        getPermission(guild, role)?.let { hierarchy.indexOf(it) } ?: -1
+
+    public suspend fun hasPermission(permission: Permission, member: Member): Boolean {
+        val guild = member.getGuild()
+        val roleLevels = member.roles.toList().map { getPermissionLevel(guild, it) } + getPermissionLevel(guild, member.asUser())
+        return (roleLevels.maxOrNull() ?: -1) >= hierarchy.indexOf(permission)
+    }
+
+    public suspend fun hasPermission(permission: Permission, user: User, guild: Guild?): Boolean {
+        return if (guild != null)
+            hasPermission(permission, user.asMember(guild.id))
+        else
+            getPermissionLevel(guild, user) >= hierarchy.indexOf(permission)
+    }
 }

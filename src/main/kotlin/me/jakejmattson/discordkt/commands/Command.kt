@@ -82,7 +82,7 @@ public sealed interface Command {
         this is DmCommand && event.isFromGuild() -> false
         this is GuildCommand && !event.isFromGuild() -> false
         else -> {
-            event.discord.permissions.hasPermission(requiredPermission, event.discord, event.author, event.guild)
+            event.discord.permissions.hasPermission(requiredPermission, event.author, event.guild)
         }
     }
 
