@@ -4,6 +4,7 @@ package me.jakejmattson.discordkt
 
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
+import dev.kord.core.behavior.bulkEditSlashCommandPermissions
 import dev.kord.core.behavior.createApplicationCommands
 import dev.kord.rest.builder.interaction.*
 import dev.kord.rest.request.KtorRequestException
@@ -145,13 +146,14 @@ public abstract class Discord {
                     val potentialArg = it.arguments.first()
 
                     when (if (potentialArg is OptionalArg) potentialArg.type else potentialArg) {
-                        MessageArg -> message(command.appName) {}
-                        UserArg, MemberArg -> user(command.appName) {}
+                        MessageArg -> message(command.appName) { defaultPermission = false }
+                        UserArg, MemberArg -> user(command.appName) { defaultPermission = false }
                     }
                 }
 
             input(command.name.lowercase(), command.description.ifBlank { "<No Description>" }) {
                 mapArgs(command)
+                defaultPermission = false
             }
         }
 
@@ -169,9 +171,27 @@ public abstract class Discord {
 
         kord.guilds.toList().forEach { guild ->
             try {
-                guild.createApplicationCommands {
+                val slashCommands = guild.createApplicationCommands {
                     guildSlashCommands.forEach {
                         register(it)
+                    }
+                }.toList()
+
+                guild.bulkEditSlashCommandPermissions {
+                    slashCommands.forEach { slashCommand ->
+                        val dktCommand = guildSlashCommands.find { it.name.equals(slashCommand.name, true) }
+                            ?: guildSlashCommands.find { it.appName.equals(slashCommand.name, true) }
+                            ?: return@forEach
+
+                        command(slashCommand.id) {
+                            dktCommand.requiredPermission.users[guild]?.forEach {
+                                user(it, allow = true)
+                            }
+
+                            dktCommand.requiredPermission.roles[guild]?.forEach {
+                                role(it, allow = true)
+                            }
+                        }
                     }
                 }
             } catch (e: KtorRequestException) {

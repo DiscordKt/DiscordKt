@@ -33,8 +33,8 @@ public data class PermissionBuilder(val discord: Discord, val guild: Guild?) {
 }
 
 public data class Permission(private val action: PermissionBuilder.() -> Unit) {
-    private val users = mutableMapOf<Guild?, MutableList<Snowflake>>()
-    private val roles = mutableMapOf<Guild?, MutableList<Snowflake>>()
+    internal val users = mutableMapOf<Guild?, MutableList<Snowflake>>()
+    internal val roles = mutableMapOf<Guild?, MutableList<Snowflake>>()
 
     internal fun calculate(discord: Discord, guild: Guild?) {
         val builder = PermissionBuilder(discord, guild)
