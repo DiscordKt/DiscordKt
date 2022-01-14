@@ -61,7 +61,11 @@ public interface PermissionSet {
     public val hierarchy: List<Permission>
     public val commandDefault: Permission
 
-    public operator fun Permission.compareTo(permission: Permission): Int = hierarchy.indexOf(this).compareTo(hierarchy.indexOf(permission))
+    public val GUILD_OWNER: Permission
+        get() = permission { users(guild!!.ownerId) }
+
+    public val EVERYONE: Permission
+        get() = permission { roles(guild!!.everyoneRole.id) }
 
     /**
      * Get the highest permission achievable to this user.

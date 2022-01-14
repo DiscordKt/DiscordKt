@@ -2,13 +2,13 @@
 
 package me.jakejmattson.discordkt.dsl
 
+import dev.kord.common.Color
 import dev.kord.core.supplier.EntitySupplyStrategy
 import dev.kord.gateway.Intents
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.Emojis
 import me.jakejmattson.discordkt.commands.DiscordContext
-import java.awt.Color
 
 /**
  * Contains all properties configured when the bot is created.
@@ -32,7 +32,7 @@ public data class BotConfiguration(
     val recommendCommands: Boolean,
     val enableSearch: Boolean,
     val commandReaction: DiscordEmoji?,
-    val theme: dev.kord.common.Color?,
+    val theme: Color?,
     val intents: Intents,
     val entitySupplyStrategy: EntitySupplyStrategy<*>,
 
@@ -63,14 +63,13 @@ public data class SimpleConfiguration(
     var recommendCommands: Boolean = true,
     var enableSearch: Boolean = true,
     var commandReaction: DiscordEmoji? = Emojis.eyes,
-    var theme: Color? = null,
+    var theme: java.awt.Color? = null,
     var intents: Intents = Intents.none,
     var permissions: PermissionSet = DefaultPermissions,
     var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback,
 )
 
 private object DefaultPermissions : PermissionSet {
-    val EVERYONE = permission { roles(guild!!.everyoneRole.id) }
     override val hierarchy: List<Permission> = listOf(EVERYONE)
     override val commandDefault: Permission = EVERYONE
 }
