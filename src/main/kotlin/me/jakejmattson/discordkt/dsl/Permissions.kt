@@ -12,22 +12,22 @@ public data class PermissionBuilder(val discord: Discord, val guild: Guild?) {
     internal val roles = mutableSetOf<Snowflake>()
 
     @NestedDSL
-    public fun users(vararg users: User) {
-        this.users.addAll(users.map { it.id })
+    public fun users(user: Snowflake) {
+        this.users.add(user)
     }
 
     @NestedDSL
-    public fun users(vararg users: Snowflake) {
+    public fun users(users: List<Snowflake>) {
         this.users.addAll(users)
     }
 
     @NestedDSL
-    public fun roles(vararg roles: Role) {
-        this.roles.addAll(roles.map { it.id })
+    public fun roles(role: Snowflake) {
+        this.roles.add(role)
     }
 
     @NestedDSL
-    public fun roles(vararg roles: Snowflake) {
+    public fun roles(roles: List<Snowflake>) {
         this.roles.addAll(roles)
     }
 }
