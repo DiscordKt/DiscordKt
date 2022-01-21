@@ -36,6 +36,9 @@ public data class Permission(val name: String, private val action: PermissionBui
     internal val users = mutableMapOf<Guild?, MutableList<Snowflake>>()
     internal val roles = mutableMapOf<Guild?, MutableList<Snowflake>>()
 
+    var level: Int = 0
+        internal set
+
     internal fun calculate(discord: Discord, guild: Guild?) {
         val builder = PermissionBuilder(discord, guild)
         action.invoke(builder)
@@ -46,6 +49,8 @@ public data class Permission(val name: String, private val action: PermissionBui
     public fun hasPermission(guild: Guild?, user: User): Boolean = user.id in users.getOrDefault(guild, emptyList())
 
     public fun hasPermission(guild: Guild?, role: Role): Boolean = role.id in roles.getOrDefault(guild, emptyList())
+
+    public operator fun compareTo(permission: Permission): Int = this.compareTo(permission)
 }
 
 @BuilderDSL
@@ -67,29 +72,31 @@ public interface PermissionSet {
     public val EVERYONE: Permission
         get() = permission("Everyone") { roles(guild!!.everyoneRole.id) }
 
-    private fun Permission?.toLevel() = hierarchy.indexOf(this)
+    private fun Permission?.toLevel() = this?.level ?: -1
 
-    public suspend fun getPermissionLevel(member: Member): Int {
-        val allLevels = member.roles.toList().map { getPermissionLevel(it) } + getPermissionLevel(member.asUser(), member.getGuild())
-        return allLevels.maxOrNull() ?: -1
+    public suspend fun getPermission(member: Member): Int {
+        val allLevels = member.roles.toList().map { getPermission(it) } + getPermission(member.asUser(), member.getGuild())
+        return allLevels.maxOfOrNull { it.toLevel() } ?: -1
     }
 
-    public suspend fun getPermissionLevel(user: User, guild: Guild?): Int = hierarchy.lastOrNull { it.hasPermission(guild, user) }.toLevel()
+    public suspend fun getPermission(user: User, guild: Guild?): Permission? = hierarchy.lastOrNull { it.hasPermission(guild, user) }
 
-    public suspend fun getPermissionLevel(role: Role): Int = hierarchy.lastOrNull { it.hasPermission(role.guild.asGuild(), role) }.toLevel()
+    public suspend fun getPermission(role: Role): Permission? = hierarchy.lastOrNull { it.hasPermission(role.guild.asGuild(), role) }
 
-    public suspend fun hasPermission(permission: Permission, member: Member): Boolean = getPermissionLevel(member) >= hierarchy.indexOf(permission)
+    public suspend fun hasPermission(permission: Permission, member: Member): Boolean = getPermission(member) >= hierarchy.indexOf(permission)
 
     public suspend fun hasPermission(permission: Permission, user: User, guild: Guild?): Boolean {
-        return if (guild != null)
-            hasPermission(permission, user.asMember(guild.id))
+        val member = guild?.id?.let { user.asMemberOrNull(it) }
+
+        return if (member != null)
+            hasPermission(permission, member)
         else
-            getPermissionLevel(user, null) >= hierarchy.indexOf(permission)
+            getPermission(user, null).toLevel() >= permission.level
     }
 
-    public suspend fun isHigherLevel(member1: Member, member2: Member): Boolean = getPermissionLevel(member1) > getPermissionLevel(member2)
+    public suspend fun isHigherLevel(member1: Member, member2: Member): Boolean = getPermission(member1) > getPermission(member2)
 
-    public suspend fun isLowerLevel(member1: Member, member2: Member): Boolean = getPermissionLevel(member1) < getPermissionLevel(member2)
+    public suspend fun isLowerLevel(member1: Member, member2: Member): Boolean = getPermission(member1) < getPermission(member2)
 
-    public suspend fun isSameLevel(member1: Member, member2: Member): Boolean = getPermissionLevel(member1) == getPermissionLevel(member2)
+    public suspend fun isSameLevel(member1: Member, member2: Member): Boolean = getPermission(member1) == getPermission(member2)
 }

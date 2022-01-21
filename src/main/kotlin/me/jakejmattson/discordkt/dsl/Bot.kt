@@ -105,6 +105,10 @@ public class Bot(private val token: String, private val packageName: String) {
 
         internalLocale = locale
 
+        simpleConfiguration.permissions.hierarchy.forEachIndexed { index, permission ->
+            permission.level = index
+        }
+
         val discord = object : Discord() {
             override val kord = kord
             override val configuration = botConfiguration
