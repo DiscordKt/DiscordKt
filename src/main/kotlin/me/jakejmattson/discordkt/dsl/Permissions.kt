@@ -67,34 +67,29 @@ public interface PermissionSet {
     public val EVERYONE: Permission
         get() = permission { roles(guild!!.everyoneRole.id) }
 
-    /**
-     * Get the highest permission achievable to this user.
-     */
-    public suspend fun getPermission(guild: Guild?, user: User): Permission? =
-        hierarchy.lastOrNull { it.hasPermission(guild, user) }
+    private fun Permission?.toLevel() = hierarchy.indexOf(this)
 
-    /**
-     * Get the highest permission achievable to this user.
-     */
-    public suspend fun getPermission(guild: Guild?, role: Role): Permission? =
-        hierarchy.lastOrNull { it.hasPermission(guild, role) }
-
-    public suspend fun getPermissionLevel(guild: Guild?, user: User): Int =
-        getPermission(guild, user)?.let { hierarchy.indexOf(it) } ?: -1
-
-    public suspend fun getPermissionLevel(guild: Guild?, role: Role): Int =
-        getPermission(guild, role)?.let { hierarchy.indexOf(it) } ?: -1
-
-    public suspend fun hasPermission(permission: Permission, member: Member): Boolean {
-        val guild = member.getGuild()
-        val roleLevels = member.roles.toList().map { getPermissionLevel(guild, it) } + getPermissionLevel(guild, member.asUser())
-        return (roleLevels.maxOrNull() ?: -1) >= hierarchy.indexOf(permission)
+    public suspend fun getPermissionLevel(member: Member): Int {
+        val allLevels = member.roles.toList().map { getPermissionLevel(it) } + getPermissionLevel(member.asUser(), member.getGuild())
+        return allLevels.maxOrNull() ?: -1
     }
+
+    public suspend fun getPermissionLevel(user: User, guild: Guild?): Int = hierarchy.lastOrNull { it.hasPermission(guild, user) }.toLevel()
+
+    public suspend fun getPermissionLevel(role: Role): Int = hierarchy.lastOrNull { it.hasPermission(role.guild.asGuild(), role) }.toLevel()
+
+    public suspend fun hasPermission(permission: Permission, member: Member): Boolean = getPermissionLevel(member) >= hierarchy.indexOf(permission)
 
     public suspend fun hasPermission(permission: Permission, user: User, guild: Guild?): Boolean {
         return if (guild != null)
             hasPermission(permission, user.asMember(guild.id))
         else
-            getPermissionLevel(guild, user) >= hierarchy.indexOf(permission)
+            getPermissionLevel(user, null) >= hierarchy.indexOf(permission)
     }
+
+    public suspend fun isHigherLevel(member1: Member, member2: Member): Boolean = getPermissionLevel(member1) > getPermissionLevel(member2)
+
+    public suspend fun isLowerLevel(member1: Member, member2: Member): Boolean = getPermissionLevel(member1) < getPermissionLevel(member2)
+
+    public suspend fun isSameLevel(member1: Member, member2: Member): Boolean = getPermissionLevel(member1) == getPermissionLevel(member2)
 }
