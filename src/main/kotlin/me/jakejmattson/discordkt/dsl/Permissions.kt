@@ -32,7 +32,7 @@ public data class PermissionBuilder(val discord: Discord, val guild: Guild?) {
     }
 }
 
-public data class Permission(private val action: PermissionBuilder.() -> Unit) {
+public data class Permission(val name: String, private val action: PermissionBuilder.() -> Unit) {
     internal val users = mutableMapOf<Guild?, MutableList<Snowflake>>()
     internal val roles = mutableMapOf<Guild?, MutableList<Snowflake>>()
 
@@ -49,7 +49,7 @@ public data class Permission(private val action: PermissionBuilder.() -> Unit) {
 }
 
 @BuilderDSL
-public fun permission(builder: PermissionBuilder.() -> Unit): Permission = Permission(builder)
+public fun permission(name: String, builder: PermissionBuilder.() -> Unit): Permission = Permission(name, builder)
 
 /**
  * Permission values and helper functions.
@@ -62,10 +62,10 @@ public interface PermissionSet {
     public val commandDefault: Permission
 
     public val GUILD_OWNER: Permission
-        get() = permission { users(guild!!.ownerId) }
+        get() = permission("Guild Owner") { users(guild!!.ownerId) }
 
     public val EVERYONE: Permission
-        get() = permission { roles(guild!!.everyoneRole.id) }
+        get() = permission("Everyone") { roles(guild!!.everyoneRole.id) }
 
     private fun Permission?.toLevel() = hierarchy.indexOf(this)
 

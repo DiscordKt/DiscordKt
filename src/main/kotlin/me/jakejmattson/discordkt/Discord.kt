@@ -93,6 +93,7 @@ public abstract class Discord {
             InternalLogger.log(commandSets.pluralize("CommandSet") + " -> " + commands.size.pluralize("Command"))
             InternalLogger.log(services.size.pluralize("Service"))
             InternalLogger.log(preconditions.size.pluralize("Precondition"))
+            InternalLogger.log("Permissions: [${ permissions.hierarchy.joinToString { it.name }}]")
             InternalLogger.log("-".repeat(header.length))
         }
 
