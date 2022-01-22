@@ -54,6 +54,7 @@ public data class BotConfiguration(
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway [Intents] to register manually.
+ * @property permissions The [PermissionSet] used to restrict command usage.
  * @property entitySupplyStrategy [EntitySupplyStrategy] for use in Kord cache.
  */
 public data class SimpleConfiguration(
