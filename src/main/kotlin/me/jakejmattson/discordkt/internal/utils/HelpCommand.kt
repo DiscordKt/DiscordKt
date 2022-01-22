@@ -9,6 +9,7 @@ import me.jakejmattson.discordkt.commands.*
 internal fun produceHelpCommand(category: String) = commands(category) {
     globalCommand(discord.locale.helpName) {
         description = discord.locale.helpDescription
+        requiredPermission = discord.permissions.commandDefault
         execute(AnyArg("Command").optional("")) {
             val input = args.first
             val theme = discord.configuration.theme
