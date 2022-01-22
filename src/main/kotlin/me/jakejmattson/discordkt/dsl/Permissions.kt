@@ -36,7 +36,7 @@ public data class Permission(val name: String, private val action: PermissionBui
     internal val users = mutableMapOf<Guild?, MutableList<Snowflake>>()
     internal val roles = mutableMapOf<Guild?, MutableList<Snowflake>>()
 
-    var level: Int = 0
+    var level: Int = -1
         internal set
 
     internal fun calculate(discord: Discord, guild: Guild?) {
@@ -50,7 +50,7 @@ public data class Permission(val name: String, private val action: PermissionBui
 
     public fun hasPermission(guild: Guild?, role: Role): Boolean = role.id in roles.getOrDefault(guild, emptyList())
 
-    public operator fun compareTo(permission: Permission): Int = this.compareTo(permission)
+    public operator fun compareTo(permission: Permission): Int = this.level.compareTo(permission.level)
 }
 
 @BuilderDSL
@@ -65,12 +65,6 @@ public fun permission(name: String, builder: PermissionBuilder.() -> Unit): Perm
 public interface PermissionSet {
     public val hierarchy: List<Permission>
     public val commandDefault: Permission
-
-    public val GUILD_OWNER: Permission
-        get() = permission("Guild Owner") { users(guild!!.ownerId) }
-
-    public val EVERYONE: Permission
-        get() = permission("Everyone") { roles(guild!!.everyoneRole.id) }
 
     private fun Permission?.toLevel() = this?.level ?: -1
 

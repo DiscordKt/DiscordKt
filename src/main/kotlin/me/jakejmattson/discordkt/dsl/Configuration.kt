@@ -70,6 +70,7 @@ public data class SimpleConfiguration(
 )
 
 private object DefaultPermissions : PermissionSet {
+    val EVERYONE = permission("Everyone") { roles(guild!!.everyoneRole.id) }
     override val hierarchy: List<Permission> = listOf(EVERYONE)
     override val commandDefault: Permission = EVERYONE
 }

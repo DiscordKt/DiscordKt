@@ -93,18 +93,19 @@ public abstract class Discord {
             InternalLogger.log(commandSets.pluralize("CommandSet") + " -> " + commands.size.pluralize("Command"))
             InternalLogger.log(services.size.pluralize("Service"))
             InternalLogger.log(preconditions.size.pluralize("Precondition"))
-            InternalLogger.log("Permissions: [${ permissions.hierarchy.joinToString { it.name }}]")
+            InternalLogger.log("Permissions: [${permissions.hierarchy.joinToString { it.name }}]")
             InternalLogger.log("-".repeat(header.length))
         }
 
         validate()
-        registerSlashCommands()
 
         kord.guilds.toList().forEach { guild ->
             permissions.hierarchy.forEach {
                 it.calculate(this, guild)
             }
         }
+
+        registerSlashCommands(permissions.hierarchy)
 
         commands[locale.helpName] ?: produceHelpCommand(locale.helpCategory).register(this)
 
@@ -121,7 +122,7 @@ public abstract class Discord {
     }
 
     @KordPreview
-    private suspend fun registerSlashCommands() {
+    private suspend fun registerSlashCommands(permissions: List<Permission>) {
         fun ChatInputCreateBuilder.mapArgs(command: SlashCommand) {
             command.execution.arguments.forEach {
                 val (arg, isRequired) = if (it is OptionalArg<*>) it.type to false else it to true
@@ -185,12 +186,18 @@ public abstract class Discord {
                             ?: return@forEach
 
                         command(slashCommand.id) {
-                            dktCommand.requiredPermission.users[guild]?.forEach {
-                                user(it, allow = true)
+                            val validPermissions = permissions.filter { it >= dktCommand.requiredPermission }
+
+                            validPermissions.forEach { permission ->
+                                permission.users[guild]?.forEach {
+                                    user(it, allow = true)
+                                }
                             }
 
-                            dktCommand.requiredPermission.roles[guild]?.forEach {
-                                role(it, allow = true)
+                            validPermissions.forEach { permission ->
+                                permission.roles[guild]?.forEach {
+                                    role(it, allow = true)
+                                }
                             }
                         }
                     }
