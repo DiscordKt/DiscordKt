@@ -15,7 +15,7 @@ plugins {
     id("io.codearte.nexus-staging") version "0.30.0"
 
     //Misc
-    id("com.github.ben-manes.versions") version "0.40.0"
+    id("com.github.ben-manes.versions") version "0.42.0"
 }
 
 repositories {
@@ -25,7 +25,7 @@ repositories {
 dependencies {
     api("dev.kord:kord-core:${Constants.kord}")
     api("dev.kord.x:emoji:0.5.0")
-    api("org.slf4j:slf4j-simple:2.0.0-alpha5")
+    api("org.slf4j:slf4j-simple:2.0.0-alpha6")
 
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
