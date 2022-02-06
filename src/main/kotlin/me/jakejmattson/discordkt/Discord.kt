@@ -136,6 +136,13 @@ public abstract class Discord {
                     is UserArg, MemberArg -> user(name, description) { required = isRequired }
                     is RoleArg -> role(name, description) { required = isRequired }
                     is ChannelArg<*> -> channel(name, description) { required = isRequired }
+                    is ChoiceArg<*> -> string(name, description) {
+                        required = isRequired
+
+                        arg.options.forEach {
+                            choice(it.toString(), it.toString())
+                        }
+                    }
                     else -> string(name, description) { required = isRequired }
                 }
             }
