@@ -31,6 +31,9 @@ import kotlin.reflect.KClass
  */
 @Serializable
 public data class Versions(val library: String, val kotlin: String, val kord: String) {
+    /**
+     * Print the version as a string in the form "$library - $kord - $kotlin"
+     */
     override fun toString(): String = "$library - $kord - $kotlin"
 }
 
@@ -139,7 +142,7 @@ public abstract class Discord {
                     is ChoiceArg<*> -> string(name, description) {
                         required = isRequired
 
-                        arg.options.forEach {
+                        arg.choices.forEach {
                             choice(it.toString(), it.toString())
                         }
                     }

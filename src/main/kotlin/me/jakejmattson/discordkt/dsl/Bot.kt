@@ -150,7 +150,7 @@ public class Bot(private val token: String, private val packageName: String) {
     /**
      * Modify simple configuration options.
      *
-     * @sample SimpleConfiguration
+     * @sample me.jakejmattson.discordkt.dsl.SimpleConfiguration
      */
     @ConfigurationDSL
     public fun configure(config: suspend SimpleConfiguration.() -> Unit) {

@@ -29,7 +29,7 @@ public class Conversation(public var exitString: String? = null, public var prom
      * @param user The user to start a conversation with.
      *
      * @return The result of the conversation indicated by an enum.
-     * @sample ConversationResult
+     * @sample me.jakejmattson.discordkt.conversations.ConversationResult
      */
     public suspend inline fun startPrivately(discord: Discord, user: User): ConversationResult {
         if (user.isBot)
@@ -52,7 +52,7 @@ public class Conversation(public var exitString: String? = null, public var prom
      * @param channel The guild channel to start the conversation in.
      *
      * @return The result of the conversation indicated by an enum.
-     * @sample ConversationResult
+     * @sample me.jakejmattson.discordkt.conversations.ConversationResult
      */
     public suspend inline fun startPublicly(discord: Discord, user: User, channel: MessageChannel): ConversationResult {
         if (user.isBot)

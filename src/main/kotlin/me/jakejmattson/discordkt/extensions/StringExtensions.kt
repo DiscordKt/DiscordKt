@@ -19,13 +19,13 @@ private val everyoneRegex = "@+everyone".toRegex()
 
 /**
  * Whether this string matches a URL regex.
- * @sample urlRegexes
+ * @sample me.jakejmattson.discordkt.extensions.urlRegexes
  */
 public fun String.containsURl(): Boolean = urlRegexes.any { replace("\n", "").contains(it) }
 
 /**
  * Whether this string matches the invite regex.
- * @sample inviteRegex
+ * @sample me.jakejmattson.discordkt.extensions.inviteRegex
  */
 public fun String.containsInvite(): Boolean = inviteRegex.matches(this)
 

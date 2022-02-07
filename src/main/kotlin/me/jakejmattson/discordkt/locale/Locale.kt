@@ -12,7 +12,7 @@ internal annotation class RequiresFill(val requirements: Array<String>)
 public enum class Language(public val locale: Locale) {
     /**
      * English
-     * @sample LocaleEN
+     * @sample me.jakejmattson.discordkt.locale.LocaleEN
      */
     EN(LocaleEN());
 }

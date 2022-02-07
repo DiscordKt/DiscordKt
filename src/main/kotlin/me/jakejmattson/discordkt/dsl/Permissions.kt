@@ -71,8 +71,14 @@ public data class Permission(val name: String, private val action: PermissionBui
         this.roles.getOrPut(guild?.id) { mutableListOf() }.addAll(builder.roles)
     }
 
+    /**
+     * Check to see if a user in a specific guild has this permission.
+     */
     public fun hasPermission(guild: Guild?, user: User): Boolean = user.id in users.getOrDefault(guild?.id, emptyList())
 
+    /**
+     * Check to see if a role in a specific guild has this permission.
+     */
     public fun hasPermission(guild: Guild?, role: Role): Boolean = role.id in roles.getOrDefault(guild?.id, emptyList())
 
     internal fun allowsEveryone(guild: Guild?): Boolean = roles[guild?.id]?.contains(guild?.everyoneRole?.id) == true

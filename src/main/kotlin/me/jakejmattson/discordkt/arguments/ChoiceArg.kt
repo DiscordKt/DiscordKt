@@ -13,10 +13,14 @@ public open class ChoiceArg<T>(override val name: String,
                                override val description: String = internalLocale.choiceArgDescription,
                                vararg choices: T) : Argument<T> {
     private val enumerations = choices.associateBy { it.toString().lowercase() }
-    public val options: List<T> = choices.toList()
+
+    /**
+     * The available choices. Can be any type, but associated by toString value.
+     */
+    public val choices: List<T> = choices.toList()
 
     init {
-        if (options.size != options.distinct().size)
+        if (choices.size != choices.distinct().size)
             InternalLogger.error("ChoiceArg elements must be unique.")
     }
 
@@ -27,5 +31,5 @@ public open class ChoiceArg<T>(override val name: String,
         return Success(selection)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = options.map { it.toString() }
+    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = choices.map { it.toString() }
 }
