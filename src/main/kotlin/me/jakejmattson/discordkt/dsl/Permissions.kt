@@ -58,8 +58,8 @@ public data class PermissionBuilder(val discord: Discord, val guild: Guild?) {
  * @property level The numeric value of this permission, assigned from the hierarchy.
  */
 public data class Permission(val name: String, private val action: PermissionBuilder.() -> Unit) {
-    internal val users = mutableMapOf<Guild?, MutableList<Snowflake>>()
-    internal val roles = mutableMapOf<Guild?, MutableList<Snowflake>>()
+    internal val users = mutableMapOf<Snowflake?, MutableList<Snowflake>>()
+    internal val roles = mutableMapOf<Snowflake?, MutableList<Snowflake>>()
 
     var level: Int = -1
         internal set
@@ -67,13 +67,15 @@ public data class Permission(val name: String, private val action: PermissionBui
     internal fun calculate(discord: Discord, guild: Guild?) {
         val builder = PermissionBuilder(discord, guild)
         action.invoke(builder)
-        this.users.getOrPut(guild) { mutableListOf() }.addAll(builder.users)
-        this.roles.getOrPut(guild) { mutableListOf() }.addAll(builder.roles)
+        this.users.getOrPut(guild?.id) { mutableListOf() }.addAll(builder.users)
+        this.roles.getOrPut(guild?.id) { mutableListOf() }.addAll(builder.roles)
     }
 
-    public fun hasPermission(guild: Guild?, user: User): Boolean = user.id in users.getOrDefault(guild, emptyList())
+    public fun hasPermission(guild: Guild?, user: User): Boolean = user.id in users.getOrDefault(guild?.id, emptyList())
 
-    public fun hasPermission(guild: Guild?, role: Role): Boolean = role.id in roles.getOrDefault(guild, emptyList())
+    public fun hasPermission(guild: Guild?, role: Role): Boolean = role.id in roles.getOrDefault(guild?.id, emptyList())
+
+    internal fun allowsEveryone(guild: Guild?): Boolean = roles[guild?.id]?.contains(guild?.everyoneRole?.id) == true
 
     /**
      * Compare two permission by their numeric level.
@@ -102,27 +104,39 @@ public interface PermissionSet {
     private fun Permission?.toLevel() = this?.level ?: -1
 
     /**
+     * Pre-built permission tier for all users.
+     */
+    @BuilderDSL
+    public fun everyone(): Permission = permission("Everyone") { roles(guild!!.everyoneRole.id) }
+
+    /**
+     * Pre-built permission tier for guild owners.
+     */
+    @BuilderDSL
+    public fun guildOwner(): Permission = permission("Guild Owner") { users(guild!!.ownerId) }
+
+    /**
      * Get the highest available [Permission] by checking user id and roles.
      */
-    public suspend fun getPermission(member: Member): Int {
+    public suspend fun getPermission(member: Member): Permission? {
         val allLevels = member.roles.toList().map { getPermission(it) } + getPermission(member.asUser(), member.getGuild())
-        return allLevels.maxOfOrNull { it.toLevel() } ?: -1
+        return allLevels.maxByOrNull { it.toLevel() }
     }
 
     /**
      * Get the highest available [Permission] of this user id. This does not check against roles.
      */
-    public suspend fun getPermission(user: User, guild: Guild?): Permission? = hierarchy.lastOrNull { it.hasPermission(guild, user) }
+    public suspend fun getPermission(user: User, guild: Guild?): Permission? = hierarchy.lastOrNull { it.allowsEveryone(guild) || it.hasPermission(guild, user) }
 
     /**
      * Get the highest available [Permission] of this role id. This does not check against users.
      */
-    public suspend fun getPermission(role: Role): Permission? = hierarchy.lastOrNull { it.hasPermission(role.guild.asGuild(), role) }
+    public suspend fun getPermission(role: Role): Permission? = hierarchy.lastOrNull { it.allowsEveryone(role.guild.asGuild()) || it.hasPermission(role.guild.asGuild(), role) }
 
     /**
      * Check if a [Member] has the provided [Permission].
      */
-    public suspend fun hasPermission(permission: Permission, member: Member): Boolean = getPermission(member) >= hierarchy.indexOf(permission)
+    public suspend fun hasPermission(permission: Permission, member: Member): Boolean = getPermission(member).toLevel() >= hierarchy.indexOf(permission)
 
     /**
      * Check if a [User] has the provided [Permission].

@@ -196,13 +196,13 @@ public abstract class Discord {
                             val validPermissions = permissions.filter { it >= dktCommand.requiredPermission }
 
                             validPermissions.forEach { permission ->
-                                permission.users[guild]?.forEach {
+                                permission.users[guild.id]?.forEach {
                                     user(it, allow = true)
                                 }
                             }
 
                             validPermissions.forEach { permission ->
-                                permission.roles[guild]?.forEach {
+                                permission.roles[guild.id]?.forEach {
                                     role(it, allow = true)
                                 }
                             }
