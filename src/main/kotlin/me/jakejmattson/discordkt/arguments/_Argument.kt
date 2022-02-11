@@ -31,7 +31,7 @@ public interface Argument<T> : Cloneable {
      *
      * @param default A default value matching the expected type.
      */
-    public fun optional(default: suspend (CommandEvent<*>) -> T): OptionalArg<T> = OptionalArg(name, this, default)
+    public fun optional(default: suspend (OptionalData) -> T): OptionalArg<T> = OptionalArg(name, this, default)
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails.
@@ -45,7 +45,7 @@ public interface Argument<T> : Cloneable {
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    public fun optionalNullable(default: suspend (CommandEvent<*>) -> T?): OptionalArg<T?> = OptionalArg(name, this, default)
+    public fun optionalNullable(default: suspend (OptionalData) -> T?): OptionalArg<T?> = OptionalArg(name, this, default)
 
     /**
      * Consumes an argument or multiple arguments and converts them into some desired type.

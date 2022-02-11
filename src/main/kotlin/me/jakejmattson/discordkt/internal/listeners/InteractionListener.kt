@@ -7,9 +7,11 @@ import dev.kord.core.entity.Message
 import dev.kord.core.entity.interaction.*
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.on
+import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.arguments.*
+import me.jakejmattson.discordkt.bundleToContainer
 import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.conversations.Conversations
 import me.jakejmattson.discordkt.dsl.Menu
@@ -33,53 +35,64 @@ internal suspend fun registerInteractionListener(discord: Discord) = discord.kor
 
 private suspend fun handleUserContext(interaction: UserCommandInteraction, discord: Discord) {
     handleApplicationCommand(interaction, discord) {
-        interaction.users.values.first().id.toString()
+        listOf(interaction.users.values.first())
     }
 }
 
 private suspend fun handleMessageContext(interaction: MessageCommandInteraction, discord: Discord) {
     handleApplicationCommand(interaction, discord) {
-        interaction.messages.values.first().id.toString()
+        listOf(interaction.messages.values.first())
     }
 }
 
 private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction, discord: Discord) {
-    handleApplicationCommand(interaction as ApplicationCommandInteraction, discord) {
-        simplifySlashArgs(execution.arguments.map { it to interaction.command.options[it.name.lowercase()]!! })
+    handleApplicationCommand(interaction as ApplicationCommandInteraction, discord) { optionalData ->
+        simplifySlashArgs(execution.arguments.map { it to interaction.command.options[it.name.lowercase()] }, optionalData)
     }
 }
 
-private suspend fun handleApplicationCommand(interaction: ApplicationCommandInteraction, discord: Discord, args: suspend SlashCommand.() -> String) {
+private suspend fun handleApplicationCommand(interaction: ApplicationCommandInteraction, discord: Discord, input: suspend SlashCommand.(OptionalData) -> List<Any?>) {
     val dktCommand = discord.commands.filterIsInstance<GuildSlashCommand>().firstOrNull { it.appName == interaction.name || it.name.equals(interaction.name, true) }
         ?: discord.commands.filterIsInstance<GlobalSlashCommand>().firstOrNull { it.appName == interaction.name || it.name.equals(interaction.name, true) }
         ?: return
 
-    val rawInputs = RawInputs("/${dktCommand.name} ${args.invoke(dktCommand)}", dktCommand.name, prefixCount = 1)
     val author = interaction.user.asUser()
     val guild = (interaction as? GuildInteractionBehavior)?.getGuild()
     val channel = interaction.getChannel()
+    val message = interaction.data.message.value?.let { Message(it, discord.kord) }
+
+    val optionalData = OptionalData(discord, message, author, channel, guild)
+    val data = input.invoke(dktCommand, optionalData)
+
+    val rawInputs = RawInputs("/${dktCommand.name} ${data.map { it.toString() }}", dktCommand.name, prefixCount = 1)
+
     val event =
         if (dktCommand is GuildSlashCommand)
-            GuildSlashCommandEvent(rawInputs, discord, interaction.data.message.value?.let { Message(it, discord.kord) }, author, channel, guild!!, interaction)
+            GuildSlashCommandEvent(rawInputs, discord, message, author, channel, guild!!, interaction)
         else
-            SlashCommandEvent<TypeContainer>(rawInputs, discord, interaction.data.message.value?.let { Message(it, discord.kord) }, author, channel, guild, interaction)
+            SlashCommandEvent<TypeContainer>(rawInputs, discord, message, author, channel, guild, interaction)
 
     if (!arePreconditionsPassing(event)) return
 
-    dktCommand.invoke(event, rawInputs.commandArgs)
+    event.args = bundleToContainer(data)
+
+    (dktCommand.execution as Execution<CommandEvent<*>>).execute(event)
 }
 
 @OptIn(KordPreview::class)
-private fun simplifySlashArgs(complexArgs: List<Pair<Argument<*>, OptionValue<*>>>) =
-    complexArgs.joinToString(" ") { (arg, optionalValue) ->
-        when (if (arg is OptionalArg) arg.type else arg) {
-            is IntegerArg -> optionalValue.int().toString()
-            is DoubleArg -> optionalValue.number().toString()
-            is BooleanArg -> optionalValue.boolean().toString()
-            is UserArg -> optionalValue.user().id.toString()
-            is MemberArg -> optionalValue.member().id.toString()
-            is RoleArg -> optionalValue.role().id.toString()
-            is ChannelArg<*> -> optionalValue.channel().id.toString()
-            else -> optionalValue.string()
-        }
+private fun simplifySlashArgs(complexArgs: List<Pair<Argument<*>, OptionValue<*>?>>, optionalData: OptionalData) =
+    complexArgs.map { (arg, optionalValue) ->
+        if (optionalValue == null) {
+            runBlocking { (arg as OptionalArg<*>).default.invoke(optionalData) }
+        } else
+            when (if (arg is OptionalArg) arg.type else arg) {
+                is IntegerArg -> optionalValue.int()
+                is DoubleArg -> optionalValue.number()
+                is BooleanArg -> optionalValue.boolean()
+                is UserArg -> optionalValue.user()
+                is MemberArg -> optionalValue.member()
+                is RoleArg -> optionalValue.role()
+                is ChannelArg<*> -> optionalValue.channel()
+                else -> optionalValue.string()
+            }
     }
