@@ -81,18 +81,14 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
 
 @OptIn(KordPreview::class)
 private fun simplifySlashArgs(complexArgs: List<Pair<Argument<*>, OptionValue<*>?>>, optionalData: OptionalData) =
-    complexArgs.map { (arg, optionalValue) ->
-        if (optionalValue == null) {
-            runBlocking { (arg as OptionalArg<*>).default.invoke(optionalData) }
+    complexArgs.map { (arg, value) ->
+        if (value == null) {
+            require(arg is OptionalArg<*>) { "${arg.name} could not be mapped by name." }
+            runBlocking { arg.default.invoke(optionalData) }
         } else
             when (if (arg is OptionalArg) arg.type else arg) {
-                is IntegerArg -> optionalValue.int()
-                is DoubleArg -> optionalValue.number()
-                is BooleanArg -> optionalValue.boolean()
-                is UserArg -> optionalValue.user()
-                is MemberArg -> optionalValue.member()
-                is RoleArg -> optionalValue.role()
-                is ChannelArg<*> -> optionalValue.channel()
-                else -> optionalValue.string()
+                is MultipleArg<*> -> listOf(value.value)
+                is ChannelArg<*> -> value.channel()
+                else -> value.value
             }
     }
