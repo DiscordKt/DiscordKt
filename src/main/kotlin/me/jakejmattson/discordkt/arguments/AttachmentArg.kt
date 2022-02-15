@@ -5,24 +5,24 @@ import me.jakejmattson.discordkt.commands.CommandEvent
 import me.jakejmattson.discordkt.dsl.internalLocale
 
 /**
- * Accepts a file as a message attachment.
+ * Accepts all message attachments.
  */
-public open class AttachmentArg(override val name: String = "Attachment",
-                                override val description: String = internalLocale.attachmentArgDescription) : Argument<Attachment> {
+public open class AttachmentArg(override val name: String = "Attachments",
+                                override val description: String = internalLocale.attachmentArgDescription) : Argument<Set<Attachment>> {
     /**
-     * Accepts a file as a message attachment.
+     * Accepts all message attachments.
      */
     public companion object : AttachmentArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Attachment> {
+    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Set<Attachment>> {
         val attachments = event.message!!.attachments
 
         if (attachments.isEmpty())
             return Error("No attachments")
 
-        return Success(attachments.first(), 0)
+        return Success(attachments, 0)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf("File")
-    override fun formatData(data: Attachment): String = data.filename
+    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf("Attachments")
+    public override fun formatData(data: Set<Attachment>): String = data.toString()
 }
