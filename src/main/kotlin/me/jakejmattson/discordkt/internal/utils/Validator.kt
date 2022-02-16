@@ -2,8 +2,8 @@ package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.arguments.Argument
-import me.jakejmattson.discordkt.commands.MessageCommand
 import me.jakejmattson.discordkt.commands.SlashCommand
+import me.jakejmattson.discordkt.commands.TextCommand
 
 private val slashRegex = "^[\\w-]{1,32}$".toRegex()
 
@@ -58,10 +58,10 @@ internal fun Discord.validate() {
                         .map { this to it }
                     )
                 }
-                is MessageCommand -> {
-                    errors.spaceMsgCmd.addAll(names.filter { it.contains(" ") })
+                is TextCommand -> {
+                    errors.spaceTxtCmd.addAll(names.filter { it.contains(" ") })
 
-                    errors.spaceMsgArg.addAll(executions.flatMap { execution ->
+                    errors.spaceTxtArg.addAll(executions.flatMap { execution ->
                         execution.arguments.filter { " " in it.name }.map { this to it }
                     })
                 }
@@ -80,8 +80,8 @@ private data class Errors(
 
     //Naming
     val blankCmdName: MutableSet<String> = mutableSetOf(),
-    val spaceMsgCmd: MutableList<String> = mutableListOf(),
-    val spaceMsgArg: MutableList<Pair<MessageCommand, Argument<*>>> = mutableListOf(),
+    val spaceTxtCmd: MutableList<String> = mutableListOf(),
+    val spaceTxtArg: MutableList<Pair<TextCommand, Argument<*>>> = mutableListOf(),
     val badRegexSlashCmd: MutableList<SlashCommand> = mutableListOf(),
     val badRegexSlashArg: MutableList<Pair<SlashCommand, Argument<*>>> = mutableListOf()
 ) {
@@ -99,7 +99,7 @@ private data class Errors(
             appendError(noExecution, "Commands must have at least one execute block")
             appendError(slashMultiExec, "Slash commands cannot have multiple execute blocks")
             appendError(blankCmdName.toList(), "Command names cannot be blank")
-            appendError(spaceMsgCmd, "Command names cannot have spaces")
+            appendError(spaceTxtCmd, "Command names cannot have spaces")
 
             if (badRegexSlashCmd.isNotEmpty()) {
                 appendLine("Slash command names must follow regex ${slashRegex.pattern}")
@@ -118,9 +118,9 @@ private data class Errors(
             }
         }
 
-        if (spaceMsgArg.isNotEmpty())
+        if (spaceTxtArg.isNotEmpty())
             InternalLogger.error("Arguments with spaces are not recommended:\n" +
-                spaceMsgArg.joinToString("\n") { (cmd, arg) ->
+                spaceTxtArg.joinToString("\n") { (cmd, arg) ->
                     "$indent${cmd.category}-${cmd.name}-${arg::class.simplerName}(\"${arg.name}\")"
                 } + "\n"
             )

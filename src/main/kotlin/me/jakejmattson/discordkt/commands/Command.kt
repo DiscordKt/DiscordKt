@@ -134,7 +134,7 @@ public sealed interface Command {
 /**
  * Abstract message command representation.
  */
-public sealed interface MessageCommand : Command
+public sealed interface TextCommand : Command
 
 /**
  * Abstract slash command representation.
@@ -156,7 +156,7 @@ public class GlobalCommand(override val names: List<String>,
                            override var description: String = "",
                            override var category: String = "",
                            override val executions: MutableList<Execution<*>> = mutableListOf(),
-                           override var requiredPermission: Permission) : MessageCommand {
+                           override var requiredPermission: Permission) : TextCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -189,7 +189,7 @@ public class GuildCommand(override val names: List<String>,
                           override var description: String = "",
                           override var category: String = "",
                           override val executions: MutableList<Execution<*>> = mutableListOf(),
-                          override var requiredPermission: Permission) : MessageCommand {
+                          override var requiredPermission: Permission) : TextCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -222,7 +222,7 @@ public class DmCommand(override val names: List<String>,
                        override var description: String = "",
                        override var category: String = "",
                        override val executions: MutableList<Execution<*>> = mutableListOf(),
-                       override var requiredPermission: Permission) : MessageCommand {
+                       override var requiredPermission: Permission) : TextCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend DmCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
