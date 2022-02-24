@@ -12,6 +12,11 @@ import kotlinx.coroutines.flow.count
 public fun Message.containsInvite(): Boolean = content.containsInvite()
 
 /**
+ * Find all invites in this message.
+ */
+public fun Message.getInvites(): List<String> = content.getInvites()
+
+/**
  * Checks if this message contains a URL.
  */
 public fun Message.containsURL(): Boolean = content.containsURl()
