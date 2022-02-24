@@ -29,7 +29,12 @@ public fun String.containsURl(): Boolean = urlRegexes.any { replace("\n", "").co
  * Whether this string matches the invite regex.
  * @sample me.jakejmattson.discordkt.extensions.inviteRegex
  */
-public fun String.containsInvite(): Boolean = inviteRegex.matches(this)
+public fun String.containsInvite(): Boolean = inviteRegex.containsMatchIn(this)
+
+/**
+ * Find all invites in this string.
+ */
+public fun String.getInvites(): List<String> = inviteRegex.findAll(this).map { it.value }.toList()
 
 /**
  * Whether this string is a valid boolean value (true/false/t/f).
