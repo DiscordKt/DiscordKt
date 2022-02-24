@@ -17,6 +17,8 @@ private val userRegex = "<@!?(\\d+)>".toRegex()
 private val hereRegex = "@+here".toRegex()
 private val everyoneRegex = "@+everyone".toRegex()
 
+public fun MutableList<String>.consumeFirst(): String = if (this.isNotEmpty()) this.removeFirst() else ""
+
 /**
  * Whether this string matches a URL regex.
  * @sample me.jakejmattson.discordkt.extensions.urlRegexes

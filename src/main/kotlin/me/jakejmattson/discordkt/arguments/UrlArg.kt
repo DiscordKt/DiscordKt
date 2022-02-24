@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.arguments
 
-import me.jakejmattson.discordkt.commands.CommandEvent
+import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.extensions.containsURl
 
@@ -8,18 +8,18 @@ import me.jakejmattson.discordkt.extensions.containsURl
  * Accepts a string that matches the URL regex.
  */
 public open class UrlArg(override val name: String = "URL",
-                         override val description: String = internalLocale.urlArgDescription) : Argument<String> {
+                         override val description: String = internalLocale.urlArgDescription) : StringArgument<String> {
     /**
      * Accepts a string that matches the URL regex.
      */
     public companion object : UrlArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
-        return if (arg.containsURl())
-            Success(arg)
+    override suspend fun transform(input: String, context: DiscordContext): ArgumentResult<String> {
+        return if (input.containsURl())
+            Success(input)
         else
             Error(internalLocale.invalidFormat)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf("https://www.google.com")
+    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("https://www.google.com")
 }

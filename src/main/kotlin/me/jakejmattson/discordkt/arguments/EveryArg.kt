@@ -1,24 +1,25 @@
 package me.jakejmattson.discordkt.arguments
 
-import me.jakejmattson.discordkt.commands.CommandEvent
+import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 
 /**
  * Consumes all remaining arguments. Does not accept empty strings.
  */
 public open class EveryArg(override val name: String = "Text",
-                           override val description: String = internalLocale.everyArgDescription) : Argument<String> {
+                           override val description: String = internalLocale.everyArgDescription) : StringArgument<String> {
     /**
      * Consumes all remaining arguments. Does not accept empty strings.
      */
     public companion object : EveryArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
-        if (args.size in 0..1 && arg.isEmpty())
-            return Error("Cannot be empty")
+    override suspend fun parse(args: MutableList<String>, discord: Discord): String? {
+         if (args.size in 0..1 && args.first().isEmpty())
+            return null
 
-        return Success(args.joinToString(" "), args.size)
+        return args.joinToString(" ").also { args.clear() }
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf("This is a sample sentence.")
+    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("This is a sample sentence.")
 }

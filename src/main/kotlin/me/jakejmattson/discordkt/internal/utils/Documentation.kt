@@ -62,7 +62,7 @@ internal fun createDocumentation(commands: List<Command>) {
         if (argumentSet.any { it is OptionalArg })
             appendLine("| [Argument]  | Argument is not required.      |")
 
-        if (argumentSet.any { it is MultipleArg<*> })
+        if (argumentSet.any { it is MultipleArg<*, *> })
             appendLine("| Argument... | Accepts many of this argument. |")
     }
 

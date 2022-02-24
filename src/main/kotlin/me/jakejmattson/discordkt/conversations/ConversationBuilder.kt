@@ -14,11 +14,10 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.Discord
-import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.arguments.*
-import me.jakejmattson.discordkt.commands.CommandEvent
-import me.jakejmattson.discordkt.commands.RawInputs
+import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.Responder
+import me.jakejmattson.discordkt.dsl.internalLocale
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -77,7 +76,7 @@ public data class ConversationBuilder(val discord: Discord,
      * @param isValid A predicate to determine whether the input is accepted.
      */
     @Throws(DmException::class)
-    public suspend fun <T> promptUntil(argument: Argument<T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
+    public suspend fun <T> promptUntil(argument: Argument<*, T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
         var value: T = prompt(argument, prompt)
 
         while (!isValid.invoke(value)) {
@@ -96,8 +95,8 @@ public data class ConversationBuilder(val discord: Discord,
      * @param embed The embed sent as part of the prompt.
      */
     @Throws(DmException::class, TimeoutException::class)
-    public suspend fun <T> prompt(argument: Argument<T>, text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): T {
-        require(argument !is OptionalArg<*>) { "Conversation arguments cannot be optional" }
+    public suspend fun <I, O> prompt(argument: Argument<I, O>, text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): O {
+        require(argument !is OptionalArg<*, *>) { "Conversation arguments cannot be optional" }
 
         val message = channel.createMessage {
             content = text.takeIf { it.isNotBlank() }
@@ -159,11 +158,11 @@ public data class ConversationBuilder(val discord: Discord,
         return retrieveValidInteractionResponse(options.associateWith { it })
     }
 
-    private fun <T> retrieveValidTextResponse(argument: Argument<T>): T = runBlocking {
+    private fun <T> retrieveValidTextResponse(argument: Argument<*, T>): T = runBlocking {
         retrieveTextResponse(argument) ?: retrieveValidTextResponse(argument)
     }
 
-    private suspend fun <T> retrieveTextResponse(argument: Argument<T>) = select<T?> {
+    private suspend fun <T> retrieveTextResponse(argument: Argument<*, T>) = select<T?> {
         val timer = createTimer()
 
         exceptionBuffer.onReceive { timeoutException ->
@@ -210,11 +209,11 @@ public data class ConversationBuilder(val discord: Discord,
         }
 
         interactionBuffer.onReceive { interaction ->
-            if (interaction.message?.id != previousBotMessageId)
+            if (interaction.message.id != previousBotMessageId)
                 return@onReceive null
 
             timer?.cancel()
-            interaction.acknowledgeEphemeralDeferredMessageUpdate()
+            interaction.deferEphemeralMessageUpdate()
 
             if (interaction is SelectMenuInteraction)
                 interaction.values.first() as T
@@ -223,10 +222,14 @@ public data class ConversationBuilder(val discord: Discord,
         }
     }
 
-    private suspend fun <T> parseResponse(argument: Argument<T>, message: Message): ArgumentResult<T> {
-        val rawInputs = RawInputs(message.content, "", 0, message.content.split(" "))
-        val commandEvent = CommandEvent<TypeContainer>(rawInputs, discord, message, message.author!!, message.channel.asChannel(), message.getGuildOrNull())
-        return argument.convert(message.content, commandEvent.rawInputs.commandArgs, commandEvent)
+    private suspend fun <I, O> parseResponse(argument: Argument<I, O>, message: Message): ArgumentResult<O> {
+        val context = DiscordContext(discord, message, message.author!!, message.channel.asChannel(), message.getGuildOrNull())
+        val parseResult = argument.parse(message.content.split(" ").drop(1).toMutableList(), discord)
+
+        return if (parseResult != null)
+            argument.transform(parseResult, context)
+        else
+            Error(internalLocale.invalidFormat)
     }
 
     private fun createTimer() =

@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.arguments
 
-import me.jakejmattson.discordkt.commands.CommandEvent
+import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.locale.inject
 
@@ -9,37 +10,31 @@ import me.jakejmattson.discordkt.locale.inject
  *
  * @param base The [Argument] that you expect to be used to create the list.
  */
-public class MultipleArg<T>(public val base: Argument<T>, override val name: String = base.name, description: String = "") : Argument<List<T>> {
+public class MultipleArg<A, T>(public val base: Argument<A, T>, override val name: String = base.name, description: String = "") : SpecialArgument<List<A>, List<T>> {
     override val description: String = description.ifBlank { internalLocale.multipleArgDescription.inject(base.name) }
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<T>> {
-        val totalResult = mutableListOf<T>()
-        var totalConsumed = 0
+    override suspend fun parse(args: MutableList<String>, discord: Discord): List<A>? {
+        val totalResult = mutableListOf<A>()
         val remainingArgs = args.toMutableList()
 
         complete@ while (remainingArgs.isNotEmpty()) {
-            when (val conversion = base.convert(remainingArgs.first(), remainingArgs, event)) {
-                is Success -> {
-                    totalResult.add(conversion.result)
-                    val consumed = conversion.consumed
-                    totalConsumed += consumed
+            val conversion = base.parse(remainingArgs, discord)
 
-                    remainingArgs.subList(0, consumed).toList().forEach { remainingArgs.remove(it) }
-                }
-                is Error -> {
-                    if (totalResult.isEmpty())
-                        return Error(conversion.error)
+            if (conversion != null) {
+                totalResult.add(conversion)
+            } else {
+                if (totalResult.isEmpty())
+                    return null
 
-                    break@complete
-                }
+                break@complete
             }
         }
 
-        return Success(totalResult, totalConsumed)
+        return totalResult
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>): List<String> =
-        base.generateExamples(event).chunked(2).map { it.joinToString(" ") }
+    override suspend fun generateExamples(context: DiscordContext): List<String> =
+        base.generateExamples(context).chunked(2).map { it.joinToString(" ") }
 
     override fun formatData(data: List<T>): String = "[${data.joinToString { base.formatData(it) }}]"
 }

@@ -1,17 +1,23 @@
 package utilities
 
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
+import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.arguments.*
-import me.jakejmattson.discordkt.commands.CommandEvent
+import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.locale.LocaleEN
 import org.junit.jupiter.api.*
 
-private val commandEventMock = mockk<CommandEvent<*>> { }
+private val discordMockk = mockk<Discord>()
+
+private val contextMock = mockk<DiscordContext> {
+    every { discord } returns discordMockk
+}
 
 interface ArgumentTestFactory {
-    val argument: Argument<*>
+    val argument: Argument<*, *>
     val validArgs: List<Pair<String, *>>
     val invalidArgs: List<String>
 
@@ -56,13 +62,15 @@ interface ArgumentTestFactory {
     }
 }
 
-private fun Argument<*>.attemptConvert(input: String): ArgumentResult<*> {
-    val split = input.split(" ")
-    var result: ArgumentResult<*>
+private fun <A, B> Argument<A, B>.attemptConvert(input: String): ArgumentResult<*> {
+    val split = input.split(" ").toMutableList()
 
-    runBlocking {
-        result = convert(split.first(), split, commandEventMock)
+    return runBlocking {
+        val parseResult = parse(split, contextMock.discord)
+
+        if (parseResult != null)
+            transform(parseResult, contextMock)
+        else
+            Error(internalLocale.invalidFormat)
     }
-
-    return result
 }

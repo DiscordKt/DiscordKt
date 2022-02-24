@@ -1,9 +1,9 @@
 package me.jakejmattson.discordkt.arguments
 
 import dev.kord.core.entity.Member
-import me.jakejmattson.discordkt.commands.CommandEvent
+import dev.kord.core.entity.User
+import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
-import me.jakejmattson.discordkt.extensions.toSnowflakeOrNull
 
 /**
  * Accepts a Discord Member entity as an ID or mention.
@@ -12,17 +12,15 @@ import me.jakejmattson.discordkt.extensions.toSnowflakeOrNull
  */
 public open class MemberArg(override val name: String = "Member",
                             override val description: String = internalLocale.memberArgDescription,
-                            private val allowsBot: Boolean = false) : Argument<Member> {
+                            private val allowsBot: Boolean = false) : UserArgument<Member> {
     /**
      * Accepts a Discord Member entity as an ID or mention. Does not allow bots.
      */
     public companion object : MemberArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Member> {
-        val guild = event.guild ?: return Error("No guild found")
-
-        val member = arg.toSnowflakeOrNull()?.let { guild.getMemberOrNull(it) }
-            ?: return Error(internalLocale.notFound)
+    override suspend fun transform(input: User, context: DiscordContext): ArgumentResult<Member> {
+        val guild = context.guild ?: return Error("No guild found")
+        val member = input.asMemberOrNull(guild.id) ?: return Error(internalLocale.notFound)
 
         if (!allowsBot && member.isBot)
             return Error("Cannot be a bot")
@@ -30,6 +28,6 @@ public open class MemberArg(override val name: String = "Member",
         return Success(member)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf(event.author.mention)
+    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(context.author.mention)
     override fun formatData(data: Member): String = "@${data.tag}"
 }

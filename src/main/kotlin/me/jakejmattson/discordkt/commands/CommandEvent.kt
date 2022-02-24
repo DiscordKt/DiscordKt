@@ -1,9 +1,9 @@
 package me.jakejmattson.discordkt.commands
 
 import dev.kord.core.behavior.channel.MessageChannelBehavior
-import dev.kord.core.behavior.interaction.InteractionResponseBehavior
-import dev.kord.core.behavior.interaction.followUp
-import dev.kord.core.behavior.interaction.followUpEphemeral
+import dev.kord.core.behavior.interaction.response.InteractionResponseBehavior
+import dev.kord.core.behavior.interaction.response.followUp
+import dev.kord.core.behavior.interaction.response.followUpEphemeral
 import dev.kord.core.entity.*
 import dev.kord.core.entity.channel.DmChannel
 import dev.kord.core.entity.channel.GuildMessageChannel
@@ -43,10 +43,10 @@ public data class RawInputs(
  * @property prefix The prefix used to invoke this command.
  */
 public open class DiscordContext(public val discord: Discord,
-                                 public open val message: Message,
-                                 public open val guild: Guild?,
-                                 public val author: User = message.author!!,
-                                 override val channel: MessageChannelBehavior = message.channel) : Responder {
+                                 public open val message: Message?,
+                                 public val author: User,
+                                 override val channel: MessageChannelBehavior,
+                                 public open val guild: Guild?) : Responder {
     /**
      * Determine the relevant prefix from the configured prefix block.
      */
@@ -78,6 +78,9 @@ public open class CommandEvent<T : TypeContainer>(
     public val command: Command?
         get() = discord.commands[rawInputs.commandName]
 
+    public val context: DiscordContext
+        get() = DiscordContext(discord, message, author, channel, guild)
+
     /**
      * Try to resolve the member from the user/guild data.
      */
@@ -86,7 +89,7 @@ public open class CommandEvent<T : TypeContainer>(
     /**
      * Determine the relevant prefix in the current context.
      */
-    public suspend fun prefix(): String = message?.let { discord.configuration.prefix.invoke(DiscordContext(discord, it, guild, author, channel)) }
+    public suspend fun prefix(): String = message?.let { discord.configuration.prefix.invoke(DiscordContext(discord, it, author, channel, guild)) }
         ?: "/"
 
     /**
@@ -148,11 +151,11 @@ public open class SlashCommandEvent<T : TypeContainer>(
     public suspend fun respond(message: Any, ephemeral: Boolean = true): InteractionResponseBehavior? =
         if (interaction != null)
             if (ephemeral)
-                interaction!!.acknowledgeEphemeral().apply {
+                interaction!!.deferEphemeralMessage().apply {
                     followUpEphemeral { content = message.toString() }
                 }
             else
-                interaction!!.acknowledgePublic().apply {
+                interaction!!.deferPublicMessage().apply {
                     followUp { content = message.toString() }
                 }
         else {
@@ -169,11 +172,11 @@ public open class SlashCommandEvent<T : TypeContainer>(
     public suspend fun respond(ephemeral: Boolean = true, embedBuilder: suspend EmbedBuilder.() -> Unit): InteractionResponseBehavior? =
         if (interaction != null)
             if (ephemeral)
-                interaction!!.acknowledgeEphemeral().apply {
+                interaction!!.deferEphemeralMessage().apply {
                     followUpEphemeral { embed { embedBuilder.invoke(this) } }
                 }
             else
-                interaction!!.acknowledgePublic().apply {
+                interaction!!.deferPublicMessage().apply {
                     followUp { embed { embedBuilder.invoke(this) } }
                 }
         else {

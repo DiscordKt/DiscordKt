@@ -62,7 +62,7 @@ private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String,
             """$commandInvocation ${it.structure}
                 ${
                 it.arguments.joinToString("\n") { arg ->
-                    """- ${arg.name}: ${arg.description} (${arg.generateExample(event)})
+                    """- ${arg.name}: ${arg.description} (${arg.generateExample(event.context)})
                     """.trimMargin()
                 }
             }
@@ -74,8 +74,8 @@ private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String,
         }
     }
 
-private fun Argument<*>.generateExample(event: CommandEvent<*>) =
-    runBlocking { generateExamples(event) }
+private fun Argument<*, *>.generateExample(context: DiscordContext) =
+    runBlocking { generateExamples(context) }
         .takeIf { it.isNotEmpty() }
         ?.random()
         ?: "<Example>"

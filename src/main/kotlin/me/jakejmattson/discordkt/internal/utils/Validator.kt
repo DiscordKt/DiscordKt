@@ -81,9 +81,9 @@ private data class Errors(
     //Naming
     val blankCmdName: MutableSet<String> = mutableSetOf(),
     val spaceTxtCmd: MutableList<String> = mutableListOf(),
-    val spaceTxtArg: MutableList<Pair<TextCommand, Argument<*>>> = mutableListOf(),
+    val spaceTxtArg: MutableList<Pair<TextCommand, Argument<*, *>>> = mutableListOf(),
     val badRegexSlashCmd: MutableList<SlashCommand> = mutableListOf(),
-    val badRegexSlashArg: MutableList<Pair<SlashCommand, Argument<*>>> = mutableListOf()
+    val badRegexSlashArg: MutableList<Pair<SlashCommand, Argument<*, *>>> = mutableListOf()
 ) {
     private val indent = "  "
 

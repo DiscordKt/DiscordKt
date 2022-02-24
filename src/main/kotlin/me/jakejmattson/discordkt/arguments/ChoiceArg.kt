@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.arguments
 
-import me.jakejmattson.discordkt.commands.CommandEvent
+import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
 
@@ -11,7 +11,7 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
  */
 public open class ChoiceArg<T>(override val name: String,
                                override val description: String = internalLocale.choiceArgDescription,
-                               vararg choices: T) : Argument<T> {
+                               vararg choices: T) : StringArgument<T> {
     private val enumerations = choices.associateBy { it.toString().lowercase() }
 
     /**
@@ -24,12 +24,12 @@ public open class ChoiceArg<T>(override val name: String,
             InternalLogger.error("ChoiceArg elements must be unique.")
     }
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<T> {
-        val selection = enumerations[arg.lowercase()]
+    override suspend fun transform(input: String, context: DiscordContext): ArgumentResult<T> {
+        val selection = enumerations[input.lowercase()]
             ?: return Error("Invalid selection")
 
         return Success(selection)
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = choices.map { it.toString() }
+    override suspend fun generateExamples(context: DiscordContext): List<String> = choices.map { it.toString() }
 }

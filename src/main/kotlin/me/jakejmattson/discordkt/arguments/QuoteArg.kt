@@ -1,32 +1,35 @@
 package me.jakejmattson.discordkt.arguments
 
-import me.jakejmattson.discordkt.commands.CommandEvent
+import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 
 /**
  * Accepts a group of arguments surrounded by quotation marks.
  */
 public open class QuoteArg(override val name: String = "Quote",
-                           override val description: String = internalLocale.quoteArgDescription) : Argument<String> {
+                           override val description: String = internalLocale.quoteArgDescription) : StringArgument<String> {
     /**
      * Accepts a group of arguments surrounded by quotation marks.
      */
     public companion object : QuoteArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<String> {
-        //https://unicode-table.com/en/sets/quotation-marks/
-        val quotationMarks = listOf(
-            '"', //Double universal
-            '\u201C', //English double left
-            '\u201D', //English double right
-            '\u2018', //English single left
-            '\u2019', //English single right
-        )
+    //https://unicode-table.com/en/sets/quotation-marks/
+    private val quotationMarks = listOf(
+        '"', //Double universal
+        '\u201C', //English double left
+        '\u201D', //English double right
+        '\u2018', //English single left
+        '\u2019', //English single right
+    )
+
+    override suspend fun parse(args: MutableList<String>, discord: Discord): String? {
+        val arg = args.first()
         val first = arg.first()
         val last = arg.last()
 
         if (first !in quotationMarks)
-            return Error("No opening quotation mark")
+            return null
 
         val rawQuote = if (last !in quotationMarks)
             args.takeUntil { it.last() !in quotationMarks }.joinToString(" ")
@@ -34,15 +37,18 @@ public open class QuoteArg(override val name: String = "Quote",
             arg
 
         if (rawQuote.last() !in quotationMarks)
-            return Error("No closing quotation mark")
+            return null
 
         val quote = rawQuote.trim(*quotationMarks.toCharArray())
-        val consumedCount = quote.split(" ").size
 
-        return Success(quote, consumedCount)
+        args.removeAll(args.filterIndexed { index: Int, _: String ->
+            index < quote.split(" ").size
+        })
+
+        return quote
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf("\"A Quote\"")
+    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("\"A Quote\"")
     override fun formatData(data: String): String = "\"$data\""
 }
 

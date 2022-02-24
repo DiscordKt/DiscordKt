@@ -76,9 +76,6 @@ public interface Locale {
     @RequiresFill(["truth value", "false value"])
     public var booleanArgDescription: String
 
-    /** [CategoryArg][me.jakejmattson.discordkt.arguments.CategoryArg] description */
-    public var categoryArgDescription: String
-
     /** [ChannelArg][me.jakejmattson.discordkt.arguments.ChannelArg] description */
     public var channelArgDescription: String
 
@@ -122,9 +119,6 @@ public interface Locale {
      */
     @RequiresFill(["minimum value", "maximum value"])
     public var integerRangeArgDescription: String
-
-    /** [LongArg][me.jakejmattson.discordkt.arguments.LongArg] description */
-    public var longArgDescription: String
 
     /** [MemberArg][me.jakejmattson.discordkt.arguments.MemberArg] description */
     public var memberArgDescription: String

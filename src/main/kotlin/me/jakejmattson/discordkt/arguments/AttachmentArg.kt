@@ -1,28 +1,24 @@
 package me.jakejmattson.discordkt.arguments
 
 import dev.kord.core.entity.Attachment
-import me.jakejmattson.discordkt.commands.CommandEvent
+import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 
 /**
- * Accepts all message attachments.
+ * Accepts a message attachment.
  */
-public open class AttachmentArg(override val name: String = "Attachments",
-                                override val description: String = internalLocale.attachmentArgDescription) : Argument<Set<Attachment>> {
+public open class AttachmentArg(override val name: String = "Attachment",
+                                override val description: String = internalLocale.attachmentArgDescription) : AttachmentArgument<Attachment> {
     /**
-     * Accepts all message attachments.
+     * Accepts a message attachment.
      */
     public companion object : AttachmentArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<Set<Attachment>> {
-        val attachments = event.message!!.attachments
-
-        if (attachments.isEmpty())
-            return Error("No attachments")
-
-        return Success(attachments, 0)
+    override suspend fun parse(args: MutableList<String>, discord: Discord): Attachment? {
+        throw UnsupportedOperationException("Cannot parse a String to an attachment")
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf("Attachments")
-    public override fun formatData(data: Set<Attachment>): String = data.toString()
+    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("Attachment")
+    public override fun formatData(data: Attachment): String = data.filename
 }

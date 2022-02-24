@@ -5,7 +5,8 @@ import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.arguments.Error
 import me.jakejmattson.discordkt.arguments.Success
 import me.jakejmattson.discordkt.bundleToContainer
-import me.jakejmattson.discordkt.commands.CommandEvent
+import me.jakejmattson.discordkt.commands.DiscordContext
+import me.jakejmattson.discordkt.dsl.internalLocale
 
 /**
  * Intermediate result of manual parsing.
@@ -15,36 +16,36 @@ internal interface ParseResult {
     data class Fail(val reason: String = "") : ParseResult
 }
 
-internal sealed class DataMap(val argument: Argument<Any>)
-internal data class SuccessData<T>(private val arg: Argument<Any>, val value: T) : DataMap(arg)
-internal data class ErrorData(private val arg: Argument<Any>, val error: String) : DataMap(arg)
+internal sealed class DataMap(val argument: Argument<Any, Any>)
+internal data class SuccessData<T>(private val arg: Argument<Any, Any>, val value: T) : DataMap(arg)
+internal data class ErrorData(private val arg: Argument<Any, Any>, val error: String) : DataMap(arg)
 
-internal suspend fun convertArguments(event: CommandEvent<*>, expected: List<Argument<*>>, actual: List<String>): ParseResult {
+internal suspend fun convertArguments(context: DiscordContext, expected: List<Argument<*, *>>, actual: List<String>): ParseResult {
     val remainingArgs = actual.filter { it.isNotBlank() }.toMutableList()
     var hasFatalError = false
-
-    expected as List<Argument<Any>>
+    expected as List<Argument<Any, Any>>
 
     val conversionData = expected.map { expectedArg ->
         if (hasFatalError)
             return@map ErrorData(expectedArg, "")
 
-        val firstArg = remainingArgs.firstOrNull() ?: ""
+        val conversionResult = expectedArg.parse(remainingArgs, context.discord)
 
-        when (val conversionResult = expectedArg.convert(firstArg, remainingArgs, event)) {
-            is Success -> {
-                if (conversionResult.consumed > remainingArgs.size)
-                    throw IllegalArgumentException("Argument ${expectedArg.name} consumed more arguments than available.")
+        println("Expected: ${expectedArg.name}")
+        println("Converted: $conversionResult")
 
-                if (remainingArgs.isNotEmpty())
-                    remainingArgs.slice(0 until conversionResult.consumed).forEach { remainingArgs.remove(it) }
+        if (conversionResult != null) {
+            val transformation = expectedArg.transform(conversionResult, context)
 
-                SuccessData(expectedArg, conversionResult.result)
-            }
-            is Error -> {
-                hasFatalError = true
-                ErrorData(expectedArg, if (remainingArgs.isNotEmpty()) "<${conversionResult.error}>" else "<Missing>")
-            }
+            println("Transformation: $transformation")
+
+            if (transformation is Success)
+                SuccessData(expectedArg, transformation.result)
+            else
+                ErrorData(expectedArg, (transformation as Error<*>).error)
+        } else {
+            hasFatalError = true
+            ErrorData(expectedArg, if (remainingArgs.isNotEmpty()) "<${internalLocale.invalidFormat}>" else "<Missing>")
         }
     }
 
@@ -61,7 +62,7 @@ internal suspend fun convertArguments(event: CommandEvent<*>, expected: List<Arg
 }
 
 private fun formatDataMap(successData: List<DataMap>): String {
-    val length = successData.map { it.argument.name.length }.maxOrNull() ?: 0
+    val length = successData.maxOfOrNull { it.argument.name.length } ?: 0
 
     return successData.joinToString("\n") { data ->
         val arg = data.argument

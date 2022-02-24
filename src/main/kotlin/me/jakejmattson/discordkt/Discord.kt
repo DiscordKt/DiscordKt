@@ -132,18 +132,19 @@ public abstract class Discord {
                 val description = argument.description
 
                 val (arg, isRequired) = when(argument) {
-                    is OptionalArg<*> -> argument.type to false
-                    is MultipleArg<*> -> argument.base to true
+                    is OptionalArg<*, *> -> argument.type to false
+                    is MultipleArg<*, *> -> argument.base to true
                     else -> argument to true
                 }
 
                 when (arg) {
-                    is IntegerArg -> int(name, description) { required = isRequired }
-                    is DoubleArg -> number(name, description) { required = isRequired }
-                    is BooleanArg -> boolean(name, description) { required = isRequired }
-                    is UserArg, MemberArg -> user(name, description) { required = isRequired }
-                    is RoleArg -> role(name, description) { required = isRequired }
-                    is ChannelArg<*> -> channel(name, description) { required = isRequired }
+                    is AttachmentArgument<*> -> attachment(name, description) { required = isRequired }
+                    is IntegerArgument<*> -> int(name, description) { required = isRequired }
+                    is DoubleArgument<*> -> number(name, description) { required = isRequired }
+                    is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
+                    is UserArgument<*> -> user(name, description) { required = isRequired }
+                    is RoleArgument<*> -> role(name, description) { required = isRequired }
+                    is ChannelArgument<*> -> channel(name, description) { required = isRequired }
                     is ChoiceArg<*> -> string(name, description) {
                         required = isRequired
 
@@ -162,7 +163,7 @@ public abstract class Discord {
                 .forEach {
                     val potentialArg = it.arguments.first()
 
-                    when (if (potentialArg is OptionalArg) potentialArg.type else potentialArg) {
+                    when (if (potentialArg is OptionalArg<*, *>) potentialArg.type else potentialArg) {
                         MessageArg -> message(command.appName) { defaultPermission = false }
                         UserArg, MemberArg -> user(command.appName) { defaultPermission = false }
                     }

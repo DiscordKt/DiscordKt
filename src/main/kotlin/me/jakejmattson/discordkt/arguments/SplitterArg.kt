@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.arguments
 
-import me.jakejmattson.discordkt.commands.CommandEvent
+import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.locale.inject
 
@@ -11,21 +12,27 @@ import me.jakejmattson.discordkt.locale.inject
  */
 public open class SplitterArg(private val splitter: String = "|",
                               override val name: String = "TextWithSplitter",
-                              override val description: String = internalLocale.splitterArgDescription.inject(splitter)) : Argument<List<String>> {
+                              override val description: String = internalLocale.splitterArgDescription.inject(splitter)) : StringArgument<List<String>> {
     /**
      * Consumes all arguments and returns a list of the results (split by splitter character).
      */
     public companion object : SplitterArg()
 
-    override suspend fun convert(arg: String, args: List<String>, event: CommandEvent<*>): ArgumentResult<List<String>> {
+    override suspend fun parse(args: MutableList<String>, discord: Discord): String? {
         val joined = args.joinToString(" ")
 
         if (!joined.contains(splitter))
-            return Error("Missing '$splitter'")
+            return null
 
-        return Success(joined.split(splitter).toList(), args.size)
+        args.clear()
+
+        return joined
     }
 
-    override suspend fun generateExamples(event: CommandEvent<*>): List<String> = listOf("A${splitter}B${splitter}C")
+    override suspend fun transform(input: String, context: DiscordContext): ArgumentResult<List<String>> {
+        return Success(input.split(splitter).toList())
+    }
+
+    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("A${splitter}B${splitter}C")
     override fun formatData(data: List<String>): String = data.joinToString(splitter)
 }
