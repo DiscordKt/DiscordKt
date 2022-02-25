@@ -185,7 +185,7 @@ public open class SlashCommandEvent<T : TypeContainer>(
         }
 
     override suspend fun respond(message: Any): List<Message> =
-        interaction?.acknowledgeEphemeral()?.let {
+        interaction?.deferEphemeralMessage()?.let {
             it.followUpEphemeral { content = message.toString() }
             emptyList()
         } ?: super.respond(message)
@@ -194,7 +194,7 @@ public open class SlashCommandEvent<T : TypeContainer>(
         if (interaction == null) {
             super.respond(embedBuilder)
         } else {
-            interaction!!.acknowledgeEphemeral().followUpEphemeral { embed { embedBuilder.invoke(this) } }
+            interaction!!.deferEphemeralMessage().followUpEphemeral { embed { embedBuilder.invoke(this) } }
             null
         }
 }

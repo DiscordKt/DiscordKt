@@ -204,19 +204,19 @@ public data class Menu(internal val pages: MutableList<EmbedBuilder>,
     internal companion object {
         @OptIn(KordPreview::class)
         internal suspend fun handleButtonPress(interaction: ButtonInteraction) {
-            val firedButton = interaction.component ?: return
+            val firedButton = interaction.component
 
             if (firedButton.data.url.value != null)
                 return
 
-            val message = interaction.message!!
+            val message = interaction.message
             val menu = menus[message.id] ?: return
             val simpleButtons = menu.buttons.flatten().filterIsInstance<SimpleButton<*>>()
             val simpleButton = simpleButtons.find { firedButton.data.customId.value == it.id } ?: return
 
             when (val action = simpleButton.action) {
                 is Nav -> {
-                    interaction.acknowledgeEphemeralDeferredMessageUpdate()
+                    interaction.deferEphemeralMessageUpdate()
                     action.invoke(menu)
 
                     message.edit {
@@ -224,7 +224,7 @@ public data class Menu(internal val pages: MutableList<EmbedBuilder>,
                     }
                 }
                 is Edit -> {
-                    interaction.acknowledgeEphemeralDeferredMessageUpdate()
+                    interaction.deferEphemeralMessageUpdate()
                     val page = menu.page
                     action.invoke(page)
                     menu.updatePage(page)
