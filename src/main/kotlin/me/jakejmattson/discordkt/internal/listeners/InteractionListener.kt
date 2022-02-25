@@ -49,7 +49,7 @@ private suspend fun handleMessageContext(interaction: MessageCommandInteraction,
 private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction, discord: Discord) {
     handleApplicationCommand(interaction as ApplicationCommandInteraction, discord) { optionalData ->
         transformInput(execution.arguments.map {
-            it to interaction.command.options[it.name.lowercase()]?.value
+            it to if (it is AttachmentArgument) interaction.command.attachments[it.name.lowercase()] else interaction.command.options[it.name.lowercase()]?.value
         }, optionalData)
     }
 }
@@ -105,10 +105,11 @@ private suspend fun transformInput(complexArgs: List<Pair<Argument<*, *>, Any?>>
                 else -> rawArg
             }
 
-            val parsedValue = if (arg is EntityArgument)
-                arg.parse(mutableListOf(value.toString()), context.discord)
-            else
-                value
+            val parsedValue = when (arg) {
+                is AttachmentArgument -> value
+                is EntityArgument -> arg.parse(mutableListOf(value.toString()), context.discord)
+                else -> value
+            }
 
             when (arg) {
                 //Simple
