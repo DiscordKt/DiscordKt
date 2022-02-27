@@ -114,7 +114,7 @@ private suspend fun transformInput(complexArgs: List<Pair<Argument<*, *>, Any?>>
             when (arg) {
                 //Simple
                 is StringArgument -> arg.transform(parsedValue as String, context)
-                is IntegerArgument -> arg.transform(parsedValue as Int, context)
+                is IntegerArgument -> arg.transform((parsedValue as Long).toInt(), context)
                 is DoubleArgument -> arg.transform(parsedValue as Double, context)
                 is BooleanArgument -> arg.transform(parsedValue as Boolean, context)
 
