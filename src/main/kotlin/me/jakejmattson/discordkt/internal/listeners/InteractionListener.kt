@@ -56,6 +56,7 @@ private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction,
                     is RoleArgument -> roles[argName]
                     is ChannelArgument -> channels[argName]?.let { kord.getChannel(it.id) }
                     is AttachmentArgument -> attachments[argName]
+                    is IntegerArgument -> integers[argName]?.toInt()
                     else -> options[argName]?.value
                 }
             }

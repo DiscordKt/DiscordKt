@@ -28,7 +28,7 @@ internal suspend fun transformArgs(args: List<Pair<Argument<*, *>, Any?>>, conte
             when (arg) {
                 //Simple
                 is StringArgument -> arg.transform(value as String, context)
-                is IntegerArgument -> arg.transform((value as Long).toInt(), context)
+                is IntegerArgument -> arg.transform(value as Int, context)
                 is DoubleArgument -> arg.transform(value as Double, context)
                 is BooleanArgument -> arg.transform(value as Boolean, context)
 
@@ -48,7 +48,7 @@ internal suspend fun transformArgs(args: List<Pair<Argument<*, *>, Any?>>, conte
         ?: Success(bundleToContainer(transformations.map { (it as Success<*>).result }))
 }
 
-internal suspend fun parseArguments(context: DiscordContext, expected: List<Argument<*, *>>, actual: List<String>): Result<List<Any>> {
+internal suspend fun parseArguments(context: DiscordContext, expected: List<Argument<*, *>>, actual: List<String>): Result<List<Any?>> {
     val remainingArgs = actual.filter { it.isNotBlank() }.toMutableList()
     var hasFatalError = false
     expected as List<Argument<Any, Any>>
@@ -60,13 +60,14 @@ internal suspend fun parseArguments(context: DiscordContext, expected: List<Argu
         val conversionResult = expectedArg.parse(remainingArgs, context.discord)
 
         if (conversionResult != null) {
-            if (expectedArg is OptionalArg)
-                SuccessData(expectedArg, expectedArg.default.invoke(context))
-            else
-                SuccessData(expectedArg, conversionResult)
+            SuccessData(expectedArg, conversionResult)
         } else {
-            hasFatalError = true
-            ErrorData(expectedArg, if (remainingArgs.isNotEmpty()) "<${internalLocale.invalidFormat}>" else "<Missing>")
+            if (expectedArg is OptionalArg)
+                SuccessData(expectedArg, null)
+            else {
+                hasFatalError = true
+                ErrorData(expectedArg, if (remainingArgs.isNotEmpty()) "<${internalLocale.invalidFormat}>" else "<Missing>")
+            }
         }
     }
 
@@ -79,7 +80,7 @@ internal suspend fun parseArguments(context: DiscordContext, expected: List<Argu
     if (hasFatalError)
         return Error("```$error```")
 
-    return Success(conversionData.filterIsInstance<SuccessData<*>>().map { it.value as Any })
+    return Success(conversionData.filterIsInstance<SuccessData<*>>().map { it.value })
 }
 
 private fun formatDataMap(successData: List<DataMap>): String {
