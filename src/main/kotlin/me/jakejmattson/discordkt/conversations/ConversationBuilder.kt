@@ -96,7 +96,7 @@ public data class ConversationBuilder(val discord: Discord,
      */
     @Throws(DmException::class, TimeoutException::class)
     public suspend fun <I, O> prompt(argument: Argument<I, O>, text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): O {
-        require(argument !is OptionalArg<*, *>) { "Conversation arguments cannot be optional" }
+        require(argument !is OptionalArg<*, *, *>) { "Conversation arguments cannot be optional" }
 
         val message = channel.createMessage {
             content = text.takeIf { it.isNotBlank() }

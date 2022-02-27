@@ -35,7 +35,7 @@ public data class Execution<T : CommandEvent<*>>(val arguments: List<Argument<*,
     val structure: String
         get() = arguments.joinToString(" ") {
             val type = it.name
-            if (it is OptionalArg<*, *>) "[$type]" else type
+            if (it is OptionalArg<*, *, *>) "[$type]" else type
         }
 
     /**

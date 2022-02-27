@@ -8,20 +8,20 @@ import me.jakejmattson.discordkt.locale.inject
 /**
  * An optional argument with a default value.
  */
-public class OptionalArg<Input, Output>(override val name: String,
-                                        public val base: Argument<Input, Output>,
-                                        internal val default: suspend DiscordContext.() -> Output) : WrappedArgument<Input, Output> {
+public class OptionalArg<I, O, O2>(override val name: String,
+                                        override val base: Argument<I, O>,
+                                        internal val default: suspend DiscordContext.() -> O2) : WrappedArgument<I, O, I, O2> {
     override val description: String = internalLocale.optionalArgDescription.inject(base.name)
 
-    override suspend fun parse(args: MutableList<String>, discord: Discord): Input? {
+    override suspend fun parse(args: MutableList<String>, discord: Discord): I? {
         return base.parse(args, discord)
     }
 
-    override suspend fun transform(input: Input, context: DiscordContext): Result<Output> {
+    override suspend fun transform(input: I, context: DiscordContext): Result<O2> {
         val transformation = base.transform(input, context)
 
         return if (transformation is Success)
-            transformation
+            transformation as Result<O2>
         else
             Success(default.invoke(context))
     }

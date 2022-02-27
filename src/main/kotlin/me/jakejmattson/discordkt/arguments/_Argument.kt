@@ -34,28 +34,28 @@ public sealed interface Argument<Input, Output> : Cloneable {
      *
      * @param default A default value matching the expected type.
      */
-    public fun optional(default: Output): OptionalArg<Input, Output> = OptionalArg(name, this) { default }
+    public fun optional(default: Output): OptionalArg<Input, Output, Output> = OptionalArg(name, this) { default }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type.
      */
-    public fun optional(default: suspend (DiscordContext) -> Output): OptionalArg<Input, Output> = OptionalArg(name, this, default)
+    public fun optional(default: suspend (DiscordContext) -> Output): OptionalArg<Input, Output, Output> = OptionalArg(name, this, default)
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails.
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    //public fun optionalNullable(default: Output? = null): OptionalArg<Input, Output?> = OptionalArg<Input, Output?>(name, this) { default }
+    public fun optionalNullable(default: Output? = null): OptionalArg<Input, Output, Output?> = OptionalArg(name, this) { default }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    //public fun optionalNullable(default: suspend (OptionalData) -> Output?): OptionalArg<Input, Output?> = OptionalArg(name, this, default)
+    public fun optionalNullable(default: suspend (DiscordContext) -> Output?): OptionalArg<Input, Output, Output?> = OptionalArg(name, this, default)
 
     public suspend fun parse(args: MutableList<String>, discord: Discord): Input?
 
@@ -79,8 +79,8 @@ public sealed interface Argument<Input, Output> : Cloneable {
 public interface SimpleArgument<Input, Output> : Argument<Input, Output>
 public interface EntityArgument<Input, Output> : Argument<Input, Output>
 
-public interface WrappedArgument<Input, Output> : Argument<Input, Output> {
-    //public val base: Argument<Input, Output>
+public interface WrappedArgument<Input, Output, Input2, Output2> : Argument<Input2, Output2> {
+    public val base: Argument<Input, Output>
 }
 
 public interface StringArgument<Output> : SimpleArgument<String, Output> {

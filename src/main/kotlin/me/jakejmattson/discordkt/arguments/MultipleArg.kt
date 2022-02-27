@@ -10,9 +10,9 @@ import me.jakejmattson.discordkt.locale.inject
  *
  * @param base The [Argument] that you expect to be used to create the list.
  */
-public class MultipleArg<Input, Ouput>(public val base: Argument<Input, Ouput>,
+public class MultipleArg<Input, Output>(override val base: Argument<Input, Output>,
                                        override val name: String = base.name,
-                                       description: String = "") : WrappedArgument<List<Input>, List<Ouput>> {
+                                       description: String = "") : WrappedArgument<Input, Output, List<Input>, List<Output>> {
     override val description: String = description.ifBlank { internalLocale.multipleArgDescription.inject(base.name) }
 
     override suspend fun parse(args: MutableList<String>, discord: Discord): List<Input>? {
