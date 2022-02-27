@@ -222,7 +222,7 @@ public data class ConversationBuilder(val discord: Discord,
         }
     }
 
-    private suspend fun <I, O> parseResponse(argument: Argument<I, O>, message: Message): ArgumentResult<O> {
+    private suspend fun <I, O> parseResponse(argument: Argument<I, O>, message: Message): Result<O> {
         val context = DiscordContext(discord, message, message.author!!, message.channel.asChannel(), message.getGuildOrNull())
         val parseResult = argument.parse(message.content.split(" ").drop(1).toMutableList(), discord)
 

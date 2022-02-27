@@ -6,14 +6,14 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.jakejmattson.discordkt.*
-import me.jakejmattson.discordkt.arguments.Argument
-import me.jakejmattson.discordkt.arguments.OptionalArg
+import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.dsl.CommandException
 import me.jakejmattson.discordkt.dsl.Permission
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.internal.annotations.NestedDSL
-import me.jakejmattson.discordkt.internal.command.ParseResult
-import me.jakejmattson.discordkt.internal.command.convertArguments
+import me.jakejmattson.discordkt.internal.command.parseArguments
+import me.jakejmattson.discordkt.internal.command.transformArgs
+import me.jakejmattson.discordkt.internal.utils.stringify
 import me.jakejmattson.discordkt.locale.inject
 
 /**
@@ -71,7 +71,7 @@ public sealed interface Command {
      *
      * @return The result of the parsing operation.
      */
-    public suspend fun canParse(context: DiscordContext, execution: Execution<*>, args: List<String>): Boolean = convertArguments(context, execution.arguments, args) is ParseResult.Success
+    public suspend fun canParse(context: DiscordContext, execution: Execution<*>, args: List<String>): Boolean = parseArguments(context, execution.arguments, args) is Success
 
     /**
      * Whether this command has permission to run with the given event.
@@ -92,26 +92,34 @@ public sealed interface Command {
     @OptIn(DelicateCoroutinesApi::class)
     public fun invoke(event: CommandEvent<TypeContainer>, args: List<String>) {
         GlobalScope.launch {
-            val results = executions.map { it to convertArguments(event.context, it.arguments, args) }
-            val success = results.firstOrNull { it.second is ParseResult.Success }
+            val parseResults = executions.map { it to parseArguments(event.context, it.arguments, args) }
+            val successfulParse = parseResults.firstOrNull { it.second is Success }
 
-            if (success == null) {
-                val failString = results.joinToString("\n") {
+            if (successfulParse == null) {
+                val failString = parseResults.joinToString("\n") {
                     val invocationExample =
-                        if (results.size > 1)
+                        if (parseResults.size > 1)
                             "${event.rawInputs.rawMessageContent.substringBefore(" ")} ${it.first.structure}\n"
                         else ""
 
-                    invocationExample + (it.second as ParseResult.Fail).reason
+                    invocationExample + (it.second as Error).error
                 }
 
                 event.respond(internalLocale.badArgs.inject(event.rawInputs.commandName) + "\n$failString")
                 return@launch
             }
 
-            val (execution, result) = success
+            val (execution, success) = successfulParse
+            success as Success
 
-            event.args = (result as ParseResult.Success).argumentContainer
+            val transformedInput = transformArgs(execution.arguments.zip(success.result), event.context)
+
+            if (transformedInput is Success<*>)
+                event.args = transformedInput.result as TypeContainer
+            else {
+                event.respond(transformedInput)
+                return@launch
+            }
 
             try {
                 (execution as Execution<CommandEvent<*>>).execute(event)

@@ -3,12 +3,10 @@ package me.jakejmattson.discordkt.internal.listeners
 import dev.kord.common.annotation.KordPreview
 import dev.kord.common.annotation.KordUnsafe
 import dev.kord.core.behavior.interaction.GuildInteractionBehavior
-import dev.kord.core.entity.*
-import dev.kord.core.entity.channel.Channel
+import dev.kord.core.entity.Message
 import dev.kord.core.entity.interaction.*
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.on
-import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.arguments.*
@@ -16,6 +14,7 @@ import me.jakejmattson.discordkt.bundleToContainer
 import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.conversations.Conversations
 import me.jakejmattson.discordkt.dsl.Menu
+import me.jakejmattson.discordkt.internal.command.transformArgs
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
 
 @OptIn(KordUnsafe::class)
@@ -36,25 +35,35 @@ internal suspend fun registerInteractionListener(discord: Discord) = discord.kor
 
 private suspend fun handleUserContext(interaction: UserCommandInteraction, discord: Discord) {
     handleApplicationCommand(interaction, discord) {
-        listOf(Success(interaction.users.values.first()))
+        Success(bundleToContainer(listOf(interaction.users.values.first())))
     }
 }
 
 private suspend fun handleMessageContext(interaction: MessageCommandInteraction, discord: Discord) {
     handleApplicationCommand(interaction, discord) {
-        listOf(Success(interaction.messages.values.first()))
+        Success(bundleToContainer(listOf(interaction.messages.values.first())))
     }
 }
 
 private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction, discord: Discord) {
-    handleApplicationCommand(interaction as ApplicationCommandInteraction, discord) { optionalData ->
-        transformInput(execution.arguments.map {
-            it to if (it is AttachmentArgument) interaction.command.attachments[it.name.lowercase()] else interaction.command.options[it.name.lowercase()]?.value
-        }, optionalData)
+    handleApplicationCommand(interaction as ApplicationCommandInteraction, discord) { context ->
+        transformArgs(execution.arguments.map { arg ->
+            val argName = arg.name.lowercase()
+
+            with(interaction.command) {
+                arg to when (arg) {
+                    is UserArgument<*> -> users[argName]
+                    is RoleArgument -> roles[argName]
+                    is ChannelArgument -> channels[argName]?.let { kord.getChannel(it.id) }
+                    is AttachmentArgument -> attachments[argName]
+                    else -> options[argName]?.value
+                }
+            }
+        }, context)
     }
 }
 
-private suspend fun handleApplicationCommand(interaction: ApplicationCommandInteraction, discord: Discord, input: suspend SlashCommand.(DiscordContext) -> List<ArgumentResult<*>>) {
+private suspend fun handleApplicationCommand(interaction: ApplicationCommandInteraction, discord: Discord, input: suspend SlashCommand.(DiscordContext) -> Result<*>) {
     val dktCommand = discord.commands.filterIsInstance<GuildSlashCommand>().firstOrNull { it.appName == interaction.invokedCommandName || it.name.equals(interaction.invokedCommandName, true) }
         ?: discord.commands.filterIsInstance<GlobalSlashCommand>().firstOrNull { it.appName == interaction.invokedCommandName || it.name.equals(interaction.invokedCommandName, true) }
         ?: return
@@ -66,7 +75,7 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
 
     val context = DiscordContext(discord, message, author, channel, guild)
     val transformResults = input.invoke(dktCommand, context)
-    val rawInputs = RawInputs("/${dktCommand.name} ${transformResults.map { it.toString() }}", dktCommand.name, prefixCount = 1)
+    val rawInputs = RawInputs("/${dktCommand.name}", dktCommand.name, prefixCount = 1)
 
     val event =
         if (dktCommand is GuildSlashCommand)
@@ -76,56 +85,13 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
 
     if (!arePreconditionsPassing(event)) return
 
-    val error = transformResults.find { it is Error<*> } as Error<*>?
-
-    if (error != null) {
-        event.respond(error.error)
-        return
+    event.args = when (transformResults) {
+        is Error -> {
+            event.respond(transformResults.error)
+            return
+        }
+        is Success<*> -> transformResults.result as TypeContainer
     }
-
-    val castData = transformResults.map {
-        (it as Success).result
-    }
-
-    event.args = bundleToContainer(castData)
 
     (dktCommand.execution as Execution<CommandEvent<*>>).execute(event)
 }
-
-@OptIn(KordPreview::class)
-private suspend fun transformInput(complexArgs: List<Pair<Argument<*, *>, Any?>>, context: DiscordContext) =
-    complexArgs.map { (rawArg, value) ->
-        if (value == null) {
-            require(rawArg is OptionalArg<*, *>) { "${rawArg.name} could not be mapped by name." }
-            runBlocking { Success(rawArg.default.invoke(context)) }
-        } else {
-            val arg = when (rawArg) {
-                is OptionalArg -> rawArg.type
-                is MultipleArg<*, *> -> rawArg.base
-                else -> rawArg
-            }
-
-            val parsedValue = when (arg) {
-                is AttachmentArgument -> value
-                is EntityArgument -> arg.parse(mutableListOf(value.toString()), context.discord)
-                else -> value
-            }
-
-            when (arg) {
-                //Simple
-                is StringArgument -> arg.transform(parsedValue as String, context)
-                is IntegerArgument -> arg.transform(parsedValue as Int, context)
-                is DoubleArgument -> arg.transform(parsedValue as Double, context)
-                is BooleanArgument -> arg.transform(parsedValue as Boolean, context)
-
-                //Entity
-                is UserArgument -> arg.transform(parsedValue as User, context)
-                is RoleArgument -> arg.transform(parsedValue as Role, context)
-                is ChannelArgument -> arg.transform(parsedValue as Channel, context)
-                is AttachmentArgument -> arg.transform(parsedValue as Attachment, context)
-
-                //Unknown
-                else -> Success(value)
-            }
-        }
-    }

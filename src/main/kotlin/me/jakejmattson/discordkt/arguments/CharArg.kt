@@ -13,7 +13,7 @@ public open class CharArg(override val name: String = "Character",
      */
     public companion object : CharArg()
 
-    override suspend fun transform(input: String, context: DiscordContext): ArgumentResult<Char> {
+    override suspend fun transform(input: String, context: DiscordContext): Result<Char> {
         return if (input.length == 1)
             Success(input[0])
         else

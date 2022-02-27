@@ -49,7 +49,6 @@ public open class QuoteArg(override val name: String = "Quote",
     }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("\"A Quote\"")
-    override fun formatData(data: String): String = "\"$data\""
 }
 
 private fun List<String>.takeUntil(predicate: (String) -> Boolean): List<String> {

@@ -62,7 +62,7 @@ interface ArgumentTestFactory {
     }
 }
 
-private fun <A, B> Argument<A, B>.attemptConvert(input: String): ArgumentResult<*> {
+private fun <A, B> Argument<A, B>.attemptConvert(input: String): Result<*> {
     val split = input.split(" ").toMutableList()
 
     return runBlocking {

@@ -15,7 +15,7 @@ public open class IntegerRangeArg(private val min: Int,
         require(max > min) { "Maximum value must be greater than minimum value." }
     }
 
-    override suspend fun transform(input: Int, context: DiscordContext): ArgumentResult<Int> {
+    override suspend fun transform(input: Int, context: DiscordContext): Result<Int> {
         if (input !in min..max)
             return Error("Not in range $min-$max")
 

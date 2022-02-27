@@ -19,7 +19,7 @@ public open class ChannelArg<T : GuildChannel>(override val name: String = "Chan
      */
     public companion object : ChannelArg<TextChannel>()
 
-    override suspend fun transform(input: Channel, context: DiscordContext): ArgumentResult<T> {
+    override suspend fun transform(input: Channel, context: DiscordContext): Result<T> {
         val channel = input as? T
             ?: return Error("Incorrect channel type")
 
@@ -29,5 +29,4 @@ public open class ChannelArg<T : GuildChannel>(override val name: String = "Chan
         return Success(channel)
 
 }
-    override fun formatData(data: T): String = "#${data.name}"
 }

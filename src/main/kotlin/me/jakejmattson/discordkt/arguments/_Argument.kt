@@ -66,7 +66,7 @@ public sealed interface Argument<Input, Output> : Cloneable {
      * @param context The CommandEvent<*> triggered by the execution of the command.
      * @return ArgumentResult subtype [Success] or [Error].
      */
-    public suspend fun transform(input: Input, context: DiscordContext): ArgumentResult<Output> = Success(input as Output)
+    public suspend fun transform(input: Input, context: DiscordContext): Result<Output> = Success(input as Output)
 
     /**
      * A function called whenever an example of this type is needed.
@@ -74,16 +74,14 @@ public sealed interface Argument<Input, Output> : Cloneable {
      * @param context Allows the list result to be generated with the relevant discord context.
      */
     public suspend fun generateExamples(context: DiscordContext): List<String>
-
-    /**
-     * Create a custom formatter for the data this [Argument] produces.
-     */
-    public fun formatData(data: Output): String = data.toString()
 }
 
 public interface SimpleArgument<Input, Output> : Argument<Input, Output>
 public interface EntityArgument<Input, Output> : Argument<Input, Output>
-public interface SpecialArgument<Input, Output> : Argument<Input, Output>
+
+public interface WrappedArgument<Input, Output> : Argument<Input, Output> {
+    //public val base: Argument<Input, Output>
+}
 
 public interface StringArgument<Output> : SimpleArgument<String, Output> {
     override suspend fun parse(args: MutableList<String>, discord: Discord): String? = args.consumeFirst().takeIf { it.isNotEmpty() }
@@ -144,18 +142,18 @@ public interface AttachmentArgument<Output> : EntityArgument<Attachment, Output>
 /**
  * The result of an argument conversion.
  */
-public sealed class ArgumentResult<T>
+public sealed class Result<T>
 
 /**
  * ArgumentResult indicating that a conversion was successful.
  *
  * @param result The conversion result of the appropriate type.
  */
-public data class Success<T>(val result: T) : ArgumentResult<T>()
+public data class Success<T>(val result: T) : Result<T>()
 
 /**
  * ArgumentResult indicating that a conversion was failed.
  *
  * @param error The reason why the conversion failed.
  */
-public data class Error<T>(val error: String) : ArgumentResult<T>()
+public data class Error<T>(val error: String) : Result<T>()

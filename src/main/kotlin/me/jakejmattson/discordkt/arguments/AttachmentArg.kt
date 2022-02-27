@@ -20,5 +20,4 @@ public open class AttachmentArg(override val name: String = "Attachment",
     }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("Attachment")
-    public override fun formatData(data: Attachment): String = data.filename
 }

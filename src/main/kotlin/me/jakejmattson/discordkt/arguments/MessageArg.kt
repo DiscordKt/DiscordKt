@@ -20,7 +20,7 @@ public open class MessageArg(override val name: String = "Message",
      */
     public companion object : MessageArg()
 
-    override suspend fun transform(input: String, context: DiscordContext): ArgumentResult<Message> {
+    override suspend fun transform(input: String, context: DiscordContext): Result<Message> {
         val publicRegex = "https://discord(app)?.com/channels/\\d+/\\d+/\\d+".toRegex()
         val privateRegex = "https://discord(app)?.com/channels/@me/\\d+/\\d+".toRegex()
 

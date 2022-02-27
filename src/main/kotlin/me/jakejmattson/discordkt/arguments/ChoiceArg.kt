@@ -24,7 +24,7 @@ public open class ChoiceArg<T>(override val name: String,
             InternalLogger.error("ChoiceArg elements must be unique.")
     }
 
-    override suspend fun transform(input: String, context: DiscordContext): ArgumentResult<T> {
+    override suspend fun transform(input: String, context: DiscordContext): Result<T> {
         val selection = enumerations[input.lowercase()]
             ?: return Error("Invalid selection")
 

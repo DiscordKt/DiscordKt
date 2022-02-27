@@ -29,10 +29,9 @@ public open class SplitterArg(private val splitter: String = "|",
         return joined
     }
 
-    override suspend fun transform(input: String, context: DiscordContext): ArgumentResult<List<String>> {
+    override suspend fun transform(input: String, context: DiscordContext): Result<List<String>> {
         return Success(input.split(splitter).toList())
     }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("A${splitter}B${splitter}C")
-    override fun formatData(data: List<String>): String = data.joinToString(splitter)
 }

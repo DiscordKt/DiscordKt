@@ -15,11 +15,10 @@ public open class CommandArg(override val name: String = "Command",
      */
     public companion object : CommandArg()
 
-    override suspend fun transform(input: String, context: DiscordContext): ArgumentResult<Command> {
+    override suspend fun transform(input: String, context: DiscordContext): Result<Command> {
         val command = context.discord.commands[input] ?: return Error(internalLocale.notFound)
         return Success(command)
     }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = context.discord.commands.mapNotNull { it.names.firstOrNull() }
-    override fun formatData(data: Command): String = data.names.first()
 }

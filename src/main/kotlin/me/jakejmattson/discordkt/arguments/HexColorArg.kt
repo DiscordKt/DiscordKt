@@ -2,6 +2,7 @@ package me.jakejmattson.discordkt.arguments
 
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
+import me.jakejmattson.discordkt.internal.utils.stringify
 import java.awt.Color
 
 /**
@@ -14,7 +15,7 @@ public open class HexColorArg(override val name: String = "Color",
      */
     public companion object : HexColorArg()
 
-    override suspend fun transform(input: String, context: DiscordContext): ArgumentResult<Color> {
+    override suspend fun transform(input: String, context: DiscordContext): Result<Color> {
         if (input.length !in 6..7) return Error(internalLocale.invalidFormat)
 
         val trimmedInput = input.takeLast(6).uppercase()
@@ -26,8 +27,5 @@ public open class HexColorArg(override val name: String = "Color",
         return Success(Color(trimmedInput.toInt(16)))
     }
 
-    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(formatData(Color((0..255).random(), (0..255).random(), (0..255).random())))
-    override fun formatData(data: Color): String = with(data) {
-        String.format("#%02X%02X%02X", red, green, blue)
-    }
+    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(stringify(Color((0..255).random(), (0..255).random(), (0..255).random())))
 }

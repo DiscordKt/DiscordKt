@@ -15,7 +15,7 @@ public open class UnicodeEmojiArg(override val name: String = "Emoji",
      */
     public companion object : UnicodeEmojiArg()
 
-    override suspend fun transform(input: String, context: DiscordContext): ArgumentResult<DiscordEmoji> {
+    override suspend fun transform(input: String, context: DiscordContext): Result<DiscordEmoji> {
         val emoji = Emojis[input.trim()] ?: return Error(internalLocale.invalidFormat)
         return Success(emoji)
     }

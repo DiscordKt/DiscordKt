@@ -12,6 +12,4 @@ public open class UserArg(override val name: String = "User",
      * Accepts a Discord User entity as an ID or mention. Does not allow bots.
      */
     public companion object : UserArg()
-
-    public override fun formatData(data: User): String = "@${data.tag}"
 }

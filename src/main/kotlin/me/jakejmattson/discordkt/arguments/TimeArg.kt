@@ -13,7 +13,7 @@ public open class TimeArg(override val name: String = "Time",
      */
     public companion object : TimeArg()
 
-    override suspend fun transform(input: String, context: DiscordContext): ArgumentResult<Double> {
+    override suspend fun transform(input: String, context: DiscordContext): Result<Double> {
         if (!input.matches(fullRegex)) {
             return Error(internalLocale.invalidFormat)
         }
@@ -34,7 +34,6 @@ public open class TimeArg(override val name: String = "Time",
     }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("1h15m5s")
-    override fun formatData(data: Double): String = "$data seconds"
 }
 
 private data class TimePair(val quantity: Double, val quantifier: String) {

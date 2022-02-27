@@ -18,7 +18,7 @@ public open class MemberArg(override val name: String = "Member",
      */
     public companion object : MemberArg()
 
-    override suspend fun transform(input: User, context: DiscordContext): ArgumentResult<Member> {
+    override suspend fun transform(input: User, context: DiscordContext): Result<Member> {
         val guild = context.guild ?: return Error("No guild found")
         val member = input.asMemberOrNull(guild.id) ?: return Error(internalLocale.notFound)
 
@@ -29,5 +29,4 @@ public open class MemberArg(override val name: String = "Member",
     }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(context.author.mention)
-    override fun formatData(data: Member): String = "@${data.tag}"
 }

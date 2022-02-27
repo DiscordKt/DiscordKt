@@ -14,7 +14,7 @@ public open class UrlArg(override val name: String = "URL",
      */
     public companion object : UrlArg()
 
-    override suspend fun transform(input: String, context: DiscordContext): ArgumentResult<String> {
+    override suspend fun transform(input: String, context: DiscordContext): Result<String> {
         return if (input.containsURl())
             Success(input)
         else

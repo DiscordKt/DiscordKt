@@ -10,11 +10,13 @@ import me.jakejmattson.discordkt.locale.inject
  *
  * @param base The [Argument] that you expect to be used to create the list.
  */
-public class MultipleArg<A, T>(public val base: Argument<A, T>, override val name: String = base.name, description: String = "") : SpecialArgument<List<A>, List<T>> {
+public class MultipleArg<Input, Ouput>(public val base: Argument<Input, Ouput>,
+                                       override val name: String = base.name,
+                                       description: String = "") : WrappedArgument<List<Input>, List<Ouput>> {
     override val description: String = description.ifBlank { internalLocale.multipleArgDescription.inject(base.name) }
 
-    override suspend fun parse(args: MutableList<String>, discord: Discord): List<A>? {
-        val totalResult = mutableListOf<A>()
+    override suspend fun parse(args: MutableList<String>, discord: Discord): List<Input>? {
+        val totalResult = mutableListOf<Input>()
         val remainingArgs = args.toMutableList()
 
         complete@ while (remainingArgs.isNotEmpty()) {
@@ -35,6 +37,4 @@ public class MultipleArg<A, T>(public val base: Argument<A, T>, override val nam
 
     override suspend fun generateExamples(context: DiscordContext): List<String> =
         base.generateExamples(context).chunked(2).map { it.joinToString(" ") }
-
-    override fun formatData(data: List<T>): String = "[${data.joinToString { base.formatData(it) }}]"
 }

@@ -20,7 +20,7 @@ public open class GuildEmojiArg(override val name: String = "Guild Emoji",
      */
     public companion object : GuildEmojiArg()
 
-    override suspend fun transform(input: String, context: DiscordContext): ArgumentResult<GuildEmoji> {
+    override suspend fun transform(input: String, context: DiscordContext): Result<GuildEmoji> {
         val trimmed = input.trimToID()
         val split = trimmed.split(":")
 

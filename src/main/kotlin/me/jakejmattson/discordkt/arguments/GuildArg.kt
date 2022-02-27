@@ -16,7 +16,7 @@ public open class GuildArg(override val name: String = "Guild",
      */
     public companion object : GuildArg()
 
-    override suspend fun transform(input: String, context: DiscordContext): ArgumentResult<Guild> {
+    override suspend fun transform(input: String, context: DiscordContext): Result<Guild> {
         val guild = context.discord.kord.guilds.firstOrNull { it.id == input.toSnowflakeOrNull() }
             ?: return Error(internalLocale.notFound)
 
@@ -26,5 +26,4 @@ public open class GuildArg(override val name: String = "Guild",
     override suspend fun generateExamples(context: DiscordContext): List<String> = context.guild?.let { listOf(it.id.toString()) }
         ?: listOf()
 
-    override fun formatData(data: Guild): String = data.name
 }

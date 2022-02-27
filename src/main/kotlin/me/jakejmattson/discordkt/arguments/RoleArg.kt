@@ -20,7 +20,7 @@ public open class RoleArg(override val name: String = "Role",
      */
     public companion object : RoleArg()
 
-    override suspend fun transform(input: Role, context: DiscordContext): ArgumentResult<Role> {
+    override suspend fun transform(input: Role, context: DiscordContext): Result<Role> {
         if (!allowsGlobal && input.guild.id != context.guild?.id)
             return Error("Must be from this guild")
 
@@ -28,5 +28,4 @@ public open class RoleArg(override val name: String = "Role",
     }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("@everyone")
-    override fun formatData(data: Role): String = data.name
 }
