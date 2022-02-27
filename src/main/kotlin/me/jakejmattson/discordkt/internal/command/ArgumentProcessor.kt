@@ -16,7 +16,7 @@ import me.jakejmattson.discordkt.internal.utils.stringify
 internal suspend fun transformArgs(args: List<Pair<Argument<*, *>, Any?>>, context: DiscordContext): Result<*> {
     val transformations = args.map { (rawArg, value) ->
         if (value == null) {
-            require(rawArg is OptionalArg<*, *, *>) { "${rawArg.name} could not be mapped by name." }
+            require(rawArg is OptionalArg<*, *, *>) { "Missing required arguments" }
             runBlocking { Success(rawArg.default.invoke(context)) }
         } else {
             val arg = when (rawArg) {
@@ -61,7 +61,7 @@ internal suspend fun parseArguments(context: DiscordContext, expected: List<Argu
         if (conversionResult != null) {
             SuccessData(expectedArg, conversionResult)
         } else {
-            if (expectedArg is OptionalArg<*, *, *>)
+            if (expectedArg.isOptional())
                 SuccessData(expectedArg, null)
             else {
                 hasFatalError = true

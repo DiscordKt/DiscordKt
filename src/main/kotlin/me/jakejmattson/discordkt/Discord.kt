@@ -133,7 +133,7 @@ public abstract class Discord {
 
                 val (arg, isRequired) = when(argument) {
                     is OptionalArg<*, *, *> -> argument.base to false
-                    is MultipleArg<*, *> -> argument.base to true
+                    is WrappedArgument<*, *, *, *> -> argument.base to true
                     else -> argument to true
                 }
 

@@ -74,6 +74,8 @@ public sealed interface Argument<Input, Output> : Cloneable {
      * @param context Allows the list result to be generated with the relevant discord context.
      */
     public suspend fun generateExamples(context: DiscordContext): List<String>
+
+    public fun isOptional(): Boolean =  this is OptionalArg<*, *, *>
 }
 
 public interface SimpleArgument<Input, Output> : Argument<Input, Output>

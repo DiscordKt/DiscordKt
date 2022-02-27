@@ -6,14 +6,15 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.jakejmattson.discordkt.*
-import me.jakejmattson.discordkt.arguments.*
+import me.jakejmattson.discordkt.arguments.Argument
+import me.jakejmattson.discordkt.arguments.Error
+import me.jakejmattson.discordkt.arguments.Success
 import me.jakejmattson.discordkt.dsl.CommandException
 import me.jakejmattson.discordkt.dsl.Permission
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.internal.annotations.NestedDSL
 import me.jakejmattson.discordkt.internal.command.parseArguments
 import me.jakejmattson.discordkt.internal.command.transformArgs
-import me.jakejmattson.discordkt.internal.utils.stringify
 import me.jakejmattson.discordkt.locale.inject
 
 /**
@@ -35,7 +36,7 @@ public data class Execution<T : CommandEvent<*>>(val arguments: List<Argument<*,
     val structure: String
         get() = arguments.joinToString(" ") {
             val type = it.name
-            if (it is OptionalArg<*, *, *>) "[$type]" else type
+            if (it.isOptional()) "[$type]" else type
         }
 
     /**
