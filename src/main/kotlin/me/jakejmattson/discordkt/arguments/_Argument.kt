@@ -57,14 +57,20 @@ public sealed interface Argument<Input, Output> : Cloneable {
      */
     public fun optionalNullable(default: suspend (DiscordContext) -> Output?): OptionalArg<Input, Output, Output?> = OptionalArg(name, this, default)
 
+    /**
+     * Parse string input into the correct type handled by this argument.
+     *
+     * @param args A list of string arguments.
+     * @param discord The [Discord] object used to resolve discord entities.
+     */
     public suspend fun parse(args: MutableList<String>, discord: Discord): Input?
 
     /**
-     * Consumes an argument or multiple arguments and converts them into some desired type.
+     * Transforms a value produced by a slash command or by the [parse] function.
      *
-     * @param input The
-     * @param context The CommandEvent<*> triggered by the execution of the command.
-     * @return ArgumentResult subtype [Success] or [Error].
+     * @param input The input data of the type [Input]
+     * @param context The [DiscordContext] created by the execution of the command.
+     * @return [Result] subtype [Success] or [Error].
      */
     public suspend fun transform(input: Input, context: DiscordContext): Result<Output> = Success(input as Output)
 
@@ -75,32 +81,63 @@ public sealed interface Argument<Input, Output> : Cloneable {
      */
     public suspend fun generateExamples(context: DiscordContext): List<String>
 
+    /**
+     * Utility function to check that this Argument is an [OptionalArg]
+     */
     public fun isOptional(): Boolean =  this is OptionalArg<*, *, *>
 }
 
-public interface SimpleArgument<Input, Output> : Argument<Input, Output>
+/**
+ * An [Argument] that accepts a primitive type.
+ */
+public interface PrimitiveArgument<Input, Output> : Argument<Input, Output>
+
+/**
+ * An [Argument] that accepts a discord entity.
+ */
 public interface EntityArgument<Input, Output> : Argument<Input, Output>
 
+/**
+ * An [Argument] that wraps around another argument.
+ */
 public interface WrappedArgument<Input, Output, Input2, Output2> : Argument<Input2, Output2> {
+    /**
+     * The [Argument] that is wrapped.
+     */
     public val type: Argument<Input, Output>
 }
 
-public interface StringArgument<Output> : SimpleArgument<String, Output> {
+/**
+ * An [Argument] that accepts a [String].
+ */
+public interface StringArgument<Output> : PrimitiveArgument<String, Output> {
     override suspend fun parse(args: MutableList<String>, discord: Discord): String? = args.consumeFirst().takeIf { it.isNotEmpty() }
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(name)
 }
 
-public interface IntegerArgument<Output> : SimpleArgument<Int, Output> {
+/**
+ * An [Argument] that accepts an [Int].
+ */
+public interface IntegerArgument<Output> : PrimitiveArgument<Int, Output> {
     override suspend fun parse(args: MutableList<String>, discord: Discord): Int? = args.consumeFirst().toIntOrNull()
     override suspend fun generateExamples(context: DiscordContext): List<String> = (0..10).map { it.toString() }
 }
 
-public interface DoubleArgument<Output> : SimpleArgument<Double, Output> {
+/**
+ * An [Argument] that accepts a [Double].
+ */
+public interface DoubleArgument<Output> : PrimitiveArgument<Double, Output> {
     override suspend fun parse(args: MutableList<String>, discord: Discord): Double? = args.consumeFirst().toDoubleOrNull()
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("%.2f".format(Random.nextDouble(0.00, 9.99)))
 }
 
-public interface BooleanArgument<Output> : SimpleArgument<Boolean, Output> {
+/**
+ * An [Argument] that accepts a [Boolean].
+ *
+ * @property truthValue The string value that results in true.
+ * @property falseValue The string value that results in false.
+ */
+public interface BooleanArgument<Output> : PrimitiveArgument<Boolean, Output> {
     public val truthValue: String
     public val falseValue: String
 
@@ -115,6 +152,9 @@ public interface BooleanArgument<Output> : SimpleArgument<Boolean, Output> {
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(truthValue, falseValue)
 }
 
+/**
+ * An [Argument] that accepts a [User].
+ */
 public interface UserArgument<Output> : EntityArgument<User, Output> {
     override suspend fun parse(args: MutableList<String>, discord: Discord): User? {
         return args.consumeFirst().toSnowflakeOrNull()?.let { discord.kord.getUser(it) }
@@ -123,6 +163,9 @@ public interface UserArgument<Output> : EntityArgument<User, Output> {
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(context.author.mention)
 }
 
+/**
+ * An [Argument] that accepts a [Role].
+ */
 public interface RoleArgument<Output> : EntityArgument<Role, Output> {
     override suspend fun parse(args: MutableList<String>, discord: Discord): Role? {
         val roles = discord.kord.guilds.toList().flatMap { it.roles.toList() }
@@ -131,6 +174,9 @@ public interface RoleArgument<Output> : EntityArgument<Role, Output> {
     }
 }
 
+/**
+ * An [Argument] that accepts a [Channel].
+ */
 public interface ChannelArgument<Output> : EntityArgument<Channel, Output> {
     override suspend fun parse(args: MutableList<String>, discord: Discord): Channel? {
         return args.consumeFirst().toSnowflakeOrNull()?.let { discord.kord.getChannel(it) }
@@ -139,22 +185,25 @@ public interface ChannelArgument<Output> : EntityArgument<Channel, Output> {
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(context.channel.mention)
 }
 
+/**
+ * An [Argument] that accepts an [Attachment].
+ */
 public interface AttachmentArgument<Output> : EntityArgument<Attachment, Output>
 
 /**
- * The result of an argument conversion.
+ * The result of some conversion.
  */
 public sealed class Result<T>
 
 /**
- * ArgumentResult indicating that a conversion was successful.
+ * Result indicating that a conversion was successful.
  *
  * @param result The conversion result of the appropriate type.
  */
 public data class Success<T>(val result: T) : Result<T>()
 
 /**
- * ArgumentResult indicating that a conversion was failed.
+ * Result indicating that a conversion was failed.
  *
  * @param error The reason why the conversion failed.
  */

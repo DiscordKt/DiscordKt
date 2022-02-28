@@ -17,6 +17,9 @@ private val userRegex = "<@!?(\\d+)>".toRegex()
 private val hereRegex = "@+here".toRegex()
 private val everyoneRegex = "@+everyone".toRegex()
 
+/**
+ * Remove and return the first element in a mutable list.
+ */
 public fun MutableList<String>.consumeFirst(): String = if (this.isNotEmpty()) this.removeFirst() else ""
 
 /**
@@ -26,13 +29,14 @@ public fun MutableList<String>.consumeFirst(): String = if (this.isNotEmpty()) t
 public fun String.containsURl(): Boolean = urlRegexes.any { replace("\n", "").contains(it) }
 
 /**
- * Whether this string matches the invite regex.
+ * Whether this string contains a discord invite.
  * @sample me.jakejmattson.discordkt.extensions.inviteRegex
  */
 public fun String.containsInvite(): Boolean = inviteRegex.containsMatchIn(this)
 
 /**
- * Find all invites in this string.
+ * Return all discord invites in this string.
+ * @sample me.jakejmattson.discordkt.extensions.inviteRegex
  */
 public fun String.getInvites(): List<String> = inviteRegex.findAll(this).map { it.value }.toList()
 

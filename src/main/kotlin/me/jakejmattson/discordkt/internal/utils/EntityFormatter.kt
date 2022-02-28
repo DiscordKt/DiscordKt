@@ -7,6 +7,11 @@ import me.jakejmattson.discordkt.arguments.Success
 import me.jakejmattson.discordkt.commands.Command
 import java.awt.Color
 
+/**
+ * Convert any generic type into a more readable String.
+ *
+ * @param entity The entity to be converted.
+ */
 public fun <T> stringify(entity: T): String =
     when (entity) {
         //Discord entities

@@ -64,6 +64,7 @@ public open class DiscordContext(public val discord: Discord,
  * @property guild The (nullable) guild this command was invoked in.
  * @property args The parsed input to the command.
  * @property command The [Command] that is resolved from the invocation.
+ * @property context The [DiscordContext] of this event.
  */
 public open class CommandEvent<T : TypeContainer>(
     public open val rawInputs: RawInputs,
