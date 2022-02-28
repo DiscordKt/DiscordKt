@@ -48,8 +48,10 @@ internal fun createDocumentation(commands: List<Command>) {
         val longestDesc = max(commandData.maxLength { it.desc }, header.desc.length)
         val formatString = "| %-${longestName}s | %-${longestArgs}s | %-${longestDesc}s |"
 
+        fun divider(length: Int) = "-".repeat(length+ 2)
+
         val headerString = header.format(formatString)
-        val separator = formatString.format("-".repeat(longestName), "-".repeat(longestArgs), "-".repeat(longestDesc))
+        val separator = "|${divider(longestName)}|${divider(longestArgs)}|${divider(longestDesc)}|"
         val commandString = commandData.sortedBy { it.name }.joinToString("\n") { it.format(formatString) }
 
         return "$headerString\n$separator\n$commandString\n"
@@ -70,7 +72,7 @@ internal fun createDocumentation(commands: List<Command>) {
             """
                 ## Key 
                 | Symbol      | Meaning                        |
-                | ----------- | ------------------------------ |
+                |-------------|--------------------------------|
             """.trimIndent() + "\n$keyString\n"
         else
             ""
