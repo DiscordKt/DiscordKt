@@ -132,8 +132,8 @@ public abstract class Discord {
                 val description = argument.description
 
                 val (arg, isRequired) = when(argument) {
-                    is OptionalArg<*, *, *> -> argument.base to false
-                    is WrappedArgument<*, *, *, *> -> argument.base to true
+                    is OptionalArg<*, *, *> -> argument.type to false
+                    is WrappedArgument<*, *, *, *> -> argument.type to true
                     else -> argument to true
                 }
 
@@ -163,7 +163,7 @@ public abstract class Discord {
                 .forEach {
                     val potentialArg = it.arguments.first()
 
-                    when (if (potentialArg is OptionalArg<*, *, *>) potentialArg.base else potentialArg) {
+                    when (if (potentialArg is OptionalArg<*, *, *>) potentialArg.type else potentialArg) {
                         MessageArg -> message(command.appName) { defaultPermission = false }
                         is UserArgument<*> -> user(command.appName) { defaultPermission = false }
                     }

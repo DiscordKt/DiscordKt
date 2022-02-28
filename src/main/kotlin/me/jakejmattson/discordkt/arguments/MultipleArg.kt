@@ -1,26 +1,28 @@
 package me.jakejmattson.discordkt.arguments
 
+import me.jakejmattson.discordkt.Args1
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
+import me.jakejmattson.discordkt.internal.command.transformArgs
 import me.jakejmattson.discordkt.locale.inject
 
 /**
  * Accepts multiple arguments of the given type. Returns a list.
  *
- * @param base The [Argument] that you expect to be used to create the list.
+ * @param type The [Argument] that you expect to be used to create the list.
  */
-public class MultipleArg<Input, Output>(override val base: Argument<Input, Output>,
-                                       override val name: String = base.name,
-                                       description: String = "") : WrappedArgument<Input, Output, List<Input>, List<Output>> {
-    override val description: String = description.ifBlank { internalLocale.multipleArgDescription.inject(base.name) }
+public class MultipleArg<Input, Output>(override val type: Argument<Input, Output>,
+                                        override val name: String = type.name,
+                                        description: String = "") : WrappedArgument<Input, Output, List<Input>, List<Output>> {
+    override val description: String = description.ifBlank { internalLocale.multipleArgDescription.inject(type.name) }
 
     override suspend fun parse(args: MutableList<String>, discord: Discord): List<Input>? {
         val totalResult = mutableListOf<Input>()
         val remainingArgs = args.toMutableList()
 
         complete@ while (remainingArgs.isNotEmpty()) {
-            val conversion = base.parse(remainingArgs, discord)
+            val conversion = type.parse(remainingArgs, discord)
 
             if (conversion != null) {
                 totalResult.add(conversion)
@@ -32,9 +34,24 @@ public class MultipleArg<Input, Output>(override val base: Argument<Input, Outpu
             }
         }
 
+        args.clear()
+        args.addAll(remainingArgs)
+
         return totalResult
     }
 
+    override suspend fun transform(input: List<Input>, context: DiscordContext): Result<List<Output>> {
+        val transformation = input.map {
+            transformArgs(listOf(type to it), context)
+        }
+
+        return if (transformation.all { it is Success })
+            Success(transformation.map { (((it as Success).result) as Args1<*>).first as Output })
+        else {
+            transformation.first { it is Error } as Error<List<Output>>
+        }
+    }
+
     override suspend fun generateExamples(context: DiscordContext): List<String> =
-        base.generateExamples(context).chunked(2).map { it.joinToString(" ") }
+        type.generateExamples(context).chunked(2).map { it.joinToString(" ") }
 }

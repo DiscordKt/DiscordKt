@@ -20,11 +20,13 @@ internal suspend fun transformArgs(args: List<Pair<Argument<*, *>, Any?>>, conte
             runBlocking { Success(rawArg.default.invoke(context)) }
         } else {
             val arg = when (rawArg) {
-                is WrappedArgument<*, *, *, *> -> rawArg.base
+                is OptionalArg<*, *, *> -> rawArg.type
                 else -> rawArg
             }
 
             when (arg) {
+                is MultipleArg<*, *> -> (arg as MultipleArg<Any, *>).transform(value as List<Any>, context)
+
                 //Simple
                 is StringArgument -> arg.transform(value as String, context)
                 is IntegerArgument -> arg.transform(value as Int, context)

@@ -47,18 +47,33 @@ private suspend fun handleMessageContext(interaction: MessageCommandInteraction,
 
 private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction, discord: Discord) {
     handleApplicationCommand(interaction as ApplicationCommandInteraction, discord) { context ->
-        transformArgs(execution.arguments.map { arg ->
-            val argName = arg.name.lowercase()
+        transformArgs(execution.arguments.map { argument ->
+            val argName = argument.name.lowercase()
+            val arg = when (argument) {
+                is WrappedArgument<*, *, *, *> -> argument.type
+                else -> argument
+            }
 
             with(interaction.command) {
-                arg to when (arg) {
-                    is UserArgument<*> -> users[argName]
+                val value = when (arg) {
+                    is StringArgument -> strings[argName]
+                    is IntegerArgument -> integers[argName]?.toInt()
+                    is DoubleArgument -> numbers[argName]
+                    is BooleanArgument -> booleans[argName]
+
+                    //Entity
+                    is UserArgument -> users[argName]
                     is RoleArgument -> roles[argName]
                     is ChannelArgument -> channels[argName]?.let { kord.getChannel(it.id) }
                     is AttachmentArgument -> attachments[argName]
-                    is IntegerArgument -> integers[argName]?.toInt()
+
                     else -> options[argName]?.value
                 }
+
+                if (argument is MultipleArg<*, *>)
+                    argument to listOf(value)
+                else
+                    argument to value
             }
         }, context)
     }

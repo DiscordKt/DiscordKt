@@ -82,7 +82,7 @@ public interface SimpleArgument<Input, Output> : Argument<Input, Output>
 public interface EntityArgument<Input, Output> : Argument<Input, Output>
 
 public interface WrappedArgument<Input, Output, Input2, Output2> : Argument<Input2, Output2> {
-    public val base: Argument<Input, Output>
+    public val type: Argument<Input, Output>
 }
 
 public interface StringArgument<Output> : SimpleArgument<String, Output> {
