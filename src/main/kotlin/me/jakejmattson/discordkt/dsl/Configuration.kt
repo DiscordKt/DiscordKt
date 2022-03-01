@@ -19,6 +19,7 @@ import me.jakejmattson.discordkt.commands.DiscordContext
  * @property generateCommandDocs Generates a markdown file of command info.
  * @property recommendCommands Recommends the closest command name when an invalid one is attempted.
  * @property enableSearch Allows searching for a command by typing 'search <command name>'.
+ * @property removeInvocation Remove a command invocation message after the command is executed.
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway [Intents] to register manually.
@@ -31,6 +32,7 @@ public data class BotConfiguration(
     val generateCommandDocs: Boolean,
     val recommendCommands: Boolean,
     val enableSearch: Boolean,
+    val removeInvocation: Boolean,
     val commandReaction: DiscordEmoji?,
     val theme: Color?,
     val intents: Intents,
@@ -51,6 +53,7 @@ public data class BotConfiguration(
  * @property generateCommandDocs Generates a markdown file of command info.
  * @property recommendCommands Recommends the closest command name when an invalid one is attempted.
  * @property enableSearch Allows searching for a command by typing 'search <command name>'.
+ * @property removeInvocation Remove a command invocation message after the command is executed.
  * @property commandReaction The reaction added to a message when a command is received.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway [Intents] to register manually.
@@ -63,6 +66,7 @@ public data class SimpleConfiguration(
     var generateCommandDocs: Boolean = true,
     var recommendCommands: Boolean = true,
     var enableSearch: Boolean = true,
+    var removeInvocation: Boolean = true,
     var commandReaction: DiscordEmoji? = Emojis.eyes,
     var theme: java.awt.Color? = null,
     var intents: Intents = Intents.none,

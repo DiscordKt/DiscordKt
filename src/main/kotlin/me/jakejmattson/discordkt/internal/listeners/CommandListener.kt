@@ -72,9 +72,10 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     val command = potentialCommand.takeUnless { !it.hasPermissionToRun(event) }
         ?: return@on Recommender.sendRecommendation(event, commandName)
 
-    config.commandReaction?.let {
-        message.addReaction(it)
-    }
+    if (!config.removeInvocation)
+        config.commandReaction?.let {
+            message.addReaction(it)
+        }
 
     command.invoke(event, rawInputs.commandArgs)
 }

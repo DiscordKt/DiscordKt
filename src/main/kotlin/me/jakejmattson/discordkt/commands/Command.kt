@@ -124,6 +124,9 @@ public sealed interface Command {
 
             try {
                 (execution as Execution<CommandEvent<*>>).execute(event)
+
+                if (event.discord.configuration.removeInvocation)
+                    event.message?.delete()
             } catch (e: Exception) {
                 event.discord.configuration.exceptionHandler.invoke(CommandException(e, event))
             }
