@@ -7,10 +7,16 @@ import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.commands.*
 
 internal fun produceHelpCommand(category: String) = commands(category) {
-    globalCommand(discord.locale.helpName) {
+    slash(discord.locale.helpName) {
         description = discord.locale.helpDescription
         requiredPermission = discord.permissions.commandDefault
-        execute(AnyArg("Command").optional("")) {
+        execute(AnyArg("Command")
+            .autocomplete { discord.commands
+                .filter { it.hasPermissionToRun(discord, interaction.user, interaction.getGuild()) }
+                .map { it.names }.flatten()
+                .filter { it.contains(input, true) }
+            }
+            .optional("")) {
             val input = args.first
             val theme = discord.configuration.theme
 
@@ -30,7 +36,7 @@ private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
         color = embedColor
 
         discord.commands
-            .filter { it.hasPermissionToRun(this@sendDefaultEmbed) }
+            .filter { it.hasPermissionToRun(discord, this@sendDefaultEmbed.author, guild) }
             .groupBy { it.category }
             .toList()
             .sortedBy { (_, commands) -> -commands.size }

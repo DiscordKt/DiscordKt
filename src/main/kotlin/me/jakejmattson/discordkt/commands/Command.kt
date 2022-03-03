@@ -2,6 +2,8 @@
 
 package me.jakejmattson.discordkt.commands
 
+import dev.kord.core.entity.Guild
+import dev.kord.core.entity.User
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -77,13 +79,13 @@ public sealed interface Command {
     /**
      * Whether this command has permission to run with the given event.
      *
-     * @param event The event context that will attempt to run the command.
+     * @param discord The event context that will attempt to run the command.
      */
-    public suspend fun hasPermissionToRun(event: CommandEvent<*>): Boolean = when {
-        this is DmCommand && event.isFromGuild() -> false
-        this is GuildCommand && !event.isFromGuild() -> false
+    public suspend fun hasPermissionToRun(discord: Discord, author: User, guild: Guild?): Boolean = when {
+        this is DmCommand && guild != null -> false
+        this is GuildCommand && guild == null -> false
         else -> {
-            event.discord.permissions.hasPermission(requiredPermission, event.author, event.guild)
+            discord.permissions.hasPermission(requiredPermission, author, guild)
         }
     }
 

@@ -49,10 +49,7 @@ private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction,
     handleApplicationCommand(interaction as ApplicationCommandInteraction, discord) { context ->
         transformArgs(execution.arguments.map { argument ->
             val argName = argument.name.lowercase()
-            val arg = when (argument) {
-                is WrappedArgument<*, *, *, *> -> argument.type
-                else -> argument
-            }
+            val arg = if (argument is WrappedArgument<*, *, *, *>) argument.innerType else argument
 
             with(interaction.command) {
                 val value = when (arg) {

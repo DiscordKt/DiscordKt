@@ -22,8 +22,9 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     val config = discord.configuration
     val self = kord.selfId.value
     val author = message.author ?: return@on
-    val discordContext = DiscordContext(discord, message, author, message.channel, getGuild())
-    val prefix = config.prefix.invoke(discordContext)
+    val guild = getGuild()
+    val context = DiscordContext(discord, message, author, message.channel, guild)
+    val prefix = config.prefix.invoke(context)
     val channel = message.channel.asChannel()
     val content = message.content
 
@@ -43,7 +44,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
         content.trimToID() == self.toString() -> {
             config.mentionEmbed?.let {
                 channel.createEmbed {
-                    it.invoke(this, discordContext)
+                    it.invoke(this, context)
                 }
             }
 
@@ -59,17 +60,17 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     if (commandName.isBlank()) return@on
 
     val potentialCommand = discord.commands[commandName]
-    val event = potentialCommand?.buildRequiredEvent(discord, rawInputs, message, author, channel, getGuild())
+    val event = potentialCommand?.buildRequiredEvent(discord, rawInputs, message, author, channel, guild)
 
     if (event == null) {
-        val abortEvent = CommandEvent<TypeContainer>(rawInputs, discord, message, author, channel, getGuild())
+        val abortEvent = CommandEvent<TypeContainer>(rawInputs, discord, message, author, channel, guild)
         Recommender.sendRecommendation(abortEvent, commandName)
         return@on
     }
 
     if (!arePreconditionsPassing(event)) return@on
 
-    val command = potentialCommand.takeUnless { !it.hasPermissionToRun(event) }
+    val command = potentialCommand.takeUnless { !it.hasPermissionToRun(discord, author, guild) }
         ?: return@on Recommender.sendRecommendation(event, commandName)
 
     if (!config.removeInvocation)

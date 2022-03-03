@@ -18,6 +18,7 @@ import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.dsl.*
 import me.jakejmattson.discordkt.extensions.pluralize
+import me.jakejmattson.discordkt.internal.listeners.registerAutocompleteListener
 import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
 import me.jakejmattson.discordkt.internal.listeners.registerInteractionListener
 import me.jakejmattson.discordkt.internal.utils.*
@@ -108,9 +109,9 @@ public abstract class Discord {
             }
         }
 
-        registerSlashCommands(permissions.hierarchy)
-
         commands[locale.helpName] ?: produceHelpCommand(locale.helpCategory).register(this)
+
+        registerSlashCommands(permissions.hierarchy)
 
         if (configuration.generateCommandDocs)
             createDocumentation(commands)
@@ -122,6 +123,7 @@ public abstract class Discord {
     private suspend fun registerListeners(discord: Discord) {
         registerInteractionListener(discord)
         registerCommandListener(discord)
+        registerAutocompleteListener(discord)
     }
 
     @KordPreview
@@ -131,20 +133,35 @@ public abstract class Discord {
                 val name = argument.name.lowercase()
                 val description = argument.description
 
-                val (arg, isRequired) = when(argument) {
-                    is OptionalArg<*, *, *> -> argument.type to false
-                    is WrappedArgument<*, *, *, *> -> argument.type to true
-                    else -> argument to true
+                data class ArgumentData(val argument: Argument<*, *>, val isRequired: Boolean, val isAutocomplete: Boolean)
+
+                val (arg, isRequired, isAuto) = if (argument is WrappedArgument<*, *, *, *>) {
+                    ArgumentData(
+                        argument.innerType,
+                        !argument.containsType<OptionalArg<*, *, *>>(),
+                        argument.containsType<AutocompleteArg<*, *>>()
+                    )
                 }
+                else
+                    ArgumentData(argument, false, false)
 
                 when (arg) {
+                    //Entity
                     is AttachmentArgument<*> -> attachment(name, description) { required = isRequired }
-                    is IntegerArgument<*> -> int(name, description) { required = isRequired }
-                    is DoubleArgument<*> -> number(name, description) { required = isRequired }
-                    is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
                     is UserArgument<*> -> user(name, description) { required = isRequired }
                     is RoleArgument<*> -> role(name, description) { required = isRequired }
                     is ChannelArgument<*> -> channel(name, description) { required = isRequired }
+
+                    //Primitive
+                    is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
+                    is IntegerArgument<*> -> int(name, description) {
+                        required = isRequired
+                        autocomplete = isAuto
+                    }
+                    is DoubleArgument<*> -> number(name, description) {
+                        required = isRequired
+                        autocomplete = isAuto
+                    }
                     is ChoiceArg<*> -> string(name, description) {
                         required = isRequired
 
@@ -152,7 +169,10 @@ public abstract class Discord {
                             choice(it.toString(), it.toString())
                         }
                     }
-                    else -> string(name, description) { required = isRequired }
+                    else -> string(name, description) {
+                        required = isRequired
+                        autocomplete = isAuto
+                    }
                 }
             }
         }

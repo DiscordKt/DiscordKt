@@ -6,6 +6,7 @@ import dev.kord.core.entity.Attachment
 import dev.kord.core.entity.Role
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.Channel
+import dev.kord.core.entity.interaction.GuildAutoCompleteInteraction
 import kotlinx.coroutines.flow.toList
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.CommandEvent
@@ -87,10 +88,17 @@ public sealed interface Argument<Input, Output> : Cloneable {
     public fun isOptional(): Boolean =  this is OptionalArg<*, *, *>
 }
 
+public data class AutocompleteData(public val interaction: GuildAutoCompleteInteraction,
+                                   public val input: String)
+
 /**
  * An [Argument] that accepts a primitive type.
  */
-public interface PrimitiveArgument<Input, Output> : Argument<Input, Output>
+public interface PrimitiveArgument<Input, Output> : Argument<Input, Output> {
+    public fun autocomplete(choices: suspend AutocompleteData.() -> List<Input>): AutocompleteArg<Input, Output> {
+        return AutocompleteArg(name, description, this, choices)
+    }
+}
 
 /**
  * An [Argument] that accepts a discord entity.
@@ -105,6 +113,32 @@ public interface WrappedArgument<Input, Output, Input2, Output2> : Argument<Inpu
      * The [Argument] that is wrapped.
      */
     public val type: Argument<Input, Output>
+
+    public val innerType: Argument<Input, Output>
+        get() {
+            var inner: Argument<*, *> = type
+
+            while (inner is WrappedArgument<*, *, *, *>)
+                inner = inner.type
+
+            return inner as Argument<Input, Output>
+        }
+
+    override suspend fun parse(args: MutableList<String>, discord: Discord): Input2? = type.parse(args, discord) as Input2?
+    override suspend fun generateExamples(context: DiscordContext): List<String> = type.generateExamples(context)
+}
+
+public inline fun <reified T> WrappedArgument<*, *, *, *>.containsType(): Boolean {
+    var innerType: Argument<*, *> = this
+
+    while (innerType is WrappedArgument<*, *, *, *>) {
+        if (innerType is T)
+            return true
+
+        innerType = innerType.type
+    }
+
+    return innerType is T
 }
 
 /**
@@ -172,6 +206,8 @@ public interface RoleArgument<Output> : EntityArgument<Role, Output> {
         val snowflake = args.consumeFirst().toSnowflakeOrNull()
         return roles.find { it.id == snowflake }
     }
+
+    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("@everyone")
 }
 
 /**

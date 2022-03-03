@@ -22,7 +22,7 @@ internal object Recommender {
             return
 
         val possibilities = discord.commands
-            .filter { it.hasPermissionToRun(event) }
+            .filter { it.hasPermissionToRun(discord, event.author, event.guild) }
             .flatMap { it.names }
             .takeUnless { it.isEmpty() }
             ?: return

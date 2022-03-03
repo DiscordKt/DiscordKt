@@ -26,6 +26,4 @@ public open class RoleArg(override val name: String = "Role",
 
         return Success(input)
     }
-
-    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("@everyone")
 }
