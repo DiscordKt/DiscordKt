@@ -143,7 +143,7 @@ public abstract class Discord {
                     )
                 }
                 else
-                    ArgumentData(argument, false, false)
+                    ArgumentData(argument, true, false)
 
                 when (arg) {
                     //Entity
