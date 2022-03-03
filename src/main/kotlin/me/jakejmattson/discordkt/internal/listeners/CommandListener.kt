@@ -28,8 +28,8 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     val channel = message.channel.asChannel()
     val content = message.content
 
-    fun String.isBotMention() = config.allowMentionPrefix && (startsWith("<@!$self>") || startsWith("<@$self>"))
-    fun String.isSearch() = config.enableSearch && lowercase().startsWith("search") && split(" ").size == 2
+    fun String.isBotMention() = config.mentionAsPrefix && (startsWith("<@!$self>") || startsWith("<@$self>"))
+    fun String.isSearch() = config.searchCommands && lowercase().startsWith("search") && split(" ").size == 2
     suspend fun search() {
         val query = content.split(" ")[1]
 
@@ -73,7 +73,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     val command = potentialCommand.takeUnless { !it.hasPermissionToRun(discord, author, guild) }
         ?: return@on Recommender.sendRecommendation(event, commandName)
 
-    if (!config.removeInvocation)
+    if (!config.deleteInvocation)
         config.commandReaction?.let {
             message.addReaction(it)
         }

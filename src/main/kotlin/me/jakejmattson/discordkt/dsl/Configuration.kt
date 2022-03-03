@@ -14,25 +14,25 @@ import me.jakejmattson.discordkt.commands.DiscordContext
  * Contains all properties configured when the bot is created.
  *
  * @property packageName The detected package name for the bot.
- * @property allowMentionPrefix Uses the bot mention (@Bot) as a prefix.
- * @property showStartupLog Displays log information when the bot starts.
- * @property generateCommandDocs Generates a markdown file of command info.
- * @property recommendCommands Recommends the closest command name when an invalid one is attempted.
- * @property enableSearch Allows searching for a command by typing 'search <command name>'.
- * @property removeInvocation Remove a command invocation message after the command is executed.
- * @property commandReaction The reaction added to a message when a command is received.
+ * @property mentionAsPrefix Use the bot mention (@Bot) as a prefix.
+ * @property logStartup Display log information when the bot starts.
+ * @property documentCommands Generate a markdown file of command info.
+ * @property recommendCommands Recommend the closest command name to an invalid one.
+ * @property searchCommands Allow command searching with 'search <command name>'.
+ * @property deleteInvocation Delete a command invocation message after execution.
+ * @property commandReaction A reaction added to the command invocation message.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway [Intents] to register manually.
  * @property entitySupplyStrategy [EntitySupplyStrategy] for use in Kord cache.
  */
 public data class BotConfiguration(
     val packageName: String,
-    val allowMentionPrefix: Boolean,
-    val showStartupLog: Boolean,
-    val generateCommandDocs: Boolean,
+    val mentionAsPrefix: Boolean,
+    val logStartup: Boolean,
+    val documentCommands: Boolean,
     val recommendCommands: Boolean,
-    val enableSearch: Boolean,
-    val removeInvocation: Boolean,
+    val searchCommands: Boolean,
+    val deleteInvocation: Boolean,
     val commandReaction: DiscordEmoji?,
     val theme: Color?,
     val intents: Intents,
@@ -46,27 +46,27 @@ public data class BotConfiguration(
 )
 
 /**
- * Holds all basic configuration options.
+ * Simple configuration values that don't require a builder.
  *
- * @property allowMentionPrefix Uses the bot mention (@Bot) as a prefix.
- * @property showStartupLog Displays log information when the bot starts.
- * @property generateCommandDocs Generates a markdown file of command info.
- * @property recommendCommands Recommends the closest command name when an invalid one is attempted.
- * @property enableSearch Allows searching for a command by typing 'search <command name>'.
- * @property removeInvocation Remove a command invocation message after the command is executed.
- * @property commandReaction The reaction added to a message when a command is received.
+ * @property mentionAsPrefix Use the bot mention (@Bot) as a prefix.
+ * @property logStartup Display log information when the bot starts.
+ * @property documentCommands Generate a markdown file of command info.
+ * @property recommendCommands Recommend the closest command name to an invalid one.
+ * @property searchCommands Allow command searching with 'search <command name>'.
+ * @property deleteInvocation Delete a command invocation message after execution.
+ * @property commandReaction A reaction added to the command invocation message.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway [Intents] to register manually.
  * @property permissions The [PermissionSet] used to restrict command usage.
  * @property entitySupplyStrategy [EntitySupplyStrategy] for use in Kord cache.
  */
 public data class SimpleConfiguration(
-    var allowMentionPrefix: Boolean = true,
-    var showStartupLog: Boolean = true,
-    var generateCommandDocs: Boolean = true,
+    var mentionAsPrefix: Boolean = true,
+    var logStartup: Boolean = true,
+    var documentCommands: Boolean = true,
     var recommendCommands: Boolean = true,
-    var enableSearch: Boolean = true,
-    var removeInvocation: Boolean = true,
+    var searchCommands: Boolean = true,
+    var deleteInvocation: Boolean = true,
     var commandReaction: DiscordEmoji? = Emojis.eyes,
     var theme: java.awt.Color? = null,
     var intents: Intents = Intents.none,

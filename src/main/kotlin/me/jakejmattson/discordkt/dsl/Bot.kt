@@ -84,12 +84,12 @@ public class Bot(private val token: String, private val packageName: String) {
         val botConfiguration = with(simpleConfiguration) {
             BotConfiguration(
                 packageName = packageName,
-                allowMentionPrefix = allowMentionPrefix,
-                showStartupLog = showStartupLog,
-                generateCommandDocs = generateCommandDocs,
+                mentionAsPrefix = mentionAsPrefix,
+                logStartup = logStartup,
+                documentCommands = documentCommands,
                 recommendCommands = recommendCommands,
-                enableSearch = enableSearch,
-                removeInvocation = removeInvocation,
+                searchCommands = searchCommands,
+                deleteInvocation = deleteInvocation,
                 commandReaction = commandReaction,
                 theme = theme?.kColor,
                 intents = intents + intentsOf<MessageCreateEvent>() + intentsOf<InteractionCreateEvent>(),

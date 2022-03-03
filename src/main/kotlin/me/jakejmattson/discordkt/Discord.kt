@@ -89,7 +89,7 @@ public abstract class Discord {
         Reflection.registerFunctions(this)
         registerListeners(this)
 
-        if (configuration.showStartupLog) {
+        if (configuration.logStartup) {
             val header = "----- DiscordKt ${versions.library} -----"
             val commandSets = commands.groupBy { it.category }.keys.size
 
@@ -113,7 +113,7 @@ public abstract class Discord {
 
         registerSlashCommands(permissions.hierarchy)
 
-        if (configuration.generateCommandDocs)
+        if (configuration.documentCommands)
             createDocumentation(commands)
     }
 
