@@ -20,6 +20,7 @@ import me.jakejmattson.discordkt.commands.DiscordContext
  * @property recommendCommands Recommend the closest command name to an invalid one.
  * @property searchCommands Allow command searching with 'search <command name>'.
  * @property deleteInvocation Delete a command invocation message after execution.
+ * @property dualRegistry Allow invocation of a slash command as a text command.
  * @property commandReaction A reaction added to the command invocation message.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway [Intents] to register manually.
@@ -33,6 +34,7 @@ public data class BotConfiguration(
     val recommendCommands: Boolean,
     val searchCommands: Boolean,
     val deleteInvocation: Boolean,
+    val dualRegistry: Boolean,
     val commandReaction: DiscordEmoji?,
     val theme: Color?,
     val intents: Intents,
@@ -54,6 +56,7 @@ public data class BotConfiguration(
  * @property recommendCommands Recommend the closest command name to an invalid one.
  * @property searchCommands Allow command searching with 'search <command name>'.
  * @property deleteInvocation Delete a command invocation message after execution.
+ * @property dualRegistry Allow invocation of a slash command as a text command.
  * @property commandReaction A reaction added to the command invocation message.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway [Intents] to register manually.
@@ -67,6 +70,7 @@ public data class SimpleConfiguration(
     var recommendCommands: Boolean = true,
     var searchCommands: Boolean = true,
     var deleteInvocation: Boolean = true,
+    var dualRegistry: Boolean = true,
     var commandReaction: DiscordEmoji? = Emojis.eyes,
     var theme: java.awt.Color? = null,
     var intents: Intents = Intents.none,

@@ -90,6 +90,7 @@ public class Bot(private val token: String, private val packageName: String) {
                 recommendCommands = recommendCommands,
                 searchCommands = searchCommands,
                 deleteInvocation = deleteInvocation,
+                dualRegistry = dualRegistry,
                 commandReaction = commandReaction,
                 theme = theme?.kColor,
                 intents = intents + intentsOf<MessageCreateEvent>() + intentsOf<InteractionCreateEvent>(),

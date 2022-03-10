@@ -84,6 +84,7 @@ public sealed interface Command {
     public suspend fun hasPermissionToRun(discord: Discord, author: User, guild: Guild?): Boolean = when {
         this is DmCommand && guild != null -> false
         this is GuildCommand && guild == null -> false
+        internalLocale.helpName != name && this is SlashCommand && !discord.configuration.dualRegistry -> false
         else -> {
             discord.permissions.hasPermission(requiredPermission, author, guild)
         }
