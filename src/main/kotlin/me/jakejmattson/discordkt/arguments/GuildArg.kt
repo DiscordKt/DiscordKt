@@ -1,7 +1,7 @@
 package me.jakejmattson.discordkt.arguments
 
 import dev.kord.core.entity.Guild
-import dev.kord.core.firstOrNull
+import kotlinx.coroutines.flow.firstOrNull
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.extensions.toSnowflakeOrNull
@@ -25,5 +25,4 @@ public open class GuildArg(override val name: String = "Guild",
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = context.guild?.let { listOf(it.id.toString()) }
         ?: listOf()
-
 }

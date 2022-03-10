@@ -2,15 +2,14 @@ package me.jakejmattson.discordkt.commands
 
 import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.behavior.interaction.response.InteractionResponseBehavior
-import dev.kord.core.behavior.interaction.response.followUp
-import dev.kord.core.behavior.interaction.response.followUpEphemeral
+import dev.kord.core.behavior.interaction.response.respond
 import dev.kord.core.entity.*
 import dev.kord.core.entity.channel.DmChannel
 import dev.kord.core.entity.channel.GuildMessageChannel
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ApplicationCommandInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.rest.builder.message.create.embed
+import dev.kord.rest.builder.message.modify.embed
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.addReaction
 import me.jakejmattson.discordkt.Discord
@@ -150,15 +149,10 @@ public open class SlashCommandEvent<T : TypeContainer>(
      * @param ephemeral Whether this message should be ephemeral.
      */
     public suspend fun respond(message: Any, ephemeral: Boolean = true): InteractionResponseBehavior? =
-        if (interaction != null)
-            if (ephemeral)
-                interaction!!.deferEphemeralMessage().apply {
-                    followUpEphemeral { content = message.toString() }
-                }
-            else
-                interaction!!.deferPublicMessage().apply {
-                    followUp { content = message.toString() }
-                }
+        if (interaction != null) {
+            val defer = if (ephemeral) interaction!!.deferEphemeralResponse() else interaction!!.deferPublicResponse()
+            defer.respond { content = message.toString() }
+        }
         else {
             super.respond(message)
             null
@@ -171,23 +165,18 @@ public open class SlashCommandEvent<T : TypeContainer>(
      * @param embedBuilder
      */
     public suspend fun respond(ephemeral: Boolean = true, embedBuilder: suspend EmbedBuilder.() -> Unit): InteractionResponseBehavior? =
-        if (interaction != null)
-            if (ephemeral)
-                interaction!!.deferEphemeralMessage().apply {
-                    followUpEphemeral { embed { embedBuilder.invoke(this) } }
-                }
-            else
-                interaction!!.deferPublicMessage().apply {
-                    followUp { embed { embedBuilder.invoke(this) } }
-                }
+        if (interaction != null) {
+            val defer = if (ephemeral) interaction!!.deferEphemeralResponse() else interaction!!.deferPublicResponse()
+            defer.respond { embed { embedBuilder.invoke(this) } }
+        }
         else {
             super.respond(embedBuilder)
             null
         }
 
     override suspend fun respond(message: Any): List<Message> =
-        interaction?.deferEphemeralMessage()?.let {
-            it.followUpEphemeral { content = message.toString() }
+        interaction?.deferEphemeralResponse()?.let {
+            it.respond { content = message.toString() }
             emptyList()
         } ?: super.respond(message)
 
@@ -195,7 +184,7 @@ public open class SlashCommandEvent<T : TypeContainer>(
         if (interaction == null) {
             super.respond(embedBuilder)
         } else {
-            interaction!!.deferEphemeralMessage().followUpEphemeral { embed { embedBuilder.invoke(this) } }
+            interaction!!.deferEphemeralResponse().respond { embed { embedBuilder.invoke(this) } }
             null
         }
 }

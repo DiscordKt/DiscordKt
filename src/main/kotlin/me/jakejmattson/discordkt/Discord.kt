@@ -182,11 +182,12 @@ public abstract class Discord {
                 .filter { it.arguments.size == 1 }
                 .forEach {
                     val potentialArg = it.arguments.first()
+                    val arg = if (potentialArg is WrappedArgument<*, *, *, *>) potentialArg.type else potentialArg
 
-                    when (if (potentialArg is OptionalArg<*, *, *>) potentialArg.type else potentialArg) {
-                        MessageArg -> message(command.appName) { defaultPermission = false }
-                        is UserArgument<*> -> user(command.appName) { defaultPermission = false }
-                    }
+                    if (arg is MessageArg)
+                        message(command.appName) { defaultPermission = false }
+                    else if (arg is UserArgument<*>)
+                        user(command.appName) { defaultPermission = false }
                 }
 
             input(command.name.lowercase(), command.description.ifBlank { "<No Description>" }) {
