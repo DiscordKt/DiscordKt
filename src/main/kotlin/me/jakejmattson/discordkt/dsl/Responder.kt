@@ -43,9 +43,9 @@ public interface Responder {
     }
 
     /**
-     * Respond with a menu.
+     * Respond with a [Menu].
      */
-    public suspend fun respondMenu(menuBuilder: suspend MenuBuilder.() -> Unit): Message? {
+    public suspend fun respondMenu(menuBuilder: suspend MenuBuilder.() -> Unit): Message {
         val handle = MenuBuilder()
         handle.menuBuilder()
         return handle.build().send(channel)

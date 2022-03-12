@@ -14,13 +14,42 @@ import dev.kord.core.entity.interaction.ButtonInteraction
 import dev.kord.core.entity.interaction.ComponentInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.rest.builder.message.create.actionRow
+import dev.kord.rest.builder.message.modify.actionRow
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
 import me.jakejmattson.discordkt.extensions.toPartialEmoji
-import me.jakejmattson.discordkt.internal.utils.InternalLogger
+import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import java.util.*
 
 private val menus = mutableMapOf<Snowflake, Menu>()
+
+public suspend fun Message.edit(menu: Menu): Message {
+    val message = edit {
+        content = null
+        components?.clear()
+        embeds = mutableListOf(menu.page)
+
+        menu.buttons.forEach {
+            actionRow {
+                it.forEach { button ->
+                    when (button) {
+                        is SimpleButton<*> -> interactionButton(button.style, button.id) {
+                            this.label = button.label
+                            this.emoji = button.emoji?.toPartialEmoji()
+                        }
+                        is LinkButton -> linkButton(button.url) {
+                            this.label = button.label
+                            this.emoji = button.emoji?.toPartialEmoji()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    menus[id] = menu
+    return message
+}
 
 /**
  * Builder functions for menu buttons.
@@ -117,6 +146,16 @@ public class MenuBuilder {
 }
 
 /**
+ * Create a [Menu]
+ */
+@BuilderDSL
+public suspend fun menu(menuBuilder: suspend MenuBuilder.() -> Unit): Menu {
+    val handle = MenuBuilder()
+    handle.menuBuilder()
+    return handle.build()
+}
+
+/**
  * Contains menu data and navigation functions.
  */
 public data class Menu(internal val pages: MutableList<EmbedBuilder>,
@@ -166,11 +205,8 @@ public data class Menu(internal val pages: MutableList<EmbedBuilder>,
     }
 
     @OptIn(KordPreview::class)
-    internal suspend fun send(channel: MessageChannelBehavior): Message? {
-        if (pages.isEmpty()) {
-            InternalLogger.error("A menu must have at least one page.")
-            return null
-        }
+    internal suspend fun send(channel: MessageChannelBehavior): Message {
+        require(pages.isNotEmpty()) { "A menu must have at least one page." }
 
         val message = channel.createMessage {
             embeds.add(pages.first())
@@ -179,17 +215,13 @@ public data class Menu(internal val pages: MutableList<EmbedBuilder>,
                 actionRow {
                     it.forEach { button ->
                         when (button) {
-                            is SimpleButton<*> -> {
-                                interactionButton(button.style, button.id) {
-                                    this.label = button.label
-                                    this.emoji = button.emoji?.toPartialEmoji()
-                                }
+                            is SimpleButton<*> -> interactionButton(button.style, button.id) {
+                                this.label = button.label
+                                this.emoji = button.emoji?.toPartialEmoji()
                             }
-                            is LinkButton -> {
-                                linkButton(button.url) {
-                                    this.label = button.label
-                                    this.emoji = button.emoji?.toPartialEmoji()
-                                }
+                            is LinkButton -> linkButton(button.url) {
+                                this.label = button.label
+                                this.emoji = button.emoji?.toPartialEmoji()
                             }
                         }
                     }
