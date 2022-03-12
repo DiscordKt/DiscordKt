@@ -23,6 +23,9 @@ import java.util.*
 
 private val menus = mutableMapOf<Snowflake, Menu>()
 
+/**
+ * Replace an existing message with a [Menu].
+ */
 public suspend fun Message.edit(menu: Menu): Message {
     val message = edit {
         content = null

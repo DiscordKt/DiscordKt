@@ -12,8 +12,8 @@ import me.jakejmattson.discordkt.dsl.internalLocale
  * @param allowsGlobal Whether this entity can be retrieved from outside this guild.
  */
 public open class ChannelArg<T : GuildChannel>(override val name: String = "Channel",
-                                          override val description: String = internalLocale.channelArgDescription,
-                                          private val allowsGlobal: Boolean = false) : ChannelArgument<T> {
+                                               override val description: String = internalLocale.channelArgDescription,
+                                               private val allowsGlobal: Boolean = false) : ChannelArgument<T> {
     /**
      * Accepts a Discord TextChannel entity as an ID or mention from within this guild.
      */
@@ -28,5 +28,5 @@ public open class ChannelArg<T : GuildChannel>(override val name: String = "Chan
 
         return Success(channel)
 
-}
+    }
 }

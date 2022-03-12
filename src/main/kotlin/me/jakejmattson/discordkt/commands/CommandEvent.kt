@@ -152,8 +152,7 @@ public open class SlashCommandEvent<T : TypeContainer>(
         if (interaction != null) {
             val defer = if (ephemeral) interaction!!.deferEphemeralResponse() else interaction!!.deferPublicResponse()
             defer.respond { content = message.toString() }
-        }
-        else {
+        } else {
             super.respond(message)
             null
         }
@@ -168,8 +167,7 @@ public open class SlashCommandEvent<T : TypeContainer>(
         if (interaction != null) {
             val defer = if (ephemeral) interaction!!.deferEphemeralResponse() else interaction!!.deferPublicResponse()
             defer.respond { embed { embedBuilder.invoke(this) } }
-        }
-        else {
+        } else {
             super.respond(embedBuilder)
             null
         }

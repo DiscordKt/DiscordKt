@@ -11,12 +11,12 @@ internal fun produceHelpCommand(category: String) = commands(category) {
         description = discord.locale.helpDescription
         requiredPermission = discord.permissions.commandDefault
         execute(AnyArg("Command")
-            .autocomplete { discord.commands
-                .filter { it.hasPermissionToRun(discord, interaction.user, interaction.getGuild()) }
-                .map { it.names }.flatten()
-                .filter { it.contains(input, true) }
-            }
-            .optional("")) {
+            .autocomplete {
+                discord.commands
+                    .filter { it.hasPermissionToRun(discord, interaction.user, interaction.getGuild()) }
+                    .map { it.names }.flatten()
+                    .filter { it.contains(input, true) }
+            }.optional("")) {
             val input = args.first
             val theme = discord.configuration.theme
 

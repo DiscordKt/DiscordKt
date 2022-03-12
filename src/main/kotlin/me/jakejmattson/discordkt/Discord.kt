@@ -141,8 +141,7 @@ public abstract class Discord {
                         !argument.containsType<OptionalArg<*, *, *>>(),
                         argument.containsType<AutocompleteArg<*, *>>()
                     )
-                }
-                else
+                } else
                     ArgumentData(argument, true, false)
 
                 when (arg) {

@@ -2,18 +2,9 @@
 
 package me.jakejmattson.discordkt.arguments
 
-import dev.kord.core.entity.Attachment
-import dev.kord.core.entity.Role
-import dev.kord.core.entity.User
-import dev.kord.core.entity.channel.Channel
-import dev.kord.core.entity.interaction.GuildAutoCompleteInteraction
-import kotlinx.coroutines.flow.toList
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.CommandEvent
 import me.jakejmattson.discordkt.commands.DiscordContext
-import me.jakejmattson.discordkt.extensions.consumeFirst
-import me.jakejmattson.discordkt.extensions.toSnowflakeOrNull
-import kotlin.random.Random
 
 /**
  * An object that represents a type and contains the logic to convert string arguments to the desired type.
@@ -83,148 +74,10 @@ public sealed interface Argument<Input, Output> : Cloneable {
     public suspend fun generateExamples(context: DiscordContext): List<String>
 
     /**
-     * Utility function to check that this Argument is an [OptionalArg]
+     * Utility function to check that this Argument is an [OptionalArg].
      */
-    public fun isOptional(): Boolean =  this is OptionalArg<*, *, *>
+    public fun isOptional(): Boolean = if (this is WrappedArgument<*, *, *, *>) this.containsType<OptionalArg<*, *, *>>() else false
 }
-
-public data class AutocompleteData(public val interaction: GuildAutoCompleteInteraction,
-                                   public val input: String)
-
-/**
- * An [Argument] that accepts a primitive type.
- */
-public interface PrimitiveArgument<Input, Output> : Argument<Input, Output> {
-    public fun autocomplete(choices: suspend AutocompleteData.() -> List<Input>): AutocompleteArg<Input, Output> {
-        return AutocompleteArg(name, description, this, choices)
-    }
-}
-
-/**
- * An [Argument] that accepts a discord entity.
- */
-public interface EntityArgument<Input, Output> : Argument<Input, Output>
-
-/**
- * An [Argument] that wraps around another argument.
- */
-public interface WrappedArgument<Input, Output, Input2, Output2> : Argument<Input2, Output2> {
-    /**
-     * The [Argument] that is wrapped.
-     */
-    public val type: Argument<Input, Output>
-
-    public val innerType: Argument<Input, Output>
-        get() {
-            var inner: Argument<*, *> = type
-
-            while (inner is WrappedArgument<*, *, *, *>)
-                inner = inner.type
-
-            return inner as Argument<Input, Output>
-        }
-
-    override suspend fun parse(args: MutableList<String>, discord: Discord): Input2? = type.parse(args, discord) as Input2?
-    override suspend fun generateExamples(context: DiscordContext): List<String> = type.generateExamples(context)
-}
-
-public inline fun <reified T> WrappedArgument<*, *, *, *>.containsType(): Boolean {
-    var innerType: Argument<*, *> = this
-
-    while (innerType is WrappedArgument<*, *, *, *>) {
-        if (innerType is T)
-            return true
-
-        innerType = innerType.type
-    }
-
-    return innerType is T
-}
-
-/**
- * An [Argument] that accepts a [String].
- */
-public interface StringArgument<Output> : PrimitiveArgument<String, Output> {
-    override suspend fun parse(args: MutableList<String>, discord: Discord): String? = args.consumeFirst().takeIf { it.isNotEmpty() }
-    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(name)
-}
-
-/**
- * An [Argument] that accepts an [Int].
- */
-public interface IntegerArgument<Output> : PrimitiveArgument<Int, Output> {
-    override suspend fun parse(args: MutableList<String>, discord: Discord): Int? = args.consumeFirst().toIntOrNull()
-    override suspend fun generateExamples(context: DiscordContext): List<String> = (0..10).map { it.toString() }
-}
-
-/**
- * An [Argument] that accepts a [Double].
- */
-public interface DoubleArgument<Output> : PrimitiveArgument<Double, Output> {
-    override suspend fun parse(args: MutableList<String>, discord: Discord): Double? = args.consumeFirst().toDoubleOrNull()
-    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("%.2f".format(Random.nextDouble(0.00, 9.99)))
-}
-
-/**
- * An [Argument] that accepts a [Boolean].
- *
- * @property truthValue The string value that results in true.
- * @property falseValue The string value that results in false.
- */
-public interface BooleanArgument<Output> : PrimitiveArgument<Boolean, Output> {
-    public val truthValue: String
-    public val falseValue: String
-
-    override suspend fun parse(args: MutableList<String>, discord: Discord): Boolean? {
-        return when (args.consumeFirst().lowercase()) {
-            truthValue.lowercase() -> true
-            falseValue.lowercase() -> false
-            else -> null
-        }
-    }
-
-    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(truthValue, falseValue)
-}
-
-/**
- * An [Argument] that accepts a [User].
- */
-public interface UserArgument<Output> : EntityArgument<User, Output> {
-    override suspend fun parse(args: MutableList<String>, discord: Discord): User? {
-        return args.consumeFirst().toSnowflakeOrNull()?.let { discord.kord.getUser(it) }
-    }
-
-    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(context.author.mention)
-}
-
-/**
- * An [Argument] that accepts a [Role].
- */
-public interface RoleArgument<Output> : EntityArgument<Role, Output> {
-    override suspend fun parse(args: MutableList<String>, discord: Discord): Role? {
-        val roles = discord.kord.guilds.toList().flatMap { it.roles.toList() }
-        val snowflake = args.consumeFirst().toSnowflakeOrNull()
-        return roles.find { it.id == snowflake }
-    }
-
-    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("@everyone")
-}
-
-/**
- * An [Argument] that accepts a [Channel].
- */
-public interface ChannelArgument<Output> : EntityArgument<Channel, Output> {
-    override suspend fun parse(args: MutableList<String>, discord: Discord): Channel? {
-        return args.consumeFirst().toSnowflakeOrNull()?.let { discord.kord.getChannel(it) }
-    }
-
-    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(context.channel.mention)
-}
-
-/**
- * An [Argument] that accepts an [Attachment].
- */
-public interface AttachmentArgument<Output> : EntityArgument<Attachment, Output>
 
 /**
  * The result of some conversion.

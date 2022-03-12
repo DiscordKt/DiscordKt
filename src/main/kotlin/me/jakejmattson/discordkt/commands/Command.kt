@@ -147,7 +147,7 @@ public sealed interface Command {
 }
 
 /**
- * Abstract message command representation.
+ * Abstract text command representation.
  */
 public sealed interface TextCommand : Command
 

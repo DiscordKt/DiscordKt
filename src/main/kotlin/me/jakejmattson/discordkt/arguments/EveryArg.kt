@@ -15,7 +15,7 @@ public open class EveryArg(override val name: String = "Text",
     public companion object : EveryArg()
 
     override suspend fun parse(args: MutableList<String>, discord: Discord): String? {
-         if (args.size in 0..1 && args.first().isEmpty())
+        if (args.size in 0..1 && args.first().isEmpty())
             return null
 
         return args.joinToString(" ").also { args.clear() }

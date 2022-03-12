@@ -48,7 +48,7 @@ internal fun createDocumentation(commands: List<Command>) {
         val longestDesc = max(commandData.maxLength { it.desc }, header.desc.length)
         val formatString = "| %-${longestName}s | %-${longestArgs}s | %-${longestDesc}s |"
 
-        fun divider(length: Int) = "-".repeat(length+ 2)
+        fun divider(length: Int) = "-".repeat(length + 2)
 
         val headerString = header.format(formatString)
         val separator = "|${divider(longestName)}|${divider(longestArgs)}|${divider(longestDesc)}|"
