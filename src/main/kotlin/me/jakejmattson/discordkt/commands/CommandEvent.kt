@@ -8,6 +8,7 @@ import dev.kord.core.entity.channel.DmChannel
 import dev.kord.core.entity.channel.GuildMessageChannel
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ApplicationCommandInteraction
+import dev.kord.core.entity.interaction.GuildApplicationCommandInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.rest.builder.message.modify.embed
 import dev.kord.x.emoji.DiscordEmoji
@@ -198,5 +199,5 @@ public data class GuildSlashCommandEvent<T : TypeContainer>(
     override val author: User,
     override val channel: MessageChannel,
     override val guild: Guild,
-    override val interaction: ApplicationCommandInteraction?
+    override val interaction: GuildApplicationCommandInteraction?
 ) : SlashCommandEvent<T>(rawInputs, discord, message, author, channel, guild, interaction)

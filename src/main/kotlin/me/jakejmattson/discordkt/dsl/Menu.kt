@@ -19,7 +19,6 @@ import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
 import me.jakejmattson.discordkt.extensions.toPartialEmoji
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
-import java.util.*
 
 private val menus = mutableMapOf<Snowflake, Menu>()
 
@@ -71,7 +70,7 @@ public class MenuButtonRowBuilder {
      */
     @OptIn(KordPreview::class)
     public fun button(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend Menu.() -> Unit) {
-        val button = SimpleButton(label, emoji?.toReaction(), disabled, UUID.randomUUID().toString(), Nav(action), style)
+        val button = SimpleButton(label, emoji?.toReaction(), disabled, uuid(), Nav(action), style)
         buttons.add(button)
     }
 
@@ -86,7 +85,7 @@ public class MenuButtonRowBuilder {
      */
     @OptIn(KordPreview::class)
     public fun editButton(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend EmbedBuilder.() -> Unit) {
-        val button = SimpleButton(label, emoji?.toReaction(), disabled, UUID.randomUUID().toString(), Edit(action), style)
+        val button = SimpleButton(label, emoji?.toReaction(), disabled, uuid(), Edit(action), style)
         buttons.add(button)
     }
 
@@ -101,7 +100,7 @@ public class MenuButtonRowBuilder {
      */
     @OptIn(KordPreview::class)
     public fun actionButton(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend ComponentInteraction.() -> Unit) {
-        val button = SimpleButton(label, emoji?.toReaction(), disabled, UUID.randomUUID().toString(), Action(action), style)
+        val button = SimpleButton(label, emoji?.toReaction(), disabled, uuid(), Action(action), style)
         buttons.add(button)
     }
 

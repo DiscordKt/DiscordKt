@@ -45,7 +45,7 @@ public suspend fun VoiceState.disconnect(): Member = getMember().edit { voiceCha
 /**
  * Create a new menu in a message channel.
  */
-public suspend fun MessageChannelBehavior.createMenu(construct: suspend MenuBuilder.() -> Unit): Message? {
+public suspend fun MessageChannelBehavior.createMenu(construct: suspend MenuBuilder.() -> Unit): Message {
     val handle = MenuBuilder()
     handle.construct()
     return handle.build().send(this)

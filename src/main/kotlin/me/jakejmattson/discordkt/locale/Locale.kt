@@ -91,13 +91,6 @@ public interface Locale {
     /** [DoubleArg][me.jakejmattson.discordkt.arguments.DoubleArg] description */
     public var doubleArgDescription: String
 
-    /** [EitherArg][me.jakejmattson.discordkt.arguments.EitherArg] description
-     * {0} left type
-     * {1} right type
-     */
-    @RequiresFill(["left type", "right type"])
-    public var eitherArgDescription: String
-
     /** [EveryArg][me.jakejmattson.discordkt.arguments.EveryArg] description */
     public var everyArgDescription: String
 

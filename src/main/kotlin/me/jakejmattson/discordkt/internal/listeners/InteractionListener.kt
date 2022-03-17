@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.internal.listeners
 
 import dev.kord.common.annotation.KordPreview
 import dev.kord.common.annotation.KordUnsafe
-import dev.kord.core.behavior.interaction.GuildInteractionBehavior
+import dev.kord.core.behavior.interaction.*
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.interaction.*
 import dev.kord.core.event.interaction.InteractionCreateEvent
@@ -14,6 +14,7 @@ import me.jakejmattson.discordkt.bundleToContainer
 import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.conversations.Conversations
 import me.jakejmattson.discordkt.dsl.Menu
+import me.jakejmattson.discordkt.dsl.modalBuffer
 import me.jakejmattson.discordkt.internal.command.transformArgs
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
 
@@ -21,27 +22,21 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
 @KordPreview
 internal suspend fun registerInteractionListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
     when (val interaction = interaction) {
+        is MessageCommandInteraction -> handleApplicationCommand(interaction, discord) {
+            Success(bundleToContainer(listOf(interaction.messages.values.first())))
+        }
+        is UserCommandInteraction -> handleApplicationCommand(interaction, discord) {
+            Success(bundleToContainer(listOf(interaction.users.values.first())))
+        }
         is ChatInputCommandInteraction -> handleSlashCommand(interaction, discord)
-        is MessageCommandInteraction -> handleMessageContext(interaction, discord)
-        is UserCommandInteraction -> handleUserContext(interaction, discord)
+        is AutoCompleteInteraction -> handleAutocomplete(interaction, discord)
+        is ModalSubmitInteraction -> modalBuffer.send(interaction)
         is SelectMenuInteraction -> Conversations.handleInteraction(interaction)
         is ButtonInteraction -> {
             Menu.handleButtonPress(interaction)
             Conversations.handleInteraction(interaction)
         }
-        else -> InternalLogger.error("Unknown interaction received.")
-    }
-}
-
-private suspend fun handleUserContext(interaction: UserCommandInteraction, discord: Discord) {
-    handleApplicationCommand(interaction, discord) {
-        Success(bundleToContainer(listOf(interaction.users.values.first())))
-    }
-}
-
-private suspend fun handleMessageContext(interaction: MessageCommandInteraction, discord: Discord) {
-    handleApplicationCommand(interaction, discord) {
-        Success(bundleToContainer(listOf(interaction.messages.values.first())))
+        else -> InternalLogger.error("Unknown interaction received: ${interaction.javaClass.simpleName}")
     }
 }
 
@@ -92,7 +87,7 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
 
     val event =
         if (dktCommand is GuildSlashCommand)
-            GuildSlashCommandEvent(rawInputs, discord, message, author, channel, guild!!, interaction)
+            GuildSlashCommandEvent(rawInputs, discord, message, author, channel, guild!!, interaction as GuildApplicationCommandInteraction)
         else
             SlashCommandEvent<TypeContainer>(rawInputs, discord, message, author, channel, guild, interaction)
 
@@ -106,5 +101,38 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
         is Success<*> -> transformResults.result as TypeContainer
     }
 
-    (dktCommand.execution as Execution<CommandEvent<*>>).execute(event)
+    dktCommand.execution.execute(event)
+}
+
+private suspend fun handleAutocomplete(interaction: AutoCompleteInteraction, discord: Discord) {
+    val dktCommand = discord.commands.filterIsInstance<GuildSlashCommand>().firstOrNull { it.name.equals(interaction.command.rootName, true) }
+        ?: return
+
+    val argName = interaction.command.options.entries.single { it.value.focused }.key.lowercase()
+    val rawArg = dktCommand.execution.arguments.first { it.name.equals(argName, true) }
+
+    val arg: AutocompleteArg<*, *> = if (rawArg is WrappedArgument<*, *, *, *>)
+        if (rawArg is AutocompleteArg<*, *>)
+            rawArg
+        else
+            rawArg.type as AutocompleteArg<*, *>
+    else
+        return
+
+    val currentInput = interaction.focusedOption.value
+    val autocompleteData = AutocompleteData(interaction, currentInput)
+    val suggestions = arg.autocomplete.invoke(autocompleteData).take(25)
+
+    when (arg.innerType) {
+        is IntegerArgument -> interaction.suggestInt {
+            suggestions.forEach { choice(it.toString(), (it as Int).toLong()) }
+        }
+        is DoubleArgument -> interaction.suggestNumber {
+            suggestions.forEach { choice(it.toString(), it as Double) }
+        }
+        is StringArgument -> interaction.suggestString {
+            suggestions.forEach { choice(it.toString(), it as String) }
+        }
+        else -> {}
+    }
 }

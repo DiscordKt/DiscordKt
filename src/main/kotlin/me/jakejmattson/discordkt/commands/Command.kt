@@ -59,7 +59,7 @@ public sealed interface Command {
     public var description: String
     public var category: String
     public var requiredPermission: Permission
-    public val executions: MutableList<Execution<*>>
+    public val executions: MutableList<Execution<CommandEvent<*>>>
 
     /**
      * The first name in the [names] list.
@@ -114,9 +114,7 @@ public sealed interface Command {
             }
 
             val (execution, success) = successfulParse
-            success as Success
-
-            val transformedInput = transformArgs(execution.arguments.zip(success.result), event.context)
+            val transformedInput = transformArgs(execution.arguments.zip((success as Success).result), event.context)
 
             if (transformedInput is Success<*>)
                 event.args = transformedInput.result as TypeContainer
@@ -126,7 +124,7 @@ public sealed interface Command {
             }
 
             try {
-                (execution as Execution<CommandEvent<*>>).execute(event)
+                execution.execute(event)
 
                 if (event.discord.configuration.deleteInvocation)
                     event.message?.delete()
@@ -142,7 +140,7 @@ public sealed interface Command {
      * You should not need to call this manually.
      */
     public fun <T : CommandEvent<*>> addExecution(argTypes: List<Argument<*, *>>, execute: suspend T.() -> Unit) {
-        executions.add(Execution(argTypes, execute))
+        executions.add(Execution(argTypes, execute) as Execution<CommandEvent<*>>)
     }
 }
 
@@ -160,7 +158,7 @@ public sealed interface TextCommand : Command
 public sealed interface SlashCommand : Command {
     public val appName: String
 
-    public val execution: Execution<*>
+    public val execution: Execution<CommandEvent<*>>
         get() = executions.first()
 }
 
@@ -170,7 +168,7 @@ public sealed interface SlashCommand : Command {
 public class GlobalCommand(override val names: List<String>,
                            override var description: String = "",
                            override var category: String = "",
-                           override val executions: MutableList<Execution<*>> = mutableListOf(),
+                           override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
                            override var requiredPermission: Permission) : TextCommand {
     /** @suppress */
     @NestedDSL
@@ -203,7 +201,7 @@ public class GlobalCommand(override val names: List<String>,
 public class GuildCommand(override val names: List<String>,
                           override var description: String = "",
                           override var category: String = "",
-                          override val executions: MutableList<Execution<*>> = mutableListOf(),
+                          override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
                           override var requiredPermission: Permission) : TextCommand {
     /** @suppress */
     @NestedDSL
@@ -236,7 +234,7 @@ public class GuildCommand(override val names: List<String>,
 public class DmCommand(override val names: List<String>,
                        override var description: String = "",
                        override var category: String = "",
-                       override val executions: MutableList<Execution<*>> = mutableListOf(),
+                       override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
                        override var requiredPermission: Permission) : TextCommand {
     /** @suppress */
     @NestedDSL
@@ -273,7 +271,7 @@ public class GlobalSlashCommand(override val name: String,
                                 override val names: List<String> = listOf(name),
                                 override var description: String = "",
                                 override var category: String = "",
-                                override val executions: MutableList<Execution<*>> = mutableListOf(),
+                                override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
                                 override var requiredPermission: Permission) : SlashCommand {
     /** @suppress */
     @NestedDSL
@@ -310,7 +308,7 @@ public class GuildSlashCommand(override val name: String,
                                override val names: List<String> = listOf(name),
                                override var description: String = "",
                                override var category: String = "",
-                               override val executions: MutableList<Execution<*>> = mutableListOf(),
+                               override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
                                override var requiredPermission: Permission) : SlashCommand {
     /** @suppress */
     @NestedDSL

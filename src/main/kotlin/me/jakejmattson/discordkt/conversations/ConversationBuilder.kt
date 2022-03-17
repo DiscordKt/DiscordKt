@@ -18,6 +18,7 @@ import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.Responder
 import me.jakejmattson.discordkt.dsl.internalLocale
+import me.jakejmattson.discordkt.dsl.uuid
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -145,7 +146,7 @@ public data class ConversationBuilder(val discord: Discord,
             embeds.add(builder)
 
             actionRow {
-                selectMenu(UUID.randomUUID().toString()) {
+                selectMenu(uuid()) {
                     options.forEach {
                         option(it, it)
                     }

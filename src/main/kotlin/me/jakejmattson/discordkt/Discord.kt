@@ -18,7 +18,6 @@ import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.dsl.*
 import me.jakejmattson.discordkt.extensions.pluralize
-import me.jakejmattson.discordkt.internal.listeners.registerAutocompleteListener
 import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
 import me.jakejmattson.discordkt.internal.listeners.registerInteractionListener
 import me.jakejmattson.discordkt.internal.utils.*
@@ -123,7 +122,6 @@ public abstract class Discord {
     private suspend fun registerListeners(discord: Discord) {
         registerInteractionListener(discord)
         registerCommandListener(discord)
-        registerAutocompleteListener(discord)
     }
 
     @KordPreview
@@ -142,7 +140,7 @@ public abstract class Discord {
                         argument.containsType<AutocompleteArg<*, *>>()
                     )
                 } else
-                    ArgumentData(argument, true, false)
+                    ArgumentData(argument, isRequired = true, isAutocomplete = false)
 
                 when (arg) {
                     //Entity
@@ -207,7 +205,7 @@ public abstract class Discord {
         if (guildSlashCommands.isEmpty())
             return
 
-        kord.guilds.toList().forEach { guild ->
+        kord.guilds.toList().forEach guilds@ { guild ->
             try {
                 val slashCommands = guild.createApplicationCommands {
                     guildSlashCommands.forEach {

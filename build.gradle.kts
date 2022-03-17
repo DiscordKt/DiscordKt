@@ -118,7 +118,7 @@ tasks {
             val sizes = buildString {
                 val configuration = configurations["default"]
                 val size = configuration.sumOf { it.length() / (1024.0 * 1024.0) }
-                val longestName = configuration.map { it.name.length }.maxOrNull()
+                val longestName = configuration.maxOfOrNull { it.name.length }
                 val formatStr = "%-${longestName}s   %5d KB"
 
                 appendLine("Total Size: %.2f MB\n".format(size))

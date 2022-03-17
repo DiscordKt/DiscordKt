@@ -15,6 +15,7 @@ import dev.kord.rest.builder.component.ActionRowBuilder
 import dev.kord.rest.builder.component.ButtonBuilder
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
+import me.jakejmattson.discordkt.dsl.uuid
 import java.util.*
 
 /**
@@ -57,7 +58,7 @@ public fun ReactionEmoji.toPartialEmoji(): DiscordPartialEmoji = DiscordPartialE
  */
 @OptIn(KordPreview::class)
 public fun ActionRowBuilder.button(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: ButtonBuilder.InteractionButtonBuilder.() -> Unit) {
-    interactionButton(style, UUID.randomUUID().toString()) {
+    interactionButton(style, uuid()) {
         this.label = label
         this.emoji = emoji?.toPartialEmoji()
         this.disabled = disabled

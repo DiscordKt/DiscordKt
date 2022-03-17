@@ -25,7 +25,6 @@ public data class LocaleEN(
     public override var choiceArgDescription: String = "A list to choose from",
     public override var commandArgDescription: String = "A DiscordKt command",
     public override var doubleArgDescription: String = "A decimal number",
-    public override var eitherArgDescription: String = "Either {0} or {1}",
     public override var everyArgDescription: String = "All remaining input",
     public override var guildArgDescription: String = "A Discord guild",
     public override var guildEmojiArgDescription: String = "A Discord emoji",

@@ -10,8 +10,8 @@ import dev.kord.rest.builder.message.create.actionRow
 import dev.kord.rest.builder.message.create.embed
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
+import me.jakejmattson.discordkt.dsl.uuid
 import me.jakejmattson.discordkt.extensions.toPartialEmoji
-import java.util.*
 
 internal class ConversationButton<T>(
     val label: String?,
@@ -85,7 +85,7 @@ public class ConversationButtonRowBuilder<T> {
      */
     @OptIn(KordPreview::class)
     public fun button(label: String?, emoji: DiscordEmoji?, value: T, style: ButtonStyle = ButtonStyle.Secondary) {
-        val button = ConversationButton(label, emoji?.toReaction(), UUID.randomUUID().toString(), value, style)
+        val button = ConversationButton(label, emoji?.toReaction(), uuid(), value, style)
         buttons.add(button)
     }
 }

@@ -1,6 +1,6 @@
 package me.jakejmattson.discordkt.arguments
 
-import dev.kord.core.entity.interaction.GuildAutoCompleteInteraction
+import dev.kord.core.entity.interaction.AutoCompleteInteraction
 
 /**
  * The data provided to process autocomplete interactions.
@@ -8,7 +8,7 @@ import dev.kord.core.entity.interaction.GuildAutoCompleteInteraction
  * @param interaction The Discord interaction.
  * @param input The user input thus far.
  */
-public data class AutocompleteData(public val interaction: GuildAutoCompleteInteraction, public val input: String)
+public data class AutocompleteData(public val interaction: AutoCompleteInteraction, public val input: String)
 
 /**
  * Provides autocomplete options to slash input.

@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.internal.utils
 
 import dev.kord.common.Color
+import dev.kord.core.entity.interaction.GuildAutoCompleteInteraction
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.arguments.AnyArg
 import me.jakejmattson.discordkt.arguments.Argument
@@ -13,7 +14,7 @@ internal fun produceHelpCommand(category: String) = commands(category) {
         execute(AnyArg("Command")
             .autocomplete {
                 discord.commands
-                    .filter { it.hasPermissionToRun(discord, interaction.user, interaction.getGuild()) }
+                    .filter { it.hasPermissionToRun(discord, interaction.user, (interaction as GuildAutoCompleteInteraction).getGuild()) }
                     .map { it.names }.flatten()
                     .filter { it.contains(input, true) }
             }.optional("")) {
