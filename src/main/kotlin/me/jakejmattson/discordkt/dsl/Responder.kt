@@ -3,12 +3,14 @@
 package me.jakejmattson.discordkt.dsl
 
 import dev.kord.core.behavior.channel.MessageChannelBehavior
-import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.behavior.channel.createMessage
+import dev.kord.core.behavior.interaction.respondEphemeral
+import dev.kord.core.behavior.interaction.respondPublic
+import dev.kord.core.behavior.interaction.response.InteractionResponseBehavior
 import dev.kord.core.entity.Message
+import dev.kord.core.entity.interaction.ApplicationCommandInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
-import me.jakejmattson.discordkt.Discord
-import me.jakejmattson.discordkt.extensions.sanitiseMentions
+import dev.kord.rest.builder.message.create.embed
 
 /**
  * An interface for responding to input in a given context.
@@ -20,26 +22,19 @@ public interface Responder {
     public val channel: MessageChannelBehavior
 
     /**
-     * Send this message with no sanitization.
+     * Create a response message with text and/or an embed.
+     *
+     * @param message Message text content.
+     * @param embed Message embed content.
      */
-    public suspend fun respond(message: Any): List<Message> = chunkRespond(message.toString())
+    public suspend fun respond(message: Any = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): Message? = channel.createMessage {
+        val responseContent = message.toString()
 
-    /**
-     * Respond with a message and sanitize mentions.
-     */
-    public suspend fun safeRespond(discord: Discord, message: Any): List<Message> = chunkRespond(message.toString().sanitiseMentions(discord))
+        if (responseContent.isNotEmpty())
+            content = responseContent
 
-    /**
-     * Respond with an embed.
-     */
-    public suspend fun respond(embedBuilder: suspend EmbedBuilder.() -> Unit): Message? = channel.createEmbed { embedBuilder.invoke(this) }
-
-    /**
-     * Respond with a message and an embed.
-     */
-    public suspend fun respond(message: String, embedBuilder: suspend EmbedBuilder.() -> Unit): Message? = channel.createMessage {
-        content = message
-        embedBuilder.invoke(embeds.first())
+        if (embed != null)
+            embed { embed.invoke(this) }
     }
 
     /**
@@ -50,9 +45,51 @@ public interface Responder {
         handle.menuBuilder()
         return handle.build().send(channel)
     }
+}
 
-    private suspend fun chunkRespond(message: String): List<Message> {
-        require(message.isNotEmpty()) { "Cannot send an empty message." }
-        return message.chunked(2000).map { channel.createMessage(it) }
-    }
+public interface SlashResponder : Responder {
+    public val interaction: ApplicationCommandInteraction?
+
+    /**
+     * Create an ephemeral slash response with text and/or an embed.
+     *
+     * @param message Message text content.
+     * @param embed Message embed content.
+     */
+    override suspend fun respond(message: Any, embed: (suspend EmbedBuilder.() -> Unit)?): Message? =
+        if (interaction != null) {
+            interaction!!.respondEphemeral {
+                val responseContent = message.toString()
+
+                if (responseContent.isNotEmpty())
+                    content = responseContent
+
+                if (embed != null)
+                    embed { embed.invoke(this) }
+            }
+            null
+        } else
+            super.respond(message, embed)
+
+    /**
+     * Create a public slash response with text and/or an embed.
+     *
+     * @param message Message text content.
+     * @param embed Message embed content.
+     */
+    public suspend fun respondPublic(message: Any, embed: (suspend EmbedBuilder.() -> Unit)?): InteractionResponseBehavior? =
+        if (interaction != null) {
+            interaction!!.respondPublic {
+                val responseContent = message.toString()
+
+                if (responseContent.isNotEmpty())
+                    content = responseContent
+
+                if (embed != null)
+                    embed { embed.invoke(this) }
+            }
+        } else {
+            super.respond(message, embed)
+            null
+        }
 }

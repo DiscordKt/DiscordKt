@@ -1,21 +1,18 @@
 package me.jakejmattson.discordkt.commands
 
 import dev.kord.core.behavior.channel.MessageChannelBehavior
-import dev.kord.core.behavior.interaction.response.InteractionResponseBehavior
-import dev.kord.core.behavior.interaction.response.respond
 import dev.kord.core.entity.*
 import dev.kord.core.entity.channel.DmChannel
 import dev.kord.core.entity.channel.GuildMessageChannel
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ApplicationCommandInteraction
 import dev.kord.core.entity.interaction.GuildApplicationCommandInteraction
-import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.rest.builder.message.modify.embed
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.addReaction
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.dsl.Responder
+import me.jakejmattson.discordkt.dsl.SlashResponder
 
 /**
  * Data class containing the raw information from the command execution.
@@ -141,52 +138,7 @@ public open class SlashCommandEvent<T : TypeContainer>(
     override val author: User,
     override val channel: MessageChannel,
     override val guild: Guild? = null,
-    public open val interaction: ApplicationCommandInteraction?) : CommandEvent<T>(rawInputs, discord, message, author, channel, null) {
-
-    /**
-     * Custom ephemeral respond function.
-     *
-     * @param message The content of the message to respond.
-     * @param ephemeral Whether this message should be ephemeral.
-     */
-    public suspend fun respond(message: Any, ephemeral: Boolean = true): InteractionResponseBehavior? =
-        if (interaction != null) {
-            val defer = if (ephemeral) interaction!!.deferEphemeralResponse() else interaction!!.deferPublicResponse()
-            defer.respond { content = message.toString() }
-        } else {
-            super.respond(message)
-            null
-        }
-
-    /**
-     * Custom ephemeral respond function.
-     *
-     * @param ephemeral Whether this message should be ephemeral.
-     * @param embedBuilder
-     */
-    public suspend fun respond(ephemeral: Boolean = true, embedBuilder: suspend EmbedBuilder.() -> Unit): InteractionResponseBehavior? =
-        if (interaction != null) {
-            val defer = if (ephemeral) interaction!!.deferEphemeralResponse() else interaction!!.deferPublicResponse()
-            defer.respond { embed { embedBuilder.invoke(this) } }
-        } else {
-            super.respond(embedBuilder)
-            null
-        }
-
-    override suspend fun respond(message: Any): List<Message> =
-        interaction?.deferEphemeralResponse()?.let {
-            it.respond { content = message.toString() }
-            emptyList()
-        } ?: super.respond(message)
-
-    override suspend fun respond(embedBuilder: suspend EmbedBuilder.() -> Unit): Message? =
-        if (interaction == null) {
-            super.respond(embedBuilder)
-        } else {
-            interaction!!.deferEphemeralResponse().respond { embed { embedBuilder.invoke(this) } }
-            null
-        }
-}
+    public override val interaction: ApplicationCommandInteraction?) : CommandEvent<T>(rawInputs, discord, message, author, channel, null), SlashResponder
 
 /**
  * An event fired by a guild slash command.
@@ -200,4 +152,4 @@ public data class GuildSlashCommandEvent<T : TypeContainer>(
     override val channel: MessageChannel,
     override val guild: Guild,
     override val interaction: GuildApplicationCommandInteraction?
-) : SlashCommandEvent<T>(rawInputs, discord, message, author, channel, guild, interaction)
+) : SlashCommandEvent<T>(rawInputs, discord, message, author, channel, guild, interaction), SlashResponder
