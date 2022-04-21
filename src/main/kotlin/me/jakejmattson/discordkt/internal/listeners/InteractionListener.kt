@@ -1,7 +1,6 @@
 package me.jakejmattson.discordkt.internal.listeners
 
 import dev.kord.common.annotation.KordPreview
-import dev.kord.common.annotation.KordUnsafe
 import dev.kord.core.behavior.interaction.*
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.interaction.*
@@ -18,7 +17,6 @@ import me.jakejmattson.discordkt.dsl.modalBuffer
 import me.jakejmattson.discordkt.internal.command.transformArgs
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
 
-@OptIn(KordUnsafe::class)
 @KordPreview
 internal suspend fun registerInteractionListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
     when (val interaction = interaction) {

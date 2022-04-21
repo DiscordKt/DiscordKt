@@ -1,6 +1,5 @@
 package me.jakejmattson.discordkt.conversations
 
-import dev.kord.common.annotation.KordPreview
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.entity.Message
@@ -36,7 +35,6 @@ public data class ConversationBuilder(val discord: Discord,
                                       private val timeout: Long) : Responder {
     private val messageBuffer = Channel<Message>()
 
-    @OptIn(KordPreview::class)
     private val interactionBuffer = Channel<ComponentInteraction>()
 
     private val exceptionBuffer = Channel<TimeoutException>()
@@ -65,7 +63,6 @@ public data class ConversationBuilder(val discord: Discord,
 
     internal suspend fun acceptMessage(message: Message) = messageBuffer.send(message)
 
-    @OptIn(KordPreview::class)
     internal suspend fun acceptInteraction(interaction: ComponentInteraction) = interactionBuffer.send(interaction)
 
     /**
@@ -137,7 +134,6 @@ public data class ConversationBuilder(val discord: Discord,
      * @param options The options that can be selected by the user
      * @param embed The embed sent as part of the prompt.
      */
-    @OptIn(KordPreview::class)
     @Throws(DmException::class, TimeoutException::class)
     public suspend fun promptSelect(vararg options: String, embed: suspend EmbedBuilder.() -> Unit): String {
         val message = channel.createMessage {
@@ -188,12 +184,10 @@ public data class ConversationBuilder(val discord: Discord,
         }
     }
 
-    @OptIn(KordPreview::class)
     private fun <T> retrieveValidInteractionResponse(buttons: Map<String, T>): T = runBlocking {
         retrieveInteractionResponse(buttons) ?: retrieveValidInteractionResponse(buttons)
     }
 
-    @OptIn(KordPreview::class)
     private suspend fun <T> retrieveInteractionResponse(buttons: Map<String, T>) = select<T?> {
         val timer = createTimer()
 

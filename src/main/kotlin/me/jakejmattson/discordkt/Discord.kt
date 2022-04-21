@@ -205,7 +205,7 @@ public abstract class Discord {
         if (guildSlashCommands.isEmpty())
             return
 
-        kord.guilds.toList().forEach guilds@ { guild ->
+        kord.guilds.toList().forEach guilds@{ guild ->
             try {
                 val slashCommands = guild.createApplicationCommands {
                     guildSlashCommands.forEach {

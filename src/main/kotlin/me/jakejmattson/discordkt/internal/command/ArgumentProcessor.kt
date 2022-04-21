@@ -1,6 +1,5 @@
 package me.jakejmattson.discordkt.internal.command
 
-import dev.kord.common.annotation.KordPreview
 import dev.kord.core.entity.Attachment
 import dev.kord.core.entity.Role
 import dev.kord.core.entity.User
@@ -12,7 +11,6 @@ import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.internal.utils.stringify
 
-@OptIn(KordPreview::class)
 internal suspend fun transformArgs(args: List<Pair<Argument<*, *>, Any?>>, context: DiscordContext): Result<*> {
     val transformations = args.map { (rawArg, value) ->
         if (value == null) {

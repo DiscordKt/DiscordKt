@@ -1,6 +1,5 @@
 package me.jakejmattson.discordkt.conversations
 
-import dev.kord.common.annotation.KordPreview
 import dev.kord.common.entity.ButtonStyle
 import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.entity.ReactionEmoji
@@ -18,8 +17,6 @@ internal class ConversationButton<T>(
     val emoji: ReactionEmoji?,
     val id: String,
     val value: T,
-
-    @OptIn(KordPreview::class)
     val style: ButtonStyle
 )
 
@@ -49,7 +46,6 @@ public class ButtonPromptBuilder<T> {
         buttonRows.add(builder.buttons)
     }
 
-    @OptIn(KordPreview::class)
     internal suspend fun create(channel: MessageChannel) = channel.createMessage {
         this.embed {
             promptEmbed.invoke(this)
@@ -83,7 +79,6 @@ public class ConversationButtonRowBuilder<T> {
      * @param value The value returned when this button is pressed
      * @param style The Button [style][ButtonStyle]
      */
-    @OptIn(KordPreview::class)
     public fun button(label: String?, emoji: DiscordEmoji?, value: T, style: ButtonStyle = ButtonStyle.Secondary) {
         val button = ConversationButton(label, emoji?.toReaction(), uuid(), value, style)
         buttons.add(button)

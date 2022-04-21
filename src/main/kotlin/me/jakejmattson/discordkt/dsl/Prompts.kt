@@ -1,6 +1,5 @@
 package me.jakejmattson.discordkt.dsl
 
-import dev.kord.common.annotation.KordPreview
 import dev.kord.common.entity.TextInputStyle
 import dev.kord.core.behavior.interaction.modal
 import dev.kord.core.entity.interaction.ApplicationCommandInteraction
@@ -45,7 +44,6 @@ public class SimpleModalBuilder {
     }
 }
 
-@OptIn(KordPreview::class)
 internal val modalBuffer = Channel<ModalSubmitInteraction>()
 
 public suspend fun promptModal(interaction: ApplicationCommandInteraction, title: String, builder: SimpleModalBuilder.() -> Unit): Array<String?> {
@@ -79,7 +77,6 @@ private fun retrieveValidModalResponse(modalId: String, textInputIds: List<Strin
     retrieveModalResponse(modalId, textInputIds) ?: retrieveValidModalResponse(modalId, textInputIds)
 }
 
-@OptIn(KordPreview::class)
 private suspend fun retrieveModalResponse(modalId: String, textInputIds: List<String>) = select<List<String?>?> {
     modalBuffer.onReceive { interaction ->
         if (interaction.modalId != modalId) return@onReceive null

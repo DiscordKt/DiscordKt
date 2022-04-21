@@ -1,6 +1,5 @@
 package me.jakejmattson.discordkt.conversations
 
-import dev.kord.common.annotation.KordPreview
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
@@ -42,7 +41,6 @@ public object Conversations {
         }
     }
 
-    @OptIn(KordPreview::class)
     internal fun handleInteraction(interaction: ComponentInteraction) {
         runBlocking {
             getConversation(interaction.user, interaction.getChannel())?.acceptInteraction(interaction)

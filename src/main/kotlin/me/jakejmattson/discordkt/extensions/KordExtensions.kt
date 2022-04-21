@@ -2,7 +2,6 @@
 
 package me.jakejmattson.discordkt.extensions
 
-import dev.kord.common.annotation.KordPreview
 import dev.kord.common.entity.ButtonStyle
 import dev.kord.common.entity.DiscordPartialEmoji
 import dev.kord.common.entity.Snowflake
@@ -56,7 +55,6 @@ public fun ReactionEmoji.toPartialEmoji(): DiscordPartialEmoji = DiscordPartialE
 /**
  * Create an interaction button with a [UUID].
  */
-@OptIn(KordPreview::class)
 public fun ActionRowBuilder.button(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: ButtonBuilder.InteractionButtonBuilder.() -> Unit) {
     interactionButton(style, uuid()) {
         this.label = label

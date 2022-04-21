@@ -1,6 +1,5 @@
 package me.jakejmattson.discordkt.conversations
 
-import dev.kord.common.annotation.KordPreview
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
@@ -91,7 +90,6 @@ public class Conversation(public var exitString: String? = null, public var prom
     @PublishedApi
     internal suspend fun acceptMessage(message: Message): Unit = builder.acceptMessage(message)
 
-    @OptIn(KordPreview::class)
     @PublishedApi
     internal suspend fun acceptInteraction(interaction: ComponentInteraction): Unit = builder.acceptInteraction(interaction)
 }
