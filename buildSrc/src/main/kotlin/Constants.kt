@@ -5,9 +5,9 @@ object Constants {
     const val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
     const val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
 
-    const val kotlin = "1.6.10"
-    const val dokka = "1.6.10"
-    const val kord = "0.8.0-M12"
+    const val kotlin = "1.6.21"
+    const val dokka = "1.6.20"
+    const val kord = "0.8.0-M13"
 }
 
 object Docs {

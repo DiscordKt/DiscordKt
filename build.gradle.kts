@@ -25,7 +25,7 @@ repositories {
 dependencies {
     api("dev.kord:kord-core:${Constants.kord}")
     api("dev.kord.x:emoji:0.5.0")
-    api("org.slf4j:slf4j-simple:2.0.0-alpha6")
+    api("org.slf4j:slf4j-simple:2.0.0-alpha7")
 
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
