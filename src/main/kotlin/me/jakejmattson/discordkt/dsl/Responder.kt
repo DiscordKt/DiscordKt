@@ -77,7 +77,7 @@ public interface SlashResponder : Responder {
      * @param message Message text content.
      * @param embed Message embed content.
      */
-    public suspend fun respondPublic(message: Any, embed: (suspend EmbedBuilder.() -> Unit)?): InteractionResponseBehavior? =
+    public suspend fun respondPublic(message: Any = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): InteractionResponseBehavior? =
         if (interaction != null) {
             interaction!!.respondPublic {
                 val responseContent = message.toString()
