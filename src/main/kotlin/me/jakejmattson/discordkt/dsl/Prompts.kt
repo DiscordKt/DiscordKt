@@ -14,7 +14,11 @@ internal fun uuid() = UUID.randomUUID().toString()
 
 /**
  * @property label The prompt displayed above a text input field.
- * @property value A pre-filled value for this component, max 4000 characters.
+ * @property style The type of [TextInputStyle] to display as.
+ * @property required Whether this field is required to be filled.
+ * @property allowedLength A range of accepted input length.
+ * @property value A pre-filled value, max 4000 characters
+ * @property placeholder Placeholder while input is empty.
  */
 @BuilderDSL
 public data class InputBuilder(val label: String,
@@ -25,15 +29,26 @@ public data class InputBuilder(val label: String,
                                var placeholder: String? = null)
 
 @BuilderDSL
+/**
+ * DSL for building a Discord modal.
+ */
 public class SimpleModalBuilder {
     internal val inputs: MutableList<InputBuilder> = mutableListOf()
 
+    /**
+     * Build a modal component using the [InputBuilder].
+     *
+     * @param label The label for this component.
+     */
     public fun input(label: String, builder: InputBuilder.() -> Unit) {
         val input = InputBuilder(label)
         input.builder()
         inputs.add(input)
     }
 
+    /**
+     * Build a modal component without using the DSL.
+     */
     public fun input(label: String,
                      style: TextInputStyle = TextInputStyle.Paragraph,
                      required: Boolean = true,
@@ -46,6 +61,9 @@ public class SimpleModalBuilder {
 
 internal val modalBuffer = Channel<ModalSubmitInteraction>()
 
+/**
+ * Create a discord modal and collect the input.
+ */
 public suspend fun promptModal(interaction: ApplicationCommandInteraction, title: String, builder: SimpleModalBuilder.() -> Unit): Array<String?> {
     val modalId = uuid()
     val modal = SimpleModalBuilder()

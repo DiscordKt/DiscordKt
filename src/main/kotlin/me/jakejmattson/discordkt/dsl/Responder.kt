@@ -47,7 +47,13 @@ public interface Responder {
     }
 }
 
+/**
+ * A modified responder for slash commands.
+ */
 public interface SlashResponder : Responder {
+    /**
+     * The interaction to respond from.
+     */
     public val interaction: ApplicationCommandInteraction?
 
     /**

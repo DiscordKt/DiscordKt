@@ -9,7 +9,7 @@ import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.bundleToContainer
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
-import me.jakejmattson.discordkt.internal.utils.stringify
+import me.jakejmattson.discordkt.extensions.stringify
 
 internal suspend fun transformArgs(args: List<Pair<Argument<*, *>, Any?>>, context: DiscordContext): Result<*> {
     val transformations = args.map { (rawArg, value) ->

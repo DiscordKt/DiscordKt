@@ -34,6 +34,8 @@ public object TimeStamp {
 
 /**
  * Enum for discord [timestamp styles](https://discord.com/developers/docs/reference#message-formatting-timestamp-styles).
+ *
+ * @param style The discord flag used to determine the timestamp style.
  */
 public enum class TimeStyle(public val style: String) {
     /** 16:20 */

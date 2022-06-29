@@ -2,9 +2,15 @@
 
 package me.jakejmattson.discordkt.extensions
 
+import dev.kord.core.entity.*
+import dev.kord.core.entity.channel.GuildMessageChannel
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.arguments.Error
+import me.jakejmattson.discordkt.arguments.Success
+import me.jakejmattson.discordkt.commands.Command
+import java.awt.Color
 
 private val urlRegexes = listOf(
     "[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)",
@@ -112,3 +118,28 @@ private fun String.cleanseAll(): String {
     val remaining = everyoneRegex.findAll(this).count() + hereRegex.findAll(this).count()
     return takeUnless { remaining != 0 } ?: replace("@", "")
 }
+
+/**
+ * Convert any generic type into a more readable String.
+ *
+ * @param entity The entity to be converted.
+ */
+public fun <T> stringify(entity: T): String =
+    when (entity) {
+        //Discord entities
+        is GuildMessageChannel -> entity.id.toString()
+        is Attachment -> entity.filename
+        is Guild -> entity.id.toString()
+        is Role -> entity.id.toString()
+        is User -> entity.id.toString()
+
+        //DiscordKt
+        is Command -> entity.name
+        is Success<*> -> stringify(entity.result)
+        is Error<*> -> entity.error
+
+        //Standard Library
+        is Color -> with(entity) { "#%02X%02X%02X".format(red, green, blue) }
+
+        else -> entity.toString()
+    }
