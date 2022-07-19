@@ -188,25 +188,24 @@ public abstract class Discord {
         val globalSlashCommands = commands.filterIsInstance<GlobalSlashCommand>()
         val guildSlashCommands = commands.filterIsInstance<GuildSlashCommand>()
 
-        kord.createGlobalApplicationCommands {
-            globalSlashCommands.forEach {
-                register(it)
-            }
-        }
-
-        if (guildSlashCommands.isEmpty())
-            return
-
-        kord.guilds.toList().forEach { guild ->
-            try {
-                guild.createApplicationCommands {
-                    guildSlashCommands.forEach {
-                        register(it)
-                    }
+        if (globalSlashCommands.isNotEmpty())
+            kord.createGlobalApplicationCommands {
+                globalSlashCommands.forEach {
+                    register(it)
                 }
-            } catch (e: KtorRequestException) {
-                InternalLogger.error("[SLASH] ${Emojis.x.unicode} ${guild.name} - ${e.message}")
             }
-        }
+
+        if (guildSlashCommands.isNotEmpty())
+            kord.guilds.toList().forEach { guild ->
+                try {
+                    guild.createApplicationCommands {
+                        guildSlashCommands.forEach {
+                            register(it)
+                        }
+                    }
+                } catch (e: KtorRequestException) {
+                    InternalLogger.error("[SLASH] ${Emojis.x.unicode} ${guild.name} - ${e.message}")
+                }
+            }
     }
 }
