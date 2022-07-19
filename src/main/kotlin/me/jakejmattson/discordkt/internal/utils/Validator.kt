@@ -7,18 +7,6 @@ import me.jakejmattson.discordkt.commands.TextCommand
 
 private val slashRegex = "^[\\w-]{1,32}$".toRegex()
 
-private fun Discord.validatePermissions() {
-    val validPermissions = permissions.hierarchy
-
-    commands.forEach { command ->
-        val requiredPermission = command.requiredPermission
-
-        if (requiredPermission !in validPermissions)
-            InternalLogger.error("Unknown permission in (${command.category} - ${command.names.first()}). " +
-                "See [${permissions::class.qualifiedName}] hierarchy.")
-    }
-}
-
 internal fun Discord.validate() {
     val duplicates = commands
         .flatMap { it.names }
@@ -70,7 +58,6 @@ internal fun Discord.validate() {
     }
 
     errors.display()
-    validatePermissions()
 }
 
 private data class Errors(

@@ -4,7 +4,6 @@ package me.jakejmattson.discordkt
 
 import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
-import dev.kord.core.behavior.bulkEditSlashCommandPermissions
 import dev.kord.core.behavior.createApplicationCommands
 import dev.kord.rest.builder.interaction.*
 import dev.kord.rest.request.KtorRequestException
@@ -16,7 +15,9 @@ import kotlinx.serialization.json.Json
 import me.jakejmattson.discordkt.annotations.Service
 import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.commands.*
-import me.jakejmattson.discordkt.dsl.*
+import me.jakejmattson.discordkt.dsl.BotConfiguration
+import me.jakejmattson.discordkt.dsl.Precondition
+import me.jakejmattson.discordkt.dsl.diService
 import me.jakejmattson.discordkt.extensions.pluralize
 import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
 import me.jakejmattson.discordkt.internal.listeners.registerInteractionListener
@@ -41,7 +42,6 @@ public data class Versions(val library: String, val kotlin: String, val kord: St
  * @property kord A Kord instance used to access the Discord API.
  * @property configuration All configured values for this bot.
  * @property locale Locale (language and customizations).
- * @property permissions Permission values and helper functions.
  * @property commands All registered commands.
  * @property versions Properties for the core library.
  */
@@ -49,7 +49,6 @@ public abstract class Discord {
     public abstract val kord: Kord
     public abstract val configuration: BotConfiguration
     public abstract val locale: Locale
-    public abstract val permissions: PermissionSet
     public abstract val commands: MutableList<Command>
     internal abstract val preconditions: MutableList<Precondition>
 
@@ -96,21 +95,14 @@ public abstract class Discord {
             InternalLogger.log(commandSets.pluralize("CommandSet") + " -> " + commands.size.pluralize("Command"))
             InternalLogger.log(services.size.pluralize("Service"))
             InternalLogger.log(preconditions.size.pluralize("Precondition"))
-            InternalLogger.log("Permissions: [${permissions.hierarchy.joinToString { it.name }}]")
             InternalLogger.log("-".repeat(header.length))
         }
 
         validate()
 
-        kord.guilds.toList().forEach { guild ->
-            permissions.hierarchy.forEach {
-                it.calculate(this, guild)
-            }
-        }
-
         commands[locale.helpName] ?: produceHelpCommand(locale.helpCategory).register(this)
 
-        registerSlashCommands(permissions.hierarchy)
+        registerSlashCommands()
 
         if (configuration.documentCommands)
             createDocumentation(commands)
@@ -125,7 +117,7 @@ public abstract class Discord {
     }
 
     @KordPreview
-    private suspend fun registerSlashCommands(permissions: List<Permission>) {
+    private suspend fun registerSlashCommands() {
         fun ChatInputCreateBuilder.mapArgs(command: SlashCommand) {
             command.execution.arguments.forEach { argument ->
                 val name = argument.name.lowercase()
@@ -182,14 +174,14 @@ public abstract class Discord {
                     val arg = if (potentialArg is WrappedArgument<*, *, *, *>) potentialArg.type else potentialArg
 
                     if (arg is MessageArg)
-                        message(command.appName) { defaultPermission = false }
+                        message(command.appName) { defaultMemberPermissions = command.requiredPermissions }
                     else if (arg is UserArgument<*>)
-                        user(command.appName) { defaultPermission = false }
+                        user(command.appName) { defaultMemberPermissions = command.requiredPermissions }
                 }
 
             input(command.name.lowercase(), command.description.ifBlank { "<No Description>" }) {
                 mapArgs(command)
-                defaultPermission = false
+                defaultMemberPermissions = command.requiredPermissions
             }
         }
 
@@ -205,35 +197,11 @@ public abstract class Discord {
         if (guildSlashCommands.isEmpty())
             return
 
-        kord.guilds.toList().forEach guilds@{ guild ->
+        kord.guilds.toList().forEach { guild ->
             try {
-                val slashCommands = guild.createApplicationCommands {
+                guild.createApplicationCommands {
                     guildSlashCommands.forEach {
                         register(it)
-                    }
-                }.toList()
-
-                guild.bulkEditSlashCommandPermissions {
-                    slashCommands.forEach { slashCommand ->
-                        val dktCommand = guildSlashCommands.find { it.name.equals(slashCommand.name, true) }
-                            ?: guildSlashCommands.find { it.appName.equals(slashCommand.name, true) }
-                            ?: return@forEach
-
-                        command(slashCommand.id) {
-                            val validPermissions = permissions.filter { it >= dktCommand.requiredPermission }
-
-                            validPermissions.forEach { permission ->
-                                permission.users[guild.id]?.forEach {
-                                    user(it, allow = true)
-                                }
-                            }
-
-                            validPermissions.forEach { permission ->
-                                permission.roles[guild.id]?.forEach {
-                                    role(it, allow = true)
-                                }
-                            }
-                        }
                     }
                 }
             } catch (e: KtorRequestException) {

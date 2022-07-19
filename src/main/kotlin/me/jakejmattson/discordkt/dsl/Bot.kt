@@ -94,6 +94,7 @@ public class Bot(private val token: String, private val packageName: String) {
                 commandReaction = commandReaction,
                 theme = theme?.kColor,
                 intents = intents + intentsOf<MessageCreateEvent>() + intentsOf<InteractionCreateEvent>(),
+                defaultPermissions = defaultPermissions,
                 entitySupplyStrategy = entitySupplyStrategy,
                 prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun,
@@ -107,15 +108,10 @@ public class Bot(private val token: String, private val packageName: String) {
 
         internalLocale = locale
 
-        simpleConfiguration.permissions.hierarchy.forEachIndexed { index, permission ->
-            permission.level = index
-        }
-
         val discord = object : Discord() {
             override val kord = kord
             override val configuration = botConfiguration
             override val locale = locale
-            override val permissions = simpleConfiguration.permissions
             override val commands = mutableListOf<Command>()
             override val preconditions = mutableListOf<Precondition>()
         }

@@ -2,6 +2,7 @@
 
 package me.jakejmattson.discordkt.commands
 
+import dev.kord.common.entity.Permissions
 import dev.kord.core.entity.Guild
 import dev.kord.core.entity.User
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -12,7 +13,6 @@ import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.arguments.Error
 import me.jakejmattson.discordkt.arguments.Success
 import me.jakejmattson.discordkt.dsl.CommandException
-import me.jakejmattson.discordkt.dsl.Permission
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.internal.annotations.NestedDSL
 import me.jakejmattson.discordkt.internal.command.parseArguments
@@ -50,7 +50,7 @@ public data class Execution<T : CommandEvent<*>>(val arguments: List<Argument<*,
 /**
  * @property names The name(s) this command can be executed by (case-insensitive).
  * @property description A brief description of the command - used in documentation.
- * @property requiredPermission The permission level required to use this command.
+ * @property requiredPermissions The permission level required to use this command.
  * @property category The category that this command belongs to - set automatically by CommandSet.
  * @property executions The list of [Execution] that this command can be run with.
  */
@@ -58,7 +58,7 @@ public sealed interface Command {
     public val names: List<String>
     public var description: String
     public var category: String
-    public var requiredPermission: Permission
+    public var requiredPermissions: Permissions
     public val executions: MutableList<Execution<CommandEvent<*>>>
 
     /**
@@ -84,9 +84,12 @@ public sealed interface Command {
     public suspend fun hasPermissionToRun(discord: Discord, author: User, guild: Guild?): Boolean = when {
         this is DmCommand && guild != null -> false
         this is GuildCommand && guild == null -> false
-        internalLocale.helpName != name && this is SlashCommand && !discord.configuration.dualRegistry -> false
+        name != internalLocale.helpName && this is SlashCommand && !discord.configuration.dualRegistry -> false
         else -> {
-            discord.permissions.hasPermission(requiredPermission, author, guild)
+            if (guild != null)
+                author.asMember(guild.id).getPermissions().contains(requiredPermissions)
+            else
+                false //TODO Handle global message commands
         }
     }
 
@@ -169,7 +172,7 @@ public class GlobalCommand(override val names: List<String>,
                            override var description: String = "",
                            override var category: String = "",
                            override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
-                           override var requiredPermission: Permission) : TextCommand {
+                           override var requiredPermissions: Permissions) : TextCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -202,7 +205,7 @@ public class GuildCommand(override val names: List<String>,
                           override var description: String = "",
                           override var category: String = "",
                           override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
-                          override var requiredPermission: Permission) : TextCommand {
+                          override var requiredPermissions: Permissions) : TextCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -235,7 +238,7 @@ public class DmCommand(override val names: List<String>,
                        override var description: String = "",
                        override var category: String = "",
                        override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
-                       override var requiredPermission: Permission) : TextCommand {
+                       override var requiredPermissions: Permissions) : TextCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend DmCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -272,7 +275,7 @@ public class GlobalSlashCommand(override val name: String,
                                 override var description: String = "",
                                 override var category: String = "",
                                 override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
-                                override var requiredPermission: Permission) : SlashCommand {
+                                override var requiredPermissions: Permissions) : SlashCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend SlashCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -309,7 +312,7 @@ public class GuildSlashCommand(override val name: String,
                                override var description: String = "",
                                override var category: String = "",
                                override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
-                               override var requiredPermission: Permission) : SlashCommand {
+                               override var requiredPermissions: Permissions) : SlashCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend GuildSlashCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)

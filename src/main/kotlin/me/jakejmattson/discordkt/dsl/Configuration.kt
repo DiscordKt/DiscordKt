@@ -3,6 +3,8 @@
 package me.jakejmattson.discordkt.dsl
 
 import dev.kord.common.Color
+import dev.kord.common.entity.Permission
+import dev.kord.common.entity.Permissions
 import dev.kord.core.supplier.EntitySupplyStrategy
 import dev.kord.gateway.Intents
 import dev.kord.rest.builder.message.EmbedBuilder
@@ -38,6 +40,7 @@ public data class BotConfiguration(
     val commandReaction: DiscordEmoji?,
     val theme: Color?,
     val intents: Intents,
+    val defaultPermissions: Permissions,
     val entitySupplyStrategy: EntitySupplyStrategy<*>,
 
     internal val prefix: suspend (DiscordContext) -> String,
@@ -60,7 +63,7 @@ public data class BotConfiguration(
  * @property commandReaction A reaction added to the command invocation message.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway [Intents] to register manually.
- * @property permissions The [PermissionSet] used to restrict command usage.
+ * @property defaultPermissions The [Permissions] used to restrict command usage.
  * @property entitySupplyStrategy [EntitySupplyStrategy] for use in Kord cache.
  */
 public data class SimpleConfiguration(
@@ -74,12 +77,6 @@ public data class SimpleConfiguration(
     var commandReaction: DiscordEmoji? = Emojis.eyes,
     var theme: java.awt.Color? = null,
     var intents: Intents = Intents.none,
-    var permissions: PermissionSet = DefaultPermissions,
+    var defaultPermissions: Permissions = Permissions(Permission.All),
     var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback,
 )
-
-private object DefaultPermissions : PermissionSet {
-    val EVERYONE = permission("Everyone") { roles(guild!!.everyoneRole.id) }
-    override val hierarchy: List<Permission> = listOf(EVERYONE)
-    override val commandDefault: Permission = EVERYONE
-}

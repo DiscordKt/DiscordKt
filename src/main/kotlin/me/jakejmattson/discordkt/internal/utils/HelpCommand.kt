@@ -10,7 +10,7 @@ import me.jakejmattson.discordkt.commands.*
 internal fun produceHelpCommand(category: String) = commands(category) {
     slash(discord.locale.helpName) {
         description = discord.locale.helpDescription
-        requiredPermission = discord.permissions.commandDefault
+        requiredPermissions = discord.configuration.defaultPermissions
         execute(AnyArg("Command")
             .autocomplete {
                 discord.commands
