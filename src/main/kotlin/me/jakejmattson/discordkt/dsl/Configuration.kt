@@ -77,6 +77,6 @@ public data class SimpleConfiguration(
     var commandReaction: DiscordEmoji? = Emojis.eyes,
     var theme: java.awt.Color? = null,
     var intents: Intents = Intents.none,
-    var defaultPermissions: Permissions = Permissions(Permission.All),
+    var defaultPermissions: Permissions = Permissions(Permission.UseApplicationCommands),
     var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback,
 )
