@@ -13,8 +13,10 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.commands.DiscordContext
+import me.jakejmattson.discordkt.commands.SlashCommandEvent
 import me.jakejmattson.discordkt.dsl.Responder
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.dsl.uuid
@@ -105,6 +107,19 @@ public data class ConversationBuilder(val discord: Discord,
                 embeds.add(builder)
             }
         }
+
+        botMessageIds.add(message.id)
+
+        return retrieveValidTextResponse(argument)
+    }
+
+    @Throws(DmException::class, TimeoutException::class)
+    public suspend fun <I, O, T : TypeContainer> SlashCommandEvent<T>.respondPrompt(argument: Argument<I, O>, text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): O {
+        require(!argument.isOptional()) { "Conversation arguments cannot be optional" }
+
+        val message = respond(text) {
+            embed?.invoke(this)
+        }!!
 
         botMessageIds.add(message.id)
 
