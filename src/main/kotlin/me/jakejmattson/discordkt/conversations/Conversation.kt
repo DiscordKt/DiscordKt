@@ -5,6 +5,8 @@ import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ComponentInteraction
 import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.TypeContainer
+import me.jakejmattson.discordkt.commands.SlashCommandEvent
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 
 /**
@@ -13,7 +15,12 @@ import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
  * @param exitString A String entered by the user to exit the conversation.
  */
 @BuilderDSL
-public fun conversation(exitString: String? = null, promptTimeout: Long = 0, block: suspend ConversationBuilder.() -> Unit): Conversation = Conversation(exitString, promptTimeout * 1000, block)
+public fun conversation(exitString: String? = null, promptTimeout: Long = 0, block: suspend ConversationBuilder.() -> Unit): Conversation =
+    Conversation(exitString, promptTimeout * 1000, block)
+
+@BuilderDSL
+public fun slashConversation(exitString: String? = null, promptTimeout: Long = 0, block: suspend ConversationBuilder.() -> Unit): Conversation =
+    Conversation(exitString, promptTimeout, block)
 
 /**
  * A class that represent a conversation.
@@ -39,7 +46,7 @@ public class Conversation(public var exitString: String? = null, public var prom
         if (Conversations.hasConversation(user, channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val state = ConversationBuilder(discord, user, channel, exitString, promptTimeout)
+        val state = PlainConversationBuilder(discord, user, channel, exitString, promptTimeout)
 
         return start(state)
     }
@@ -60,7 +67,19 @@ public class Conversation(public var exitString: String? = null, public var prom
         if (Conversations.hasConversation(user, channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val state = ConversationBuilder(discord, user, channel, exitString, promptTimeout)
+        val state = PlainConversationBuilder(discord, user, channel, exitString, promptTimeout)
+
+        return start(state)
+    }
+
+    public suspend inline fun <T : TypeContainer> startSlashResponse(discord: Discord, user: User, channel: MessageChannel, event: SlashCommandEvent<T>): ConversationResult {
+        if (user.isBot)
+            return ConversationResult.INVALID_USER
+
+        if (Conversations.hasConversation(user, channel))
+            return ConversationResult.HAS_CONVERSATION
+
+        val state = SlashConversationBuilder(discord, user, channel, exitString, promptTimeout, event)
 
         return start(state)
     }
@@ -69,7 +88,8 @@ public class Conversation(public var exitString: String? = null, public var prom
 
     @PublishedApi
     internal suspend fun start(conversationBuilder: ConversationBuilder): ConversationResult {
-        val (_, user, channel) = conversationBuilder
+        val user = conversationBuilder.user
+        val channel = conversationBuilder.channel
         builder = conversationBuilder
 
         return try {
