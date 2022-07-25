@@ -72,14 +72,14 @@ public class Conversation(public var exitString: String? = null, public var prom
         return start(state)
     }
 
-    public suspend inline fun <T : TypeContainer> startSlashResponse(discord: Discord, user: User, channel: MessageChannel, event: SlashCommandEvent<T>): ConversationResult {
+    public suspend inline fun <T : TypeContainer> startSlashResponse(discord: Discord, user: User, event: SlashCommandEvent<T>): ConversationResult {
         if (user.isBot)
             return ConversationResult.INVALID_USER
 
-        if (Conversations.hasConversation(user, channel))
+        if (Conversations.hasConversation(user, event.channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val state = SlashConversationBuilder(discord, user, channel, exitString, promptTimeout, event)
+        val state = SlashConversationBuilder(discord, user, event, exitString, promptTimeout)
 
         return start(state)
     }

@@ -6,10 +6,8 @@ import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ComponentInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.rest.builder.message.create.actionRow
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.arguments.Argument
-import me.jakejmattson.discordkt.dsl.uuid
 
 /** @suppress DSL backing
  *
@@ -91,9 +89,9 @@ public class PlainConversationBuilder(
     public override suspend fun <T> promptButton(prompt: suspend ButtonPromptBuilder<T>.() -> Unit): T {
         val builder = ButtonPromptBuilder<T>()
         prompt.invoke(builder)
-        val message = builder.create(channel)
+        val responder = builder.create(channel, channel.lastMessage!!.asMessage())
 
-        botMessageIds.add(message.id)
+        botMessageIds.add(responder.ofMessage.id)
 
         return retrieveValidInteractionResponse(builder.valueMap)
     }

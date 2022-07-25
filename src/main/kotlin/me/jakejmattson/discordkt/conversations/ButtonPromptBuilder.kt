@@ -1,10 +1,13 @@
 package me.jakejmattson.discordkt.conversations
 
 import dev.kord.common.entity.ButtonStyle
+import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.behavior.interaction.respondPublic
 import dev.kord.core.behavior.interaction.response.PublicMessageInteractionResponseBehavior
 import dev.kord.core.behavior.interaction.response.createPublicFollowup
+import dev.kord.core.cache.data.toData
+import dev.kord.core.entity.Message
 import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.followup.PublicFollowupMessage
@@ -14,6 +17,7 @@ import dev.kord.rest.builder.message.create.actionRow
 import dev.kord.rest.builder.message.create.embed
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
+import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.commands.SlashCommandEvent
 import me.jakejmattson.discordkt.dsl.uuid
@@ -53,8 +57,10 @@ public open class ButtonPromptBuilder<T> {
         buttonRows.add(builder.buttons)
     }
 
-    internal suspend fun create(channel: MessageChannel) = channel.createMessage {
-        createMessage(this)
+    internal suspend fun create(channel: MessageChannel, message: Message): MessageResponder {
+        val responder = ChannelResponder(channel, message)
+
+        return responder.respond { createMessage(this) }
     }
 
     protected suspend inline fun createMessage(messageBuilder: MessageCreateBuilder) {
@@ -77,13 +83,64 @@ public open class ButtonPromptBuilder<T> {
     }
 }
 
-public class OneOf<T : Any, U : Any> private constructor(public val first: T?, public val second: U?) {
-    public companion object {
-        public fun <T : Any, U : Any> first(first: T): OneOf<T, U> =
-            OneOf(first, null)
+public interface MessageResponder {
+    public val ofMessage: Message
 
-        public fun <T : Any, U : Any> second(second: U): OneOf<T, U> =
-            OneOf(null, second)
+    public suspend fun respond(builder: suspend MessageCreateBuilder.() -> Unit): MessageResponder
+}
+
+public class ChannelResponder(private val channel: MessageChannel, private val message: Message) : MessageResponder {
+    public override val ofMessage: Message = message
+
+    override suspend fun respond(builder: suspend MessageCreateBuilder.() -> Unit): MessageResponder {
+        val newMessage = channel.createMessage {
+            runBlocking { builder.invoke(this@createMessage) }
+        }
+
+        return ChannelResponder(channel, newMessage)
+    }
+}
+
+public class FollowupResponder(
+    public val botResponse: PublicMessageInteractionResponseBehavior,
+    public val followupMessage: PublicFollowupMessage? = null,
+) : MessageResponder {
+    override val ofMessage: Message
+        get() = runBlocking { // FIXME don't use runBlocking
+            followupMessage?.message ?: getMessageOfBotResponse(botResponse.applicationId, botResponse.token)
+        }
+
+    private suspend fun getMessageOfBotResponse(applicationId: Snowflake, token: String): Message {
+        val messageData = botResponse.kord.rest.interaction.getInteractionResponse(applicationId, token).toData()
+
+        return Message(messageData, botResponse.kord)
+    }
+
+    override suspend fun respond(builder: suspend MessageCreateBuilder.() -> Unit): MessageResponder {
+        val newFollowupMessage = botResponse.createPublicFollowup {
+            runBlocking { builder.invoke(this@createPublicFollowup) } // FIXME don't use runBlocking
+        }
+
+        return FollowupResponder(botResponse, newFollowupMessage)
+    }
+}
+
+public class SlashResponder<T : TypeContainer>(private val event: SlashCommandEvent<T>) : MessageResponder {
+    override val ofMessage: Message
+        get() = runBlocking { getMessageOfBotResponse(event.interaction!!.applicationId, event.interaction!!.token) } // FIXME don't use runBlocking
+
+    private suspend fun getMessageOfBotResponse(applicationId: Snowflake, token: String): Message {
+        val messageData = event.discord.kord.rest.interaction.getInteractionResponse(applicationId, token).toData()
+
+        return Message(messageData, event.discord.kord)
+    }
+
+    override suspend fun respond(builder: suspend MessageCreateBuilder.() -> Unit): MessageResponder {
+        val responseBehavior = event.interaction!!.respondPublic {
+            runBlocking { builder.invoke(this@respondPublic) } // FIXME don't use runBlocking
+        }
+
+        return FollowupResponder(responseBehavior)
     }
 }
 
@@ -91,16 +148,10 @@ public class OneOf<T : Any, U : Any> private constructor(public val first: T?, p
  * Builder for a buttom prompt in a slash conversation
  */
 public class SlashButtonPromptBuilder<T, U : TypeContainer> : ButtonPromptBuilder<T>() {
-    internal suspend fun create(event: SlashCommandEvent<U>, botResponse: PublicMessageInteractionResponseBehavior? = null): OneOf<PublicMessageInteractionResponseBehavior, PublicFollowupMessage> {
-        return if (botResponse == null) {
-            OneOf.first(event.interaction!!.respondPublic {
-                createMessage(this)
-            })
-        } else {
-            OneOf.second(botResponse.createPublicFollowup {
-                createMessage(this)
-            })
-        }
+    internal suspend fun create(event: SlashCommandEvent<U>, responder: MessageResponder?): MessageResponder {
+        val actualResponder = responder ?: SlashResponder(event)
+
+        return actualResponder.respond { createMessage(this) }
     }
 }
 

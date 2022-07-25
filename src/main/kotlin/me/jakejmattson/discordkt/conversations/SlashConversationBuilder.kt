@@ -1,39 +1,27 @@
 package me.jakejmattson.discordkt.conversations
 
-import dev.kord.core.behavior.channel.createMessage
-import dev.kord.core.behavior.interaction.respondPublic
-import dev.kord.core.behavior.interaction.response.PublicMessageInteractionResponseBehavior
-import dev.kord.core.behavior.interaction.response.createPublicFollowup
-import dev.kord.core.cache.data.toData
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
-import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ComponentInteraction
-import dev.kord.core.entity.interaction.followup.PublicFollowupMessage
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.rest.builder.message.create.actionRow
 import dev.kord.rest.builder.message.create.embed
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.commands.SlashCommandEvent
-import me.jakejmattson.discordkt.dsl.uuid
 
 public class SlashConversationBuilder<T : TypeContainer>(
     discord: Discord,
     user: User,
-    channel: MessageChannel,
+    private val event: SlashCommandEvent<T>,
     exitString: String? = null,
     timeout: Long,
-    private val event: SlashCommandEvent<T>,
-) : ConversationBuilder(discord, user, channel, exitString, timeout) {
+) : ConversationBuilder(discord, user, event.channel, exitString, timeout) {
     /**
      * All tokens of messages sent by the bot in this conversation.
      */
-    public var botResponse: PublicMessageInteractionResponseBehavior? = null
-    public val botFollowupMessages: MutableList<PublicFollowupMessage> = mutableListOf()
-
-    private val shutUpSonarlint = "Not yet implemented"
+//    public var botResponse: PublicMessageInteractionResponseBehavior? = null
+//    public val botFollowupMessages: MutableList<PublicFollowupMessage> = mutableListOf()
 
     /**
      * Prompt the user with a String. Re-prompt until the response converts correctly. Then apply a custom predicate as an additional check.
@@ -73,70 +61,92 @@ public class SlashConversationBuilder<T : TypeContainer>(
     override suspend fun <S> promptButton(prompt: suspend ButtonPromptBuilder<S>.() -> Unit): S {
         val builder = SlashButtonPromptBuilder<S, T>()
         prompt.invoke(builder)
-        val message = builder.create(event, botResponse)
+        val responder = builder.create(event, responders.lastOrNull())
 
-        if (message.first != null) {
-            botResponse = message.first
-        } else {
-            botFollowupMessages.add(message.second!!)
-        }
+        responders.add(responder)
+
+//        if (message.first != null) {
+//            botResponse = message.first
+//        } else {
+//            botFollowupMessages.add(message.second!!)
+//        }
 
         return retrieveValidInteractionResponse(builder.valueMap)
     }
 
     override suspend fun promptSelect(vararg options: String, embed: suspend EmbedBuilder.() -> Unit): String {
-        if (botResponse == null) {
-            botResponse = event.interaction!!.respondPublic {
-                createSelectMessage(options, embed, this)
-            }
-        } else {
-            botFollowupMessages.add(botResponse!!.createPublicFollowup {
-                createSelectMessage(options, embed, this)
-            })
+        val responder = getResponder()
+
+        val newResponder = responder.respond {
+            createSelectMessage(options, embed, this)
         }
+
+        responders.add(newResponder)
+
+//        if (botResponse == null) {
+//            botResponse = event.interaction!!.respondPublic {
+//                createSelectMessage(options, embed, this)
+//            }
+//        } else {
+//            botFollowupMessages.add(botResponse!!.createPublicFollowup {
+//                createSelectMessage(options, embed, this)
+//            })
+//        }
 
         return retrieveValidInteractionResponse(options.associateWith { it })
     }
 
+    private fun getResponder() =
+        responders.lastOrNull() ?: SlashResponder(event)
+
     override suspend fun respond(message: Any, embed: (suspend EmbedBuilder.() -> Unit)?): Message {
         createMessage(message.toString(), embed)
 
-        return getLastBotResponseAsMessage()
+        return responders.last().ofMessage
     }
 
-    private suspend fun getLastBotResponseAsMessage(): Message =
-        if (botFollowupMessages.isEmpty()) {
-            val messageData = botResponse!!.kord.rest.interaction
-                .getInteractionResponse(botResponse!!.applicationId, botResponse!!.token)
-                .toData()
-
-            Message(messageData, event.discord.kord)
-        } else {
-            botFollowupMessages.last().message
-        }
+//    private suspend fun getLastBotResponseAsMessage(): Message =
+//        if (botFollowupMessages.isEmpty()) {
+//            val messageData = botResponse!!.kord.rest.interaction
+//                .getInteractionResponse(botResponse!!.applicationId, botResponse!!.token)
+//                .toData()
+//
+//            Message(messageData, event.discord.kord)
+//        } else {
+//            botFollowupMessages.last().message
+//        }
 
     private suspend fun createMessage(text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null) {
-        if (botResponse == null) {
-            val response = event.respondPublic(text, embed)
-
-            if (response !is PublicMessageInteractionResponseBehavior) throw RuntimeException("what")
-
-            botResponse = response
-
-            return
-        }
-
-        val followupMessage = botResponse!!.createPublicFollowup {
-            content = text
+        val newResponder = getResponder().respond {
+            content = text.takeIf { it.isNotBlank() }
 
             if (embed != null) {
-                embed { embed.invoke(this) }
+                embed { embed(this) }
             }
         }
 
-        botFollowupMessages.add(followupMessage)
+        responders.add(newResponder)
+//        if (botResponse == null) {
+//            val response = event.respondPublic(text, embed)
+//
+//            if (response !is PublicMessageInteractionResponseBehavior) throw RuntimeException("what")
+//
+//            botResponse = response
+//
+//            return
+//        }
+//
+//        val followupMessage = botResponse!!.createPublicFollowup {
+//            content = text
+//
+//            if (embed != null) {
+//                embed { embed.invoke(this) }
+//            }
+//        }
+//
+//        botFollowupMessages.add(followupMessage)
     }
 
     override suspend fun interactionIsOnLastBotMessage(interaction: ComponentInteraction): Boolean =
-        interaction.message.id == getLastBotResponseAsMessage().id
+        interaction.message.id == responders.last().ofMessage.id
 }

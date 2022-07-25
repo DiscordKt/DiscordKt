@@ -37,6 +37,8 @@ public abstract class ConversationBuilder(
 
     private val exceptionBuffer = Channel<TimeoutException>()
 
+    public val responders: MutableList<MessageResponder> = mutableListOf()
+
     /**
      * All ID's of messages sent by the user in this conversation.
      */
@@ -77,7 +79,7 @@ public abstract class ConversationBuilder(
         retrieveTextResponse(argument) ?: retrieveValidTextResponse(argument)
     }
 
-    protected suspend fun <T> retrieveTextResponse(argument: Argument<*, T>): T? = select<T?> {
+    private suspend fun <T> retrieveTextResponse(argument: Argument<*, T>): T? = select<T?> {
         val timer = createTimer()
 
         exceptionBuffer.onReceive { timeoutException ->
@@ -108,7 +110,7 @@ public abstract class ConversationBuilder(
 
     protected abstract suspend fun interactionIsOnLastBotMessage(interaction: ComponentInteraction): Boolean
 
-    protected suspend fun <T> retrieveInteractionResponse(buttons: Map<String, T>): T? = select<T?> {
+    private suspend fun <T> retrieveInteractionResponse(buttons: Map<String, T>): T? = select<T?> {
         val timer = createTimer()
 
         exceptionBuffer.onReceive { timeoutException ->
@@ -137,7 +139,7 @@ public abstract class ConversationBuilder(
         }
     }
 
-    protected suspend fun <I, O> parseResponse(argument: Argument<I, O>, message: Message): Result<O> {
+    private suspend fun <I, O> parseResponse(argument: Argument<I, O>, message: Message): Result<O> {
         val context = DiscordContext(discord, message, message.author!!, message.channel.asChannel(), message.getGuildOrNull())
         val parseResult = argument.parse(message.content.split(" ").toMutableList(), discord)
 
@@ -147,7 +149,7 @@ public abstract class ConversationBuilder(
             Error(internalLocale.invalidFormat)
     }
 
-    protected fun createTimer(): TimerTask? =
+    private fun createTimer(): TimerTask? =
         timeout.takeIf { it > 0 }?.let { time ->
             Timer("Timeout", false).schedule(time) {
                 runBlocking { exceptionBuffer.send(TimeoutException()) }
