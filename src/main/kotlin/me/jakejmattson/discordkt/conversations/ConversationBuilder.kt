@@ -37,6 +37,9 @@ public abstract class ConversationBuilder(
 
     private val exceptionBuffer = Channel<TimeoutException>()
 
+    /**
+     * All responder objects that have been used to respond to user messages/interactions.
+     */
     public val responders: MutableList<MessageResponder> = mutableListOf()
 
     /**
@@ -54,11 +57,51 @@ public abstract class ConversationBuilder(
 
     internal suspend fun acceptInteraction(interaction: ComponentInteraction) = interactionBuffer.send(interaction)
 
-    public abstract suspend fun <I, O> prompt(argument: Argument<I, O>, text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): O
+    /**
+     * Prompt the user with a String. Re-prompt until the response converts correctly. Then apply a custom predicate as an additional check.
+     *
+     * @param argument The [Argument] that the prompt expects in response.
+     * @param prompt The string message sent to the user as a prompt for information.
+     * @param error The error String to send when the input fails the custom check.
+     * @param isValid A predicate to determine whether the input is accepted.
+     */
+    @Throws(DmException::class)
     public abstract suspend fun <T> promptUntil(argument: Argument<*, T>, prompt: String, error: String, isValid: (T) -> Boolean): T
+
+    /**
+     * Prompt the user with text and/or embed.
+     *
+     * @param argument The [Argument] that the prompt expects in response.
+     * @param text A String sent as part of the prompt.
+     * @param embed The embed sent as part of the prompt.
+     */
+    @Throws(DmException::class, TimeoutException::class)
+    public abstract suspend fun <I, O> prompt(argument: Argument<I, O>, text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): O
+
+    /**
+     * Prompt the user with an embed and the provided buttons.
+     * Requires a call to both [ButtonPromptBuilder.embed] and [ButtonPromptBuilder.buttons].
+     *
+     * @param prompt The [builder][ButtonPromptBuilder]
+     */
+    @Throws(DmException::class, TimeoutException::class)
     public abstract suspend fun <T> promptButton(prompt: suspend ButtonPromptBuilder<T>.() -> Unit): T
+
+    /**
+     * Prompt the user with a select menu.
+     *
+     * @param options The options that can be selected by the user
+     * @param embed The embed sent as part of the prompt.
+     */
+    @Throws(DmException::class, TimeoutException::class)
     public abstract suspend fun promptSelect(vararg options: String, embed: suspend EmbedBuilder.() -> Unit): String
 
+    /**
+     * Creates the promptSelect message inside the specified [MessageCreateBuilder].
+     *
+     * @param options The options that can be selected by the user
+     * @param embed The embed sent as part of the prompt.
+     */
     protected suspend fun createSelectMessage(options: Array<out String>, embed: suspend EmbedBuilder.() -> Unit, builder: MessageCreateBuilder) {
         with(builder) {
             val embedBuilder = EmbedBuilder()

@@ -33,14 +33,6 @@ public class PlainConversationBuilder(
     public val previousBotMessageId: Snowflake
         get() = botMessageIds.last()
 
-    /**
-     * Prompt the user with a String. Re-prompt until the response converts correctly. Then apply a custom predicate as an additional check.
-     *
-     * @param argument The [Argument] that the prompt expects in response.
-     * @param prompt The string message sent to the user as a prompt for information.
-     * @param error The error String to send when the input fails the custom check.
-     * @param isValid A predicate to determine whether the input is accepted.
-     */
     @Throws(DmException::class)
     public override suspend fun <T> promptUntil(argument: Argument<*, T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
         var value: T = prompt(argument, prompt)
@@ -53,13 +45,6 @@ public class PlainConversationBuilder(
         return value
     }
 
-    /**
-     * Prompt the user with text and/or embed.
-     *
-     * @param argument The [Argument] that the prompt expects in response.
-     * @param text A String sent as part of the prompt.
-     * @param embed The embed sent as part of the prompt.
-     */
     @Throws(DmException::class, TimeoutException::class)
     public override suspend fun <I, O> prompt(argument: Argument<I, O>, text: String, embed: (suspend EmbedBuilder.() -> Unit)?): O {
         require(!argument.isOptional()) { "Conversation arguments cannot be optional" }
@@ -79,12 +64,6 @@ public class PlainConversationBuilder(
         return retrieveValidTextResponse(argument)
     }
 
-    /**
-     * Prompt the user with an embed and the provided buttons.
-     * Requires a call to both [ButtonPromptBuilder.embed] and [ButtonPromptBuilder.buttons].
-     *
-     * @param prompt The [builder][ButtonPromptBuilder]
-     */
     @Throws(DmException::class, TimeoutException::class)
     public override suspend fun <T> promptButton(prompt: suspend ButtonPromptBuilder<T>.() -> Unit): T {
         val builder = ButtonPromptBuilder<T>()
@@ -96,12 +75,6 @@ public class PlainConversationBuilder(
         return retrieveValidInteractionResponse(builder.valueMap)
     }
 
-    /**
-     * Prompt the user with a select menu.
-     *
-     * @param options The options that can be selected by the user
-     * @param embed The embed sent as part of the prompt.
-     */
     @Throws(DmException::class, TimeoutException::class)
     public override suspend fun promptSelect(vararg options: String, embed: suspend EmbedBuilder.() -> Unit): String {
         val message = channel.createMessage {
