@@ -1,5 +1,5 @@
 group = "me.jakejmattson"
-version = "0.23.0-SNAPSHOT"
+version = "0.23.0"
 val projectGroup = group.toString()
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
@@ -30,9 +30,9 @@ dependencies {
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
 
-    testImplementation(platform("org.junit:junit-bom:5.8.2"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
-    testImplementation("io.mockk:mockk:1.12.4")
+    testImplementation(platform("org.junit:junit-bom:5.9.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+    testImplementation("io.mockk:mockk:1.12.5")
 }
 
 tasks {
