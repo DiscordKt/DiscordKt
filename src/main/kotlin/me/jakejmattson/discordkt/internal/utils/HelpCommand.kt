@@ -1,16 +1,23 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import dev.kord.common.kColor
+import dev.kord.common.Color
+import dev.kord.core.entity.interaction.GuildAutoCompleteInteraction
 import kotlinx.coroutines.runBlocking
-import me.jakejmattson.discordkt.api.arguments.AnyArg
-import me.jakejmattson.discordkt.api.arguments.ArgumentType
-import me.jakejmattson.discordkt.api.dsl.*
-import java.awt.Color
+import me.jakejmattson.discordkt.arguments.AnyArg
+import me.jakejmattson.discordkt.arguments.Argument
+import me.jakejmattson.discordkt.commands.*
 
 internal fun produceHelpCommand(category: String) = commands(category) {
-    command(discord.locale.helpName) {
+    slash(discord.locale.helpName) {
         description = discord.locale.helpDescription
-        execute(AnyArg("Command").optional("")) {
+        requiredPermissions = discord.configuration.defaultPermissions
+        execute(AnyArg("Command")
+            .autocomplete {
+                discord.commands
+                    .filter { it.hasPermissionToRun(discord, interaction.user, (interaction as GuildAutoCompleteInteraction).getGuild()) }
+                    .map { it.names }.flatten()
+                    .filter { it.contains(input, true) }
+            }.optional("")) {
             val input = args.first
             val theme = discord.configuration.theme
 
@@ -27,10 +34,10 @@ private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
     respond {
         title = discord.locale.helpName
         description = discord.locale.helpEmbedDescription
-        color = embedColor?.kColor
+        color = embedColor
 
         discord.commands
-            .filter { it.hasPermissionToRun(this@sendDefaultEmbed) }
+            .filter { it.hasPermissionToRun(discord, this@sendDefaultEmbed.author, guild) }
             .groupBy { it.category }
             .toList()
             .sortedBy { (_, commands) -> -commands.size }
@@ -51,7 +58,7 @@ private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
 private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String, embedColor: Color?) =
     event.respond {
         title = names.joinToString()
-        color = embedColor?.kColor
+        color = embedColor
 
         if (this@sendHelpEmbed.description.isNotBlank())
             description = this@sendHelpEmbed.description
@@ -62,7 +69,7 @@ private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String,
             """$commandInvocation ${it.structure}
                 ${
                 it.arguments.joinToString("\n") { arg ->
-                    """- ${arg.name}: ${arg.description} (${arg.generateExample(event)})
+                    """- ${arg.name}: ${arg.description} (${arg.generateExample(event.context)})
                     """.trimMargin()
                 }
             }
@@ -74,8 +81,8 @@ private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String,
         }
     }
 
-private fun ArgumentType<*>.generateExample(event: CommandEvent<*>) =
-    runBlocking { generateExamples(event) }
+private fun Argument<*, *>.generateExample(context: DiscordContext) =
+    runBlocking { generateExamples(context) }
         .takeIf { it.isNotEmpty() }
         ?.random()
         ?: "<Example>"

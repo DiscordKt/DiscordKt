@@ -1,15 +1,17 @@
 package arguments
 
-import me.jakejmattson.discordkt.api.arguments.QuoteArg
+import me.jakejmattson.discordkt.arguments.QuoteArg
 import utilities.ArgumentTestFactory
 
 class QuoteArgTest : ArgumentTestFactory {
-    override val argumentType = QuoteArg
+    override val argument = QuoteArg
 
     override val validArgs = listOf(
         "\"\"" to "",
         "\"Hello\"" to "Hello",
-        "\"Hello World\"" to "Hello World"
+        "\"Hello World\"" to "Hello World",
+        "“Hello World”" to "Hello World",
+        "‘Hello World’" to "Hello World"
     )
 
     override val invalidArgs = listOf(

@@ -1,8 +1,7 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import me.jakejmattson.discordkt.api.arguments.MultipleArg
-import me.jakejmattson.discordkt.api.arguments.OptionalArg
-import me.jakejmattson.discordkt.api.dsl.Command
+import me.jakejmattson.discordkt.arguments.MultipleArg
+import me.jakejmattson.discordkt.commands.Command
 import java.io.File
 import kotlin.math.max
 
@@ -33,7 +32,7 @@ internal fun createDocumentation(commands: List<Command>) {
 
         val expectedArgs = command.executions.map { execution ->
             execution.arguments
-                .joinToString { arg -> if (arg is OptionalArg) "[${arg.name}]" else arg.name }
+                .joinToString { arg -> if (arg.isOptional()) "[${arg.name}]" else arg.name }
                 .sanitizePipe()
                 .takeIf { it.isNotEmpty() }
                 ?: ""
@@ -49,8 +48,10 @@ internal fun createDocumentation(commands: List<Command>) {
         val longestDesc = max(commandData.maxLength { it.desc }, header.desc.length)
         val formatString = "| %-${longestName}s | %-${longestArgs}s | %-${longestDesc}s |"
 
+        fun divider(length: Int) = "-".repeat(length + 2)
+
         val headerString = header.format(formatString)
-        val separator = formatString.format("-".repeat(longestName), "-".repeat(longestArgs), "-".repeat(longestDesc))
+        val separator = "|${divider(longestName)}|${divider(longestArgs)}|${divider(longestDesc)}|"
         val commandString = commandData.sortedBy { it.name }.joinToString("\n") { it.format(formatString) }
 
         return "$headerString\n$separator\n$commandString\n"
@@ -59,10 +60,10 @@ internal fun createDocumentation(commands: List<Command>) {
     val keyString = buildString {
         val argumentSet = commands.flatMap { cmd -> cmd.executions.flatMap { it.arguments } }.toSet()
 
-        if (argumentSet.any { it is OptionalArg })
+        if (argumentSet.any { it.isOptional() })
             appendLine("| [Argument]  | Argument is not required.      |")
 
-        if (argumentSet.any { it is MultipleArg<*> })
+        if (argumentSet.any { it is MultipleArg<*, *> })
             appendLine("| Argument... | Accepts many of this argument. |")
     }
 
@@ -71,7 +72,7 @@ internal fun createDocumentation(commands: List<Command>) {
             """
                 ## Key 
                 | Symbol      | Meaning                        |
-                | ----------- | ------------------------------ |
+                |-------------|--------------------------------|
             """.trimIndent() + "\n$keyString\n"
         else
             ""

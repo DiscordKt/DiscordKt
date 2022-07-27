@@ -1,10 +1,10 @@
 package arguments
 
-import me.jakejmattson.discordkt.api.arguments.BooleanArg
+import me.jakejmattson.discordkt.arguments.BooleanArg
 import utilities.ArgumentTestFactory
 
 class BooleanArgTest : ArgumentTestFactory {
-    override val argumentType = BooleanArg
+    override val argument = BooleanArg
 
     override val validArgs = listOf(
         "true" to true,

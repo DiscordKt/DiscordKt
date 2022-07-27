@@ -1,10 +1,10 @@
 package arguments
 
-import me.jakejmattson.discordkt.api.arguments.ChoiceArg
+import me.jakejmattson.discordkt.arguments.ChoiceArg
 import utilities.ArgumentTestFactory
 
 class ChoiceArgTest : ArgumentTestFactory {
-    override val argumentType = ChoiceArg("Choices", "", "a", "b", "c")
+    override val argument = ChoiceArg("Choices", "", "a", "b", "c")
 
     override val validArgs = listOf(
         "a" to "a",

@@ -1,8 +1,8 @@
 package me.jakejmattson.discordkt.internal.utils
 
 import dev.kord.common.kColor
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
-import me.jakejmattson.discordkt.api.locale.inject
+import me.jakejmattson.discordkt.commands.CommandEvent
+import me.jakejmattson.discordkt.locale.inject
 import java.awt.Color
 
 internal object Recommender {
@@ -22,7 +22,7 @@ internal object Recommender {
             return
 
         val possibilities = discord.commands
-            .filter { it.hasPermissionToRun(event) }
+            .filter { it.hasPermissionToRun(discord, event.author, event.guild) }
             .flatMap { it.names }
             .takeUnless { it.isEmpty() }
             ?: return

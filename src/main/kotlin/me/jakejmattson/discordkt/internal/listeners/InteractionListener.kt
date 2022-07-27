@@ -1,62 +1,136 @@
 package me.jakejmattson.discordkt.internal.listeners
 
 import dev.kord.common.annotation.KordPreview
-import dev.kord.common.annotation.KordUnsafe
-import dev.kord.core.behavior.interaction.followUp
+import dev.kord.core.behavior.interaction.*
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.interaction.*
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.on
-import dev.kord.x.emoji.Emojis
-import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.TypeContainer
-import me.jakejmattson.discordkt.api.arguments.*
-import me.jakejmattson.discordkt.api.conversations.Conversations
-import me.jakejmattson.discordkt.api.dsl.*
+import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.TypeContainer
+import me.jakejmattson.discordkt.arguments.*
+import me.jakejmattson.discordkt.bundleToContainer
+import me.jakejmattson.discordkt.commands.*
+import me.jakejmattson.discordkt.conversations.Conversations
+import me.jakejmattson.discordkt.dsl.Menu
+import me.jakejmattson.discordkt.dsl.modalBuffer
+import me.jakejmattson.discordkt.internal.command.transformArgs
+import me.jakejmattson.discordkt.internal.utils.InternalLogger
 
-@OptIn(KordUnsafe::class)
 @KordPreview
 internal suspend fun registerInteractionListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
-    val interaction = interaction
-
-    if (interaction is ComponentInteraction) {
-        Menu.handleButtonPress(interaction)
-        Conversations.handleInteraction(interaction)
-        return@on
+    when (val interaction = interaction) {
+        is MessageCommandInteraction -> handleApplicationCommand(interaction, discord) {
+            Success(bundleToContainer(listOf(interaction.messages.values.first())))
+        }
+        is UserCommandInteraction -> handleApplicationCommand(interaction, discord) {
+            Success(bundleToContainer(listOf(interaction.users.values.first())))
+        }
+        is ChatInputCommandInteraction -> handleSlashCommand(interaction, discord)
+        is AutoCompleteInteraction -> handleAutocomplete(interaction, discord)
+        is ModalSubmitInteraction -> modalBuffer.send(interaction)
+        is SelectMenuInteraction -> Conversations.handleInteraction(interaction)
+        is ButtonInteraction -> {
+            Menu.handleButtonPress(interaction)
+            Conversations.handleInteraction(interaction)
+        }
+        else -> InternalLogger.error("Unknown interaction received: ${interaction.javaClass.simpleName}")
     }
-
-    if (interaction !is CommandInteraction)
-        return@on
-
-    val dktCommand = discord.commandOfType<GuildSlashCommand>(interaction.command.rootName)
-        ?: discord.commandOfType<GlobalSlashCommand>(interaction.command.rootName) ?: return@on
-
-    interaction.acknowledgePublic().followUp {
-        content = Emojis.whiteCheckMark.unicode
-    }.message.delete()
-
-    val complexArgs = dktCommand.executions.first().arguments.map { it to interaction.command.options[it.name.lowercase()]!! }
-    val args = simplifySlashArgs(complexArgs)
-    val rawInputs = RawInputs("/${dktCommand.name} $args", dktCommand.name, prefixCount = 1)
-    val author = interaction.user.asUser()
-    val guild = (interaction as? GuildInteraction)?.getGuild()
-    val channel = interaction.getChannel()
-    val event = SlashCommandEvent<TypeContainer>(rawInputs, discord, interaction.data.message.value?.let { Message(it, kord) }, author, channel, guild)
-
-    if (!arePreconditionsPassing(event)) return@on
-
-    dktCommand.invoke(event, rawInputs.commandArgs)
 }
 
-@OptIn(KordPreview::class)
-private fun simplifySlashArgs(complexArgs: List<Pair<ArgumentType<*>, OptionValue<*>>>) =
-    complexArgs.joinToString(" ") { (arg, optionalValue) ->
-        when (arg) {
-            is IntegerArg -> optionalValue.int().toString()
-            is BooleanArg -> optionalValue.boolean().toString()
-            is UserArg -> optionalValue.user().id.asString
-            is RoleArg -> optionalValue.role().id.asString
-            is ChannelArg<*> -> optionalValue.channel().id.asString
-            else -> optionalValue.string()
-        }
+private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction, discord: Discord) {
+    handleApplicationCommand(interaction as ApplicationCommandInteraction, discord) { context ->
+        transformArgs(execution.arguments.map { argument ->
+            val argName = argument.name.lowercase()
+            val arg = if (argument is WrappedArgument<*, *, *, *>) argument.innerType else argument
+
+            with(interaction.command) {
+                val value = when (arg) {
+                    is StringArgument -> strings[argName]
+                    is IntegerArgument -> integers[argName]?.toInt()
+                    is DoubleArgument -> numbers[argName]
+                    is BooleanArgument -> booleans[argName]
+
+                    //Entity
+                    is UserArgument -> users[argName]
+                    is RoleArgument -> roles[argName]
+                    is ChannelArgument -> channels[argName]?.let { kord.getChannel(it.id) }
+                    is AttachmentArgument -> attachments[argName]
+
+                    else -> options[argName]?.value
+                }
+
+                if (argument is MultipleArg<*, *>)
+                    argument to listOf(value)
+                else
+                    argument to value
+            }
+        }, context)
     }
+}
+
+private suspend fun handleApplicationCommand(interaction: ApplicationCommandInteraction, discord: Discord, input: suspend SlashCommand.(DiscordContext) -> Result<*>) {
+    val dktCommand = discord.commands.filterIsInstance<GuildSlashCommand>().firstOrNull { it.appName == interaction.invokedCommandName || it.name.equals(interaction.invokedCommandName, true) }
+        ?: discord.commands.filterIsInstance<GlobalSlashCommand>().firstOrNull { it.appName == interaction.invokedCommandName || it.name.equals(interaction.invokedCommandName, true) }
+        ?: return
+
+    val author = interaction.user.asUser()
+    val guild = (interaction as? GuildInteractionBehavior)?.getGuild()
+    val channel = interaction.getChannel()
+    val message = interaction.data.message.value?.let { Message(it, discord.kord) }
+
+    val context = DiscordContext(discord, message, author, channel, guild)
+    val transformResults = input.invoke(dktCommand, context)
+    val rawInputs = RawInputs("/${dktCommand.name}", dktCommand.name, prefixCount = 1)
+
+    val event =
+        if (dktCommand is GuildSlashCommand)
+            GuildSlashCommandEvent(rawInputs, discord, message, author, channel, guild!!, interaction as GuildApplicationCommandInteraction)
+        else
+            SlashCommandEvent<TypeContainer>(rawInputs, discord, message, author, channel, guild, interaction)
+
+    if (!arePreconditionsPassing(event)) return
+
+    event.args = when (transformResults) {
+        is Error -> {
+            event.respond(transformResults.error)
+            return
+        }
+        is Success<*> -> transformResults.result as TypeContainer
+    }
+
+    dktCommand.execution.execute(event)
+}
+
+private suspend fun handleAutocomplete(interaction: AutoCompleteInteraction, discord: Discord) {
+    val dktCommand = discord.commands.filterIsInstance<GuildSlashCommand>().firstOrNull { it.name.equals(interaction.command.rootName, true) }
+        ?: return
+
+    val argName = interaction.command.options.entries.single { it.value.focused }.key.lowercase()
+    val rawArg = dktCommand.execution.arguments.first { it.name.equals(argName, true) }
+
+    val arg: AutocompleteArg<*, *> = if (rawArg is WrappedArgument<*, *, *, *>)
+        if (rawArg is AutocompleteArg<*, *>)
+            rawArg
+        else
+            rawArg.type as AutocompleteArg<*, *>
+    else
+        return
+
+    val currentInput = interaction.focusedOption.value
+    val autocompleteData = AutocompleteData(interaction, currentInput)
+    val suggestions = arg.autocomplete.invoke(autocompleteData).take(25)
+
+    when (arg.innerType) {
+        is IntegerArgument -> interaction.suggestInt {
+            suggestions.forEach { choice(it.toString(), (it as Int).toLong()) }
+        }
+        is DoubleArgument -> interaction.suggestNumber {
+            suggestions.forEach { choice(it.toString(), it as Double) }
+        }
+        is StringArgument -> interaction.suggestString {
+            suggestions.forEach { choice(it.toString(), it as String) }
+        }
+        else -> {}
+    }
+}

@@ -1,10 +1,10 @@
 package arguments
 
-import me.jakejmattson.discordkt.api.arguments.CharArg
+import me.jakejmattson.discordkt.arguments.CharArg
 import utilities.ArgumentTestFactory
 
 class CharArgTest : ArgumentTestFactory {
-    override val argumentType = CharArg
+    override val argument = CharArg
 
     override val validArgs = listOf(
         "a" to 'a',

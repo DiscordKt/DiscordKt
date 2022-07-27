@@ -4,48 +4,31 @@ object Constants {
     const val projectUrl = "https://github.com/discordkt/$projectName/"
     const val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
     const val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+
+    const val kotlin = "1.7.10"
+    const val dokka = "1.7.10"
+    const val kord = "0.8.0-M15"
 }
 
-object Versions {
-    const val kotlin = "1.5.21"
-    const val dokka = "1.5.0"
-
-    const val reflections = "0.9.12"
-    const val gson = "2.8.7"
-
-    const val kord = "0.7.4"
-    const val emojis = "0.5.0"
-    const val slf4j = "2.0.0-alpha2"
-
-    const val junit = "5.8.0-M1"
-    const val mockk = "1.12.0"
-}
-
-object Dependencies {
-    //Internal
-    const val reflections = "org.reflections:reflections:${Versions.reflections}"
-    const val gson = "com.google.code.gson:gson:${Versions.gson}"
-
-    //Library
-    const val kord = "dev.kord:kord-core:${Versions.kord}"
-    const val emojis = "dev.kord.x:emoji:${Versions.emojis}"
-    const val slf4j = "org.slf4j:slf4j-simple:${Versions.slf4j}"
-
-    //Testing
-    const val `junit-platform` = "org.junit:junit-bom:${Versions.junit}"
-    const val junit = "org.junit.jupiter:junit-jupiter"
-    const val mockk = "io.mockk:mockk:${Versions.mockk}"
-}
-
-object README {
-    fun createImportBlock(group: String, version: String, isSnapshot: Boolean) = buildString {
+object Docs {
+    fun generateImports(group: String, version: String, isSnapshot: Boolean, isDocs: Boolean = false) = buildString {
         val gradleTag = "${group}:${Constants.projectName}:${version}"
         val snapshotUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
 
-        appendLine("### Gradle (Kotlin)\n```kotlin")
+        createGradleKts(snapshotUrl, gradleTag, isSnapshot, isDocs)
+        createGradleGroovy(snapshotUrl, gradleTag, isSnapshot, isDocs)
+        createMaven(snapshotUrl, group, version, isSnapshot, isDocs)
+    }
+
+    private fun StringBuilder.createGradleKts(snapshotUrl: String, gradleTag: String, isSnapshot: Boolean, isDocs: Boolean) = apply {
+        appendLine(if (isDocs) "=== \"build.gradle.kts\"" else "### Gradle (Kotlin)")
+
+        val block = StringBuilder()
+
+        block.appendLine("```kotlin")
 
         if (isSnapshot)
-            appendLine("""
+            block.appendLine("""
                 repositories {
                     mavenCentral()
                     maven("$snapshotUrl")
@@ -53,17 +36,30 @@ object README {
                 
             """.trimIndent())
 
-        appendLine("""
+        block.appendLine("""
             dependencies {
                 implementation("$gradleTag")
             }
             ```
         """.trimIndent())
 
-        appendLine("### Gradle (Groovy)\n```groovy")
+        appendLine(
+            if (isDocs)
+                block.split("\n").joinToString("\n") { "    $it" }
+            else
+                block.toString()
+        )
+    }
+
+    private fun StringBuilder.createGradleGroovy(snapshotUrl: String, gradleTag: String, isSnapshot: Boolean, isDocs: Boolean) = apply {
+        appendLine(if (isDocs) "=== \"build.gradle\"" else "### Gradle (Groovy)")
+
+        val block = StringBuilder()
+
+        block.appendLine("```groovy")
 
         if (isSnapshot)
-            appendLine("""
+            block.appendLine("""
                 repositories {
                     mavenCentral()
                     maven {
@@ -73,18 +69,30 @@ object README {
                 
             """.trimIndent())
 
-        appendLine("""
+        block.appendLine("""
             dependencies {
                 implementation '${gradleTag}'
             }
             ```
-            
         """.trimIndent())
 
-        appendLine("### Maven\n```xml")
+        appendLine(
+            if (isDocs)
+                block.split("\n").joinToString("\n") { "    $it" }
+            else
+                block.toString()
+        )
+    }
+
+    private fun StringBuilder.createMaven(snapshotUrl: String, group: String, version: String, isSnapshot: Boolean, isDocs: Boolean) = apply {
+        appendLine(if (isDocs) "=== \"pom.xml\"" else "### Maven")
+
+        val block = StringBuilder()
+
+        block.appendLine("```xml")
 
         if (isSnapshot)
-            appendLine("""
+            block.appendLine("""
                 <repositories>
                     <repository>
                         <id>Sonatype Snapshots</id>
@@ -94,7 +102,7 @@ object README {
                 
             """.trimIndent())
 
-        appendLine("""
+        block.appendLine("""
             <dependencies>
                 <dependency>
                     <groupId>${group}</groupId>
@@ -104,5 +112,12 @@ object README {
             </dependencies>
             ```
         """.trimIndent())
+
+        append(
+            if (isDocs)
+                block.split("\n").joinToString("\n") { "    $it" }
+            else
+                block.toString()
+        )
     }
 }

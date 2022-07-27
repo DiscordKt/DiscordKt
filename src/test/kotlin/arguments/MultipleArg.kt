@@ -1,12 +1,12 @@
 package arguments
 
-import me.jakejmattson.discordkt.api.arguments.IntegerArg
-import me.jakejmattson.discordkt.api.arguments.MultipleArg
-import me.jakejmattson.discordkt.api.arguments.QuoteArg
+import me.jakejmattson.discordkt.arguments.IntegerArg
+import me.jakejmattson.discordkt.arguments.MultipleArg
+import me.jakejmattson.discordkt.arguments.QuoteArg
 import utilities.ArgumentTestFactory
 
 class SingleMultipleArgTest : ArgumentTestFactory {
-    override val argumentType = MultipleArg(IntegerArg)
+    override val argument = MultipleArg(IntegerArg)
 
     override val validArgs = listOf(
         "1" to listOf(1),
@@ -20,7 +20,7 @@ class SingleMultipleArgTest : ArgumentTestFactory {
 }
 
 class MultiMultipleArgTest : ArgumentTestFactory {
-    override val argumentType = MultipleArg(QuoteArg)
+    override val argument = MultipleArg(QuoteArg)
 
     override val validArgs = listOf(
         "\"\"" to listOf(""),

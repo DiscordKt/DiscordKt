@@ -1,78 +1,118 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import me.jakejmattson.discordkt.api.Discord
-import me.jakejmattson.discordkt.api.arguments.EitherArg
-import me.jakejmattson.discordkt.api.dsl.Command
-import me.jakejmattson.discordkt.api.dsl.GlobalSlashCommand
-import me.jakejmattson.discordkt.api.dsl.PermissionSet
+import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.arguments.Argument
+import me.jakejmattson.discordkt.commands.SlashCommand
+import me.jakejmattson.discordkt.commands.TextCommand
 
-@PublishedApi
-internal object Validator {
-    fun validateArguments(commands: List<Command>) {
-        commands.forEach { command ->
-            command.executions.forEach { execution ->
-                val commandName = command.names.first()
+private val slashRegex = "^[\\w-]{1,32}$".toRegex()
 
-                if (command.executions.isEmpty())
-                    InternalLogger.error("$commandName has no execute block.")
+internal fun Discord.validate() {
+    val duplicates = commands
+        .flatMap { it.names }
+        .filter { it.isNotBlank() }
+        .groupingBy { it }
+        .eachCount()
+        .filter { it.value > 1 }
+        .map { it.key }
+        .joinToString { "\"$it\"" }
 
-                execution.arguments.forEach {
-                    if (" " in it.name)
-                        InternalLogger.error("[${command.category}-${command.names.first()}]: ${it.toSimpleString()}(\"${it.name}\") contains a space.")
+    if (duplicates.isNotEmpty())
+        InternalLogger.error("Found commands with duplicate names: $duplicates")
+
+    val errors = Errors()
+
+    commands.forEach { command ->
+        with(command) {
+            if (names.any { it.isBlank() })
+                errors.blankCmdName.add(category)
+
+            if (executions.isEmpty()) {
+                errors.noExecution.add("$category-$name")
+                return@forEach
+            }
+
+            when (this) {
+                is SlashCommand -> {
+                    if (executions.size > 1)
+                        errors.slashMultiExec.add("$category-$name")
+
+                    if (!name.matches(slashRegex))
+                        errors.badRegexSlashCmd.add(this)
+
+                    errors.badRegexSlashArg.addAll(execution
+                        .arguments
+                        .filter { !it.name.matches(slashRegex) }
+                        .map { this to it }
+                    )
                 }
+                is TextCommand -> {
+                    errors.spaceTxtCmd.addAll(names.filter { it.contains(" ") })
 
-                execution.arguments.filterIsInstance<EitherArg<*, *>>().forEach { eitherArg ->
-                    if (eitherArg.left == eitherArg.right) {
-                        val arg = eitherArg.left::class.simplerName
-                        InternalLogger.error("Detected EitherArg with identical args ($arg) in command: $commandName")
-                    }
+                    errors.spaceTxtArg.addAll(executions.flatMap { execution ->
+                        execution.arguments.filter { " " in it.name }.map { this to it }
+                    })
                 }
             }
         }
     }
 
-    fun validateCommands(commands: List<Command>) {
-        val duplicates = commands
-            .flatMap { it.names }
-            .groupingBy { it }
-            .eachCount()
-            .filter { it.value > 1 }
-            .map { it.key }
-            .joinToString { "\"$it\"" }
+    errors.display()
+}
 
-        if (duplicates.isNotEmpty())
-            InternalLogger.error("Found commands with duplicate names: $duplicates")
+private data class Errors(
+    //Execution
+    val noExecution: MutableList<String> = mutableListOf(),
+    val slashMultiExec: MutableList<String> = mutableListOf(),
 
-        commands.forEach { command ->
-            val commandName = command.names.first()
+    //Naming
+    val blankCmdName: MutableSet<String> = mutableSetOf(),
+    val spaceTxtCmd: MutableList<String> = mutableListOf(),
+    val spaceTxtArg: MutableList<Pair<TextCommand, Argument<*, *>>> = mutableListOf(),
+    val badRegexSlashCmd: MutableList<SlashCommand> = mutableListOf(),
+    val badRegexSlashArg: MutableList<Pair<SlashCommand, Argument<*, *>>> = mutableListOf()
+) {
+    private val indent = "  "
 
-            if (command.names.any { it.isBlank() })
-                InternalLogger.error("Found command with blank name in CommandSet ${command.category}")
-            else {
-                val spaces = command.names.filter { " " in it }
+    private fun String.toIndicator() = map { if (slashRegex.matches(it.toString())) ' ' else '^' }.joinToString("")
 
-                if (spaces.isNotEmpty())
-                    InternalLogger.error("Found command name with spaces: ${spaces.joinToString { "\"$it\"" }}")
-            }
-
-            if (command is GlobalSlashCommand && command.executions.size > 1)
-                InternalLogger.error("Slash commands ($commandName) cannot be overloaded.")
-        }
+    private fun StringBuilder.appendError(list: List<String>, message: String) {
+        if (list.isNotEmpty())
+            appendLine("$message: \n${list.joinToString("\n") { "$indent$it" }}\n")
     }
 
-    fun validatePermissions(commands: List<Command>, discord: Discord) {
-        val defaultRequiredPermission = discord.permissions.commandDefault
-        val validPermissions = discord.permissions.levels
+    fun display() {
+        val fatalErrors = buildString {
+            appendError(noExecution, "Commands must have at least one execute block")
+            appendError(slashMultiExec, "Slash commands cannot have multiple execute blocks")
+            appendError(blankCmdName.toList(), "Command names cannot be blank")
+            appendError(spaceTxtCmd, "Command names cannot have spaces")
 
-        if (defaultRequiredPermission !is PermissionSet)
-            InternalLogger.fatalError("Permissions enum must extend ${PermissionSet::class.qualifiedName}")
+            if (badRegexSlashCmd.isNotEmpty()) {
+                appendLine("Slash command names must follow regex ${slashRegex.pattern}")
+                appendLine(badRegexSlashCmd.joinToString("\n") { cmd ->
+                    val base = "$indent${cmd.category}-"
+                    "$base${cmd.name}\n${" ".repeat(base.length)}${cmd.name.toIndicator()}"
+                } + "\n")
+            }
 
-        commands.forEach { command ->
-            val requiredPermission = command.requiredPermission
-
-            if (requiredPermission !in validPermissions)
-                InternalLogger.error("${requiredPermission::class.simplerName}.${requiredPermission.name} provided to command " +
-                    "(${command.category} - ${command.names.first()}) did not match expected type ${defaultRequiredPermission::class.simplerName}")
+            if (badRegexSlashArg.isNotEmpty()) {
+                appendLine("Slash argument names must follow regex ${slashRegex.pattern}")
+                appendLine(badRegexSlashArg.joinToString("\n") { (cmd, arg) ->
+                    val base = "$indent${cmd.category}-${cmd.name}-${arg::class.simplerName}(\""
+                    "$base${arg.name}\")\n${" ".repeat(base.length)}${cmd.name.toIndicator()}"
+                } + "\n")
+            }
         }
+
+        if (spaceTxtArg.isNotEmpty())
+            InternalLogger.error("Arguments with spaces are not recommended:\n" +
+                spaceTxtArg.joinToString("\n") { (cmd, arg) ->
+                    "$indent${cmd.category}-${cmd.name}-${arg::class.simplerName}(\"${arg.name}\")"
+                } + "\n"
+            )
+
+        if (fatalErrors.isNotEmpty())
+            InternalLogger.fatalError("Invalid command configuration:\n${fatalErrors.lines().joinToString("\n") { "$indent$it" }}")
     }
 }

@@ -1,23 +1,29 @@
 package utilities
 
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import me.jakejmattson.discordkt.api.arguments.*
-import me.jakejmattson.discordkt.api.dsl.CommandEvent
-import me.jakejmattson.discordkt.api.dsl.internalLocale
-import me.jakejmattson.discordkt.api.locale.LocaleEN
+import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.arguments.*
+import me.jakejmattson.discordkt.commands.DiscordContext
+import me.jakejmattson.discordkt.dsl.internalLocale
+import me.jakejmattson.discordkt.locale.LocaleEN
 import org.junit.jupiter.api.*
 
-private val commandEventMock = mockk<CommandEvent<*>> { }
+private val discordMockk = mockk<Discord>()
+
+private val contextMock = mockk<DiscordContext> {
+    every { discord } returns discordMockk
+}
 
 interface ArgumentTestFactory {
-    val argumentType: ArgumentType<*>
+    val argument: Argument<*, *>
     val validArgs: List<Pair<String, *>>
     val invalidArgs: List<String>
 
     @TestFactory
     fun `valid input`() = validArgs.map { (input, expected) ->
-        when (val conversionResult = argumentType.attemptConvert(input)) {
+        when (val conversionResult = argument.attemptConvert(input)) {
             is Success<*> -> {
                 DynamicTest.dynamicTest("\"$input\" -> $expected") {
                     Assertions.assertEquals(conversionResult.result, expected)
@@ -33,7 +39,7 @@ interface ArgumentTestFactory {
 
     @TestFactory
     fun `invalid input`() = invalidArgs.map { input ->
-        when (val conversionResult = argumentType.attemptConvert(input)) {
+        when (val conversionResult = argument.attemptConvert(input)) {
             is Error<*> -> {
                 DynamicTest.dynamicTest("\"$input\" -> ${conversionResult.error}") {
                     Assertions.assertTrue(true)
@@ -56,13 +62,15 @@ interface ArgumentTestFactory {
     }
 }
 
-private fun ArgumentType<*>.attemptConvert(input: String): ArgumentResult<*> {
-    val split = input.split(" ")
-    var result: ArgumentResult<*>
+private fun <A, B> Argument<A, B>.attemptConvert(input: String): Result<*> {
+    val split = input.split(" ").toMutableList()
 
-    runBlocking {
-        result = convert(split.first(), split, commandEventMock)
+    return runBlocking {
+        val parseResult = parse(split, contextMock.discord)
+
+        if (parseResult != null)
+            transform(parseResult, contextMock)
+        else
+            Error(internalLocale.invalidFormat)
     }
-
-    return result
 }

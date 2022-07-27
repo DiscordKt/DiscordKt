@@ -1,14 +1,13 @@
-import org.jetbrains.dokka.Platform
-
 group = "me.jakejmattson"
-version = "0.22.0"
+version = "0.23.0"
+val projectGroup = group.toString()
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
     //Core
-    kotlin("jvm") version Versions.kotlin
-    kotlin("plugin.serialization") version Versions.kotlin
-    id("org.jetbrains.dokka") version Versions.dokka
+    kotlin("jvm") version Constants.kotlin
+    kotlin("plugin.serialization") version Constants.kotlin
+    id("org.jetbrains.dokka") version Constants.dokka
 
     //Publishing
     signing
@@ -16,7 +15,7 @@ plugins {
     id("io.codearte.nexus-staging") version "0.30.0"
 
     //Misc
-    id("com.github.ben-manes.versions") version "0.39.0"
+    id("com.github.ben-manes.versions") version "0.42.0"
 }
 
 repositories {
@@ -24,21 +23,23 @@ repositories {
 }
 
 dependencies {
-    Dependencies.apply {
-        implementation(reflections)
-        implementation(gson)
+    api("dev.kord:kord-core:${Constants.kord}")
+    api("dev.kord.x:emoji:0.5.0")
+    api("org.slf4j:slf4j-simple:2.0.0-alpha7")
 
-        api(kord)
-        api(emojis)
-        api(slf4j)
+    implementation("org.reflections:reflections:0.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
 
-        testImplementation(platform(`junit-platform`))
-        testImplementation(junit)
-        testImplementation(mockk)
-    }
+    testImplementation(platform("org.junit:junit-bom:5.9.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+    testImplementation("io.mockk:mockk:1.12.5")
 }
 
 tasks {
+    kotlin {
+        explicitApi()
+    }
+
     compileKotlin {
         kotlinOptions {
             jvmTarget = "1.8"
@@ -54,17 +55,32 @@ tasks {
         useJUnitPlatform()
     }
 
-    copy {
-        val path = "templates/readme.md"
+    dokkaHtml.configure {
+        outputDirectory.set(buildDir.resolve("dokka"))
 
-        from(file(path))
+        dokkaSourceSets {
+            configureEach {
+                platform.set(org.jetbrains.dokka.Platform.jvm)
+
+                includeNonPublic.set(false)
+                skipEmptyPackages.set(true)
+                reportUndocumented.set(true)
+
+                includes.from("packages.md")
+                suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\TypeContainers.kt")
+            }
+        }
+    }
+
+    copy {
+        from(file("templates/readme.md"))
         into(file("."))
         rename { "README.md" }
         expand(
-            "kotlin" to Versions.kotlin.replace("-", "--"),
-            "kord" to Versions.kord.replace("-", "--"),
+            "kotlin" to Constants.kotlin.replace("-", "--"),
+            "kord" to Constants.kord.replace("-", "--"),
             "discordkt" to version.toString().replace("-", "--"),
-            "imports" to README.createImportBlock(group.toString(), version.toString(), isSnapshot)
+            "imports" to Docs.generateImports(projectGroup, version.toString(), isSnapshot)
         )
     }
 
@@ -73,39 +89,26 @@ tasks {
         into(file("src/main/resources"))
         rename { "library-properties.json" }
         expand(
-            "projectRepo" to Constants.projectUrl,
-            "projectVersion" to version,
-            "kotlinVersion" to Versions.kotlin,
-            "kordVersion" to Versions.kord
+            "project" to version,
+            "kotlin" to Constants.kotlin,
+            "kord" to Constants.kord
         )
     }
 
-    dokkaHtml.configure {
-        outputDirectory.set(buildDir.resolve("dokka"))
-
-        dokkaSourceSets {
-            configureEach {
-                platform.set(Platform.jvm)
-                jdkVersion.set(8)
-
-                includeNonPublic.set(false)
-                skipEmptyPackages.set(true)
-                reportUndocumented.set(true)
-
-                includes.from("packages.md")
-                suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\api\\TypeContainers.kt")
-            }
-        }
-    }
-
     register("generateDocs") {
-        description = "Generate documentation for DiscordKt.github.io"
-        dependsOn(listOf(dokkaHtml))
+        description = "Generate documentation for discordkt.github.io"
+        dependsOn(dokkaHtml)
 
         copy {
-            delete(file("../DiscordKt.github.io/docs/dokka"))
+            val docsPath = "../discordkt.github.io/docs/${if (isSnapshot) "snapshot" else "release"}"
+
+            delete(file("$docsPath/dokka"))
             from(buildDir.resolve("dokka"))
-            into(file("../DiscordKt.github.io/docs/dokka"))
+            into(file("$docsPath/dokka"))
+
+            file("$docsPath/index.md").writeText(
+                Docs.generateImports(projectGroup, version.toString(), isSnapshot, true)
+            )
         }
     }
 
@@ -115,7 +118,7 @@ tasks {
             val sizes = buildString {
                 val configuration = configurations["default"]
                 val size = configuration.sumOf { it.length() / (1024.0 * 1024.0) }
-                val longestName = configuration.map { it.name.length }.maxOrNull()
+                val longestName = configuration.maxOfOrNull { it.name.length }
                 val formatStr = "%-${longestName}s   %5d KB"
 
                 appendLine("Total Size: %.2f MB\n".format(size))
@@ -189,6 +192,10 @@ publishing {
 }
 
 signing {
+    setRequired({
+        gradle.taskGraph.hasTask("publish")
+    })
+
     sign(publishing.publications[Constants.projectName])
 }
 
