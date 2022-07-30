@@ -30,8 +30,22 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      * Create a guild command.
      */
     @InnerDSL
-    public fun command(vararg names: String, body: GuildCommand.() -> Unit) {
-        val command = GuildCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
+    @Deprecated("Generic 'command' functions will be replaced with explicit names.", ReplaceWith("text(*names) { body() }"))
+    public fun command(vararg names: String, body: (GuildTextCommand.() -> Unit)) {
+        val command = GuildTextCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
+            this.category = this@CommandSetBuilder.category
+        }
+
+        command.body()
+        commands.add(command)
+    }
+
+    /**
+     * Create a guild text command.
+     */
+    @InnerDSL
+    public fun text(vararg names: String, body: GuildTextCommand.() -> Unit) {
+        val command = GuildTextCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -43,8 +57,22 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      * Create a dm command.
      */
     @InnerDSL
-    public fun dmCommand(vararg names: String, body: DmCommand.() -> Unit) {
-        val command = DmCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
+    @Deprecated("Generic 'command' functions will be replaced with explicit names.", ReplaceWith("dmText(*names) { body() }"))
+    public fun dmCommand(vararg names: String, body: DmTextCommand.() -> Unit) {
+        val command = DmTextCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
+            this.category = this@CommandSetBuilder.category
+        }
+
+        command.body()
+        commands.add(command)
+    }
+
+    /**
+     * Create a dm text command.
+     */
+    @InnerDSL
+    public fun dmText(vararg names: String, body: DmTextCommand.() -> Unit) {
+        val command = DmTextCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -56,8 +84,22 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      * Create a global command.
      */
     @InnerDSL
-    public fun globalCommand(vararg names: String, body: GlobalCommand.() -> Unit) {
-        val command = GlobalCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
+    @Deprecated("Generic 'command' functions will be replaced with explicit names.", ReplaceWith("globalText(*names) { body() }"))
+    public fun globalCommand(vararg names: String, body: GlobalTextCommand.() -> Unit) {
+        val command = GlobalTextCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
+            this.category = this@CommandSetBuilder.category
+        }
+
+        command.body()
+        commands.add(command)
+    }
+
+    /**
+     * Create a global text command.
+     */
+    @InnerDSL
+    public fun globalText(vararg names: String, body: GlobalTextCommand.() -> Unit) {
+        val command = GlobalTextCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
             this.category = this@CommandSetBuilder.category
         }
 

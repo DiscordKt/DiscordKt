@@ -82,8 +82,8 @@ public sealed interface Command {
      * @param discord The event context that will attempt to run the command.
      */
     public suspend fun hasPermissionToRun(discord: Discord, author: User, guild: Guild?): Boolean = when {
-        this is DmCommand && guild != null -> false
-        this is GuildCommand && guild == null -> false
+        this is DmTextCommand && guild != null -> false
+        this is GuildTextCommand && guild == null -> false
         else -> {
             if (guild != null)
                 author.asMember(guild.id).getPermissions().contains(requiredPermissions)
@@ -167,11 +167,11 @@ public sealed interface SlashCommand : Command {
 /**
  * A command that can be executed from anywhere.
  */
-public class GlobalCommand(override val names: List<String>,
-                           override var description: String = "",
-                           override var category: String = "",
-                           override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
-                           override var requiredPermissions: Permissions) : TextCommand {
+public class GlobalTextCommand(override val names: List<String>,
+                               override var description: String = "",
+                               override var category: String = "",
+                               override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
+                               override var requiredPermissions: Permissions) : TextCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -200,11 +200,11 @@ public class GlobalCommand(override val names: List<String>,
 /**
  * A command that can only be executed in a guild.
  */
-public class GuildCommand(override val names: List<String>,
-                          override var description: String = "",
-                          override var category: String = "",
-                          override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
-                          override var requiredPermissions: Permissions) : TextCommand {
+public class GuildTextCommand(override val names: List<String>,
+                              override var description: String = "",
+                              override var category: String = "",
+                              override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
+                              override var requiredPermissions: Permissions) : TextCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -233,11 +233,11 @@ public class GuildCommand(override val names: List<String>,
 /**
  * A command that can only be executed in a DM.
  */
-public class DmCommand(override val names: List<String>,
-                       override var description: String = "",
-                       override var category: String = "",
-                       override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
-                       override var requiredPermissions: Permissions) : TextCommand {
+public class DmTextCommand(override val names: List<String>,
+                           override var description: String = "",
+                           override var category: String = "",
+                           override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
+                           override var requiredPermissions: Permissions) : TextCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend DmCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)

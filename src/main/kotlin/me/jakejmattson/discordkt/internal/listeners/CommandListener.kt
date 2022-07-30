@@ -86,9 +86,9 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
 private fun Command.buildRequiredEvent(discord: Discord, rawInputs: RawInputs, message: Message?, author: User, channel: Channel, guild: Guild?): CommandEvent<TypeContainer>? {
     return try {
         when (this) {
-            is GlobalCommand -> CommandEvent(rawInputs, discord, message, author, channel as MessageChannel, guild)
-            is GuildCommand -> GuildCommandEvent(rawInputs, discord, message!!, author, channel as GuildMessageChannel, guild!!)
-            is DmCommand -> DmCommandEvent(rawInputs, discord, message!!, author, channel as DmChannel)
+            is GlobalTextCommand -> CommandEvent(rawInputs, discord, message, author, channel as MessageChannel, guild)
+            is GuildTextCommand -> GuildCommandEvent(rawInputs, discord, message!!, author, channel as GuildMessageChannel, guild!!)
+            is DmTextCommand -> DmCommandEvent(rawInputs, discord, message!!, author, channel as DmChannel)
             is GuildSlashCommand -> GuildSlashCommandEvent(rawInputs, discord, message, author, channel as MessageChannel, guild!!, null)
             is SlashCommand -> SlashCommandEvent(rawInputs, discord, message, author, channel as MessageChannel, guild, null)
         }
