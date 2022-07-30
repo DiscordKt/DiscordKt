@@ -70,7 +70,9 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
 
     if (!arePreconditionsPassing(event)) return@on
 
-    val command = potentialCommand.takeUnless { !it.hasPermissionToRun(discord, author, guild) }
+    val isValidInvocationType = potentialCommand !is SlashCommand || discord.configuration.dualRegistry
+
+    val command = potentialCommand.takeIf { isValidInvocationType && it.hasPermissionToRun(discord, author, guild) }
         ?: return@on Recommender.sendRecommendation(event, commandName)
 
     if (!config.deleteInvocation)
