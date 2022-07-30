@@ -1,5 +1,5 @@
 group = "me.jakejmattson"
-version = "0.23.0"
+version = "0.23.1-SNAPSHOT"
 val projectGroup = group.toString()
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
