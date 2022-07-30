@@ -18,6 +18,7 @@ import me.jakejmattson.discordkt.arguments.Error
 import me.jakejmattson.discordkt.arguments.Result
 import me.jakejmattson.discordkt.arguments.Success
 import me.jakejmattson.discordkt.commands.DiscordContext
+import me.jakejmattson.discordkt.conversations.responders.MessageResponder
 import me.jakejmattson.discordkt.dsl.Responder
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.dsl.uuid

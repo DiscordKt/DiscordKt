@@ -9,6 +9,7 @@ import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.commands.SlashCommandEvent
+import me.jakejmattson.discordkt.conversations.responders.SlashResponder
 
 public class SlashConversationBuilder<T : TypeContainer>(
     discord: Discord,
