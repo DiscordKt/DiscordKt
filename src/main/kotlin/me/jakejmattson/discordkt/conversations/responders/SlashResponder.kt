@@ -18,6 +18,8 @@ public class SlashResponder<T : TypeContainer>(private val event: SlashCommandEv
             )
         } // FIXME don't use runBlocking
 
+    public override var userResponse: Message? = null
+
     private suspend fun getMessageOfBotResponse(applicationId: Snowflake, token: String): Message {
         val messageData = event.discord.kord.rest.interaction.getInteractionResponse(applicationId, token).toData()
 

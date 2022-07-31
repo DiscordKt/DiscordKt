@@ -16,22 +16,16 @@ import me.jakejmattson.discordkt.arguments.Argument
  * @param channel The channel that the conversation is happening in.
  * @param exitString A String entered by the user to exit the conversation.
  */
-public class PlainConversationBuilder(
+public class
+PlainConversationBuilder(
     discord: Discord,
     user: User,
     channel: MessageChannel,
     exitString: String? = null,
     timeout: Long,
 ) : ConversationBuilder(discord, user, channel, exitString, timeout) {
-    /**
-     * All ID's of messages sent by the bot in this conversation.
-     */
-    public val botMessageIds: MutableList<Snowflake> = mutableListOf()
-    /**
-     * The ID of the most recent message sent by the bot in this conversation.
-     */
-    public val previousBotMessageId: Snowflake
-        get() = botMessageIds.last()
+    public override val userMessageIds: MutableList<Snowflake> = mutableListOf()
+    public override val botMessageIds: MutableList<Snowflake> = mutableListOf()
 
     @Throws(DmException::class)
     public override suspend fun <T> promptUntil(argument: Argument<*, T>, prompt: String, error: String, isValid: (T) -> Boolean): T {

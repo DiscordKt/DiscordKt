@@ -1,5 +1,6 @@
 package me.jakejmattson.discordkt.conversations
 
+import dev.kord.common.entity.Snowflake
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import dev.kord.core.entity.interaction.ComponentInteraction
@@ -18,6 +19,12 @@ public class SlashConversationBuilder<T : TypeContainer>(
     exitString: String? = null,
     timeout: Long,
 ) : ConversationBuilder(discord, user, event.channel, exitString, timeout) {
+    public override val userMessageIds: MutableList<Snowflake>
+        get() = responders.mapNotNull { it.userResponse?.id }.toMutableList()
+
+    public override val botMessageIds: MutableList<Snowflake>
+        get() = responders.map { it.ofMessage.id }.toMutableList()
+
     @Throws(DmException::class)
     public override suspend fun <T> promptUntil(argument: Argument<*, T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
         var value: T = prompt(argument, prompt)

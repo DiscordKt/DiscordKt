@@ -6,8 +6,9 @@ import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.rest.builder.message.create.MessageCreateBuilder
 import kotlinx.coroutines.runBlocking
 
-public class ChannelResponder(private val channel: MessageChannel, private val message: Message) : MessageResponder {
+public class ChannelResponder(private val channel: MessageChannel, message: Message) : MessageResponder {
     public override val ofMessage: Message = message
+    public override var userResponse: Message? = null
 
     override suspend fun respond(builder: suspend MessageCreateBuilder.() -> Unit): MessageResponder {
         val newMessage = channel.createMessage {

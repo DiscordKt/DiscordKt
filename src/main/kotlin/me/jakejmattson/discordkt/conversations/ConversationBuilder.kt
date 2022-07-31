@@ -46,13 +46,24 @@ public abstract class ConversationBuilder(
     /**
      * All ID's of messages sent by the user in this conversation.
      */
-    public val userMessageIds: MutableList<Snowflake> = mutableListOf()
+    public abstract val userMessageIds: MutableList<Snowflake>
+
+    /**
+     * All ID's of messages sent by the bot in this conversation.
+     */
+    public abstract val botMessageIds: MutableList<Snowflake>
 
     /**
      * The ID of the most recent message sent by the user in this conversation.
      */
     public val previousUserMessageId: Snowflake
         get() = userMessageIds.last()
+
+    /**
+     * The ID of the most recent message sent by the bot in this conversation.
+     */
+    public val previousBotMessageId: Snowflake
+        get() = botMessageIds.last()
 
     internal suspend fun acceptMessage(message: Message) = messageBuffer.send(message)
 
@@ -132,6 +143,7 @@ public abstract class ConversationBuilder(
 
         messageBuffer.onReceive { message ->
             userMessageIds.add(message.id)
+            responders.lastOrNull()?.let { it.userResponse = message }
 
             if (message.content == exitString)
                 throw ExitException()

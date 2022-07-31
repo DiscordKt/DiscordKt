@@ -18,6 +18,8 @@ public class FollowupResponder(
             followupMessage?.message ?: getMessageOfBotResponse(botResponse.applicationId, botResponse.token)
         }
 
+    public override var userResponse: Message? = null
+
     private suspend fun getMessageOfBotResponse(applicationId: Snowflake, token: String): Message {
         val messageData = botResponse.kord.rest.interaction.getInteractionResponse(applicationId, token).toData()
 
