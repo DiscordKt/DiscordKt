@@ -177,16 +177,6 @@ publishing {
                     url.set(Constants.projectUrl)
                 }
             }
-            repositories {
-                maven {
-                    url = if (isSnapshot) uri(Constants.snapshotsRepoUrl) else uri(Constants.releasesRepoUrl)
-
-                    credentials {
-                        username = project.properties["sonatypeUsername"] as String?
-                        password = project.properties["sonatypePassword"] as String?
-                    }
-                }
-            }
         }
     }
 }
