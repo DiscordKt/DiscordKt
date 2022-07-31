@@ -3,7 +3,12 @@
 package me.jakejmattson.discordkt.commands
 
 import dev.kord.common.entity.Permissions
+import dev.kord.core.entity.Message
+import dev.kord.core.entity.User
+import me.jakejmattson.discordkt.Args1
 import me.jakejmattson.discordkt.Discord
+import me.jakejmattson.discordkt.arguments.MessageArg
+import me.jakejmattson.discordkt.arguments.UserArg
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.annotations.InnerDSL
 import me.jakejmattson.discordkt.internal.utils.BuilderRegister
@@ -130,6 +135,38 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
         }
 
         command.body()
+        commands.add(command)
+    }
+
+    /**
+     * Create a user context command.
+     */
+    @InnerDSL
+    public fun user(displayName: String, slashName: String, description: String, body: suspend GuildSlashCommandEvent<Args1<User>>.() -> Unit) {
+        val command = GuildSlashCommand(slashName, displayName, description = description, requiredPermissions = requiredPermissions).apply {
+            this.category = this@CommandSetBuilder.category
+
+            execute(UserArg) {
+                this.body()
+            }
+        }
+
+        commands.add(command)
+    }
+
+    /**
+     * Create a message context command.
+     */
+    @InnerDSL
+    public fun message(displayName: String, slashName: String, description: String, body: suspend GuildSlashCommandEvent<Args1<Message>>.() -> Unit) {
+        val command = GuildSlashCommand(slashName, displayName, description = description, requiredPermissions = requiredPermissions).apply {
+            this.category = this@CommandSetBuilder.category
+
+            execute(MessageArg) {
+                this.body()
+            }
+        }
+
         commands.add(command)
     }
 
