@@ -2,6 +2,7 @@ package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.CommandSet
+import me.jakejmattson.discordkt.commands.SubCommandSet
 import me.jakejmattson.discordkt.dsl.Listeners
 import me.jakejmattson.discordkt.dsl.Precondition
 import me.jakejmattson.discordkt.dsl.diService
@@ -24,6 +25,7 @@ internal class ReflectionUtils(path: String) {
 
     fun registerFunctions(discord: Discord) {
         register<CommandSet>(discord)
+        register<SubCommandSet>(discord)
         register<Listeners>(discord)
         register<Precondition>(discord)
     }

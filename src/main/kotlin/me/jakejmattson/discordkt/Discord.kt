@@ -50,6 +50,7 @@ public abstract class Discord {
     public abstract val configuration: BotConfiguration
     public abstract val locale: Locale
     public abstract val commands: MutableList<Command>
+    public abstract val subcommands: MutableList<SubCommandSet>
     internal abstract val preconditions: MutableList<Precondition>
 
     public val versions: Versions = Json.decodeFromString(javaClass.getResource("/library-properties.json")!!.readText())
@@ -118,7 +119,7 @@ public abstract class Discord {
 
     @KordPreview
     private suspend fun registerSlashCommands() {
-        fun ChatInputCreateBuilder.mapArgs(command: SlashCommand) {
+        fun BaseInputChatBuilder.mapArgs(command: SlashCommand) {
             command.execution.arguments.forEach { argument ->
                 val name = argument.name.lowercase()
                 val description = argument.description
@@ -201,6 +202,18 @@ public abstract class Discord {
                     guild.createApplicationCommands {
                         guildSlashCommands.forEach {
                             register(it)
+                        }
+
+                        subcommands.forEach {
+                            input(it.name.lowercase(), it.name) {
+                                defaultMemberPermissions = it.requiredPermissionLevel
+
+                                it.commands.forEach { command ->
+                                    subCommand(command.name.lowercase(), command.description.ifBlank { "<No Description>" }) {
+                                        mapArgs(command)
+                                    }
+                                }
+                            }
                         }
                     }
                 } catch (e: KtorRequestException) {

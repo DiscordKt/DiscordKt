@@ -154,7 +154,7 @@ public data class GuildSlashCommandEvent<T : TypeContainer>(
     override val guild: Guild,
     override val interaction: GuildApplicationCommandInteraction?
 ) : SlashCommandEvent<T>(rawInputs, discord, message, author, channel, guild, interaction), SlashResponder {
-    internal fun <A> toContextual(arg : A) = ContextEvent(rawInputs, discord, null, author, channel, guild, interaction, arg)
+    internal fun <A> toContextual(arg: A) = ContextEvent(rawInputs, discord, null, author, channel, guild, interaction, arg)
 }
 
 /**
