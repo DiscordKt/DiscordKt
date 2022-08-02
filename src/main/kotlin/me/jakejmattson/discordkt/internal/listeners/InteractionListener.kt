@@ -47,13 +47,10 @@ private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction,
                     is IntegerArgument -> integers[argName]?.toInt()
                     is DoubleArgument -> numbers[argName]
                     is BooleanArgument -> booleans[argName]
-
-                    //Entity
                     is UserArgument -> users[argName]
                     is RoleArgument -> roles[argName]
                     is ChannelArgument -> channels[argName]?.let { kord.getChannel(it.id) }
                     is AttachmentArgument -> attachments[argName]
-
                     else -> options[argName]?.value
                 }
 
@@ -87,7 +84,6 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
     val guild = (interaction as? GuildInteractionBehavior)?.getGuild()
     val channel = interaction.getChannel()
     val message = interaction.data.message.value?.let { Message(it, discord.kord) }
-
     val context = DiscordContext(discord, message, author, channel, guild)
     val transformResults = input.invoke(dktCommand, context)
     val rawInputs = RawInputs("/${dktCommand.name}", dktCommand.name, prefixCount = 1)

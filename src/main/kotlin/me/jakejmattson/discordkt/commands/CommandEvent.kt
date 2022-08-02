@@ -159,6 +159,8 @@ public data class GuildSlashCommandEvent<T : TypeContainer>(
 
 /**
  * An event fired by a contextual slash command.
+ *
+ * @property arg The single argument passed to this context command.
  */
 public data class ContextEvent<T>(
     override val rawInputs: RawInputs,

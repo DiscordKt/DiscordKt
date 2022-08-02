@@ -50,6 +50,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
 
             return@on
         }
+
         content.isBotMention() -> stripMentionInvocation(content)
         content.isSearch() -> return@on search()
         else -> return@on Conversations.handleMessage(message)

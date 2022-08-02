@@ -43,6 +43,7 @@ public data class Versions(val library: String, val kotlin: String, val kord: St
  * @property configuration All configured values for this bot.
  * @property locale Locale (language and customizations).
  * @property commands All registered commands.
+ * @property subcommands All registered subcommands.
  * @property versions Properties for the core library.
  */
 public abstract class Discord {
@@ -136,22 +137,14 @@ public abstract class Discord {
                     ArgumentData(argument, isRequired = true, isAutocomplete = false)
 
                 when (arg) {
-                    //Entity
                     is AttachmentArgument<*> -> attachment(name, description) { required = isRequired }
                     is UserArgument<*> -> user(name, description) { required = isRequired }
                     is RoleArgument<*> -> role(name, description) { required = isRequired }
                     is ChannelArgument<*> -> channel(name, description) { required = isRequired }
-
-                    //Primitive
                     is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
-                    is IntegerArgument<*> -> int(name, description) {
-                        required = isRequired
-                        autocomplete = isAuto
-                    }
-                    is DoubleArgument<*> -> number(name, description) {
-                        required = isRequired
-                        autocomplete = isAuto
-                    }
+                    is IntegerArgument<*> -> int(name, description) { required = isRequired; autocomplete = isAuto }
+                    is DoubleArgument<*> -> number(name, description) { required = isRequired; autocomplete = isAuto }
+
                     is ChoiceArg<*> -> string(name, description) {
                         required = isRequired
 
@@ -159,6 +152,7 @@ public abstract class Discord {
                             choice(it.toString(), it.toString())
                         }
                     }
+
                     else -> string(name, description) {
                         required = isRequired
                         autocomplete = isAuto
