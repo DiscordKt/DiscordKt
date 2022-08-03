@@ -36,10 +36,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
     @InnerDSL
     @Deprecated("Generic 'command' functions will be replaced with explicit names.", ReplaceWith("text(*names) { body() }"))
     public fun command(vararg names: String, body: (GuildTextCommand.() -> Unit)) {
-        val command = GuildTextCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
-            this.category = this@CommandSetBuilder.category
-        }
-
+        val command = GuildTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
         command.body()
         commands.add(command)
     }
@@ -49,10 +46,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      */
     @InnerDSL
     public fun text(vararg names: String, body: GuildTextCommand.() -> Unit) {
-        val command = GuildTextCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
-            this.category = this@CommandSetBuilder.category
-        }
-
+        val command = GuildTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
         command.body()
         commands.add(command)
     }
@@ -63,10 +57,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
     @InnerDSL
     @Deprecated("Generic 'command' functions will be replaced with explicit names.", ReplaceWith("dmText(*names) { body() }"))
     public fun dmCommand(vararg names: String, body: DmTextCommand.() -> Unit) {
-        val command = DmTextCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
-            this.category = this@CommandSetBuilder.category
-        }
-
+        val command = DmTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
         command.body()
         commands.add(command)
     }
@@ -76,10 +67,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      */
     @InnerDSL
     public fun dmText(vararg names: String, body: DmTextCommand.() -> Unit) {
-        val command = DmTextCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
-            this.category = this@CommandSetBuilder.category
-        }
-
+        val command = DmTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
         command.body()
         commands.add(command)
     }
@@ -90,10 +78,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
     @InnerDSL
     @Deprecated("Generic 'command' functions will be replaced with explicit names.", ReplaceWith("globalText(*names) { body() }"))
     public fun globalCommand(vararg names: String, body: GlobalTextCommand.() -> Unit) {
-        val command = GlobalTextCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
-            this.category = this@CommandSetBuilder.category
-        }
-
+        val command = GlobalTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
         command.body()
         commands.add(command)
     }
@@ -103,10 +88,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      */
     @InnerDSL
     public fun globalText(vararg names: String, body: GlobalTextCommand.() -> Unit) {
-        val command = GlobalTextCommand(names.toList(), requiredPermissions = requiredPermissions).apply {
-            this.category = this@CommandSetBuilder.category
-        }
-
+        val command = GlobalTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
         command.body()
         commands.add(command)
     }
@@ -116,10 +98,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      */
     @InnerDSL
     public fun slash(name: String, body: GuildSlashCommand.() -> Unit) {
-        val command = GuildSlashCommand(name, requiredPermissions = requiredPermissions).apply {
-            this.category = this@CommandSetBuilder.category
-        }
-
+        val command = GuildSlashCommand(name, category = category, requiredPermissions = requiredPermissions)
         command.body()
         commands.add(command)
     }
@@ -129,10 +108,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      */
     @InnerDSL
     public fun globalSlash(name: String, body: GlobalSlashCommand.() -> Unit) {
-        val command = GlobalSlashCommand(name, requiredPermissions = requiredPermissions).apply {
-            this.category = this@CommandSetBuilder.category
-        }
-
+        val command = GlobalSlashCommand(name, category = category, requiredPermissions = requiredPermissions)
         command.body()
         commands.add(command)
     }
@@ -142,9 +118,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      */
     @InnerDSL
     public fun user(displayName: String, slashName: String, description: String, body: suspend ContextEvent<User>.() -> Unit) {
-        val command = ContextCommand(slashName, displayName, description = description, requiredPermissions = requiredPermissions).apply {
-            this.category = this@CommandSetBuilder.category
-
+        val command = ContextCommand(slashName, displayName, description = description, category = category, requiredPermissions = requiredPermissions).apply {
             execute(UserArg) {
                 this.toContextual(args.first).body()
             }
@@ -158,8 +132,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      */
     @InnerDSL
     public fun message(displayName: String, slashName: String, description: String, body: suspend ContextEvent<Message>.() -> Unit) {
-        val command = ContextCommand(slashName, displayName, description = description, requiredPermissions = requiredPermissions).apply {
-            this.category = this@CommandSetBuilder.category
+        val command = ContextCommand(slashName, displayName, description = description, category = category, requiredPermissions = requiredPermissions).apply {
 
             execute(MessageArg) {
                 this.toContextual(args.first).body()

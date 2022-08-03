@@ -57,7 +57,7 @@ public data class Execution<T : CommandEvent<*>>(val arguments: List<Argument<*,
 public sealed interface Command {
     public val name: String
     public var description: String
-    public var category: String
+    public val category: String
     public var requiredPermissions: Permissions
     public val executions: MutableList<Execution<CommandEvent<*>>>
 
@@ -166,7 +166,7 @@ public sealed interface SlashCommand : Command {
  */
 public class GlobalTextCommand(override val names: List<String>,
                                override var description: String = "",
-                               override var category: String = "",
+                               override val category: String = "",
                                override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
                                override var requiredPermissions: Permissions) : TextCommand {
     /** @suppress */
@@ -199,7 +199,7 @@ public class GlobalTextCommand(override val names: List<String>,
  */
 public class GuildTextCommand(override val names: List<String>,
                               override var description: String = "",
-                              override var category: String = "",
+                              override val category: String = "",
                               override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
                               override var requiredPermissions: Permissions) : TextCommand {
     /** @suppress */
@@ -232,7 +232,7 @@ public class GuildTextCommand(override val names: List<String>,
  */
 public class DmTextCommand(override val names: List<String>,
                            override var description: String = "",
-                           override var category: String = "",
+                           override val category: String = "",
                            override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
                            override var requiredPermissions: Permissions) : TextCommand {
     /** @suppress */
@@ -267,7 +267,7 @@ public class DmTextCommand(override val names: List<String>,
  */
 public class GlobalSlashCommand(override val name: String,
                                 override var description: String = "",
-                                override var category: String = "",
+                                override val category: String = "",
                                 override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
                                 override var requiredPermissions: Permissions) : SlashCommand {
     /** @suppress */
@@ -302,7 +302,7 @@ public class GlobalSlashCommand(override val name: String,
  */
 public open class GuildSlashCommand(override val name: String,
                                     override var description: String = "",
-                                    override var category: String = "",
+                                    override val category: String = "",
                                     override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
                                     override var requiredPermissions: Permissions) : SlashCommand {
     /** @suppress */
@@ -333,7 +333,7 @@ public open class GuildSlashCommand(override val name: String,
 public class ContextCommand(override val name: String,
                             public val appName: String,
                             override var description: String = "",
-                            override var category: String = "",
+                            override val category: String = "",
                             override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
                             override var requiredPermissions: Permissions) : GuildSlashCommand(name, description, category, executions, requiredPermissions) {
     /** @suppress */
