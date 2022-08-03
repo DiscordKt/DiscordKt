@@ -43,11 +43,14 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
 
     /**
      * Create a guild text command.
+     *
+     * @param names The names of this command.
+     * @param action The command action.
      */
     @InnerDSL
-    public fun text(vararg names: String, body: GuildTextCommand.() -> Unit) {
+    public fun text(vararg names: String, action: GuildTextCommand.() -> Unit) {
         val command = GuildTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
-        command.body()
+        command.action()
         commands.add(command)
     }
 
@@ -64,11 +67,14 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
 
     /**
      * Create a dm text command.
+     *
+     * @param names The names of this command.
+     * @param action The command action.
      */
     @InnerDSL
-    public fun dmText(vararg names: String, body: DmTextCommand.() -> Unit) {
+    public fun dmText(vararg names: String, action: DmTextCommand.() -> Unit) {
         val command = DmTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
-        command.body()
+        command.action()
         commands.add(command)
     }
 
@@ -85,42 +91,56 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
 
     /**
      * Create a global text command.
+     *
+     * @param names The names of this command.
+     * @param action The command action.
      */
     @InnerDSL
-    public fun globalText(vararg names: String, body: GlobalTextCommand.() -> Unit) {
+    public fun globalText(vararg names: String, action: GlobalTextCommand.() -> Unit) {
         val command = GlobalTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
-        command.body()
+        command.action()
         commands.add(command)
     }
 
     /**
-     * Create a slash command.
+     * Create a guild slash command.
+     *
+     * @param name The name of this command.
+     * @param action The command action.
      */
     @InnerDSL
-    public fun slash(name: String, body: GuildSlashCommand.() -> Unit) {
+    public fun slash(name: String, action: GuildSlashCommand.() -> Unit) {
         val command = GuildSlashCommand(name, category = category, requiredPermissions = requiredPermissions)
-        command.body()
+        command.action()
         commands.add(command)
     }
 
     /**
-     * Create a slash command.
+     * Create a global slash command.
+     *
+     * @param name The name of this command.
+     * @param action The command action.
      */
     @InnerDSL
-    public fun globalSlash(name: String, body: GlobalSlashCommand.() -> Unit) {
+    public fun globalSlash(name: String, action: GlobalSlashCommand.() -> Unit) {
         val command = GlobalSlashCommand(name, category = category, requiredPermissions = requiredPermissions)
-        command.body()
+        command.action()
         commands.add(command)
     }
 
     /**
-     * Create a user context command.
+     * Create a message context command.
+     *
+     * @param displayText The text to display in the context menu.
+     * @param slashName The name to register as a slash command.
+     * @param description The description for the slash command.
+     * @param action The command action.
      */
     @InnerDSL
-    public fun user(displayName: String, slashName: String, description: String, body: suspend ContextEvent<User>.() -> Unit) {
-        val command = ContextCommand(slashName, displayName, description = description, category = category, requiredPermissions = requiredPermissions).apply {
+    public fun user(displayText: String, slashName: String, description: String, action: suspend ContextEvent<User>.() -> Unit) {
+        val command = ContextCommand(slashName, displayText, description = description, category = category, requiredPermissions = requiredPermissions).apply {
             execute(UserArg) {
-                this.toContextual(args.first).body()
+                this.toContextual(args.first).action()
             }
         }
 
@@ -129,13 +149,17 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
 
     /**
      * Create a message context command.
+     *
+     * @param displayText The text to display in the context menu.
+     * @param slashName The name to register as a slash command.
+     * @param description The description for the slash command.
+     * @param action The command action.
      */
     @InnerDSL
-    public fun message(displayName: String, slashName: String, description: String, body: suspend ContextEvent<Message>.() -> Unit) {
-        val command = ContextCommand(slashName, displayName, description = description, category = category, requiredPermissions = requiredPermissions).apply {
-
+    public fun message(displayText: String, slashName: String, description: String, action: suspend ContextEvent<Message>.() -> Unit) {
+        val command = ContextCommand(slashName, displayText, description = description, category = category, requiredPermissions = requiredPermissions).apply {
             execute(MessageArg) {
-                this.toContextual(args.first).body()
+                this.toContextual(args.first).action()
             }
         }
 

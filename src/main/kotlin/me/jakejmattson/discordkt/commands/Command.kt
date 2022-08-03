@@ -48,7 +48,9 @@ public data class Execution<T : CommandEvent<*>>(val arguments: List<Argument<*,
 }
 
 /**
- * @property names The name(s) this command can be executed by (case-insensitive).
+ *
+ * @property name The name of this command.
+ * @property names All names (aliases) of this command.
  * @property description A brief description of the command - used in documentation.
  * @property requiredPermissions The permission level required to use this command.
  * @property category The category that this command belongs to - set automatically by CommandSet.
@@ -145,6 +147,8 @@ public sealed interface Command {
 
 /**
  * Abstract text command representation.
+ *
+ * @property name The first provided name for a TextCommand.
  */
 public sealed interface TextCommand : Command {
     override val name: String
@@ -162,7 +166,7 @@ public sealed interface SlashCommand : Command {
 }
 
 /**
- * A command that can be executed from anywhere.
+ * A text command that can be executed from anywhere.
  */
 public class GlobalTextCommand(override val names: List<String>,
                                override var description: String = "",
@@ -195,7 +199,7 @@ public class GlobalTextCommand(override val names: List<String>,
 }
 
 /**
- * A command that can only be executed in a guild.
+ * A text command that can only be executed in a guild.
  */
 public class GuildTextCommand(override val names: List<String>,
                               override var description: String = "",
@@ -228,7 +232,7 @@ public class GuildTextCommand(override val names: List<String>,
 }
 
 /**
- * A command that can only be executed in a DM.
+ * A text command that can only be executed in a DM.
  */
 public class DmTextCommand(override val names: List<String>,
                            override var description: String = "",
@@ -261,7 +265,7 @@ public class DmTextCommand(override val names: List<String>,
 }
 
 /**
- * A command wrapper for a global discord slash command.
+ * A slash command that can be executed anywhere.
  *
  * @property name The name of the slash command.
  */
@@ -296,7 +300,7 @@ public class GlobalSlashCommand(override val name: String,
 }
 
 /**
- * A command wrapper for a guild discord slash command.
+ * A slash command that can be executed in a guild.
  *
  * @property name The name of the slash command.
  */
@@ -330,8 +334,13 @@ public open class GuildSlashCommand(override val name: String,
     public fun <A, B, C, D, E> execute(a: Argument<*, A>, b: Argument<*, B>, c: Argument<*, C>, d: Argument<*, D>, e: Argument<*, E>, execute: suspend GuildSlashCommandEvent<Args5<A, B, C, D, E>>.() -> Unit): Unit = addExecution(listOf(a, b, c, d, e), execute)
 }
 
+/**
+ * A command that can be executed via the context menu.
+ *
+ * @property displayText The text shown in the context menu.
+ */
 public class ContextCommand(override val name: String,
-                            public val appName: String,
+                            public val displayText: String,
                             override var description: String = "",
                             override val category: String = "",
                             override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),

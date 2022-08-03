@@ -137,14 +137,6 @@ public abstract class Discord {
                     ArgumentData(argument, isRequired = true, isAutocomplete = false)
 
                 when (arg) {
-                    is AttachmentArgument<*> -> attachment(name, description) { required = isRequired }
-                    is UserArgument<*> -> user(name, description) { required = isRequired }
-                    is RoleArgument<*> -> role(name, description) { required = isRequired }
-                    is ChannelArgument<*> -> channel(name, description) { required = isRequired }
-                    is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
-                    is IntegerArgument<*> -> int(name, description) { required = isRequired; autocomplete = isAuto }
-                    is DoubleArgument<*> -> number(name, description) { required = isRequired; autocomplete = isAuto }
-
                     is ChoiceArg<*> -> string(name, description) {
                         required = isRequired
 
@@ -153,10 +145,14 @@ public abstract class Discord {
                         }
                     }
 
-                    else -> string(name, description) {
-                        required = isRequired
-                        autocomplete = isAuto
-                    }
+                    is AttachmentArgument<*> -> attachment(name, description) { required = isRequired }
+                    is UserArgument<*> -> user(name, description) { required = isRequired }
+                    is RoleArgument<*> -> role(name, description) { required = isRequired }
+                    is ChannelArgument<*> -> channel(name, description) { required = isRequired }
+                    is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
+                    is IntegerArgument<*> -> int(name, description) { required = isRequired; autocomplete = isAuto }
+                    is DoubleArgument<*> -> number(name, description) { required = isRequired; autocomplete = isAuto }
+                    else -> string(name, description) { required = isRequired; autocomplete = isAuto }
                 }
             }
         }
@@ -164,8 +160,8 @@ public abstract class Discord {
         fun MultiApplicationCommandBuilder.register(command: SlashCommand) {
             if (command is ContextCommand) {
                 when (command.execution.arguments.first()) {
-                    is MessageArg -> message(command.appName) { defaultMemberPermissions = command.requiredPermissions }
-                    is UserArgument<*> -> user(command.appName) { defaultMemberPermissions = command.requiredPermissions }
+                    is MessageArg -> message(command.displayText) { defaultMemberPermissions = command.requiredPermissions }
+                    is UserArg -> user(command.displayText) { defaultMemberPermissions = command.requiredPermissions }
                     else -> {}
                 }
             }

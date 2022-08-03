@@ -77,7 +77,7 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
             else
                 slashCommands.find { it.name.equals(command.rootName, true) }
         } else {
-            slashCommands.filterIsInstance<ContextCommand>().find { it.appName == interaction.invokedCommandName }
+            slashCommands.filterIsInstance<ContextCommand>().find { it.displayText == interaction.invokedCommandName }
         } ?: return
 
     val author = interaction.user.asUser()
