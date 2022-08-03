@@ -158,8 +158,6 @@ public sealed interface TextCommand : Command
  * @property execution The single execution of slash command.
  */
 public sealed interface SlashCommand : Command {
-    public val appName: String
-
     public val execution: Execution<CommandEvent<*>>
         get() = executions.first()
 }
@@ -269,7 +267,6 @@ public class DmTextCommand(override val names: List<String>,
  * @property name The name of the slash command.
  */
 public class GlobalSlashCommand(override val name: String,
-                                override val appName: String,
                                 override val names: List<String> = listOf(name),
                                 override var description: String = "",
                                 override var category: String = "",
@@ -305,20 +302,19 @@ public class GlobalSlashCommand(override val name: String,
  *
  * @property name The name of the slash command.
  */
-public class GuildSlashCommand(override val name: String,
-                               override val appName: String,
-                               override val names: List<String> = listOf(name),
-                               override var description: String = "",
-                               override var category: String = "",
-                               override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
-                               override var requiredPermissions: Permissions) : SlashCommand {
+public open class GuildSlashCommand(override val name: String,
+                                    override val names: List<String> = listOf(name),
+                                    override var description: String = "",
+                                    override var category: String = "",
+                                    override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
+                                    override var requiredPermissions: Permissions) : SlashCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend GuildSlashCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
 
     /** @suppress */
     @NestedDSL
-    public fun <A> execute(a: Argument<*, A>, execute: suspend GuildSlashCommandEvent<Args1<A>>.() -> Unit): Unit = addExecution(listOf(a), execute)
+    public open fun <A> execute(a: Argument<*, A>, execute: suspend GuildSlashCommandEvent<Args1<A>>.() -> Unit): Unit = addExecution(listOf(a), execute)
 
     /** @suppress */
     @NestedDSL
@@ -335,6 +331,18 @@ public class GuildSlashCommand(override val name: String,
     /** @suppress */
     @NestedDSL
     public fun <A, B, C, D, E> execute(a: Argument<*, A>, b: Argument<*, B>, c: Argument<*, C>, d: Argument<*, D>, e: Argument<*, E>, execute: suspend GuildSlashCommandEvent<Args5<A, B, C, D, E>>.() -> Unit): Unit = addExecution(listOf(a, b, c, d, e), execute)
+}
+
+public class ContextCommand(override val name: String,
+                            public val appName: String,
+                            override val names: List<String> = listOf(name),
+                            override var description: String = "",
+                            override var category: String = "",
+                            override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
+                            override var requiredPermissions: Permissions) : GuildSlashCommand(name, names, description, category, executions, requiredPermissions) {
+    /** @suppress */
+    @NestedDSL
+    public override fun <A> execute(a: Argument<*, A>, execute: suspend GuildSlashCommandEvent<Args1<A>>.() -> Unit): Unit = addExecution(listOf(a), execute)
 }
 
 /**

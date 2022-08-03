@@ -29,7 +29,7 @@ public data class SubCommandSetBuilder(val discord: Discord, val category: Strin
      */
     @InnerDSL
     public fun sub(name: String, body: GuildSlashCommand.() -> Unit) {
-        val command = GuildSlashCommand(name, name, requiredPermissions = requiredPermissions).apply {
+        val command = GuildSlashCommand(name, requiredPermissions = requiredPermissions).apply {
             this.category = this@SubCommandSetBuilder.category
         }
 

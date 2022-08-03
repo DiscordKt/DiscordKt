@@ -162,17 +162,13 @@ public abstract class Discord {
         }
 
         fun MultiApplicationCommandBuilder.register(command: SlashCommand) {
-            command.executions
-                .filter { it.arguments.size == 1 }
-                .forEach {
-                    val potentialArg = it.arguments.first()
-                    val arg = if (potentialArg is WrappedArgument<*, *, *, *>) potentialArg.type else potentialArg
-
-                    if (arg is MessageArg)
-                        message(command.appName) { defaultMemberPermissions = command.requiredPermissions }
-                    else if (arg is UserArgument<*>)
-                        user(command.appName) { defaultMemberPermissions = command.requiredPermissions }
+            if (command is ContextCommand) {
+                when (command.execution.arguments.first()) {
+                    is MessageArg -> message(command.appName) { defaultMemberPermissions = command.requiredPermissions }
+                    is UserArgument<*> -> user(command.appName) { defaultMemberPermissions = command.requiredPermissions }
+                    else -> {}
                 }
+            }
 
             input(command.name.lowercase(), command.description.ifBlank { "<No Description>" }) {
                 mapArgs(command)

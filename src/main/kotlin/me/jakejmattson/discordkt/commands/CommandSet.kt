@@ -115,8 +115,8 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      * Create a slash command.
      */
     @InnerDSL
-    public fun slash(name: String, appName: String = name, body: GuildSlashCommand.() -> Unit) {
-        val command = GuildSlashCommand(name, appName, requiredPermissions = requiredPermissions).apply {
+    public fun slash(name: String, body: GuildSlashCommand.() -> Unit) {
+        val command = GuildSlashCommand(name, requiredPermissions = requiredPermissions).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -128,8 +128,8 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      * Create a slash command.
      */
     @InnerDSL
-    public fun globalSlash(name: String, appName: String = name, body: GlobalSlashCommand.() -> Unit) {
-        val command = GlobalSlashCommand(name, appName, requiredPermissions = requiredPermissions).apply {
+    public fun globalSlash(name: String, body: GlobalSlashCommand.() -> Unit) {
+        val command = GlobalSlashCommand(name, requiredPermissions = requiredPermissions).apply {
             this.category = this@CommandSetBuilder.category
         }
 
@@ -142,7 +142,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      */
     @InnerDSL
     public fun user(displayName: String, slashName: String, description: String, body: suspend ContextEvent<User>.() -> Unit) {
-        val command = GuildSlashCommand(slashName, displayName, description = description, requiredPermissions = requiredPermissions).apply {
+        val command = ContextCommand(slashName, displayName, description = description, requiredPermissions = requiredPermissions).apply {
             this.category = this@CommandSetBuilder.category
 
             execute(UserArg) {
@@ -158,7 +158,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      */
     @InnerDSL
     public fun message(displayName: String, slashName: String, description: String, body: suspend ContextEvent<Message>.() -> Unit) {
-        val command = GuildSlashCommand(slashName, displayName, description = description, requiredPermissions = requiredPermissions).apply {
+        val command = ContextCommand(slashName, displayName, description = description, requiredPermissions = requiredPermissions).apply {
             this.category = this@CommandSetBuilder.category
 
             execute(MessageArg) {
