@@ -107,7 +107,7 @@ public abstract class Discord {
         registerSlashCommands()
 
         if (configuration.documentCommands)
-            createDocumentation(commands)
+            createDocumentation(commands, subcommands)
     }
 
     private fun registerServices() = Reflection.detectClassesWith<Service>().apply { diService.buildAllRecursively(this) }
