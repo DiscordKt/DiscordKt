@@ -11,6 +11,7 @@ import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.Command
 import me.jakejmattson.discordkt.commands.DiscordContext
+import me.jakejmattson.discordkt.commands.SubCommandSet
 import me.jakejmattson.discordkt.extensions.intentsOf
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.services.InjectionService
@@ -113,6 +114,7 @@ public class Bot(private val token: String, private val packageName: String) {
             override val configuration = botConfiguration
             override val locale = locale
             override val commands = mutableListOf<Command>()
+            override val subcommands = mutableListOf<SubCommandSet>()
             override val preconditions = mutableListOf<Precondition>()
         }
 

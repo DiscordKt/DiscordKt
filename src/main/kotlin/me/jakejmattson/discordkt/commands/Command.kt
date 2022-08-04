@@ -48,24 +48,23 @@ public data class Execution<T : CommandEvent<*>>(val arguments: List<Argument<*,
 }
 
 /**
- * @property names The name(s) this command can be executed by (case-insensitive).
+ *
+ * @property name The name of this command.
+ * @property names All names (aliases) of this command.
  * @property description A brief description of the command - used in documentation.
  * @property requiredPermissions The permission level required to use this command.
  * @property category The category that this command belongs to - set automatically by CommandSet.
  * @property executions The list of [Execution] that this command can be run with.
  */
 public sealed interface Command {
-    public val names: List<String>
+    public val name: String
     public var description: String
-    public var category: String
+    public val category: String
     public var requiredPermissions: Permissions
     public val executions: MutableList<Execution<CommandEvent<*>>>
 
-    /**
-     * The first name in the [names] list.
-     */
-    public val name: String
-        get() = names.first()
+    public val names: List<String>
+        get() = listOf(name)
 
     /**
      * Whether the command can parse the given arguments into a container.
@@ -82,8 +81,8 @@ public sealed interface Command {
      * @param discord The event context that will attempt to run the command.
      */
     public suspend fun hasPermissionToRun(discord: Discord, author: User, guild: Guild?): Boolean = when {
-        this is DmCommand && guild != null -> false
-        this is GuildCommand && guild == null -> false
+        this is DmTextCommand && guild != null -> false
+        this is GuildTextCommand && guild == null -> false
         else -> {
             if (guild != null)
                 author.asMember(guild.id).getPermissions().contains(requiredPermissions)
@@ -148,30 +147,32 @@ public sealed interface Command {
 
 /**
  * Abstract text command representation.
+ *
+ * @property name The first provided name for a TextCommand.
  */
-public sealed interface TextCommand : Command
+public sealed interface TextCommand : Command {
+    override val name: String
+        get() = names.first()
+}
 
 /**
  * Abstract slash command representation.
  *
- * @property appName The name used for a contextual app (if applicable).
  * @property execution The single execution of slash command.
  */
 public sealed interface SlashCommand : Command {
-    public val appName: String
-
     public val execution: Execution<CommandEvent<*>>
         get() = executions.first()
 }
 
 /**
- * A command that can be executed from anywhere.
+ * A text command that can be executed from anywhere.
  */
-public class GlobalCommand(override val names: List<String>,
-                           override var description: String = "",
-                           override var category: String = "",
-                           override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
-                           override var requiredPermissions: Permissions) : TextCommand {
+public class GlobalTextCommand(override val names: List<String>,
+                               override var description: String = "",
+                               override val category: String = "",
+                               override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
+                               override var requiredPermissions: Permissions) : TextCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -198,13 +199,13 @@ public class GlobalCommand(override val names: List<String>,
 }
 
 /**
- * A command that can only be executed in a guild.
+ * A text command that can only be executed in a guild.
  */
-public class GuildCommand(override val names: List<String>,
-                          override var description: String = "",
-                          override var category: String = "",
-                          override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
-                          override var requiredPermissions: Permissions) : TextCommand {
+public class GuildTextCommand(override val names: List<String>,
+                              override var description: String = "",
+                              override val category: String = "",
+                              override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
+                              override var requiredPermissions: Permissions) : TextCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -231,13 +232,13 @@ public class GuildCommand(override val names: List<String>,
 }
 
 /**
- * A command that can only be executed in a DM.
+ * A text command that can only be executed in a DM.
  */
-public class DmCommand(override val names: List<String>,
-                       override var description: String = "",
-                       override var category: String = "",
-                       override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
-                       override var requiredPermissions: Permissions) : TextCommand {
+public class DmTextCommand(override val names: List<String>,
+                           override var description: String = "",
+                           override val category: String = "",
+                           override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
+                           override var requiredPermissions: Permissions) : TextCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend DmCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -264,15 +265,13 @@ public class DmCommand(override val names: List<String>,
 }
 
 /**
- * A command wrapper for a global discord slash command.
+ * A slash command that can be executed anywhere.
  *
  * @property name The name of the slash command.
  */
 public class GlobalSlashCommand(override val name: String,
-                                override val appName: String,
-                                override val names: List<String> = listOf(name),
                                 override var description: String = "",
-                                override var category: String = "",
+                                override val category: String = "",
                                 override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
                                 override var requiredPermissions: Permissions) : SlashCommand {
     /** @suppress */
@@ -301,24 +300,22 @@ public class GlobalSlashCommand(override val name: String,
 }
 
 /**
- * A command wrapper for a guild discord slash command.
+ * A slash command that can be executed in a guild.
  *
  * @property name The name of the slash command.
  */
-public class GuildSlashCommand(override val name: String,
-                               override val appName: String,
-                               override val names: List<String> = listOf(name),
-                               override var description: String = "",
-                               override var category: String = "",
-                               override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
-                               override var requiredPermissions: Permissions) : SlashCommand {
+public open class GuildSlashCommand(override val name: String,
+                                    override var description: String = "",
+                                    override val category: String = "",
+                                    override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
+                                    override var requiredPermissions: Permissions) : SlashCommand {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend GuildSlashCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
 
     /** @suppress */
     @NestedDSL
-    public fun <A> execute(a: Argument<*, A>, execute: suspend GuildSlashCommandEvent<Args1<A>>.() -> Unit): Unit = addExecution(listOf(a), execute)
+    public open fun <A> execute(a: Argument<*, A>, execute: suspend GuildSlashCommandEvent<Args1<A>>.() -> Unit): Unit = addExecution(listOf(a), execute)
 
     /** @suppress */
     @NestedDSL
@@ -335,6 +332,22 @@ public class GuildSlashCommand(override val name: String,
     /** @suppress */
     @NestedDSL
     public fun <A, B, C, D, E> execute(a: Argument<*, A>, b: Argument<*, B>, c: Argument<*, C>, d: Argument<*, D>, e: Argument<*, E>, execute: suspend GuildSlashCommandEvent<Args5<A, B, C, D, E>>.() -> Unit): Unit = addExecution(listOf(a, b, c, d, e), execute)
+}
+
+/**
+ * A command that can be executed via the context menu.
+ *
+ * @property displayText The text shown in the context menu.
+ */
+public class ContextCommand(override val name: String,
+                            public val displayText: String,
+                            override var description: String = "",
+                            override val category: String = "",
+                            override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf(),
+                            override var requiredPermissions: Permissions) : GuildSlashCommand(name, description, category, executions, requiredPermissions) {
+    /** @suppress */
+    @NestedDSL
+    public override fun <A> execute(a: Argument<*, A>, execute: suspend GuildSlashCommandEvent<Args1<A>>.() -> Unit): Unit = addExecution(listOf(a), execute)
 }
 
 /**

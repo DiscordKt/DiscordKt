@@ -43,6 +43,7 @@ public data class Versions(val library: String, val kotlin: String, val kord: St
  * @property configuration All configured values for this bot.
  * @property locale Locale (language and customizations).
  * @property commands All registered commands.
+ * @property subcommands All registered subcommands.
  * @property versions Properties for the core library.
  */
 public abstract class Discord {
@@ -50,6 +51,7 @@ public abstract class Discord {
     public abstract val configuration: BotConfiguration
     public abstract val locale: Locale
     public abstract val commands: MutableList<Command>
+    public abstract val subcommands: MutableList<SubCommandSet>
     internal abstract val preconditions: MutableList<Precondition>
 
     public val versions: Versions = Json.decodeFromString(javaClass.getResource("/library-properties.json")!!.readText())
@@ -118,7 +120,7 @@ public abstract class Discord {
 
     @KordPreview
     private suspend fun registerSlashCommands() {
-        fun ChatInputCreateBuilder.mapArgs(command: SlashCommand) {
+        fun BaseInputChatBuilder.mapArgs(command: SlashCommand) {
             command.execution.arguments.forEach { argument ->
                 val name = argument.name.lowercase()
                 val description = argument.description
@@ -135,22 +137,6 @@ public abstract class Discord {
                     ArgumentData(argument, isRequired = true, isAutocomplete = false)
 
                 when (arg) {
-                    //Entity
-                    is AttachmentArgument<*> -> attachment(name, description) { required = isRequired }
-                    is UserArgument<*> -> user(name, description) { required = isRequired }
-                    is RoleArgument<*> -> role(name, description) { required = isRequired }
-                    is ChannelArgument<*> -> channel(name, description) { required = isRequired }
-
-                    //Primitive
-                    is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
-                    is IntegerArgument<*> -> int(name, description) {
-                        required = isRequired
-                        autocomplete = isAuto
-                    }
-                    is DoubleArgument<*> -> number(name, description) {
-                        required = isRequired
-                        autocomplete = isAuto
-                    }
                     is ChoiceArg<*> -> string(name, description) {
                         required = isRequired
 
@@ -158,26 +144,27 @@ public abstract class Discord {
                             choice(it.toString(), it.toString())
                         }
                     }
-                    else -> string(name, description) {
-                        required = isRequired
-                        autocomplete = isAuto
-                    }
+
+                    is AttachmentArgument<*> -> attachment(name, description) { required = isRequired }
+                    is UserArgument<*> -> user(name, description) { required = isRequired }
+                    is RoleArgument<*> -> role(name, description) { required = isRequired }
+                    is ChannelArgument<*> -> channel(name, description) { required = isRequired }
+                    is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
+                    is IntegerArgument<*> -> int(name, description) { required = isRequired; autocomplete = isAuto }
+                    is DoubleArgument<*> -> number(name, description) { required = isRequired; autocomplete = isAuto }
+                    else -> string(name, description) { required = isRequired; autocomplete = isAuto }
                 }
             }
         }
 
         fun MultiApplicationCommandBuilder.register(command: SlashCommand) {
-            command.executions
-                .filter { it.arguments.size == 1 }
-                .forEach {
-                    val potentialArg = it.arguments.first()
-                    val arg = if (potentialArg is WrappedArgument<*, *, *, *>) potentialArg.type else potentialArg
-
-                    if (arg is MessageArg)
-                        message(command.appName) { defaultMemberPermissions = command.requiredPermissions }
-                    else if (arg is UserArgument<*>)
-                        user(command.appName) { defaultMemberPermissions = command.requiredPermissions }
+            if (command is ContextCommand) {
+                when (command.execution.arguments.first()) {
+                    is MessageArg -> message(command.displayText) { defaultMemberPermissions = command.requiredPermissions }
+                    is UserArg -> user(command.displayText) { defaultMemberPermissions = command.requiredPermissions }
+                    else -> {}
                 }
+            }
 
             input(command.name.lowercase(), command.description.ifBlank { "<No Description>" }) {
                 mapArgs(command)
@@ -201,6 +188,18 @@ public abstract class Discord {
                     guild.createApplicationCommands {
                         guildSlashCommands.forEach {
                             register(it)
+                        }
+
+                        subcommands.forEach {
+                            input(it.name.lowercase(), it.name) {
+                                defaultMemberPermissions = it.requiredPermissionLevel
+
+                                it.commands.forEach { command ->
+                                    subCommand(command.name.lowercase(), command.description.ifBlank { "<No Description>" }) {
+                                        mapArgs(command)
+                                    }
+                                }
+                            }
                         }
                     }
                 } catch (e: KtorRequestException) {

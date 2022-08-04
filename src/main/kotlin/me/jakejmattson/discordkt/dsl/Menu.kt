@@ -38,6 +38,7 @@ public suspend fun Message.edit(menu: Menu): Message {
                             this.label = button.label
                             this.emoji = button.emoji?.toPartialEmoji()
                         }
+
                         is LinkButton -> linkButton(button.url) {
                             this.label = button.label
                             this.emoji = button.emoji?.toPartialEmoji()
@@ -216,6 +217,7 @@ public data class Menu(internal val pages: MutableList<EmbedBuilder>,
                                 this.label = button.label
                                 this.emoji = button.emoji?.toPartialEmoji()
                             }
+
                             is LinkButton -> linkButton(button.url) {
                                 this.label = button.label
                                 this.emoji = button.emoji?.toPartialEmoji()
@@ -251,6 +253,7 @@ public data class Menu(internal val pages: MutableList<EmbedBuilder>,
                         embeds = mutableListOf(menu.page)
                     }
                 }
+
                 is Edit -> {
                     interaction.deferEphemeralMessageUpdate()
                     val page = menu.page
@@ -261,6 +264,7 @@ public data class Menu(internal val pages: MutableList<EmbedBuilder>,
                         embeds = mutableListOf(page)
                     }
                 }
+
                 is Action -> action.invoke(interaction)
             }
         }
