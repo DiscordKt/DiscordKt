@@ -140,7 +140,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
     public fun user(displayText: String, slashName: String, description: String, action: suspend ContextEvent<User>.() -> Unit) {
         val command = ContextCommand(slashName, displayText, description = description, category = category, requiredPermissions = requiredPermissions).apply {
             execute(UserArg) {
-                this.toContextual(args.first).action()
+                this.toContextual(args.first).also { it.args = args }.action()
             }
         }
 
@@ -159,7 +159,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
     public fun message(displayText: String, slashName: String, description: String, action: suspend ContextEvent<Message>.() -> Unit) {
         val command = ContextCommand(slashName, displayText, description = description, category = category, requiredPermissions = requiredPermissions).apply {
             execute(MessageArg) {
-                this.toContextual(args.first).action()
+                this.toContextual(args.first).also { it.args = args }.action()
             }
         }
 
