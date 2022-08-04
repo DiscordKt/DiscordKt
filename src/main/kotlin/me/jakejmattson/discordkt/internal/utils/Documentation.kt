@@ -2,11 +2,12 @@ package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.arguments.MultipleArg
 import me.jakejmattson.discordkt.commands.Command
+import me.jakejmattson.discordkt.commands.SubCommandSet
 import java.io.File
 import kotlin.math.max
 
-internal fun createDocumentation(commands: List<Command>) {
-    if (commands.isEmpty())
+internal fun createDocumentation(commands: List<Command>, subcommands: MutableList<SubCommandSet>) {
+    if (commands.isEmpty() && subcommands.isEmpty())
         return
 
     data class CommandData(val name: String, val args: List<String>, val desc: String) {
@@ -65,6 +66,9 @@ internal fun createDocumentation(commands: List<Command>) {
 
         if (argumentSet.any { it is MultipleArg<*, *> })
             appendLine("| Argument... | Accepts many of this argument. |")
+
+        if (subcommands.isNotEmpty())
+            appendLine("| /Category   | This is a subcommand group.    |")
     }
 
     val key =
@@ -77,9 +81,11 @@ internal fun createDocumentation(commands: List<Command>) {
         else
             ""
 
-    val docs = commands
-        .groupBy { it.category }
-        .map { category -> category.key to formatDocs(category.value.map { extractCommandData(it) }) }
+    val groups =
+        commands.groupBy { it.category }.map { it.key to formatDocs(it.value.map { cmd -> extractCommandData(cmd) }) } +
+            subcommands.map { "/${it.name}" to formatDocs(it.commands.map { cmd -> extractCommandData(cmd) }) }
+
+    val docs = groups
         .sortedBy { it.first }
         .joinToString("") { "## ${it.first}\n${it.second}\n" }
 

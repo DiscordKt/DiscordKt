@@ -64,22 +64,7 @@ private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction,
 }
 
 private suspend fun handleApplicationCommand(interaction: ApplicationCommandInteraction, discord: Discord, input: suspend SlashCommand.(DiscordContext) -> Result<*>) {
-    val slashCommands = discord.commands.filterIsInstance<SlashCommand>()
-
-    val dktCommand =
-        if (interaction is ChatInputCommandInteraction) {
-            val command = interaction.command
-
-            if (command is SubCommand)
-                discord
-                    .subcommands.find { it.name.equals(command.rootName, true) }!!
-                    .commands.find { it.name.equals(command.name, true) }
-            else
-                slashCommands.find { it.name.equals(command.rootName, true) }
-        } else {
-            slashCommands.filterIsInstance<ContextCommand>().find { it.displayText == interaction.invokedCommandName }
-        } ?: return
-
+    val dktCommand = findDktCommand(interaction, discord) ?: return
     val author = interaction.user.asUser()
     val guild = (interaction as? GuildInteractionBehavior)?.getGuild()
     val channel = interaction.getChannel()
@@ -108,9 +93,7 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
 }
 
 private suspend fun handleAutocomplete(interaction: AutoCompleteInteraction, discord: Discord) {
-    val dktCommand = discord.commands.filterIsInstance<GuildSlashCommand>().firstOrNull { it.name.equals(interaction.command.rootName, true) }
-        ?: return
-
+    val dktCommand = findDktCommand(interaction, discord) ?: return
     val argName = interaction.command.options.entries.single { it.value.focused }.key.lowercase()
     val rawArg = dktCommand.execution.arguments.first { it.name.equals(argName, true) }
 
@@ -131,5 +114,26 @@ private suspend fun handleAutocomplete(interaction: AutoCompleteInteraction, dis
         is DoubleArgument -> interaction.suggestNumber { suggestions.forEach { choice(it.toString(), it as Double) } }
         is StringArgument -> interaction.suggestString { suggestions.forEach { choice(it.toString(), it as String) } }
         else -> {}
+    }
+}
+
+private fun findDktCommand(interaction: Interaction, discord: Discord): SlashCommand? {
+    val slashCommands = discord.commands.filterIsInstance<SlashCommand>()
+    val contextCommands = discord.commands.filterIsInstance<ContextCommand>()
+
+    fun handleSubcommand(command: InteractionCommand) =
+        if (command is SubCommand)
+            discord
+                .subcommands.find { it.name.equals(command.rootName, true) }!!
+                .commands.find { it.name.equals(command.name, true) }
+        else
+            slashCommands.find { it.name.equals(command.rootName, true) }
+
+    return when (interaction) {
+        is ChatInputCommandInteraction -> handleSubcommand(interaction.command)
+        is AutoCompleteInteraction -> handleSubcommand(interaction.command)
+        is MessageCommandInteraction -> contextCommands.find { it.displayText == interaction.invokedCommandName }
+        is UserCommandInteraction -> contextCommands.find { it.displayText == interaction.invokedCommandName }
+        is ModalSubmitInteraction, is SelectMenuInteraction, is ButtonInteraction -> null
     }
 }
