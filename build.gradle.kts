@@ -100,13 +100,13 @@ tasks {
         dependsOn(dokkaHtml)
 
         copy {
-            val docsPath = "../discordkt.github.io/docs/${if (isSnapshot) "snapshot" else "release"}"
+            val docsPath = "../discordkt.github.io/docs/"
 
-            delete(file("$docsPath/dokka"))
+            delete(file("$docsPath/api"))
             from(buildDir.resolve("dokka"))
-            into(file("$docsPath/dokka"))
+            into(file("$docsPath/api"))
 
-            file("$docsPath/index.md").writeText(
+            file("$docsPath/install.md").writeText(
                 Docs.generateImports(projectGroup, version.toString(), isSnapshot, true)
             )
         }
