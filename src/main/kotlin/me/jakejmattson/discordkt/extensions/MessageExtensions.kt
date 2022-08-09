@@ -34,12 +34,7 @@ public suspend fun Message.jumpLink(): String? = getGuildOrNull()?.let { "https:
 /**
  * Checks if this message is exclusively an image.
  */
-public fun Message.isImagePost(): Boolean =
-    if (attachments.isNotEmpty()) {
-        attachments.first().isImage && content.isBlank()
-    } else {
-        false
-    }
+public fun Message.isImagePost(): Boolean = content.isBlank() && attachments.firstOrNull()?.isImage == true
 
 /**
  * Add multiple [ReactionEmoji] to a [Message].

@@ -3,7 +3,7 @@
 package me.jakejmattson.discordkt.extensions
 
 import dev.kord.core.entity.*
-import dev.kord.core.entity.channel.GuildMessageChannel
+import dev.kord.core.entity.channel.GuildChannel
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.Discord
@@ -127,7 +127,7 @@ private fun String.cleanseAll(): String {
 public fun <T> stringify(entity: T): String =
     when (entity) {
         //Discord entities
-        is GuildMessageChannel -> entity.id.toString()
+        is GuildChannel -> entity.id.toString()
         is Attachment -> entity.filename
         is Guild -> entity.id.toString()
         is Role -> entity.id.toString()
