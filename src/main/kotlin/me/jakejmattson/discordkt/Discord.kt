@@ -102,7 +102,7 @@ public abstract class Discord {
 
         validate()
 
-        commands[locale.helpName] ?: produceHelpCommand(locale.helpCategory).register(this)
+        commands.findByName(locale.helpName) ?: produceHelpCommand(locale.helpCategory).register(this)
 
         registerSlashCommands()
 
