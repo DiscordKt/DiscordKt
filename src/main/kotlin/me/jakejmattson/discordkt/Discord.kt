@@ -91,10 +91,11 @@ public abstract class Discord {
 
         if (configuration.logStartup) {
             val header = "----- DiscordKt ${versions.library} -----"
-            val commandSets = commands.groupBy { it.category }.keys.size
 
             InternalLogger.log(header)
-            InternalLogger.log(commandSets.pluralize("CommandSet") + " -> " + commands.size.pluralize("Command"))
+            InternalLogger.log(commands.filterIsInstance<SlashCommand>().size.pluralize("Slash Command"))
+            InternalLogger.log(commands.filterIsInstance<TextCommand>().size.pluralize("Text Command"))
+            InternalLogger.log(subcommands.flatMap { it.commands }.size.pluralize("Subcommand"))
             InternalLogger.log(services.size.pluralize("Service"))
             InternalLogger.log(preconditions.size.pluralize("Precondition"))
             InternalLogger.log("-".repeat(header.length))
