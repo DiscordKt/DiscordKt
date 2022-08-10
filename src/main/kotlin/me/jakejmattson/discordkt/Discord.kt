@@ -70,10 +70,23 @@ public abstract class Discord {
             Versions(getProperty("version"), getProperty("kotlin"), getProperty("kord"))
         }
 
-    public val botProperties: BotProperties =
-        with(Properties().apply { load(BotProperties::class.java.getResourceAsStream("/bot.properties")) }) {
-            BotProperties(this, getProperty("name"), getProperty("url"), getProperty("version"))
+    public val botProperties: BotProperties = run {
+        val fileName = "bot.properties"
+        val res = BotProperties::class.java.getResourceAsStream("/$fileName")
+
+        if (res != null) {
+            with(Properties().apply { load(res) }) {
+                BotProperties(this,
+                    getProperty("name", "<Missing>"),
+                    getProperty("url", "<Missing>"),
+                    getProperty("version", "<Missing>")
+                )
+            }
+        } else {
+            val missing = "Missing $fileName resource file."
+            BotProperties(Properties(), missing, missing, missing)
         }
+    }
 
     /** Fetch an object from the DI pool by its type */
     public inline fun <reified A : Any> getInjectionObjects(): A = diService[A::class]
