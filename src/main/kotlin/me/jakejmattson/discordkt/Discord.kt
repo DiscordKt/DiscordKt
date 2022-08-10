@@ -20,6 +20,7 @@ import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
 import me.jakejmattson.discordkt.internal.listeners.registerInteractionListener
 import me.jakejmattson.discordkt.internal.utils.*
 import me.jakejmattson.discordkt.locale.Locale
+import java.time.Instant
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -45,7 +46,11 @@ public data class LibraryProperties(val version: String, val kotlin: String, val
  * @param url The repo url of the bot, retrieved by "url".
  * @param version The version of the bot, retrieved by "version".
  */
-public data class BotProperties(val raw: Properties, val name: String, val url: String, val version: String) {
+public data class BotProperties(val raw: Properties,
+                                val name: String?,
+                                val description: String?,
+                                val url: String?,
+                                val version: String?) {
     /**
      * Get the provided property from the raw Properties value.
      */
@@ -57,8 +62,9 @@ public data class BotProperties(val raw: Properties, val name: String, val url: 
  *
  * @property library Properties for the core library.
  * @property bot Properties for the current bot.
+ * @property startup The [Instant] this bot started.
  */
-public data class CodeProperties(val library: LibraryProperties, val bot: BotProperties)
+public data class CodeProperties(val library: LibraryProperties, val bot: BotProperties, val startup: Instant = Instant.now())
 
 /**
  * @property kord A Kord instance used to access the Discord API.
@@ -84,18 +90,12 @@ public abstract class Discord {
             val fileName = "bot.properties"
             val res = BotProperties::class.java.getResourceAsStream("/$fileName")
 
-            if (res != null) {
+            if (res == null)
+                BotProperties(Properties(), null, null, null, null)
+            else
                 with(Properties().apply { load(res) }) {
-                    BotProperties(this,
-                        getProperty("name", "<Missing>"),
-                        getProperty("url", "<Missing>"),
-                        getProperty("version", "<Missing>")
-                    )
+                    BotProperties(this, getProperty("name"), getProperty("description"), getProperty("url"), getProperty("version"))
                 }
-            } else {
-                val missing = "Missing /resources/$fileName"
-                BotProperties(Properties(), missing, missing, missing)
-            }
         }
     )
 
