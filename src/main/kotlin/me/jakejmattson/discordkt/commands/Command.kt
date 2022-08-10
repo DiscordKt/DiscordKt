@@ -351,6 +351,10 @@ public class ContextCommand(override val name: String,
 }
 
 /**
- * Get a command by its name (case-insensitive).
+ * Find a command by its name (case-insensitive).
  */
-public operator fun MutableList<Command>.get(query: String): Command? = firstOrNull { cmd -> cmd.names.any { it.equals(query, true) } }
+public fun <T : Command> List<T>.findByName(name: String): T? =
+    if (this is TextCommand)
+        find { cmd -> cmd.names.any { it.equals(name, true) } }
+    else
+        find { it.name.equals(name, true) }

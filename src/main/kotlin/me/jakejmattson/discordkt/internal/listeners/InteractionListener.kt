@@ -125,9 +125,9 @@ private fun findDktCommand(interaction: Interaction, discord: Discord): SlashCom
         if (command is SubCommand)
             discord
                 .subcommands.find { it.name.equals(command.rootName, true) }!!
-                .commands.find { it.name.equals(command.name, true) }
+                .commands.findByName(command.name)
         else
-            slashCommands.find { it.name.equals(command.rootName, true) }
+            slashCommands.findByName(command.rootName)
 
     return when (interaction) {
         is ChatInputCommandInteraction -> handleSubcommand(interaction.command)

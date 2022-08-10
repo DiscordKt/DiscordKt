@@ -1,5 +1,0 @@
-{
-  "library": "${project}",
-  "kotlin": "${kotlin}",
-  "kord": "${kord}"
-}

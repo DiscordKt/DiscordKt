@@ -1,5 +1,7 @@
+import java.util.*
+
 group = "me.jakejmattson"
-version = "0.23.2"
+version = "0.23.3"
 val projectGroup = group.toString()
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
@@ -45,6 +47,13 @@ tasks {
             jvmTarget = "1.8"
             freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
         }
+
+        Properties().apply {
+            setProperty("version", version.toString())
+            setProperty("kotlin", Constants.kotlin)
+            setProperty("kord", Constants.kord)
+            store(file("src/main/resources/library.properties").outputStream(), null)
+        }
     }
 
     compileTestKotlin {
@@ -84,29 +93,18 @@ tasks {
         )
     }
 
-    copy {
-        from(file("templates/properties-template.json"))
-        into(file("src/main/resources"))
-        rename { "library-properties.json" }
-        expand(
-            "project" to version,
-            "kotlin" to Constants.kotlin,
-            "kord" to Constants.kord
-        )
-    }
-
     register("generateDocs") {
         description = "Generate documentation for discordkt.github.io"
         dependsOn(dokkaHtml)
 
         copy {
-            val docsPath = "../discordkt.github.io/docs/${if (isSnapshot) "snapshot" else "release"}"
+            val docsPath = "../discordkt.github.io/docs/"
 
-            delete(file("$docsPath/dokka"))
+            delete(file("$docsPath/api"))
             from(buildDir.resolve("dokka"))
-            into(file("$docsPath/dokka"))
+            into(file("$docsPath/api"))
 
-            file("$docsPath/index.md").writeText(
+            file("$docsPath/install.md").writeText(
                 Docs.generateImports(projectGroup, version.toString(), isSnapshot, true)
             )
         }

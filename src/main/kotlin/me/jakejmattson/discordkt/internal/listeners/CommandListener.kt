@@ -33,7 +33,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     suspend fun search() {
         val query = content.split(" ")[1]
 
-        if (discord.commands[query] != null)
+        if (discord.commands.findByName(query) != null)
             message.addReaction(Emojis.whiteCheckMark)
         else if (discord.commands.any { command -> command.names.any { it.contains(query, ignoreCase = true) } })
             message.addReaction(Emojis.ballotBoxWithCheck)
@@ -60,7 +60,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
 
     if (commandName.isBlank()) return@on
 
-    val potentialCommand = discord.commands[commandName]
+    val potentialCommand = discord.commands.findByName(commandName)
     val event = potentialCommand?.buildRequiredEvent(discord, rawInputs, message, author, channel, guild)
 
     if (event == null) {
