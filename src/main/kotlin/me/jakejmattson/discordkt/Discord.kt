@@ -145,6 +145,9 @@ public abstract class Discord {
             InternalLogger.log(services.size.pluralize("Service"))
             InternalLogger.log(preconditions.size.pluralize("Precondition"))
             InternalLogger.log("-".repeat(header.length))
+
+            if (properties.bot.raw.isEmpty)
+                InternalLogger.error("Missing resources/bot.properties")
         }
 
         validate()
