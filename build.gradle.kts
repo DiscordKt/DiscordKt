@@ -1,3 +1,5 @@
+import java.util.*
+
 group = "me.jakejmattson"
 version = "0.23.3-SNAPSHOT"
 val projectGroup = group.toString()
@@ -45,6 +47,13 @@ tasks {
             jvmTarget = "1.8"
             freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
         }
+
+        Properties().apply {
+            setProperty("version", version.toString())
+            setProperty("kotlin", Constants.kotlin)
+            setProperty("kord", Constants.kord)
+            store(file("src/main/resources/library.properties").outputStream(), null)
+        }
     }
 
     compileTestKotlin {
@@ -81,17 +90,6 @@ tasks {
             "kord" to Constants.kord.replace("-", "--"),
             "discordkt" to version.toString().replace("-", "--"),
             "imports" to Docs.generateImports(projectGroup, version.toString(), isSnapshot)
-        )
-    }
-
-    copy {
-        from(file("templates/properties-template.json"))
-        into(file("src/main/resources"))
-        rename { "library-properties.json" }
-        expand(
-            "project" to version,
-            "kotlin" to Constants.kotlin,
-            "kord" to Constants.kord
         )
     }
 

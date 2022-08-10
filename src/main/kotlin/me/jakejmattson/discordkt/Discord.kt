@@ -9,9 +9,6 @@ import dev.kord.rest.builder.interaction.*
 import dev.kord.rest.request.KtorRequestException
 import dev.kord.x.emoji.Emojis
 import kotlinx.coroutines.flow.toList
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import me.jakejmattson.discordkt.annotations.Service
 import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.commands.*
@@ -23,19 +20,33 @@ import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
 import me.jakejmattson.discordkt.internal.listeners.registerInteractionListener
 import me.jakejmattson.discordkt.internal.utils.*
 import me.jakejmattson.discordkt.locale.Locale
+import java.util.*
 import kotlin.reflect.KClass
 
 /**
+ * A collection of library properties read from internal library.properties file.
+ *
  * @param library The current DiscordKt version.
  * @param kotlin The version of Kotlin used by DiscordKt.
  * @param kord The version of Kord used by DiscordKt.
  */
-@Serializable
 public data class Versions(val library: String, val kotlin: String, val kord: String) {
     /**
      * Print the version as a string in the form "$library - $kord - $kotlin"
      */
     override fun toString(): String = "$library - $kord - $kotlin"
+}
+
+/**
+ * A collection of custom bot properties read from a bot.properties file.
+ *
+ * @param raw The full [Properties] object for additional properties.
+ * @param name The name of the bot, retrieved by "name".
+ * @param url The repo url of the bot, retrieved by "url".
+ * @param version The version of the bot, retrieved by "version".
+ */
+public data class BotProperties(val raw: Properties, val name: String, val url: String, val version: String) {
+    public fun getProperty(property: String): String? = raw.getProperty(property)
 }
 
 /**
@@ -54,7 +65,15 @@ public abstract class Discord {
     public abstract val subcommands: MutableList<SubCommandSet>
     internal abstract val preconditions: MutableList<Precondition>
 
-    public val versions: Versions = Json.decodeFromString(javaClass.getResource("/library-properties.json")!!.readText())
+    public val versions: Versions =
+        with(Properties().apply { load(Versions::class.java.getResourceAsStream("/library.properties")) }) {
+            Versions(getProperty("version"), getProperty("kotlin"), getProperty("kord"))
+        }
+
+    public val botProperties: BotProperties =
+        with(Properties().apply { load(BotProperties::class.java.getResourceAsStream("/bot.properties")) }) {
+            BotProperties(this, getProperty("name"), getProperty("url"), getProperty("version"))
+        }
 
     /** Fetch an object from the DI pool by its type */
     public inline fun <reified A : Any> getInjectionObjects(): A = diService[A::class]
