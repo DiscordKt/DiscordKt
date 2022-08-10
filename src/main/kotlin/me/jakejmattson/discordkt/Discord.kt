@@ -133,7 +133,10 @@ public abstract class Discord {
         registerListeners(this)
 
         if (configuration.logStartup) {
-            val header = "----- DiscordKt ${properties.library.version} -----"
+            val bot = properties.bot
+            val name = bot.name ?: "DiscordKt"
+            val version = bot.version ?: properties.library.version
+            val header = "------- $name $version -------"
 
             InternalLogger.log(header)
             InternalLogger.log(commands.filterIsInstance<SlashCommand>().size.pluralize("Slash Command"))
