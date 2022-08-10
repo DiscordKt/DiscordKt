@@ -26,15 +26,15 @@ import kotlin.reflect.KClass
 /**
  * A collection of library properties read from internal library.properties file.
  *
- * @param library The current DiscordKt version.
+ * @param version The current DiscordKt version.
  * @param kotlin The version of Kotlin used by DiscordKt.
  * @param kord The version of Kord used by DiscordKt.
  */
-public data class Versions(val library: String, val kotlin: String, val kord: String) {
+public data class LibraryProperties(val version: String, val kotlin: String, val kord: String) {
     /**
      * Print the version as a string in the form "$library - $kord - $kotlin"
      */
-    override fun toString(): String = "$library - $kord - $kotlin"
+    override fun toString(): String = "$version - $kord - $kotlin"
 }
 
 /**
@@ -46,8 +46,19 @@ public data class Versions(val library: String, val kotlin: String, val kord: St
  * @param version The version of the bot, retrieved by "version".
  */
 public data class BotProperties(val raw: Properties, val name: String, val url: String, val version: String) {
-    public fun getProperty(property: String): String? = raw.getProperty(property)
+    /**
+     * Get the provided property from the raw Properties value.
+     */
+    public operator fun get(key: String): String? = raw.getProperty(key)
 }
+
+/**
+ * Container for code properties.
+ *
+ * @property library Properties for the core library.
+ * @property bot Properties for the current bot.
+ */
+public data class CodeProperties(val library: LibraryProperties, val bot: BotProperties)
 
 /**
  * @property kord A Kord instance used to access the Discord API.
@@ -55,7 +66,7 @@ public data class BotProperties(val raw: Properties, val name: String, val url: 
  * @property locale Locale (language and customizations).
  * @property commands All registered commands.
  * @property subcommands All registered subcommands.
- * @property versions Properties for the core library.
+ * @property properties Properties for core and bot codebase.
  */
 public abstract class Discord {
     public abstract val kord: Kord
@@ -65,28 +76,28 @@ public abstract class Discord {
     public abstract val subcommands: MutableList<SubCommandSet>
     internal abstract val preconditions: MutableList<Precondition>
 
-    public val versions: Versions =
-        with(Properties().apply { load(Versions::class.java.getResourceAsStream("/library.properties")) }) {
-            Versions(getProperty("version"), getProperty("kotlin"), getProperty("kord"))
-        }
+    public val properties: CodeProperties = CodeProperties(
+        with(Properties().apply { load(LibraryProperties::class.java.getResourceAsStream("/library.properties")) }) {
+            LibraryProperties(getProperty("version"), getProperty("kotlin"), getProperty("kord"))
+        },
+        run {
+            val fileName = "bot.properties"
+            val res = BotProperties::class.java.getResourceAsStream("/$fileName")
 
-    public val botProperties: BotProperties = run {
-        val fileName = "bot.properties"
-        val res = BotProperties::class.java.getResourceAsStream("/$fileName")
-
-        if (res != null) {
-            with(Properties().apply { load(res) }) {
-                BotProperties(this,
-                    getProperty("name", "<Missing>"),
-                    getProperty("url", "<Missing>"),
-                    getProperty("version", "<Missing>")
-                )
+            if (res != null) {
+                with(Properties().apply { load(res) }) {
+                    BotProperties(this,
+                        getProperty("name", "<Missing>"),
+                        getProperty("url", "<Missing>"),
+                        getProperty("version", "<Missing>")
+                    )
+                }
+            } else {
+                val missing = "Missing /resources/$fileName"
+                BotProperties(Properties(), missing, missing, missing)
             }
-        } else {
-            val missing = "Missing $fileName resource file."
-            BotProperties(Properties(), missing, missing, missing)
         }
-    }
+    )
 
     /** Fetch an object from the DI pool by its type */
     public inline fun <reified A : Any> getInjectionObjects(): A = diService[A::class]
@@ -122,7 +133,7 @@ public abstract class Discord {
         registerListeners(this)
 
         if (configuration.logStartup) {
-            val header = "----- DiscordKt ${versions.library} -----"
+            val header = "----- DiscordKt ${properties.library.version} -----"
 
             InternalLogger.log(header)
             InternalLogger.log(commands.filterIsInstance<SlashCommand>().size.pluralize("Slash Command"))
