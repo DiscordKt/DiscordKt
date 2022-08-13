@@ -1,7 +1,5 @@
-import java.util.*
-
 group = "me.jakejmattson"
-version = "0.23.3"
+version = "0.23.4-SNAPSHOT"
 val projectGroup = group.toString()
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
@@ -48,12 +46,14 @@ tasks {
             freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
         }
 
-        Properties().apply {
-            setProperty("version", version.toString())
-            setProperty("kotlin", Constants.kotlin)
-            setProperty("kord", Constants.kord)
-            store(file("src/main/resources/library.properties").outputStream(), null)
-        }
+        dependsOn("writeProperties")
+    }
+
+    register<WriteProperties>("writeProperties") {
+        property("version", project.version.toString())
+        property("kotlin", Constants.kotlin)
+        property("kord", Constants.kord)
+        setOutputFile("src/main/resources/library.properties")
     }
 
     compileTestKotlin {
