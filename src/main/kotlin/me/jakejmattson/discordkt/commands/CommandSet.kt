@@ -109,8 +109,8 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      * @param action The command action.
      */
     @InnerDSL
-    public fun slash(name: String, action: GuildSlashCommand.() -> Unit) {
-        val command = GuildSlashCommand(name, category = category, requiredPermissions = requiredPermissions)
+    public fun slash(name: String, description: String = "", action: GuildSlashCommand.() -> Unit) {
+        val command = GuildSlashCommand(name, description, category, requiredPermissions)
         command.action()
         commands.add(command)
     }
@@ -122,8 +122,8 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      * @param action The command action.
      */
     @InnerDSL
-    public fun globalSlash(name: String, action: GlobalSlashCommand.() -> Unit) {
-        val command = GlobalSlashCommand(name, category = category, requiredPermissions = requiredPermissions)
+    public fun globalSlash(name: String, description: String = "", action: GlobalSlashCommand.() -> Unit) {
+        val command = GlobalSlashCommand(name, description, category, requiredPermissions)
         command.action()
         commands.add(command)
     }
@@ -138,7 +138,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      */
     @InnerDSL
     public fun user(displayText: String, slashName: String, description: String, action: suspend ContextEvent<User>.() -> Unit) {
-        val command = ContextCommand(slashName, displayText, description = description, category = category, requiredPermissions = requiredPermissions).apply {
+        val command = ContextCommand(slashName, displayText, description, category, requiredPermissions).apply {
             execute(UserArg) {
                 this.toContextual(args.first).also { it.args = args }.action()
             }
@@ -157,7 +157,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      */
     @InnerDSL
     public fun message(displayText: String, slashName: String, description: String, action: suspend ContextEvent<Message>.() -> Unit) {
-        val command = ContextCommand(slashName, displayText, description = description, category = category, requiredPermissions = requiredPermissions).apply {
+        val command = ContextCommand(slashName, displayText, description, category, requiredPermissions).apply {
             execute(MessageArg) {
                 this.toContextual(args.first).also { it.args = args }.action()
             }
