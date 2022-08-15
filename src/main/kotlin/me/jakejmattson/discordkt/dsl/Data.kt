@@ -30,6 +30,7 @@ public abstract class Data {
     /**
      * Write the data object content to its file as JSON.
      */
+    @Deprecated("Combine edits and saves into 'edit' call.", ReplaceWith("edit { }", "me.jakejmattson.discordkt.dsl.edit"))
     public fun save() {
         val parent = file.parentFile
 
@@ -38,6 +39,14 @@ public abstract class Data {
 
         file.writeText(serializer.encodeToString(this))
     }
+}
+
+/**
+ * Apply an edit to a [Data] and save to file.
+ */
+public fun <T:Data> T.edit(edits: T.() -> Unit) {
+    edits.invoke(this)
+    this.save()
 }
 
 @PublishedApi
