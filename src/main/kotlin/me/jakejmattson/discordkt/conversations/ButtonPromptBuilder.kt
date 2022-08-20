@@ -1,31 +1,37 @@
 package me.jakejmattson.discordkt.conversations
 
 import dev.kord.common.entity.ButtonStyle
-import dev.kord.core.behavior.channel.createMessage
+import dev.kord.core.entity.Message
 import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.rest.builder.message.EmbedBuilder
+import dev.kord.rest.builder.message.create.MessageCreateBuilder
 import dev.kord.rest.builder.message.create.actionRow
 import dev.kord.rest.builder.message.create.embed
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
+import me.jakejmattson.discordkt.TypeContainer
+import me.jakejmattson.discordkt.commands.SlashCommandEvent
+import me.jakejmattson.discordkt.conversations.responders.ChannelResponder
+import me.jakejmattson.discordkt.conversations.responders.MessageResponder
+import me.jakejmattson.discordkt.conversations.responders.SlashResponder
 import me.jakejmattson.discordkt.dsl.uuid
 import me.jakejmattson.discordkt.extensions.toPartialEmoji
 
-internal class ConversationButton<T>(
-    val label: String?,
-    val emoji: ReactionEmoji?,
-    val id: String,
-    val value: T,
-    val style: ButtonStyle
+public class ConversationButton<T>(
+    public val label: String?,
+    public val emoji: ReactionEmoji?,
+    public val id: String,
+    public val value: T,
+    public val style: ButtonStyle
 )
 
 /**
  * Builder for a button prompt
  */
-public class ButtonPromptBuilder<T> {
-    private lateinit var promptEmbed: suspend EmbedBuilder.() -> Unit
-    private val buttonRows: MutableList<MutableList<ConversationButton<T>>> = mutableListOf()
+public open class ButtonPromptBuilder<T> {
+    protected lateinit var promptEmbed: suspend EmbedBuilder.() -> Unit
+    protected val buttonRows: MutableList<MutableList<ConversationButton<T>>> = mutableListOf()
 
     internal val valueMap: Map<String, T>
         get() = buttonRows.flatten().associate { it.id to it.value }
@@ -46,21 +52,40 @@ public class ButtonPromptBuilder<T> {
         buttonRows.add(builder.buttons)
     }
 
-    internal suspend fun create(channel: MessageChannel) = channel.createMessage {
-        this.embed {
-            promptEmbed.invoke(this)
-        }
+    internal suspend fun create(channel: MessageChannel, message: Message): MessageResponder {
+        val responder = ChannelResponder(channel, message)
 
-        buttonRows.forEach { buttons ->
-            actionRow {
-                buttons.forEach { button ->
-                    interactionButton(button.style, button.id) {
-                        this.label = button.label
-                        this.emoji = button.emoji?.toPartialEmoji()
+        return responder.respond { createMessage(this) }
+    }
+
+    protected suspend inline fun createMessage(messageBuilder: MessageCreateBuilder) {
+        with(messageBuilder) {
+            embed {
+                promptEmbed.invoke(this)
+            }
+
+            buttonRows.forEach { buttons ->
+                actionRow {
+                    buttons.forEach { button ->
+                        interactionButton(button.style, button.id) {
+                            this.label = button.label
+                            this.emoji = button.emoji?.toPartialEmoji()
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+/**
+ * Builder for a buttom prompt in a slash conversation
+ */
+public class SlashButtonPromptBuilder<T, U : TypeContainer> : ButtonPromptBuilder<T>() {
+    internal suspend fun create(event: SlashCommandEvent<U>, responder: MessageResponder?): MessageResponder {
+        val actualResponder = responder ?: SlashResponder(event)
+
+        return actualResponder.respond { createMessage(this) }
     }
 }
 
