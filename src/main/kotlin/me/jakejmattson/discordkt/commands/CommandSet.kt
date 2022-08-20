@@ -134,10 +134,15 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      * @param displayText The text to display in the context menu.
      * @param slashName The name to register as a slash command.
      * @param description The description for the slash command.
+     * @param requiredPermissions The [Permissions] required to run this command.
      * @param action The command action.
      */
     @InnerDSL
-    public fun user(displayText: String, slashName: String, description: String, action: suspend ContextEvent<User>.() -> Unit) {
+    public fun user(displayText: String,
+                    slashName: String,
+                    description: String,
+                    requiredPermissions: Permissions = this.requiredPermissions,
+                    action: suspend ContextEvent<User>.() -> Unit) {
         val command = ContextCommand(slashName, displayText, description, category, requiredPermissions).apply {
             execute(UserArg) {
                 this.toContextual(args.first).also { it.args = args }.action()
@@ -153,10 +158,15 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      * @param displayText The text to display in the context menu.
      * @param slashName The name to register as a slash command.
      * @param description The description for the slash command.
+     * @param requiredPermissions The [Permissions] required to run this command.
      * @param action The command action.
      */
     @InnerDSL
-    public fun message(displayText: String, slashName: String, description: String, action: suspend ContextEvent<Message>.() -> Unit) {
+    public fun message(displayText: String,
+                       slashName: String,
+                       description: String,
+                       requiredPermissions: Permissions = this.requiredPermissions,
+                       action: suspend ContextEvent<Message>.() -> Unit) {
         val command = ContextCommand(slashName, displayText, description, category, requiredPermissions).apply {
             execute(MessageArg) {
                 this.toContextual(args.first).also { it.args = args }.action()
