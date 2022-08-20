@@ -26,6 +26,7 @@ import me.jakejmattson.discordkt.commands.DiscordContext
  * @property commandReaction A reaction added to the command invocation message.
  * @property theme The color theme of internal embeds (i.e. Help).
  * @property intents Additional gateway [Intents] to register manually.
+ * @property defaultPermissions The [Permissions] used to restrict command usage.
  * @property entitySupplyStrategy [EntitySupplyStrategy] for use in Kord cache.
  */
 public data class BotConfiguration(

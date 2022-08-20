@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.arguments
 
 import me.jakejmattson.discordkt.commands.Command
 import me.jakejmattson.discordkt.commands.DiscordContext
-import me.jakejmattson.discordkt.commands.get
+import me.jakejmattson.discordkt.commands.findByName
 import me.jakejmattson.discordkt.dsl.internalLocale
 
 /**
@@ -16,7 +16,7 @@ public open class CommandArg(override val name: String = "Command",
     public companion object : CommandArg()
 
     override suspend fun transform(input: String, context: DiscordContext): Result<Command> {
-        val command = context.discord.commands[input] ?: return Error(internalLocale.notFound)
+        val command = context.discord.commands.findByName(input) ?: return Error(internalLocale.notFound)
         return Success(command)
     }
 

@@ -38,6 +38,7 @@ public open class MessageArg(override val name: String = "Message",
 
                 messageId?.let { channel.getMessageOrNull(it) } ?: return Error("Invalid message")
             }
+
             privateRegex.matches(input) -> return Error("Cannot resolve private URL - use message ID")
             else -> input.toSnowflakeOrNull()?.let { context.channel.getMessageOrNull(it) }
                 ?: return Error("Invalid ID")

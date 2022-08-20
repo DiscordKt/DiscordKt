@@ -1,5 +1,5 @@
 group = "me.jakejmattson"
-version = "0.23.1-SNAPSHOT"
+version = "0.23.4-SNAPSHOT"
 val projectGroup = group.toString()
 val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
@@ -12,7 +12,7 @@ plugins {
     //Publishing
     signing
     `maven-publish`
-    id("io.codearte.nexus-staging") version "0.30.0"
+    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 
     //Misc
     id("com.github.ben-manes.versions") version "0.42.0"
@@ -45,6 +45,15 @@ tasks {
             jvmTarget = "1.8"
             freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
         }
+
+        dependsOn("writeProperties")
+    }
+
+    register<WriteProperties>("writeProperties") {
+        property("version", project.version.toString())
+        property("kotlin", Constants.kotlin)
+        property("kord", Constants.kord)
+        setOutputFile("src/main/resources/library.properties")
     }
 
     compileTestKotlin {
@@ -84,29 +93,18 @@ tasks {
         )
     }
 
-    copy {
-        from(file("templates/properties-template.json"))
-        into(file("src/main/resources"))
-        rename { "library-properties.json" }
-        expand(
-            "project" to version,
-            "kotlin" to Constants.kotlin,
-            "kord" to Constants.kord
-        )
-    }
-
     register("generateDocs") {
         description = "Generate documentation for discordkt.github.io"
         dependsOn(dokkaHtml)
 
         copy {
-            val docsPath = "../discordkt.github.io/docs/${if (isSnapshot) "snapshot" else "release"}"
+            val docsPath = "../discordkt.github.io/docs/"
 
-            delete(file("$docsPath/dokka"))
+            delete(file("$docsPath/api"))
             from(buildDir.resolve("dokka"))
-            into(file("$docsPath/dokka"))
+            into(file("$docsPath/api"))
 
-            file("$docsPath/index.md").writeText(
+            file("$docsPath/install.md").writeText(
                 Docs.generateImports(projectGroup, version.toString(), isSnapshot, true)
             )
         }
@@ -177,16 +175,6 @@ publishing {
                     url.set(Constants.projectUrl)
                 }
             }
-            repositories {
-                maven {
-                    url = if (isSnapshot) uri(Constants.snapshotsRepoUrl) else uri(Constants.releasesRepoUrl)
-
-                    credentials {
-                        username = project.properties["nexusUsername"] as String?
-                        password = project.properties["nexusPassword"] as String?
-                    }
-                }
-            }
         }
     }
 }
@@ -199,4 +187,8 @@ signing {
     sign(publishing.publications[Constants.projectName])
 }
 
-nexusStaging { }
+nexusPublishing {
+    repositories {
+        sonatype()
+    }
+}

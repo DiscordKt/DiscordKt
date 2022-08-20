@@ -46,6 +46,7 @@ internal fun Discord.validate() {
                         .map { this to it }
                     )
                 }
+
                 is TextCommand -> {
                     errors.spaceTxtCmd.addAll(names.filter { it.contains(" ") })
 

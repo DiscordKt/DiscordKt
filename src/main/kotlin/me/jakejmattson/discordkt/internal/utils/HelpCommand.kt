@@ -24,7 +24,7 @@ internal fun produceHelpCommand(category: String) = commands(category) {
             if (input.isEmpty())
                 sendDefaultEmbed(theme)
             else
-                discord.commands[input]?.sendHelpEmbed(this, input, theme)
+                discord.commands.findByName(input)?.sendHelpEmbed(this, input, theme)
                     ?: Recommender.sendRecommendation(this, input)
         }
     }

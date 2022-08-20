@@ -20,12 +20,8 @@ import me.jakejmattson.discordkt.internal.utils.InternalLogger
 @KordPreview
 internal suspend fun registerInteractionListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
     when (val interaction = interaction) {
-        is MessageCommandInteraction -> handleApplicationCommand(interaction, discord) {
-            Success(bundleToContainer(listOf(interaction.messages.values.first())))
-        }
-        is UserCommandInteraction -> handleApplicationCommand(interaction, discord) {
-            Success(bundleToContainer(listOf(interaction.users.values.first())))
-        }
+        is MessageCommandInteraction -> handleApplicationCommand(interaction, discord) { Success(bundleToContainer(listOf(interaction.messages.values.first()))) }
+        is UserCommandInteraction -> handleApplicationCommand(interaction, discord) { Success(bundleToContainer(listOf(interaction.users.values.first()))) }
         is ChatInputCommandInteraction -> handleSlashCommand(interaction, discord)
         is AutoCompleteInteraction -> handleAutocomplete(interaction, discord)
         is ModalSubmitInteraction -> modalBuffer.send(interaction)
@@ -34,6 +30,7 @@ internal suspend fun registerInteractionListener(discord: Discord) = discord.kor
             Menu.handleButtonPress(interaction)
             Conversations.handleInteraction(interaction)
         }
+
         else -> InternalLogger.error("Unknown interaction received: ${interaction.javaClass.simpleName}")
     }
 }
@@ -50,13 +47,10 @@ private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction,
                     is IntegerArgument -> integers[argName]?.toInt()
                     is DoubleArgument -> numbers[argName]
                     is BooleanArgument -> booleans[argName]
-
-                    //Entity
                     is UserArgument -> users[argName]
                     is RoleArgument -> roles[argName]
                     is ChannelArgument -> channels[argName]?.let { kord.getChannel(it.id) }
                     is AttachmentArgument -> attachments[argName]
-
                     else -> options[argName]?.value
                 }
 
@@ -70,15 +64,11 @@ private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction,
 }
 
 private suspend fun handleApplicationCommand(interaction: ApplicationCommandInteraction, discord: Discord, input: suspend SlashCommand.(DiscordContext) -> Result<*>) {
-    val dktCommand = discord.commands.filterIsInstance<GuildSlashCommand>().firstOrNull { it.appName == interaction.invokedCommandName || it.name.equals(interaction.invokedCommandName, true) }
-        ?: discord.commands.filterIsInstance<GlobalSlashCommand>().firstOrNull { it.appName == interaction.invokedCommandName || it.name.equals(interaction.invokedCommandName, true) }
-        ?: return
-
+    val dktCommand = findDktCommand(interaction, discord) ?: return
     val author = interaction.user.asUser()
     val guild = (interaction as? GuildInteractionBehavior)?.getGuild()
     val channel = interaction.getChannel()
     val message = interaction.data.message.value?.let { Message(it, discord.kord) }
-
     val context = DiscordContext(discord, message, author, channel, guild)
     val transformResults = input.invoke(dktCommand, context)
     val rawInputs = RawInputs("/${dktCommand.name}", dktCommand.name, prefixCount = 1)
@@ -92,20 +82,18 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
     if (!arePreconditionsPassing(event)) return
 
     event.args = when (transformResults) {
+        is Success<*> -> transformResults.result as TypeContainer
         is Error -> {
             event.respond(transformResults.error)
             return
         }
-        is Success<*> -> transformResults.result as TypeContainer
     }
 
     dktCommand.execution.execute(event)
 }
 
 private suspend fun handleAutocomplete(interaction: AutoCompleteInteraction, discord: Discord) {
-    val dktCommand = discord.commands.filterIsInstance<GuildSlashCommand>().firstOrNull { it.name.equals(interaction.command.rootName, true) }
-        ?: return
-
+    val dktCommand = findDktCommand(interaction, discord) ?: return
     val argName = interaction.command.options.entries.single { it.value.focused }.key.lowercase()
     val rawArg = dktCommand.execution.arguments.first { it.name.equals(argName, true) }
 
@@ -122,15 +110,30 @@ private suspend fun handleAutocomplete(interaction: AutoCompleteInteraction, dis
     val suggestions = arg.autocomplete.invoke(autocompleteData).take(25)
 
     when (arg.innerType) {
-        is IntegerArgument -> interaction.suggestInt {
-            suggestions.forEach { choice(it.toString(), (it as Int).toLong()) }
-        }
-        is DoubleArgument -> interaction.suggestNumber {
-            suggestions.forEach { choice(it.toString(), it as Double) }
-        }
-        is StringArgument -> interaction.suggestString {
-            suggestions.forEach { choice(it.toString(), it as String) }
-        }
+        is IntegerArgument -> interaction.suggestInt { suggestions.forEach { choice(it.toString(), (it as Int).toLong()) } }
+        is DoubleArgument -> interaction.suggestNumber { suggestions.forEach { choice(it.toString(), it as Double) } }
+        is StringArgument -> interaction.suggestString { suggestions.forEach { choice(it.toString(), it as String) } }
         else -> {}
+    }
+}
+
+private fun findDktCommand(interaction: Interaction, discord: Discord): SlashCommand? {
+    val slashCommands = discord.commands.filterIsInstance<SlashCommand>()
+    val contextCommands = discord.commands.filterIsInstance<ContextCommand>()
+
+    fun handleSubcommand(command: InteractionCommand) =
+        if (command is SubCommand)
+            discord
+                .subcommands.find { it.name.equals(command.rootName, true) }!!
+                .commands.findByName(command.name)
+        else
+            slashCommands.findByName(command.rootName)
+
+    return when (interaction) {
+        is ChatInputCommandInteraction -> handleSubcommand(interaction.command)
+        is AutoCompleteInteraction -> handleSubcommand(interaction.command)
+        is MessageCommandInteraction -> contextCommands.find { it.displayText == interaction.invokedCommandName }
+        is UserCommandInteraction -> contextCommands.find { it.displayText == interaction.invokedCommandName }
+        is ModalSubmitInteraction, is SelectMenuInteraction, is ButtonInteraction -> null
     }
 }

@@ -9,9 +9,6 @@ import dev.kord.rest.builder.interaction.*
 import dev.kord.rest.request.KtorRequestException
 import dev.kord.x.emoji.Emojis
 import kotlinx.coroutines.flow.toList
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 import me.jakejmattson.discordkt.annotations.Service
 import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.commands.*
@@ -23,36 +20,84 @@ import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
 import me.jakejmattson.discordkt.internal.listeners.registerInteractionListener
 import me.jakejmattson.discordkt.internal.utils.*
 import me.jakejmattson.discordkt.locale.Locale
+import java.time.Instant
+import java.util.*
 import kotlin.reflect.KClass
 
 /**
- * @param library The current DiscordKt version.
+ * A collection of library properties read from internal library.properties file.
+ *
+ * @param version The current DiscordKt version.
  * @param kotlin The version of Kotlin used by DiscordKt.
  * @param kord The version of Kord used by DiscordKt.
  */
-@Serializable
-public data class Versions(val library: String, val kotlin: String, val kord: String) {
+public data class LibraryProperties(val version: String, val kotlin: String, val kord: String) {
     /**
      * Print the version as a string in the form "$library - $kord - $kotlin"
      */
-    override fun toString(): String = "$library - $kord - $kotlin"
+    override fun toString(): String = "$version - $kord - $kotlin"
 }
+
+/**
+ * A collection of custom bot properties read from a bot.properties file.
+ *
+ * @param raw The full [Properties] object for additional properties.
+ * @param name The name of the bot, retrieved by "name".
+ * @param url The repo url of the bot, retrieved by "url".
+ * @param version The version of the bot, retrieved by "version".
+ */
+public data class BotProperties(val raw: Properties,
+                                val name: String?,
+                                val description: String?,
+                                val url: String?,
+                                val version: String?) {
+    /**
+     * Get the provided property from the raw Properties value.
+     */
+    public operator fun get(key: String): String? = raw.getProperty(key)
+}
+
+/**
+ * Container for code properties.
+ *
+ * @property library Properties for the core library.
+ * @property bot Properties for the current bot.
+ * @property startup The [Instant] this bot started.
+ */
+public data class CodeProperties(val library: LibraryProperties, val bot: BotProperties, val startup: Instant = Instant.now())
 
 /**
  * @property kord A Kord instance used to access the Discord API.
  * @property configuration All configured values for this bot.
  * @property locale Locale (language and customizations).
  * @property commands All registered commands.
- * @property versions Properties for the core library.
+ * @property subcommands All registered subcommands.
+ * @property properties Properties for core and bot codebase.
  */
 public abstract class Discord {
     public abstract val kord: Kord
     public abstract val configuration: BotConfiguration
     public abstract val locale: Locale
     public abstract val commands: MutableList<Command>
+    public abstract val subcommands: MutableList<SubCommandSet>
     internal abstract val preconditions: MutableList<Precondition>
 
-    public val versions: Versions = Json.decodeFromString(javaClass.getResource("/library-properties.json")!!.readText())
+    public val properties: CodeProperties = CodeProperties(
+        with(Properties().apply { load(LibraryProperties::class.java.getResourceAsStream("/library.properties")) }) {
+            LibraryProperties(getProperty("version"), getProperty("kotlin"), getProperty("kord"))
+        },
+        run {
+            val fileName = "bot.properties"
+            val res = BotProperties::class.java.getResourceAsStream("/$fileName")
+
+            if (res == null)
+                BotProperties(Properties(), null, null, null, null)
+            else
+                with(Properties().apply { load(res) }) {
+                    BotProperties(this, getProperty("name"), getProperty("description"), getProperty("url"), getProperty("version"))
+                }
+        }
+    )
 
     /** Fetch an object from the DI pool by its type */
     public inline fun <reified A : Any> getInjectionObjects(): A = diService[A::class]
@@ -88,24 +133,31 @@ public abstract class Discord {
         registerListeners(this)
 
         if (configuration.logStartup) {
-            val header = "----- DiscordKt ${versions.library} -----"
-            val commandSets = commands.groupBy { it.category }.keys.size
+            val bot = properties.bot
+            val name = bot.name ?: "DiscordKt"
+            val version = bot.version ?: properties.library.version
+            val header = "------- $name $version -------"
 
             InternalLogger.log(header)
-            InternalLogger.log(commandSets.pluralize("CommandSet") + " -> " + commands.size.pluralize("Command"))
+            InternalLogger.log(commands.filterIsInstance<SlashCommand>().size.pluralize("Slash Command"))
+            InternalLogger.log(commands.filterIsInstance<TextCommand>().size.pluralize("Text Command"))
+            InternalLogger.log(subcommands.flatMap { it.commands }.size.pluralize("Subcommand"))
             InternalLogger.log(services.size.pluralize("Service"))
             InternalLogger.log(preconditions.size.pluralize("Precondition"))
             InternalLogger.log("-".repeat(header.length))
+
+            if (properties.bot.raw.isEmpty)
+                InternalLogger.error("Missing resources/bot.properties")
         }
 
         validate()
 
-        commands[locale.helpName] ?: produceHelpCommand(locale.helpCategory).register(this)
+        commands.findByName(locale.helpName) ?: produceHelpCommand(locale.helpCategory).register(this)
 
         registerSlashCommands()
 
         if (configuration.documentCommands)
-            createDocumentation(commands)
+            createDocumentation(commands, subcommands)
     }
 
     private fun registerServices() = Reflection.detectClassesWith<Service>().apply { diService.buildAllRecursively(this) }
@@ -118,7 +170,7 @@ public abstract class Discord {
 
     @KordPreview
     private suspend fun registerSlashCommands() {
-        fun ChatInputCreateBuilder.mapArgs(command: SlashCommand) {
+        fun BaseInputChatBuilder.mapArgs(command: SlashCommand) {
             command.execution.arguments.forEach { argument ->
                 val name = argument.name.lowercase()
                 val description = argument.description
@@ -135,22 +187,6 @@ public abstract class Discord {
                     ArgumentData(argument, isRequired = true, isAutocomplete = false)
 
                 when (arg) {
-                    //Entity
-                    is AttachmentArgument<*> -> attachment(name, description) { required = isRequired }
-                    is UserArgument<*> -> user(name, description) { required = isRequired }
-                    is RoleArgument<*> -> role(name, description) { required = isRequired }
-                    is ChannelArgument<*> -> channel(name, description) { required = isRequired }
-
-                    //Primitive
-                    is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
-                    is IntegerArgument<*> -> int(name, description) {
-                        required = isRequired
-                        autocomplete = isAuto
-                    }
-                    is DoubleArgument<*> -> number(name, description) {
-                        required = isRequired
-                        autocomplete = isAuto
-                    }
                     is ChoiceArg<*> -> string(name, description) {
                         required = isRequired
 
@@ -158,26 +194,27 @@ public abstract class Discord {
                             choice(it.toString(), it.toString())
                         }
                     }
-                    else -> string(name, description) {
-                        required = isRequired
-                        autocomplete = isAuto
-                    }
+
+                    is AttachmentArgument<*> -> attachment(name, description) { required = isRequired }
+                    is UserArgument<*> -> user(name, description) { required = isRequired }
+                    is RoleArgument<*> -> role(name, description) { required = isRequired }
+                    is ChannelArgument<*> -> channel(name, description) { required = isRequired }
+                    is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
+                    is IntegerArgument<*> -> int(name, description) { required = isRequired; autocomplete = isAuto }
+                    is DoubleArgument<*> -> number(name, description) { required = isRequired; autocomplete = isAuto }
+                    else -> string(name, description) { required = isRequired; autocomplete = isAuto }
                 }
             }
         }
 
         fun MultiApplicationCommandBuilder.register(command: SlashCommand) {
-            command.executions
-                .filter { it.arguments.size == 1 }
-                .forEach {
-                    val potentialArg = it.arguments.first()
-                    val arg = if (potentialArg is WrappedArgument<*, *, *, *>) potentialArg.type else potentialArg
-
-                    if (arg is MessageArg)
-                        message(command.appName) { defaultMemberPermissions = command.requiredPermissions }
-                    else if (arg is UserArgument<*>)
-                        user(command.appName) { defaultMemberPermissions = command.requiredPermissions }
+            if (command is ContextCommand) {
+                when (command.execution.arguments.first()) {
+                    is MessageArg -> message(command.displayText) { defaultMemberPermissions = command.requiredPermissions }
+                    is UserArg -> user(command.displayText) { defaultMemberPermissions = command.requiredPermissions }
+                    else -> {}
                 }
+            }
 
             input(command.name.lowercase(), command.description.ifBlank { "<No Description>" }) {
                 mapArgs(command)
@@ -201,6 +238,18 @@ public abstract class Discord {
                     guild.createApplicationCommands {
                         guildSlashCommands.forEach {
                             register(it)
+                        }
+
+                        subcommands.forEach {
+                            input(it.name.lowercase(), it.name) {
+                                defaultMemberPermissions = it.requiredPermissionLevel
+
+                                it.commands.forEach { command ->
+                                    subCommand(command.name.lowercase(), command.description.ifBlank { "<No Description>" }) {
+                                        mapArgs(command)
+                                    }
+                                }
+                            }
                         }
                     }
                 } catch (e: KtorRequestException) {

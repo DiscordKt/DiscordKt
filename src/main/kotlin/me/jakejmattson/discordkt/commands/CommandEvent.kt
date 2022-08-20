@@ -9,6 +9,7 @@ import dev.kord.core.entity.interaction.ApplicationCommandInteraction
 import dev.kord.core.entity.interaction.GuildApplicationCommandInteraction
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.addReaction
+import me.jakejmattson.discordkt.Args1
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.dsl.Responder
@@ -74,7 +75,7 @@ public open class CommandEvent<T : TypeContainer>(
     public lateinit var args: T
 
     public val command: Command?
-        get() = discord.commands[rawInputs.commandName]
+        get() = discord.commands.findByName(rawInputs.commandName)
 
     public val context: DiscordContext
         get() = DiscordContext(discord, message, author, channel, guild)
@@ -138,7 +139,7 @@ public open class SlashCommandEvent<T : TypeContainer>(
     override val author: User,
     override val channel: MessageChannel,
     override val guild: Guild? = null,
-    public override val interaction: ApplicationCommandInteraction?) : CommandEvent<T>(rawInputs, discord, message, author, channel, null), SlashResponder
+    public override val interaction: ApplicationCommandInteraction?) : CommandEvent<T>(rawInputs, discord, message, author, channel, guild), SlashResponder
 
 /**
  * An event fired by a guild slash command.
@@ -152,4 +153,23 @@ public data class GuildSlashCommandEvent<T : TypeContainer>(
     override val channel: MessageChannel,
     override val guild: Guild,
     override val interaction: GuildApplicationCommandInteraction?
-) : SlashCommandEvent<T>(rawInputs, discord, message, author, channel, guild, interaction), SlashResponder
+) : SlashCommandEvent<T>(rawInputs, discord, message, author, channel, guild, interaction), SlashResponder {
+    internal fun <A> toContextual(arg: A) = ContextEvent(rawInputs, discord, null, author, channel, guild, interaction, arg)
+}
+
+/**
+ * An event fired by a contextual slash command.
+ *
+ * @property arg The single argument passed to this context command.
+ */
+public data class ContextEvent<T>(
+    override val rawInputs: RawInputs,
+    override val discord: Discord,
+    @Deprecated("A slash command cannot access its message.", level = DeprecationLevel.ERROR)
+    override val message: Message?,
+    override val author: User,
+    override val channel: MessageChannel,
+    override val guild: Guild,
+    override val interaction: GuildApplicationCommandInteraction?,
+    val arg: T
+) : SlashCommandEvent<Args1<T>>(rawInputs, discord, message, author, channel, guild, interaction), SlashResponder

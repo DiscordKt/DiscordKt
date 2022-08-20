@@ -11,7 +11,8 @@ import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.Command
 import me.jakejmattson.discordkt.commands.DiscordContext
-import me.jakejmattson.discordkt.extensions.intentsOf
+import me.jakejmattson.discordkt.commands.SubCommandSet
+import me.jakejmattson.discordkt.extensions.*
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.services.InjectionService
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
@@ -54,13 +55,28 @@ public fun bot(token: String?, configure: suspend Bot.() -> Unit) {
     }
 }
 
+private val defaultMentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit) = {
+    val discord = it.discord
+    val properties = discord.properties
+    val bot = properties.bot
+
+    title = "${bot.name} ${bot.version}"
+    description = bot.description
+    color = discord.configuration.theme
+    addInlineField("Source", bot.url?.let { "[GitHub]($it)" } ?: "Closed")
+    addInlineField("Ping", discord.kord.gateway.averagePing?.toString() ?: "Unknown")
+    addInlineField("Startup", TimeStamp.at(properties.startup, TimeStyle.RELATIVE))
+    thumbnail(discord.kord.getSelf().pfpUrl)
+    footer(properties.library.toString())
+}
+
 /**
  * Backing class for [bot] function.
  */
 public class Bot(private val token: String, private val packageName: String) {
     private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
                                         var prefix: suspend DiscordContext.() -> String = { "" },
-                                        var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = null,
+                                        var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = defaultMentionEmbed,
                                         var exceptionHandler: suspend DktException<*>.() -> Unit = { exception.printStackTrace() },
                                         var locale: Locale = Language.EN.locale,
                                         var presence: PresenceBuilder.() -> Unit = {},
@@ -113,6 +129,7 @@ public class Bot(private val token: String, private val packageName: String) {
             override val configuration = botConfiguration
             override val locale = locale
             override val commands = mutableListOf<Command>()
+            override val subcommands = mutableListOf<SubCommandSet>()
             override val preconditions = mutableListOf<Precondition>()
         }
 
