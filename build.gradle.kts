@@ -25,10 +25,10 @@ repositories {
 dependencies {
     api("dev.kord:kord-core:${Constants.kord}")
     api("dev.kord.x:emoji:0.5.0")
-    api("org.slf4j:slf4j-simple:2.0.0-alpha7")
+    api("org.slf4j:slf4j-simple:2.0.0")
 
     implementation("org.reflections:reflections:0.10.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
 
     testImplementation(platform("org.junit:junit-bom:5.9.0"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
@@ -134,6 +134,7 @@ tasks {
 }
 
 val sourcesJar by tasks.creating(Jar::class) {
+    dependsOn("writeProperties")
     archiveClassifier.set("sources")
     from(sourceSets["main"].allSource)
 }
