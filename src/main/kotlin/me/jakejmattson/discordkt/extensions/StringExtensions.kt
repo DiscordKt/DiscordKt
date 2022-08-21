@@ -12,11 +12,14 @@ import me.jakejmattson.discordkt.arguments.Error
 import me.jakejmattson.discordkt.arguments.Success
 import me.jakejmattson.discordkt.commands.Command
 import java.awt.Color
+import java.util.*
 
 /**
  * Remove and return the first element in a mutable list.
  */
 public fun MutableList<String>.consumeFirst(): String = if (this.isNotEmpty()) this.removeFirst() else ""
+
+public fun uuid(): String = UUID.randomUUID().toString()
 
 public data class MessageParts(val guildId: Snowflake, val channelId: Snowflake, val messageId: Snowflake)
 
@@ -27,19 +30,19 @@ public fun String.unwrapMessageLink(): MessageParts? {
 
 /**
  * Whether this string matches a URL regex.
- * @sample me.jakejmattson.discordkt.extensions.urlRegexes
+ * @sample me.jakejmattson.discordkt.extensions.DiscordRegex.url
  */
 public fun String.containsURl(): Boolean = DiscordRegex.url.any { replace("\n", "").contains(it) }
 
 /**
  * Whether this string contains a discord invite.
- * @sample me.jakejmattson.discordkt.extensions.inviteRegex
+ * @sample me.jakejmattson.discordkt.extensions.DiscordRegex.invite
  */
 public fun String.containsInvite(): Boolean = DiscordRegex.invite.containsMatchIn(this)
 
 /**
  * Return all discord invites in this string.
- * @sample me.jakejmattson.discordkt.extensions.inviteRegex
+ * @sample me.jakejmattson.discordkt.extensions.DiscordRegex.invite
  */
 public fun String.getInvites(): List<String> = DiscordRegex.invite.findAll(this).map { it.value }.toList()
 

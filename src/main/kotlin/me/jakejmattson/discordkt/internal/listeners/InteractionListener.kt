@@ -13,7 +13,7 @@ import me.jakejmattson.discordkt.bundleToContainer
 import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.conversations.Conversations
 import me.jakejmattson.discordkt.dsl.Menu
-import me.jakejmattson.discordkt.dsl.modalBuffer
+import me.jakejmattson.discordkt.prompts.modalBuffer
 import me.jakejmattson.discordkt.internal.command.transformArgs
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
 

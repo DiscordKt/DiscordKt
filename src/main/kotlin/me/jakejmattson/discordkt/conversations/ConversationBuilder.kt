@@ -13,15 +13,12 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.Discord
-import me.jakejmattson.discordkt.arguments.Argument
-import me.jakejmattson.discordkt.arguments.Error
-import me.jakejmattson.discordkt.arguments.Result
-import me.jakejmattson.discordkt.arguments.Success
+import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.conversations.responders.MessageResponder
 import me.jakejmattson.discordkt.dsl.Responder
 import me.jakejmattson.discordkt.dsl.internalLocale
-import me.jakejmattson.discordkt.dsl.uuid
+import me.jakejmattson.discordkt.extensions.uuid
 import java.util.*
 import kotlin.concurrent.schedule
 

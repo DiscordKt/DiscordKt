@@ -15,8 +15,8 @@ import me.jakejmattson.discordkt.commands.SlashCommandEvent
 import me.jakejmattson.discordkt.conversations.responders.ChannelResponder
 import me.jakejmattson.discordkt.conversations.responders.MessageResponder
 import me.jakejmattson.discordkt.conversations.responders.SlashResponder
-import me.jakejmattson.discordkt.dsl.uuid
 import me.jakejmattson.discordkt.extensions.toPartialEmoji
+import me.jakejmattson.discordkt.extensions.uuid
 
 public class ConversationButton<T>(
     public val label: String?,
