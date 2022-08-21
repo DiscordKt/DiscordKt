@@ -19,10 +19,22 @@ import java.util.*
  */
 public fun MutableList<String>.consumeFirst(): String = if (this.isNotEmpty()) this.removeFirst() else ""
 
+/**
+ * Generate a random [UUID] String.
+ */
 public fun uuid(): String = UUID.randomUUID().toString()
 
+/**
+ * The 3 snowflake elements of a message link.
+ * @param guildId The [Guild] snowflake
+ * @param channelId The [GuildChannel] snowflake
+ * @param messageId The [Message] snowflake
+ */
 public data class MessageParts(val guildId: Snowflake, val channelId: Snowflake, val messageId: Snowflake)
 
+/**
+ * Unwrap a message link into its [MessageParts].
+ */
 public fun String.unwrapMessageLink(): MessageParts? {
     val match = DiscordRegex.publicMessage.find(this)?.groupValues ?: return null
     return MessageParts(Snowflake(match[1]), Snowflake(match[2]), Snowflake(match[3]))
