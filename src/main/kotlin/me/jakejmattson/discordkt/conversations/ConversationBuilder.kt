@@ -9,6 +9,7 @@ import dev.kord.core.entity.interaction.SelectMenuInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.rest.builder.message.create.MessageCreateBuilder
 import dev.kord.rest.builder.message.create.actionRow
+import dev.kord.rest.builder.message.create.embed
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
@@ -19,6 +20,7 @@ import me.jakejmattson.discordkt.conversations.responders.MessageResponder
 import me.jakejmattson.discordkt.dsl.Responder
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.extensions.uuid
+import me.jakejmattson.discordkt.prompts.SimpleSelectBuilder
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -103,7 +105,7 @@ public abstract class ConversationBuilder(
      * @param embed The embed sent as part of the prompt.
      */
     @Throws(DmException::class, TimeoutException::class)
-    public abstract suspend fun promptSelect(vararg options: String, embed: suspend EmbedBuilder.() -> Unit): String
+    public abstract suspend fun promptSelect(builder: SimpleSelectBuilder.() -> Unit): List<String>
 
     /**
      * Creates the promptSelect message inside the specified [MessageCreateBuilder].
@@ -111,16 +113,23 @@ public abstract class ConversationBuilder(
      * @param options The options that can be selected by the user
      * @param embed The embed sent as part of the prompt.
      */
-    protected suspend fun createSelectMessage(options: Array<out String>, embed: suspend EmbedBuilder.() -> Unit, builder: MessageCreateBuilder) {
+    protected suspend fun createSelectMessage(select: SimpleSelectBuilder.() -> Unit, builder: MessageCreateBuilder) {
+        val selectBuilder = SimpleSelectBuilder()
+        select.invoke(selectBuilder)
+
         with(builder) {
-            val embedBuilder = EmbedBuilder()
-            embed.invoke(embedBuilder)
-            embeds.add(embedBuilder)
+            content = selectBuilder.textContent
+            selectBuilder.embedContent?.let { embed { it.invoke(this) } }
 
             actionRow {
                 selectMenu(uuid()) {
-                    options.forEach {
-                        option(it, it)
+                    this.allowedValues = selectBuilder.selectionCount
+
+                    selectBuilder.options.forEach {
+                        option(it.label, it.value) {
+                            this.description = it.description
+                            this.emoji = it.emoji
+                        }
                     }
                 }
             }
@@ -131,7 +140,7 @@ public abstract class ConversationBuilder(
         retrieveTextResponse(argument) ?: retrieveValidTextResponse(argument)
     }
 
-    private suspend fun <T> retrieveTextResponse(argument: Argument<*, T>): T? = select<T?> {
+    private suspend fun <T> retrieveTextResponse(argument: Argument<*, T>): T? = select {
         val timer = createTimer()
 
         exceptionBuffer.onReceive { timeoutException ->
@@ -157,13 +166,13 @@ public abstract class ConversationBuilder(
         }
     }
 
-    protected fun <T> retrieveValidInteractionResponse(buttons: Map<String, T>): T = runBlocking {
+    protected fun <T> retrieveValidInteractionResponse(buttons: Map<String, T>): List<T> = runBlocking {
         retrieveInteractionResponse(buttons) ?: retrieveValidInteractionResponse(buttons)
     }
 
     protected abstract suspend fun interactionIsOnLastBotMessage(interaction: ComponentInteraction): Boolean
 
-    private suspend fun <T> retrieveInteractionResponse(buttons: Map<String, T>): T? = select<T?> {
+    private suspend fun <T> retrieveInteractionResponse(buttons: Map<String, T>): List<T>? = select {
         val timer = createTimer()
 
         exceptionBuffer.onReceive { timeoutException ->
@@ -186,9 +195,9 @@ public abstract class ConversationBuilder(
             interaction.deferEphemeralMessageUpdate()
 
             if (interaction is SelectMenuInteraction)
-                interaction.values.first() as T
+                interaction.values as List<T>
             else
-                buttons[interaction.componentId]
+                listOf(buttons[interaction.componentId]!!)
         }
     }
 

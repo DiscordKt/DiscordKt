@@ -8,6 +8,7 @@ import dev.kord.core.entity.interaction.ComponentInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.arguments.Argument
+import me.jakejmattson.discordkt.prompts.SimpleSelectBuilder
 
 /** @suppress DSL backing
  *
@@ -16,8 +17,7 @@ import me.jakejmattson.discordkt.arguments.Argument
  * @param channel The channel that the conversation is happening in.
  * @param exitString A String entered by the user to exit the conversation.
  */
-public class
-PlainConversationBuilder(
+public class PlainConversationBuilder(
     discord: Discord,
     user: User,
     channel: MessageChannel,
@@ -66,18 +66,18 @@ PlainConversationBuilder(
 
         botMessageIds.add(responder.ofMessage.id)
 
-        return retrieveValidInteractionResponse(builder.valueMap)
+        return retrieveValidInteractionResponse(builder.valueMap).first()
     }
 
     @Throws(DmException::class, TimeoutException::class)
-    public override suspend fun promptSelect(vararg options: String, embed: suspend EmbedBuilder.() -> Unit): String {
+    public override suspend fun promptSelect(builder: SimpleSelectBuilder.() -> Unit): List<String> {
         val message = channel.createMessage {
-            createSelectMessage(options, embed, this)
+            createSelectMessage(builder, this)
         }
 
         botMessageIds.add(message.id)
 
-        return retrieveValidInteractionResponse(options.associateWith { it })
+        return retrieveValidInteractionResponse(emptyMap())
     }
 
     override suspend fun interactionIsOnLastBotMessage(interaction: ComponentInteraction): Boolean =

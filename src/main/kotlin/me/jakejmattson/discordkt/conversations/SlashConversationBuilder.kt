@@ -11,6 +11,7 @@ import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.commands.SlashCommandEvent
 import me.jakejmattson.discordkt.conversations.responders.SlashResponder
+import me.jakejmattson.discordkt.prompts.SimpleSelectBuilder
 
 public class SlashConversationBuilder<T : TypeContainer>(
     discord: Discord,
@@ -54,20 +55,20 @@ public class SlashConversationBuilder<T : TypeContainer>(
 
         responders.add(responder)
 
-        return retrieveValidInteractionResponse(builder.valueMap)
+        return retrieveValidInteractionResponse(builder.valueMap).first()
     }
 
     @Throws(DmException::class, TimeoutException::class)
-    override suspend fun promptSelect(vararg options: String, embed: suspend EmbedBuilder.() -> Unit): String {
+    override suspend fun promptSelect(builder: SimpleSelectBuilder.() -> Unit): List<String> {
         val responder = getResponder()
 
         val newResponder = responder.respond {
-            createSelectMessage(options, embed, this)
+            createSelectMessage(builder, this)
         }
 
         responders.add(newResponder)
 
-        return retrieveValidInteractionResponse(options.associateWith { it })
+        return retrieveValidInteractionResponse(emptyMap())
     }
 
     private fun getResponder() =
