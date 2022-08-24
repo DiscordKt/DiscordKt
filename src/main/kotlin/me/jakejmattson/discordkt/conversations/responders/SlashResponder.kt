@@ -9,8 +9,8 @@ import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.commands.SlashCommandEvent
 
-public class SlashResponder<T : TypeContainer>(private val event: SlashCommandEvent<T>) : MessageResponder {
-    override val ofMessage: Message
+public class SlashResponder<T : TypeContainer>(private val event: SlashCommandEvent<T>) : ConversationResponder {
+    override val promptMessage: Message
         get() = runBlocking {
             getMessageOfBotResponse(
                 event.interaction!!.applicationId,
@@ -26,7 +26,7 @@ public class SlashResponder<T : TypeContainer>(private val event: SlashCommandEv
         return Message(messageData, event.discord.kord)
     }
 
-    override suspend fun respond(builder: suspend MessageCreateBuilder.() -> Unit): MessageResponder {
+    override suspend fun respond(builder: suspend MessageCreateBuilder.() -> Unit): ConversationResponder {
         val responseBehavior = event.interaction!!.respondPublic {
             builder.invoke(this)
         }

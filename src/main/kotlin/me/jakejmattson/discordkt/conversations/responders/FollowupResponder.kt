@@ -10,10 +10,10 @@ import dev.kord.rest.builder.message.create.MessageCreateBuilder
 import kotlinx.coroutines.runBlocking
 
 public class FollowupResponder(
-    public val botResponse: PublicMessageInteractionResponseBehavior,
-    public val followupMessage: PublicFollowupMessage? = null,
-) : MessageResponder {
-    override val ofMessage: Message
+    private val botResponse: PublicMessageInteractionResponseBehavior,
+    private val followupMessage: PublicFollowupMessage? = null,
+) : ConversationResponder {
+    override val promptMessage: Message
         get() = runBlocking { // FIXME don't use runBlocking
             followupMessage?.message ?: getMessageOfBotResponse(botResponse.applicationId, botResponse.token)
         }
@@ -26,7 +26,7 @@ public class FollowupResponder(
         return Message(messageData, botResponse.kord)
     }
 
-    override suspend fun respond(builder: suspend MessageCreateBuilder.() -> Unit): MessageResponder {
+    override suspend fun respond(builder: suspend MessageCreateBuilder.() -> Unit): ConversationResponder {
         val newFollowupMessage = botResponse.createPublicFollowup {
             builder.invoke(this)
         }

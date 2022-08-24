@@ -18,6 +18,9 @@ import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 public fun conversation(exitString: String? = null, promptTimeout: Long = 0, block: suspend ConversationBuilder.() -> Unit): Conversation =
     Conversation(exitString, promptTimeout * 1000, block)
 
+/**
+ * This block builds a slash conversation.
+ */
 @BuilderDSL
 public fun slashConversation(exitString: String? = null, promptTimeout: Long = 0, block: suspend ConversationBuilder.() -> Unit): Conversation =
     Conversation(exitString, promptTimeout, block)
@@ -46,7 +49,7 @@ public class Conversation(public var exitString: String? = null, public var prom
         if (Conversations.hasConversation(user, channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val state = PlainConversationBuilder(discord, user, channel, exitString, promptTimeout)
+        val state = TextConversationBuilder(discord, user, channel, exitString, promptTimeout)
 
         return start(state)
     }
@@ -67,11 +70,20 @@ public class Conversation(public var exitString: String? = null, public var prom
         if (Conversations.hasConversation(user, channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val state = PlainConversationBuilder(discord, user, channel, exitString, promptTimeout)
+        val state = TextConversationBuilder(discord, user, channel, exitString, promptTimeout)
 
         return start(state)
     }
 
+    /**
+     * Start a conversation with someone from a slash command.
+     *
+     * @param user The user to start a conversation with.
+     * @param event The event used to start the conversation.
+     *
+     * @return The result of the conversation indicated by an enum.
+     * @sample me.jakejmattson.discordkt.conversations.ConversationResult
+     */
     public suspend inline fun <T : TypeContainer> startSlashResponse(discord: Discord, user: User, event: SlashCommandEvent<T>): ConversationResult {
         if (user.isBot)
             return ConversationResult.INVALID_USER
@@ -81,10 +93,11 @@ public class Conversation(public var exitString: String? = null, public var prom
 
         val state = if (event.interaction == null) {
             /*
+             * TODO remove with text commands
              * startSlashResponse wasn't actually called because of a slash command, but because of a slash conversation
              * invoked via the old-school message command system.
              */
-            PlainConversationBuilder(discord, user, event.channel, exitString, promptTimeout)
+            TextConversationBuilder(discord, user, event.channel, exitString, promptTimeout)
         } else {
             SlashConversationBuilder(discord, user, event, exitString, promptTimeout)
         }

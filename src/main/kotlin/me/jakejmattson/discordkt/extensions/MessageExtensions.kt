@@ -49,6 +49,9 @@ public suspend fun Message.addReactions(vararg reactions: ReactionEmoji): Unit =
  */
 public suspend fun Message.addReactions(reactions: List<ReactionEmoji>): Unit = reactions.forEach { addReaction(it) }
 
+/**
+ * Reply to this message with no mentions allowed.
+ */
 public suspend fun Message.replySilently(builder: suspend UserMessageCreateBuilder.() -> Unit): Message = reply {
     allowedMentions()
     builder.invoke(this)

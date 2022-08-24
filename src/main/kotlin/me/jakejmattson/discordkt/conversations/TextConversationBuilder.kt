@@ -17,7 +17,7 @@ import me.jakejmattson.discordkt.prompts.SimpleSelectBuilder
  * @param channel The channel that the conversation is happening in.
  * @param exitString A String entered by the user to exit the conversation.
  */
-public class PlainConversationBuilder(
+public class TextConversationBuilder(
     discord: Discord,
     user: User,
     channel: MessageChannel,
@@ -64,7 +64,7 @@ public class PlainConversationBuilder(
         prompt.invoke(builder)
         val responder = builder.create(channel, channel.lastMessage!!.asMessage())
 
-        botMessageIds.add(responder.ofMessage.id)
+        botMessageIds.add(responder.promptMessage.id)
 
         return retrieveValidInteractionResponse(builder.valueMap).first()
     }

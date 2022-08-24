@@ -24,7 +24,7 @@ public class SlashConversationBuilder<T : TypeContainer>(
         get() = responders.mapNotNull { it.userResponse?.id }.toMutableList()
 
     public override val botMessageIds: MutableList<Snowflake>
-        get() = responders.map { it.ofMessage.id }.toMutableList()
+        get() = responders.map { it.promptMessage.id }.toMutableList()
 
     @Throws(DmException::class)
     public override suspend fun <T> promptUntil(argument: Argument<*, T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
@@ -77,7 +77,7 @@ public class SlashConversationBuilder<T : TypeContainer>(
     override suspend fun respond(message: Any, embed: (suspend EmbedBuilder.() -> Unit)?): Message {
         createMessage(message.toString(), embed)
 
-        return responders.last().ofMessage
+        return responders.last().promptMessage
     }
 
     private suspend fun createMessage(text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null) {
@@ -93,5 +93,5 @@ public class SlashConversationBuilder<T : TypeContainer>(
     }
 
     override suspend fun interactionIsOnLastBotMessage(interaction: ComponentInteraction): Boolean =
-        interaction.message.id == responders.last().ofMessage.id
+        interaction.message.id == responders.last().promptMessage.id
 }

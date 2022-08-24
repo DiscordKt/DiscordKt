@@ -16,7 +16,7 @@ import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.commands.DiscordContext
-import me.jakejmattson.discordkt.conversations.responders.MessageResponder
+import me.jakejmattson.discordkt.conversations.responders.ConversationResponder
 import me.jakejmattson.discordkt.dsl.Responder
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.extensions.uuid
@@ -24,6 +24,9 @@ import me.jakejmattson.discordkt.prompts.SimpleSelectBuilder
 import java.util.*
 import kotlin.concurrent.schedule
 
+/**
+ * DSL for building a conversation.
+ */
 public abstract class ConversationBuilder(
     public val discord: Discord,
     public val user: User,
@@ -40,7 +43,7 @@ public abstract class ConversationBuilder(
     /**
      * All responder objects that have been used to respond to user messages/interactions.
      */
-    public val responders: MutableList<MessageResponder> = mutableListOf()
+    public val responders: MutableList<ConversationResponder> = mutableListOf()
 
     /**
      * All ID's of messages sent by the user in this conversation.
@@ -101,19 +104,15 @@ public abstract class ConversationBuilder(
     /**
      * Prompt the user with a select menu.
      *
-     * @param options The options that can be selected by the user
-     * @param embed The embed sent as part of the prompt.
+     * @param builder Build a select menu with a [SimpleSelectBuilder].
      */
     @Throws(DmException::class, TimeoutException::class)
     public abstract suspend fun promptSelect(builder: SimpleSelectBuilder.() -> Unit): List<String>
 
     /**
      * Creates the promptSelect message inside the specified [MessageCreateBuilder].
-     *
-     * @param options The options that can be selected by the user
-     * @param embed The embed sent as part of the prompt.
      */
-    protected suspend fun createSelectMessage(select: SimpleSelectBuilder.() -> Unit, builder: MessageCreateBuilder) {
+    internal fun createSelectMessage(select: SimpleSelectBuilder.() -> Unit, builder: MessageCreateBuilder) {
         val selectBuilder = SimpleSelectBuilder()
         select.invoke(selectBuilder)
 
