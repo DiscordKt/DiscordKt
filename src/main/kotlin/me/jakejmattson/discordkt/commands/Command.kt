@@ -273,6 +273,7 @@ public class GlobalSlashCommand(override val name: String,
                                 @Deprecated("Pass the description into the function instead of setting directly.")
                                 override var description: String,
                                 override val category: String,
+                                @Deprecated("Pass the permissions into the function instead of setting directly.")
                                 override var requiredPermissions: Permissions,
                                 override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : SlashCommand {
     /** @suppress */
@@ -309,6 +310,7 @@ public open class GuildSlashCommand(override val name: String,
                                     @Deprecated("Pass the description into the function instead of setting directly.")
                                     override var description: String,
                                     override val category: String,
+                                    @Deprecated("Pass the permissions into the function instead of setting directly.")
                                     override var requiredPermissions: Permissions,
                                     override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : SlashCommand {
     /** @suppress */
@@ -343,8 +345,10 @@ public open class GuildSlashCommand(override val name: String,
  */
 public class ContextCommand(override val name: String,
                             public val displayText: String,
+                            @Deprecated("Pass the description into the function instead of setting directly.")
                             override var description: String,
                             override val category: String,
+                            @Deprecated("Pass the permissions into the function instead of setting directly.")
                             override var requiredPermissions: Permissions,
                             override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : GuildSlashCommand(name, description, category, requiredPermissions, executions) {
     /** @suppress */

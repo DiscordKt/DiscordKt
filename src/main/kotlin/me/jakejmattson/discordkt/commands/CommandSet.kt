@@ -106,10 +106,12 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      * Create a guild slash command.
      *
      * @param name The name of this command.
+     * @param description The description of this command.
+     * @param requiredPermissions The [Permissions] required to run this command.
      * @param action The command action.
      */
     @InnerDSL
-    public fun slash(name: String, description: String = "", action: GuildSlashCommand.() -> Unit) {
+    public fun slash(name: String, description: String = "", requiredPermissions: Permissions = this.requiredPermissions, action: GuildSlashCommand.() -> Unit) {
         val command = GuildSlashCommand(name, description, category, requiredPermissions)
         command.action()
         commands.add(command)
@@ -119,10 +121,12 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
      * Create a global slash command.
      *
      * @param name The name of this command.
+     * @param description The description of this command.
+     * @param requiredPermissions The [Permissions] required to run this command.
      * @param action The command action.
      */
     @InnerDSL
-    public fun globalSlash(name: String, description: String = "", action: GlobalSlashCommand.() -> Unit) {
+    public fun globalSlash(name: String, description: String = "", requiredPermissions: Permissions = this.requiredPermissions, action: GlobalSlashCommand.() -> Unit) {
         val command = GlobalSlashCommand(name, description, category, requiredPermissions)
         command.action()
         commands.add(command)
