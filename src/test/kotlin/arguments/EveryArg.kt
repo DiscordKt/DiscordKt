@@ -12,5 +12,5 @@ class EveryArgTest : ArgumentTestFactory {
         "hello world" to "hello world"
     )
 
-    override val invalidArgs = listOf("")
+    override val invalidArgs = emptyList<String>()
 }

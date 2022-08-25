@@ -15,10 +15,7 @@ public open class EveryArg(override val name: String = "Text",
     public companion object : EveryArg()
 
     override suspend fun parse(args: MutableList<String>, discord: Discord): String? {
-        if (args.size in 0..1 && args.first().isEmpty())
-            return null
-
-        return args.joinToString(" ").also { args.clear() }
+        return if (args.isNotEmpty()) args.joinToString(" ").also { args.clear() } else null
     }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("This is a sample sentence.")
