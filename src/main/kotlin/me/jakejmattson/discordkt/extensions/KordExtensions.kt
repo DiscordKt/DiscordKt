@@ -14,7 +14,6 @@ import dev.kord.rest.builder.component.ActionRowBuilder
 import dev.kord.rest.builder.component.ButtonBuilder
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
-import me.jakejmattson.discordkt.dsl.uuid
 import java.util.*
 
 /**

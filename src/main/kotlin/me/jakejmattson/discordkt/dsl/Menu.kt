@@ -17,6 +17,7 @@ import dev.kord.rest.builder.message.modify.actionRow
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
 import me.jakejmattson.discordkt.extensions.toPartialEmoji
+import me.jakejmattson.discordkt.extensions.uuid
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 
 private val menus = mutableMapOf<Snowflake, Menu>()

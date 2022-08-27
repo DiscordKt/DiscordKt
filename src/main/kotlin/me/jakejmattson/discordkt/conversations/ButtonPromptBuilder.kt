@@ -1,29 +1,44 @@
 package me.jakejmattson.discordkt.conversations
 
 import dev.kord.common.entity.ButtonStyle
-import dev.kord.core.behavior.channel.createMessage
+import dev.kord.core.entity.Message
 import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.rest.builder.message.EmbedBuilder
+import dev.kord.rest.builder.message.create.MessageCreateBuilder
 import dev.kord.rest.builder.message.create.actionRow
 import dev.kord.rest.builder.message.create.embed
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
-import me.jakejmattson.discordkt.dsl.uuid
+import me.jakejmattson.discordkt.TypeContainer
+import me.jakejmattson.discordkt.commands.SlashCommandEvent
+import me.jakejmattson.discordkt.conversations.responders.ChannelResponder
+import me.jakejmattson.discordkt.conversations.responders.ConversationResponder
+import me.jakejmattson.discordkt.conversations.responders.SlashResponder
 import me.jakejmattson.discordkt.extensions.toPartialEmoji
+import me.jakejmattson.discordkt.extensions.uuid
 
-internal class ConversationButton<T>(
-    val label: String?,
-    val emoji: ReactionEmoji?,
-    val id: String,
-    val value: T,
-    val style: ButtonStyle
+/**
+ * A simple button builder
+ *
+ * @param id The UUID of the component
+ * @param label The Button text
+ * @param emoji The Button [emoji][DiscordEmoji]
+ * @param value The value returned when this button is pressed
+ * @param style The Button [style][ButtonStyle]
+ */
+public class ConversationButton<T>(
+    public val id: String,
+    public val label: String?,
+    public val emoji: ReactionEmoji?,
+    public val value: T,
+    public val style: ButtonStyle
 )
 
 /**
  * Builder for a button prompt
  */
-public class ButtonPromptBuilder<T> {
+public open class ButtonPromptBuilder<T> {
     private lateinit var promptEmbed: suspend EmbedBuilder.() -> Unit
     private val buttonRows: MutableList<MutableList<ConversationButton<T>>> = mutableListOf()
 
@@ -46,21 +61,40 @@ public class ButtonPromptBuilder<T> {
         buttonRows.add(builder.buttons)
     }
 
-    internal suspend fun create(channel: MessageChannel) = channel.createMessage {
-        this.embed {
-            promptEmbed.invoke(this)
-        }
+    internal suspend fun create(channel: MessageChannel, message: Message): ConversationResponder {
+        val responder = ChannelResponder(channel, message)
 
-        buttonRows.forEach { buttons ->
-            actionRow {
-                buttons.forEach { button ->
-                    interactionButton(button.style, button.id) {
-                        this.label = button.label
-                        this.emoji = button.emoji?.toPartialEmoji()
+        return responder.respond { createMessage(this) }
+    }
+
+    protected suspend fun createMessage(messageBuilder: MessageCreateBuilder) {
+        with(messageBuilder) {
+            embed {
+                promptEmbed.invoke(this)
+            }
+
+            buttonRows.forEach { buttons ->
+                actionRow {
+                    buttons.forEach { button ->
+                        interactionButton(button.style, button.id) {
+                            this.label = button.label
+                            this.emoji = button.emoji?.toPartialEmoji()
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+/**
+ * Builder for a button prompt in a slash conversation.
+ */
+public class SlashButtonPromptBuilder<T, U : TypeContainer> : ButtonPromptBuilder<T>() {
+    internal suspend fun create(event: SlashCommandEvent<U>, responder: ConversationResponder?): ConversationResponder {
+        val actualResponder = responder ?: SlashResponder(event)
+
+        return actualResponder.respond { createMessage(this) }
     }
 }
 
@@ -80,7 +114,7 @@ public class ConversationButtonRowBuilder<T> {
      * @param style The Button [style][ButtonStyle]
      */
     public fun button(label: String?, emoji: DiscordEmoji?, value: T, style: ButtonStyle = ButtonStyle.Secondary) {
-        val button = ConversationButton(label, emoji?.toReaction(), uuid(), value, style)
+        val button = ConversationButton(uuid(), label, emoji?.toReaction(), value, style)
         buttons.add(button)
     }
 }

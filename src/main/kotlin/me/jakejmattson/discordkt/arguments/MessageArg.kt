@@ -5,6 +5,7 @@ import dev.kord.core.entity.Message
 import dev.kord.core.entity.channel.GuildMessageChannel
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
+import me.jakejmattson.discordkt.extensions.DiscordRegex
 import me.jakejmattson.discordkt.extensions.toSnowflakeOrNull
 
 /**
@@ -21,11 +22,8 @@ public open class MessageArg(override val name: String = "Message",
     public companion object : MessageArg()
 
     override suspend fun transform(input: String, context: DiscordContext): Result<Message> {
-        val publicRegex = "https://discord(app)?.com/channels/\\d+/\\d+/\\d+".toRegex()
-        val privateRegex = "https://discord(app)?.com/channels/@me/\\d+/\\d+".toRegex()
-
         val message = when {
-            publicRegex.matches(input) -> {
+            DiscordRegex.publicMessage.matches(input) -> {
                 val (guildId, channelId, messageId) = input.split("/").takeLast(3).map { it.toSnowflakeOrNull() }
 
                 if (!allowsGlobal && guildId != context.guild?.id)
@@ -39,7 +37,7 @@ public open class MessageArg(override val name: String = "Message",
                 messageId?.let { channel.getMessageOrNull(it) } ?: return Error("Invalid message")
             }
 
-            privateRegex.matches(input) -> return Error("Cannot resolve private URL - use message ID")
+            DiscordRegex.privateMessage.matches(input) -> return Error("Cannot resolve private URL - use message ID")
             else -> input.toSnowflakeOrNull()?.let { context.channel.getMessageOrNull(it) }
                 ?: return Error("Invalid ID")
         }
