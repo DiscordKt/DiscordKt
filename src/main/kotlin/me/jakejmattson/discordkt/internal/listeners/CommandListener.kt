@@ -42,7 +42,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     val rawInputs = when {
         content.startsWith(prefix) -> stripPrefixInvocation(content, prefix)
         content.trimToID() == self.toString() -> {
-            config.mentionEmbed?.let {
+            config.mentionEmbed.second?.let {
                 channel.createEmbed {
                     it.invoke(this, context)
                 }

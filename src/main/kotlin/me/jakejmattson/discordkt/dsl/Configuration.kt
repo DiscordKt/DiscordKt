@@ -45,7 +45,7 @@ public data class BotConfiguration(
     val entitySupplyStrategy: EntitySupplyStrategy<*>,
 
     internal val prefix: suspend (DiscordContext) -> String,
-    internal val mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)?,
+    internal val mentionEmbed: Pair<String?, (suspend EmbedBuilder.(DiscordContext) -> Unit)?>,
 
     @PublishedApi
     internal val exceptionHandler: suspend DktException<*>.() -> Unit

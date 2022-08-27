@@ -8,9 +8,7 @@ import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.commands.*
 
 internal fun produceHelpCommand(category: String) = commands(category) {
-    slash(discord.locale.helpName) {
-        description = discord.locale.helpDescription
-        requiredPermissions = discord.configuration.defaultPermissions
+    slash(discord.locale.helpName, discord.locale.helpDescription, discord.configuration.defaultPermissions) {
         execute(AnyArg("Command")
             .autocomplete {
                 discord.commands

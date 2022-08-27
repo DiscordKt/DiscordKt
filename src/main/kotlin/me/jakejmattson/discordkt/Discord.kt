@@ -155,6 +155,19 @@ public abstract class Discord {
 
         commands.findByName(locale.helpName) ?: produceHelpCommand(locale.helpCategory).register(this)
 
+        val (mentionEmbedName, mentionEmbedFun) = configuration.mentionEmbed
+
+        if (mentionEmbedName != null && mentionEmbedFun != null)
+            commands(locale.helpCategory) {
+                slash(mentionEmbedName, "Bot info for ${properties.bot.name}", configuration.defaultPermissions) {
+                    execute {
+                        respondPublic {
+                            mentionEmbedFun.invoke(this, this@execute.context)
+                        }
+                    }
+                }
+            }.register(this)
+
         registerSlashCommands()
 
         if (configuration.documentCommands)
