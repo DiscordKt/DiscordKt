@@ -14,7 +14,13 @@ public enum class Language(public val locale: Locale) {
      * English
      * @sample me.jakejmattson.discordkt.locale.LocaleEN
      */
-    EN(LocaleEN());
+    EN(LocaleEN()),
+
+    /**
+     * English
+     * @sample me.jakejmattson.discordkt.locale.LocaleTR
+     */
+    TK(LocaleTR());
 }
 
 /**
