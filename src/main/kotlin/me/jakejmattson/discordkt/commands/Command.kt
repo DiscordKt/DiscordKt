@@ -58,9 +58,9 @@ public data class Execution<T : CommandEvent<*>>(val arguments: List<Argument<*,
  */
 public sealed interface Command {
     public val name: String
-    public var description: String
+    public val description: String
     public val category: String
-    public var requiredPermissions: Permissions
+    public val requiredPermissions: Permissions
     public val executions: MutableList<Execution<CommandEvent<*>>>
 
     public val names: List<String>
@@ -270,11 +270,9 @@ public class DmTextCommand(override val names: List<String>,
  * @property name The name of the slash command.
  */
 public class GlobalSlashCommand(override val name: String,
-                                @Deprecated("Pass the description into the function instead of setting directly.")
-                                override var description: String,
+                                override val description: String,
                                 override val category: String,
-                                @Deprecated("Pass the permissions into the function instead of setting directly.")
-                                override var requiredPermissions: Permissions,
+                                override val requiredPermissions: Permissions,
                                 override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : SlashCommand {
     /** @suppress */
     @NestedDSL
@@ -307,11 +305,9 @@ public class GlobalSlashCommand(override val name: String,
  * @property name The name of the slash command.
  */
 public open class GuildSlashCommand(override val name: String,
-                                    @Deprecated("Pass the description into the function instead of setting directly.")
-                                    override var description: String,
+                                    override val description: String,
                                     override val category: String,
-                                    @Deprecated("Pass the permissions into the function instead of setting directly.")
-                                    override var requiredPermissions: Permissions,
+                                    override val requiredPermissions: Permissions,
                                     override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : SlashCommand {
     /** @suppress */
     @NestedDSL
@@ -345,11 +341,9 @@ public open class GuildSlashCommand(override val name: String,
  */
 public class ContextCommand(override val name: String,
                             public val displayText: String,
-                            @Deprecated("Pass the description into the function instead of setting directly.")
-                            override var description: String,
+                            override val description: String,
                             override val category: String,
-                            @Deprecated("Pass the permissions into the function instead of setting directly.")
-                            override var requiredPermissions: Permissions,
+                            override val requiredPermissions: Permissions,
                             override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : GuildSlashCommand(name, description, category, requiredPermissions, executions) {
     /** @suppress */
     @NestedDSL
