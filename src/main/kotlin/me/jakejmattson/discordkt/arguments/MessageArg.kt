@@ -45,5 +45,5 @@ public open class MessageArg(override val name: String = "Message",
         return Success(message)
     }
 
-    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(context.message!!.id.toString())
+    override suspend fun generateExamples(context: DiscordContext): List<String> = context.message?.let { listOf(it.id.toString()) } ?: emptyList()
 }
