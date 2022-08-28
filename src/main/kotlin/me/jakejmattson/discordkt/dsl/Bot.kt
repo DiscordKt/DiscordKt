@@ -76,7 +76,7 @@ private val defaultMentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)
 public class Bot(private val token: String, private val packageName: String) {
     private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
                                         var prefix: suspend DiscordContext.() -> String = { "" },
-                                        var mentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = defaultMentionEmbed,
+                                        var mentionEmbed: Pair<String?, (suspend EmbedBuilder.(DiscordContext) -> Unit)?> = "info" to defaultMentionEmbed,
                                         var exceptionHandler: suspend DktException<*>.() -> Unit = { exception.printStackTrace() },
                                         var locale: Locale = Language.EN.locale,
                                         var presence: PresenceBuilder.() -> Unit = {},
@@ -184,8 +184,8 @@ public class Bot(private val token: String, private val packageName: String) {
      * An embed that will be sent anytime someone (solely) mentions the bot.
      */
     @ConfigurationDSL
-    public fun mentionEmbed(construct: suspend EmbedBuilder.(DiscordContext) -> Unit) {
-        startupBundle.mentionEmbed = construct
+    public fun mentionEmbed(slashName: String? = "info", construct: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = defaultMentionEmbed) {
+        startupBundle.mentionEmbed = slashName to construct
     }
 
     /**

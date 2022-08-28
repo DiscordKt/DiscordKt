@@ -1,16 +1,16 @@
-package me.jakejmattson.discordkt.dsl
+package me.jakejmattson.discordkt.prompts
 
 import dev.kord.common.entity.TextInputStyle
 import dev.kord.core.behavior.interaction.modal
+import dev.kord.core.behavior.interaction.response.DeferredEphemeralMessageInteractionResponseBehavior
 import dev.kord.core.entity.interaction.ApplicationCommandInteraction
 import dev.kord.core.entity.interaction.ModalSubmitInteraction
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
+import me.jakejmattson.discordkt.Args2
+import me.jakejmattson.discordkt.extensions.uuid
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
-import java.util.*
-
-internal fun uuid() = UUID.randomUUID().toString()
 
 /**
  * @property label The prompt displayed above a text input field.
@@ -64,7 +64,7 @@ internal val modalBuffer = Channel<ModalSubmitInteraction>()
 /**
  * Create a discord modal and collect the input.
  */
-public suspend fun promptModal(interaction: ApplicationCommandInteraction, title: String, builder: SimpleModalBuilder.() -> Unit): Array<String?> {
+public suspend fun promptModal(interaction: ApplicationCommandInteraction, title: String, builder: SimpleModalBuilder.() -> Unit): Args2<DeferredEphemeralMessageInteractionResponseBehavior, Array<String?>> {
     val modalId = uuid()
     val modal = SimpleModalBuilder()
     modal.builder()
@@ -88,21 +88,16 @@ public suspend fun promptModal(interaction: ApplicationCommandInteraction, title
         }
     }
 
-    return retrieveValidModalResponse(modalId, inputIds.toList()).toTypedArray()
+    return retrieveValidModalResponse(modalId, inputIds.toList())
 }
 
-private fun retrieveValidModalResponse(modalId: String, textInputIds: List<String>): List<String?> = runBlocking {
+private fun retrieveValidModalResponse(modalId: String, textInputIds: List<String>): Args2<DeferredEphemeralMessageInteractionResponseBehavior, Array<String?>> = runBlocking {
     retrieveModalResponse(modalId, textInputIds) ?: retrieveValidModalResponse(modalId, textInputIds)
 }
 
-private suspend fun retrieveModalResponse(modalId: String, textInputIds: List<String>) = select<List<String?>?> {
+private suspend fun retrieveModalResponse(modalId: String, textInputIds: List<String>): Args2<DeferredEphemeralMessageInteractionResponseBehavior, Array<String?>>? = select {
     modalBuffer.onReceive { interaction ->
         if (interaction.modalId != modalId) return@onReceive null
-
-        interaction.deferEphemeralResponse()
-
-        textInputIds.map { id ->
-            interaction.textInputs[id]?.value
-        }
+        Args2(interaction.deferEphemeralResponse(), textInputIds.map { id -> interaction.textInputs[id]?.value }.toTypedArray())
     }
 }

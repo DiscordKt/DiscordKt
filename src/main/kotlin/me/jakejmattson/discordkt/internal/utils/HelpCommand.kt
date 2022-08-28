@@ -8,9 +8,7 @@ import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.commands.*
 
 internal fun produceHelpCommand(category: String) = commands(category) {
-    slash(discord.locale.helpName) {
-        description = discord.locale.helpDescription
-        requiredPermissions = discord.configuration.defaultPermissions
+    slash(discord.locale.helpName, discord.locale.helpDescription, discord.configuration.defaultPermissions) {
         execute(AnyArg("Command")
             .autocomplete {
                 discord.commands
@@ -36,10 +34,17 @@ private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
         description = discord.locale.helpEmbedDescription
         color = embedColor
 
-        discord.commands
-            .filter { it.hasPermissionToRun(discord, this@sendDefaultEmbed.author, guild) }
-            .groupBy { it.category }
-            .toList()
+        val commandGroups =
+            discord.commands
+                .filter { it.hasPermissionToRun(discord, this@sendDefaultEmbed.author, guild) }
+                .groupBy { it.category }
+                .toList()
+
+        val subcommandGroups = discord.subcommands
+            .filter { it.commands.first().hasPermissionToRun(discord, this@sendDefaultEmbed.author, guild) }
+            .map { "/${it.name}" to it.commands }
+
+        (commandGroups + subcommandGroups)
             .sortedBy { (_, commands) -> -commands.size }
             .map { (category, commands) ->
                 field {

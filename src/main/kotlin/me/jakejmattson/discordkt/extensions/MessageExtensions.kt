@@ -2,8 +2,11 @@
 
 package me.jakejmattson.discordkt.extensions
 
+import dev.kord.core.behavior.reply
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.ReactionEmoji
+import dev.kord.rest.builder.message.create.UserMessageCreateBuilder
+import dev.kord.rest.builder.message.create.allowedMentions
 import kotlinx.coroutines.flow.count
 
 /**
@@ -45,3 +48,11 @@ public suspend fun Message.addReactions(vararg reactions: ReactionEmoji): Unit =
  * Add multiple [ReactionEmoji] to a [Message].
  */
 public suspend fun Message.addReactions(reactions: List<ReactionEmoji>): Unit = reactions.forEach { addReaction(it) }
+
+/**
+ * Reply to this message with no mentions allowed.
+ */
+public suspend fun Message.replySilently(builder: suspend UserMessageCreateBuilder.() -> Unit): Message = reply {
+    allowedMentions()
+    builder.invoke(this)
+}

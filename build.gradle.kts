@@ -1,9 +1,6 @@
-import java.util.*
-
 group = "me.jakejmattson"
-version = "0.23.3"
+version = "0.23.4"
 val projectGroup = group.toString()
-val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
     //Core
@@ -27,10 +24,10 @@ repositories {
 dependencies {
     api("dev.kord:kord-core:${Constants.kord}")
     api("dev.kord.x:emoji:0.5.0")
-    api("org.slf4j:slf4j-simple:2.0.0-alpha7")
+    api("org.slf4j:slf4j-simple:2.0.0")
 
     implementation("org.reflections:reflections:0.10.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
 
     testImplementation(platform("org.junit:junit-bom:5.9.0"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
@@ -48,12 +45,14 @@ tasks {
             freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
         }
 
-        Properties().apply {
-            setProperty("version", version.toString())
-            setProperty("kotlin", Constants.kotlin)
-            setProperty("kord", Constants.kord)
-            store(file("src/main/resources/library.properties").outputStream(), null)
-        }
+        dependsOn("writeProperties")
+    }
+
+    register<WriteProperties>("writeProperties") {
+        property("version", project.version.toString())
+        property("kotlin", Constants.kotlin)
+        property("kord", Constants.kord)
+        setOutputFile("src/main/resources/library.properties")
     }
 
     compileTestKotlin {
@@ -89,7 +88,7 @@ tasks {
             "kotlin" to Constants.kotlin.replace("-", "--"),
             "kord" to Constants.kord.replace("-", "--"),
             "discordkt" to version.toString().replace("-", "--"),
-            "imports" to Docs.generateImports(projectGroup, version.toString(), isSnapshot)
+            "imports" to Docs.generateImports(projectGroup, version.toString())
         )
     }
 
@@ -105,7 +104,7 @@ tasks {
             into(file("$docsPath/api"))
 
             file("$docsPath/install.md").writeText(
-                Docs.generateImports(projectGroup, version.toString(), isSnapshot, true)
+                Docs.generateImports(projectGroup, version.toString(), true)
             )
         }
     }
@@ -134,6 +133,7 @@ tasks {
 }
 
 val sourcesJar by tasks.creating(Jar::class) {
+    dependsOn("writeProperties")
     archiveClassifier.set("sources")
     from(sourceSets["main"].allSource)
 }

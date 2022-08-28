@@ -43,6 +43,7 @@ public data class LibraryProperties(val version: String, val kotlin: String, val
  *
  * @param raw The full [Properties] object for additional properties.
  * @param name The name of the bot, retrieved by "name".
+ * @param description A description of this bot, retrieved by "description".
  * @param url The repo url of the bot, retrieved by "url".
  * @param version The version of the bot, retrieved by "version".
  */
@@ -153,6 +154,19 @@ public abstract class Discord {
         validate()
 
         commands.findByName(locale.helpName) ?: produceHelpCommand(locale.helpCategory).register(this)
+
+        val (mentionEmbedName, mentionEmbedFun) = configuration.mentionEmbed
+
+        if (mentionEmbedName != null && mentionEmbedFun != null)
+            commands(locale.helpCategory) {
+                slash(mentionEmbedName, "Bot info for ${properties.bot.name}", configuration.defaultPermissions) {
+                    execute {
+                        respondPublic {
+                            mentionEmbedFun.invoke(this, this@execute.context)
+                        }
+                    }
+                }
+            }.register(this)
 
         registerSlashCommands()
 

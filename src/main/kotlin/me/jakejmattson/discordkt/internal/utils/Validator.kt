@@ -4,8 +4,7 @@ import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.commands.SlashCommand
 import me.jakejmattson.discordkt.commands.TextCommand
-
-private val slashRegex = "^[\\w-]{1,32}$".toRegex()
+import me.jakejmattson.discordkt.extensions.DiscordRegex
 
 internal fun Discord.validate() {
     val duplicates = commands
@@ -37,12 +36,12 @@ internal fun Discord.validate() {
                     if (executions.size > 1)
                         errors.slashMultiExec.add("$category-$name")
 
-                    if (!name.matches(slashRegex))
+                    if (!name.matches(DiscordRegex.slashName))
                         errors.badRegexSlashCmd.add(this)
 
                     errors.badRegexSlashArg.addAll(execution
                         .arguments
-                        .filter { !it.name.matches(slashRegex) }
+                        .filter { !it.name.matches(DiscordRegex.slashName) }
                         .map { this to it }
                     )
                 }
@@ -75,7 +74,7 @@ private data class Errors(
 ) {
     private val indent = "  "
 
-    private fun String.toIndicator() = map { if (slashRegex.matches(it.toString())) ' ' else '^' }.joinToString("")
+    private fun String.toIndicator() = map { if (DiscordRegex.slashName.matches(it.toString())) ' ' else '^' }.joinToString("")
 
     private fun StringBuilder.appendError(list: List<String>, message: String) {
         if (list.isNotEmpty())
@@ -90,7 +89,7 @@ private data class Errors(
             appendError(spaceTxtCmd, "Command names cannot have spaces")
 
             if (badRegexSlashCmd.isNotEmpty()) {
-                appendLine("Slash command names must follow regex ${slashRegex.pattern}")
+                appendLine("Slash command names must follow regex ${DiscordRegex.slashName.pattern}")
                 appendLine(badRegexSlashCmd.joinToString("\n") { cmd ->
                     val base = "$indent${cmd.category}-"
                     "$base${cmd.name}\n${" ".repeat(base.length)}${cmd.name.toIndicator()}"
@@ -98,7 +97,7 @@ private data class Errors(
             }
 
             if (badRegexSlashArg.isNotEmpty()) {
-                appendLine("Slash argument names must follow regex ${slashRegex.pattern}")
+                appendLine("Slash argument names must follow regex ${DiscordRegex.slashName.pattern}")
                 appendLine(badRegexSlashArg.joinToString("\n") { (cmd, arg) ->
                     val base = "$indent${cmd.category}-${cmd.name}-${arg::class.simplerName}(\""
                     "$base${arg.name}\")\n${" ".repeat(base.length)}${cmd.name.toIndicator()}"

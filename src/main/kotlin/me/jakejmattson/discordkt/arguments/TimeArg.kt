@@ -41,8 +41,8 @@ private data class TimePair(val quantity: Double, val quantifier: String) {
         get() = quantity * quantifierValues.getValue(quantifier)
 }
 
-private val fullRegex = "^(\\d+[A-Za-z]+)+\$".toRegex()
-private val elementRegex = "(\\d+)([A-Za-z]+)".toRegex()
+private val fullRegex = Regex("^(\\d+[A-Za-z]+)+\$")
+private val elementRegex = Regex("(\\d+)([A-Za-z]+)")
 
 private val quantifierValues = listOf(
     1 to listOf("s", "sec", "second", "seconds"),

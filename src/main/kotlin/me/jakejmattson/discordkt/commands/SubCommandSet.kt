@@ -25,12 +25,17 @@ public data class SubCommandSetBuilder(val discord: Discord, val category: Strin
     internal val commands = mutableListOf<GuildSlashCommand>()
 
     /**
-     * Create a slash command.
+     * Create a slash subcommand.
+     *
+     * @param name The name of this command.
+     * @param description The description of this command.
+     * @param requiredPermissions The [Permissions] required to run this command.
+     * @param action The command action.
      */
     @InnerDSL
-    public fun sub(name: String, body: GuildSlashCommand.() -> Unit) {
-        val command = GuildSlashCommand(name, category = category, requiredPermissions = requiredPermissions)
-        command.body()
+    public fun sub(name: String, description: String = "", requiredPermissions: Permissions = this.requiredPermissions, action: GuildSlashCommand.() -> Unit) {
+        val command = GuildSlashCommand(name, description, category, requiredPermissions)
+        command.action()
         commands.add(command)
     }
 }
