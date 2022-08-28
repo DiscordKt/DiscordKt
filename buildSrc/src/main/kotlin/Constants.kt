@@ -9,9 +9,10 @@ object Constants {
 }
 
 object Docs {
-    fun generateImports(group: String, version: String, isSnapshot: Boolean, isDocs: Boolean = false) = buildString {
+    fun generateImports(group: String, version: String, isDocs: Boolean = false) = buildString {
         val gradleTag = "${group}:${Constants.projectName}:${version}"
         val snapshotUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+        val isSnapshot = version.endsWith("SNAPSHOT")
 
         createGradleKts(snapshotUrl, gradleTag, isSnapshot, isDocs)
         createGradleGroovy(snapshotUrl, gradleTag, isSnapshot, isDocs)

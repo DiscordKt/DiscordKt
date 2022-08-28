@@ -1,7 +1,6 @@
 group = "me.jakejmattson"
-version = "0.23.4-SNAPSHOT"
+version = "0.23.4"
 val projectGroup = group.toString()
-val isSnapshot = version.toString().endsWith("SNAPSHOT")
 
 plugins {
     //Core
@@ -89,7 +88,7 @@ tasks {
             "kotlin" to Constants.kotlin.replace("-", "--"),
             "kord" to Constants.kord.replace("-", "--"),
             "discordkt" to version.toString().replace("-", "--"),
-            "imports" to Docs.generateImports(projectGroup, version.toString(), isSnapshot)
+            "imports" to Docs.generateImports(projectGroup, version.toString())
         )
     }
 
@@ -105,7 +104,7 @@ tasks {
             into(file("$docsPath/api"))
 
             file("$docsPath/install.md").writeText(
-                Docs.generateImports(projectGroup, version.toString(), isSnapshot, true)
+                Docs.generateImports(projectGroup, version.toString(), true)
             )
         }
     }
