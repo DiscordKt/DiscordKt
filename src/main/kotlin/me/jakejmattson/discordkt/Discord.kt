@@ -2,7 +2,6 @@
 
 package me.jakejmattson.discordkt
 
-import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
 import dev.kord.core.behavior.createApplicationCommands
 import dev.kord.rest.builder.interaction.*
@@ -126,7 +125,6 @@ public abstract class Discord {
         getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>, e: KClass<E>): Args5<A, B, C, D, E> =
         Args5(diService[a], diService[b], diService[c], diService[d], diService[e])
 
-    @KordPreview
     internal suspend fun initCore() {
         diService.inject(this)
         val services = registerServices()
@@ -176,13 +174,11 @@ public abstract class Discord {
 
     private fun registerServices() = Reflection.detectClassesWith<Service>().apply { diService.buildAllRecursively(this) }
 
-    @KordPreview
     private suspend fun registerListeners(discord: Discord) {
         registerInteractionListener(discord)
         registerCommandListener(discord)
     }
 
-    @KordPreview
     private suspend fun registerSlashCommands() {
         fun BaseInputChatBuilder.mapArgs(command: SlashCommand) {
             command.execution.arguments.forEach { argument ->

@@ -1,6 +1,5 @@
 package me.jakejmattson.discordkt.dsl
 
-import dev.kord.common.annotation.KordPreview
 import dev.kord.common.kColor
 import dev.kord.core.Kord
 import dev.kord.core.event.interaction.InteractionCreateEvent
@@ -38,7 +37,6 @@ internal lateinit var internalLocale: Locale
  *
  * @param token Your Discord bot token.
  */
-@KordPreview
 @ConfigurationDSL
 public fun bot(token: String?, configure: suspend Bot.() -> Unit) {
     val packageName = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
@@ -84,7 +82,6 @@ public class Bot(private val token: String, private val packageName: String) {
 
     private val startupBundle = StartupFunctions()
 
-    @KordPreview
     internal suspend fun buildBot() {
         val (configureFun,
             prefixFun,

@@ -1,6 +1,5 @@
 package me.jakejmattson.discordkt.internal.listeners
 
-import dev.kord.common.annotation.KordPreview
 import dev.kord.core.behavior.interaction.*
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.interaction.*
@@ -13,11 +12,10 @@ import me.jakejmattson.discordkt.bundleToContainer
 import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.conversations.Conversations
 import me.jakejmattson.discordkt.dsl.Menu
-import me.jakejmattson.discordkt.prompts.modalBuffer
 import me.jakejmattson.discordkt.internal.command.transformArgs
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
+import me.jakejmattson.discordkt.prompts.modalBuffer
 
-@KordPreview
 internal suspend fun registerInteractionListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
     when (val interaction = interaction) {
         is MessageCommandInteraction -> handleApplicationCommand(interaction, discord) { Success(bundleToContainer(listOf(interaction.messages.values.first()))) }
