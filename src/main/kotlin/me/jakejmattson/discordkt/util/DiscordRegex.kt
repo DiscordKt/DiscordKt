@@ -1,4 +1,4 @@
-package me.jakejmattson.discordkt.extensions
+package me.jakejmattson.discordkt.util
 
 /**
  * A collection of [Regex] for detecting discord strings

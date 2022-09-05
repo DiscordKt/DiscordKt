@@ -11,7 +11,7 @@ import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.Command
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.commands.SubCommandSet
-import me.jakejmattson.discordkt.extensions.*
+import me.jakejmattson.discordkt.util.*
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.services.InjectionService
 import me.jakejmattson.discordkt.internal.utils.InternalLogger

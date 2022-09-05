@@ -5,7 +5,7 @@ package me.jakejmattson.discordkt.dsl
 import dev.kord.core.event.Event
 import dev.kord.core.on
 import me.jakejmattson.discordkt.Discord
-import me.jakejmattson.discordkt.extensions.intentsOf
+import me.jakejmattson.discordkt.util.intentsOf
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.annotations.InnerDSL
 import me.jakejmattson.discordkt.internal.utils.BuilderRegister

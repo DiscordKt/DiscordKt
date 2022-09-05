@@ -15,8 +15,8 @@ import me.jakejmattson.discordkt.commands.SlashCommandEvent
 import me.jakejmattson.discordkt.conversations.responders.ChannelResponder
 import me.jakejmattson.discordkt.conversations.responders.ConversationResponder
 import me.jakejmattson.discordkt.conversations.responders.SlashResponder
-import me.jakejmattson.discordkt.extensions.toPartialEmoji
-import me.jakejmattson.discordkt.extensions.uuid
+import me.jakejmattson.discordkt.util.toPartialEmoji
+import me.jakejmattson.discordkt.util.uuid
 
 /**
  * A simple button builder

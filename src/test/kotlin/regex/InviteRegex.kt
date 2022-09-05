@@ -1,6 +1,6 @@
 package regex
 
-import me.jakejmattson.discordkt.extensions.containsInvite
+import me.jakejmattson.discordkt.util.containsInvite
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 

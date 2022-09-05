@@ -14,7 +14,7 @@ import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.dsl.BotConfiguration
 import me.jakejmattson.discordkt.dsl.Precondition
 import me.jakejmattson.discordkt.dsl.diService
-import me.jakejmattson.discordkt.extensions.pluralize
+import me.jakejmattson.discordkt.util.pluralize
 import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
 import me.jakejmattson.discordkt.internal.listeners.registerInteractionListener
 import me.jakejmattson.discordkt.internal.utils.*

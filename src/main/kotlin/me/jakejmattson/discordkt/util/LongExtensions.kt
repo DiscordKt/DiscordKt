@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.extensions
+package me.jakejmattson.discordkt.util
 
 import java.time.Duration
 import java.time.temporal.ChronoUnit

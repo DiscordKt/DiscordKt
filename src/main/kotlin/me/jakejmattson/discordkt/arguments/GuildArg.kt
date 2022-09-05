@@ -4,7 +4,7 @@ import dev.kord.core.entity.Guild
 import kotlinx.coroutines.flow.firstOrNull
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
-import me.jakejmattson.discordkt.extensions.toSnowflakeOrNull
+import me.jakejmattson.discordkt.util.toSnowflakeOrNull
 
 /**
  * Accepts a Discord Guild entity as an ID.
