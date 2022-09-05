@@ -4,8 +4,8 @@ import dev.kord.core.entity.GuildEmoji
 import kotlinx.coroutines.flow.toList
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
-import me.jakejmattson.discordkt.extensions.toSnowflakeOrNull
-import me.jakejmattson.discordkt.extensions.trimToID
+import me.jakejmattson.discordkt.util.toSnowflakeOrNull
+import me.jakejmattson.discordkt.util.trimToID
 
 /**
  * Accepts a guild emoji.

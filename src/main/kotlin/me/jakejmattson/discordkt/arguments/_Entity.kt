@@ -7,8 +7,8 @@ import dev.kord.core.entity.channel.Channel
 import kotlinx.coroutines.flow.toList
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.DiscordContext
-import me.jakejmattson.discordkt.extensions.consumeFirst
-import me.jakejmattson.discordkt.extensions.toSnowflakeOrNull
+import me.jakejmattson.discordkt.util.consumeFirst
+import me.jakejmattson.discordkt.util.toSnowflakeOrNull
 
 /**
  * An [Argument] that accepts a discord entity.

@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.extensions
+package me.jakejmattson.discordkt.util
 
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.entity.*
@@ -42,19 +42,19 @@ public fun String.unwrapMessageLink(): MessageParts? {
 
 /**
  * Whether this string matches a URL regex.
- * @sample me.jakejmattson.discordkt.extensions.DiscordRegex.url
+ * @sample me.jakejmattson.discordkt.util.DiscordRegex.url
  */
 public fun String.containsURl(): Boolean = DiscordRegex.url.any { replace("\n", "").contains(it) }
 
 /**
  * Whether this string contains a discord invite.
- * @sample me.jakejmattson.discordkt.extensions.DiscordRegex.invite
+ * @sample me.jakejmattson.discordkt.util.DiscordRegex.invite
  */
 public fun String.containsInvite(): Boolean = DiscordRegex.invite.containsMatchIn(this)
 
 /**
  * Return all discord invites in this string.
- * @sample me.jakejmattson.discordkt.extensions.DiscordRegex.invite
+ * @sample me.jakejmattson.discordkt.util.DiscordRegex.invite
  */
 public fun String.getInvites(): List<String> = DiscordRegex.invite.findAll(this).map { it.value }.toList()
 

@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.arguments
 
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
-import me.jakejmattson.discordkt.extensions.stringify
+import me.jakejmattson.discordkt.util.stringify
 import java.awt.Color
 
 /**

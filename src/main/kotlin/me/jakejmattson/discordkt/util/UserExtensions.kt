@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.extensions
+package me.jakejmattson.discordkt.util
 
 import dev.kord.core.behavior.UserBehavior
 import dev.kord.core.behavior.channel.createEmbed

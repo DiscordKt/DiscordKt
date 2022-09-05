@@ -16,7 +16,7 @@ Contains all logic and builders for conversations.
 # Package me.jakejmattson.discordkt.dsl
 Primary builders and events used to develop bots. 
 
-# Package me.jakejmattson.discordkt.extensions
+# Package me.jakejmattson.discordkt.util
 Extension functions to aid in bot development.
 
 # Package me.jakejmattson.discordkt.locale

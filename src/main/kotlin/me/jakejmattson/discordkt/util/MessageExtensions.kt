@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.extensions
+package me.jakejmattson.discordkt.util
 
 import dev.kord.core.behavior.reply
 import dev.kord.core.entity.Message

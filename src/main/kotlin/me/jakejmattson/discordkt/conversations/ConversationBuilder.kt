@@ -19,7 +19,7 @@ import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.conversations.responders.ConversationResponder
 import me.jakejmattson.discordkt.dsl.Responder
 import me.jakejmattson.discordkt.dsl.internalLocale
-import me.jakejmattson.discordkt.extensions.uuid
+import me.jakejmattson.discordkt.util.uuid
 import me.jakejmattson.discordkt.prompts.SimpleSelectBuilder
 import java.util.*
 import kotlin.concurrent.schedule

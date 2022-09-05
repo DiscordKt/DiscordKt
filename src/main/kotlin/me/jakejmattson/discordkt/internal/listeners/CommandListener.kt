@@ -13,7 +13,7 @@ import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.conversations.Conversations
-import me.jakejmattson.discordkt.extensions.trimToID
+import me.jakejmattson.discordkt.util.trimToID
 import me.jakejmattson.discordkt.internal.command.stripMentionInvocation
 import me.jakejmattson.discordkt.internal.command.stripPrefixInvocation
 import me.jakejmattson.discordkt.internal.utils.Recommender
