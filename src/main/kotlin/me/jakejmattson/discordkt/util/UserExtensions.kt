@@ -7,6 +7,7 @@ import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.entity.Guild
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
+import dev.kord.rest.Image
 import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
@@ -24,10 +25,16 @@ public val UserBehavior.profileLink: String
     get() = "https://discord.com/users/${id.value}/"
 
 /**
- * A link to this user's profile picture.
+ * A link to this user's profile picture (or default).
  */
 public val User.pfpUrl: String
-    get() = avatar?.url ?: defaultAvatar.url
+    get() = avatar?.url ?: defaultPfpUrl
+
+/**
+ * A link to this user's default profile picture.
+ */
+public val User.defaultPfpUrl: String
+    get() = defaultAvatar.cdnUrl.toUrl { format = Image.Format.PNG }
 
 /**
  * A User's name and discriminator
