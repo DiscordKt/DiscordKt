@@ -3,12 +3,13 @@
 package me.jakejmattson.discordkt.util
 
 import dev.kord.core.behavior.UserBehavior
-import dev.kord.core.behavior.channel.createEmbed
+import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.entity.Guild
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import dev.kord.rest.Image
 import dev.kord.rest.builder.message.EmbedBuilder
+import dev.kord.rest.builder.message.create.embed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 
@@ -44,14 +45,20 @@ public val User.fullName: String
     get() = "$username#$discriminator"
 
 /**
- * Send the user a private string message.
+ * Send a private message to a user if possible.
+ *
+ * @return The [Message] object or null if you cannot DM.
  */
-public suspend fun UserBehavior.sendPrivateMessage(message: String): Message = getDmChannel().createMessage(message)
+public suspend fun UserBehavior.sendPrivateMessage(message: Any = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): Message? =
+    getDmChannelOrNull()?.createMessage {
+        val responseContent = message.toString()
 
-/**
- * Send the user a private embed message.
- */
-public suspend fun UserBehavior.sendPrivateMessage(embed: suspend EmbedBuilder.() -> Unit): Message = getDmChannel().createEmbed { embed.invoke(this) }
+        if (responseContent.isNotEmpty())
+            content = responseContent
+
+        if (embed != null)
+            embed { embed.invoke(this) }
+    }
 
 /**
  * Checks if this [User] is itself.
