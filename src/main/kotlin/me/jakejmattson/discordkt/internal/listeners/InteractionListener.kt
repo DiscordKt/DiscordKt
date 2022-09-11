@@ -15,6 +15,7 @@ import me.jakejmattson.discordkt.dsl.Menu
 import me.jakejmattson.discordkt.internal.command.transformArgs
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
 import me.jakejmattson.discordkt.prompts.modalBuffer
+import me.jakejmattson.discordkt.prompts.selectBuffer
 
 internal suspend fun registerInteractionListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
     when (val interaction = interaction) {
@@ -23,7 +24,11 @@ internal suspend fun registerInteractionListener(discord: Discord) = discord.kor
         is ChatInputCommandInteraction -> handleSlashCommand(interaction, discord)
         is AutoCompleteInteraction -> handleAutocomplete(interaction, discord)
         is ModalSubmitInteraction -> modalBuffer.send(interaction)
-        is SelectMenuInteraction -> Conversations.handleInteraction(interaction)
+        is SelectMenuInteraction -> {
+            selectBuffer.send(interaction)
+            Conversations.handleInteraction(interaction)
+        }
+
         is ButtonInteraction -> {
             Menu.handleButtonPress(interaction)
             Conversations.handleInteraction(interaction)
