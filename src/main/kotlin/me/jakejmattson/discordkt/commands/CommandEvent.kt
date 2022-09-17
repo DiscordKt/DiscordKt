@@ -2,8 +2,6 @@ package me.jakejmattson.discordkt.commands
 
 import dev.kord.core.behavior.channel.MessageChannelBehavior
 import dev.kord.core.entity.*
-import dev.kord.core.entity.channel.DmChannel
-import dev.kord.core.entity.channel.GuildMessageChannel
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ApplicationCommandInteraction
 import dev.kord.core.entity.interaction.GuildApplicationCommandInteraction
@@ -103,29 +101,6 @@ public open class CommandEvent<T : TypeContainer>(
 
     internal fun isFromGuild() = guild != null
 }
-
-/**
- * An event that can only be fired in a guild.
- */
-public data class GuildCommandEvent<T : TypeContainer>(
-    override val rawInputs: RawInputs,
-    override val discord: Discord,
-    override val message: Message,
-    override val author: User,
-    override val channel: GuildMessageChannel,
-    override val guild: Guild) : CommandEvent<T>(rawInputs, discord, message, author, channel, guild)
-
-/**
- * An event that can only be fired in a DM.
- */
-public data class DmCommandEvent<T : TypeContainer>(
-    override val rawInputs: RawInputs,
-    override val discord: Discord,
-    override val message: Message,
-    override val author: User,
-    override val channel: DmChannel,
-    @Deprecated("There is no guild within a DmCommandEvent.", level = DeprecationLevel.ERROR)
-    override val guild: Guild? = null) : CommandEvent<T>(rawInputs, discord, message, author, channel, null)
 
 /**
  * An event fired by a slash command.
