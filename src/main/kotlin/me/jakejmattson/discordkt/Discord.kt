@@ -138,7 +138,7 @@ public abstract class Discord {
             val header = "------- $name $version -------"
 
             InternalLogger.log(header)
-            InternalLogger.log(commands.filterIsInstance<SlashCommand>().size.pluralize("Slash Command"))
+            InternalLogger.log(commands.size.pluralize("Slash Command"))
             InternalLogger.log(subcommands.flatMap { it.commands }.size.pluralize("Subcommand"))
             InternalLogger.log(services.size.pluralize("Service"))
             InternalLogger.log(preconditions.size.pluralize("Precondition"))
@@ -179,8 +179,8 @@ public abstract class Discord {
     }
 
     private suspend fun registerSlashCommands() {
-        fun BaseInputChatBuilder.mapArgs(command: SlashCommand) {
-            command.execution.arguments.forEach { argument ->
+        fun BaseInputChatBuilder.mapArgs(command: Command) {
+            command.executions.first().arguments.forEach { argument ->
                 val name = argument.name.lowercase()
                 val description = argument.description
 
@@ -216,9 +216,9 @@ public abstract class Discord {
             }
         }
 
-        fun MultiApplicationCommandBuilder.register(command: SlashCommand) {
+        fun MultiApplicationCommandBuilder.register(command: Command) {
             if (command is ContextCommand) {
-                when (command.execution.arguments.first()) {
+                when (command.executions.first().arguments.first()) {
                     is MessageArg -> message(command.displayText) { defaultMemberPermissions = command.requiredPermissions }
                     is UserArg -> user(command.displayText) { defaultMemberPermissions = command.requiredPermissions }
                     else -> {}

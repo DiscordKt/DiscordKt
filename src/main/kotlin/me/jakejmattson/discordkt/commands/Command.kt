@@ -138,16 +138,6 @@ public sealed interface Command {
 }
 
 /**
- * Abstract slash command representation.
- *
- * @property execution The single execution of slash command.
- */
-public sealed interface SlashCommand : Command {
-    public val execution: Execution<CommandEvent<*>>
-        get() = executions.first()
-}
-
-/**
  * A slash command that can be executed anywhere.
  *
  * @property name The name of the slash command.
@@ -156,7 +146,7 @@ public class GlobalSlashCommand(override val name: String,
                                 override val description: String,
                                 override val category: String,
                                 override val requiredPermissions: Permissions,
-                                override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : SlashCommand {
+                                override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : Command {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend SlashCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -191,7 +181,7 @@ public open class GuildSlashCommand(override val name: String,
                                     override val description: String,
                                     override val category: String,
                                     override val requiredPermissions: Permissions,
-                                    override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : SlashCommand {
+                                    override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : Command {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend GuildSlashCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)

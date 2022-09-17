@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.internal.utils
 
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.arguments.Argument
-import me.jakejmattson.discordkt.commands.SlashCommand
+import me.jakejmattson.discordkt.commands.Command
 import me.jakejmattson.discordkt.util.DiscordRegex
 
 internal fun Discord.validate() {
@@ -30,20 +30,18 @@ internal fun Discord.validate() {
                 return@forEach
             }
 
-            when (this) {
-                is SlashCommand -> {
-                    if (executions.size > 1)
-                        errors.slashMultiExec.add("$category-$name")
+            with(this) {
+                if (executions.size > 1)
+                    errors.slashMultiExec.add("$category-$name")
 
-                    if (!name.matches(DiscordRegex.slashName))
-                        errors.badRegexSlashCmd.add(this)
+                if (!name.matches(DiscordRegex.slashName))
+                    errors.badRegexSlashCmd.add(this)
 
-                    errors.badRegexSlashArg.addAll(execution
-                        .arguments
-                        .filter { !it.name.matches(DiscordRegex.slashName) }
-                        .map { this to it }
-                    )
-                }
+                errors.badRegexSlashArg.addAll(executions.first()
+                    .arguments
+                    .filter { !it.name.matches(DiscordRegex.slashName) }
+                    .map { this to it }
+                )
             }
         }
     }
@@ -59,8 +57,8 @@ private data class Errors(
     //Naming
     val blankCmdName: MutableSet<String> = mutableSetOf(),
     val spaceTxtCmd: MutableList<String> = mutableListOf(),
-    val badRegexSlashCmd: MutableList<SlashCommand> = mutableListOf(),
-    val badRegexSlashArg: MutableList<Pair<SlashCommand, Argument<*, *>>> = mutableListOf()
+    val badRegexSlashCmd: MutableList<Command> = mutableListOf(),
+    val badRegexSlashArg: MutableList<Pair<Command, Argument<*, *>>> = mutableListOf()
 ) {
     private val indent = "  "
 
