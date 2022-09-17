@@ -86,7 +86,7 @@ public class GlobalSlashCommand(override val name: String,
                                 override val description: String,
                                 override val category: String,
                                 override val requiredPermissions: Permissions,
-                                override var execution: Execution<CommandEvent<*>> = Execution(listOf(), {})) : Command {
+                                override var execution: Execution<CommandEvent<*>> = Execution(listOf()) {}) : Command {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend SlashCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -121,7 +121,7 @@ public open class GuildSlashCommand(override val name: String,
                                     override val description: String,
                                     override val category: String,
                                     override val requiredPermissions: Permissions,
-                                    override var execution: Execution<CommandEvent<*>> = Execution(listOf(), {})) : Command {
+                                    override var execution: Execution<CommandEvent<*>> = Execution(listOf()) {}) : Command {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend GuildSlashCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)

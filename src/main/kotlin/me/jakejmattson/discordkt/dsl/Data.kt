@@ -44,7 +44,7 @@ public abstract class Data {
 /**
  * Apply an edit to a [Data] and save to file.
  */
-public fun <T:Data> T.edit(edits: T.() -> Unit) {
+public fun <T : Data> T.edit(edits: T.() -> Unit) {
     edits.invoke(this)
     this.save()
 }

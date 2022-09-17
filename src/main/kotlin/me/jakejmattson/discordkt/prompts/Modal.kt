@@ -9,8 +9,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.Args2
-import me.jakejmattson.discordkt.util.uuid
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
+import me.jakejmattson.discordkt.util.uuid
 
 /**
  * @property label The prompt displayed above a text input field.

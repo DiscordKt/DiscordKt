@@ -51,7 +51,7 @@ public open class CommandEvent<T : TypeContainer>(
 
     //TODO Require Command to build event
     //public val command: Command?
-        //get() = discord.commands.findByName(rawInputs.commandName)
+    //get() = discord.commands.findByName(rawInputs.commandName)
 
     public val context: DiscordContext
         get() = DiscordContext(discord, message, author, channel, guild)
