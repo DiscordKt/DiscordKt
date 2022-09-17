@@ -74,13 +74,12 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
     val message = interaction.data.message.value?.let { Message(it, discord.kord) }
     val context = DiscordContext(discord, message, author, channel, guild)
     val transformResults = input.invoke(dktCommand, context)
-    val rawInputs = RawInputs("/${dktCommand.name}", dktCommand.name, prefixCount = 1)
 
     val event =
         if (dktCommand is GuildSlashCommand)
-            GuildSlashCommandEvent(rawInputs, discord, message, author, channel, guild!!, interaction as GuildApplicationCommandInteraction)
+            GuildSlashCommandEvent(discord, message, author, channel, guild!!, interaction as GuildApplicationCommandInteraction)
         else
-            SlashCommandEvent<TypeContainer>(rawInputs, discord, message, author, channel, guild, interaction)
+            SlashCommandEvent<TypeContainer>(discord, message, author, channel, guild, interaction)
 
     if (!arePreconditionsPassing(event)) return
 
