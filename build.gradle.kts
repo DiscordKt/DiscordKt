@@ -1,5 +1,5 @@
 group = "me.jakejmattson"
-version = "0.24.0-SNAPSHOT"
+version = "0.25.0-SNAPSHOT"
 val projectGroup = group.toString()
 
 plugins {
