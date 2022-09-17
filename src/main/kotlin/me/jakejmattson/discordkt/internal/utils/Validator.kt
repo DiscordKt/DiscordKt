@@ -25,19 +25,11 @@ internal fun Discord.validate() {
             if (names.any { it.isBlank() })
                 errors.blankCmdName.add(category)
 
-            if (executions.isEmpty()) {
-                errors.noExecution.add("$category-$name")
-                return@forEach
-            }
-
             with(this) {
-                if (executions.size > 1)
-                    errors.slashMultiExec.add("$category-$name")
-
                 if (!name.matches(DiscordRegex.slashName))
                     errors.badRegexSlashCmd.add(this)
 
-                errors.badRegexSlashArg.addAll(executions.first()
+                errors.badRegexSlashArg.addAll(execution
                     .arguments
                     .filter { !it.name.matches(DiscordRegex.slashName) }
                     .map { this to it }
@@ -50,11 +42,6 @@ internal fun Discord.validate() {
 }
 
 private data class Errors(
-    //Execution
-    val noExecution: MutableList<String> = mutableListOf(),
-    val slashMultiExec: MutableList<String> = mutableListOf(),
-
-    //Naming
     val blankCmdName: MutableSet<String> = mutableSetOf(),
     val spaceTxtCmd: MutableList<String> = mutableListOf(),
     val badRegexSlashCmd: MutableList<Command> = mutableListOf(),
@@ -71,8 +58,6 @@ private data class Errors(
 
     fun display() {
         val fatalErrors = buildString {
-            appendError(noExecution, "Commands must have at least one execute block")
-            appendError(slashMultiExec, "Slash commands cannot have multiple execute blocks")
             appendError(blankCmdName.toList(), "Command names cannot be blank")
             appendError(spaceTxtCmd, "Command names cannot have spaces")
 

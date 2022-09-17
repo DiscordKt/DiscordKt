@@ -68,21 +68,16 @@ private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String,
         if (this@sendHelpEmbed.description.isNotBlank())
             description = this@sendHelpEmbed.description
 
-        val commandInvocation = "/$input"
-
-        val helpBundle = this@sendHelpEmbed.executions.map {
-            """$commandInvocation ${it.structure}
-                ${
-                it.arguments.joinToString("\n") { arg ->
-                    """- ${arg.name}: ${arg.description} (${arg.generateExample(event.context)})
-                    """.trimMargin()
-                }
-            }
-            """.trimMargin()
-        }
-
         field {
-            this.value = helpBundle.joinToString("\n\n") { it }
+            this.value =
+                """/$input ${execution.structure}
+                ${
+                    execution.arguments.joinToString("\n") { arg ->
+                        """- ${arg.name}: ${arg.description} (${arg.generateExample(event.context)})
+                    """.trimMargin()
+                    }
+                }
+            """.trimMargin()
         }
     }
 

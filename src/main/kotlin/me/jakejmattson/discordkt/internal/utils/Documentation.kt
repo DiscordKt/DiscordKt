@@ -31,13 +31,9 @@ internal fun createDocumentation(commands: List<Command>, subcommands: MutableLi
     fun extractCommandData(command: Command): CommandData {
         val nameString = command.names.joinToString().sanitizePipe()
 
-        val expectedArgs = command.executions.map { execution ->
-            execution.arguments
-                .joinToString { arg -> if (arg.isOptional()) "[${arg.name}]" else arg.name }
-                .sanitizePipe()
-                .takeIf { it.isNotEmpty() }
-                ?: ""
-        }
+        val expectedArgs = listOf(command.execution.arguments
+            .joinToString { arg -> if (arg.isOptional()) "[${arg.name}]" else arg.name }
+            .sanitizePipe())
 
         return CommandData(nameString, expectedArgs, command.description.sanitizePipe())
     }
@@ -59,7 +55,7 @@ internal fun createDocumentation(commands: List<Command>, subcommands: MutableLi
     }
 
     val keyString = buildString {
-        val argumentSet = commands.flatMap { cmd -> cmd.executions.flatMap { it.arguments } }.toSet()
+        val argumentSet = commands.flatMap { cmd -> cmd.execution.arguments }.toSet()
 
         if (argumentSet.any { it.isOptional() })
             appendLine("| [Argument]  | Argument is not required.      |")

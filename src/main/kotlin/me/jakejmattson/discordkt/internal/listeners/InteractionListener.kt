@@ -40,7 +40,7 @@ internal suspend fun registerInteractionListener(discord: Discord) = discord.kor
 
 private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction, discord: Discord) {
     handleApplicationCommand(interaction as ApplicationCommandInteraction, discord) { context ->
-        transformArgs(executions.first().arguments.map { argument ->
+        transformArgs(execution.arguments.map { argument ->
             val argName = argument.name.lowercase()
             val arg = if (argument is WrappedArgument<*, *, *, *>) argument.innerType else argument
 
@@ -91,13 +91,13 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
         }
     }
 
-    dktCommand.executions.first().execute(event)
+    dktCommand.execution.execute(event)
 }
 
 private suspend fun handleAutocomplete(interaction: AutoCompleteInteraction, discord: Discord) {
     val dktCommand = findDktCommand(interaction, discord) ?: return
     val argName = interaction.command.options.entries.single { it.value.focused }.key.lowercase()
-    val rawArg = dktCommand.executions.first().arguments.first { it.name.equals(argName, true) }
+    val rawArg = dktCommand.execution.arguments.first { it.name.equals(argName, true) }
 
     val arg: AutocompleteArg<*, *> = if (rawArg is WrappedArgument<*, *, *, *>)
         if (rawArg is AutocompleteArg<*, *>)
@@ -120,7 +120,7 @@ private suspend fun handleAutocomplete(interaction: AutoCompleteInteraction, dis
 }
 
 private fun findDktCommand(interaction: Interaction, discord: Discord): Command? {
-    val contextCommands = discord.commands.filterIsInstance<ContextCommand>()
+    val contextCommands = discord.commands.filterIsInstance<ContextCommand<*>>()
 
     fun handleSubcommand(command: InteractionCommand) =
         if (command is SubCommand)

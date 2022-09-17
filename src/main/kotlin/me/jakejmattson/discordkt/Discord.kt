@@ -180,7 +180,7 @@ public abstract class Discord {
 
     private suspend fun registerSlashCommands() {
         fun BaseInputChatBuilder.mapArgs(command: Command) {
-            command.executions.first().arguments.forEach { argument ->
+            command.execution.arguments.forEach { argument ->
                 val name = argument.name.lowercase()
                 val description = argument.description
 
@@ -217,8 +217,8 @@ public abstract class Discord {
         }
 
         fun MultiApplicationCommandBuilder.register(command: Command) {
-            if (command is ContextCommand) {
-                when (command.executions.first().arguments.first()) {
+            if (command is ContextCommand<*>) {
+                when (command.execution.arguments.first()) {
                     is MessageArg -> message(command.displayText) { defaultMemberPermissions = command.requiredPermissions }
                     is UserArg -> user(command.displayText) { defaultMemberPermissions = command.requiredPermissions }
                     else -> {}

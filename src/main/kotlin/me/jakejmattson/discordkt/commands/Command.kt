@@ -5,19 +5,9 @@ package me.jakejmattson.discordkt.commands
 import dev.kord.common.entity.Permissions
 import dev.kord.core.entity.Guild
 import dev.kord.core.entity.User
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import me.jakejmattson.discordkt.*
 import me.jakejmattson.discordkt.arguments.Argument
-import me.jakejmattson.discordkt.arguments.Error
-import me.jakejmattson.discordkt.arguments.Success
-import me.jakejmattson.discordkt.dsl.CommandException
-import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.internal.annotations.NestedDSL
-import me.jakejmattson.discordkt.internal.command.parseArguments
-import me.jakejmattson.discordkt.internal.command.transformArgs
-import me.jakejmattson.discordkt.locale.inject
 
 /**
  * The bundle of information to be executed when a command is invoked.
@@ -54,26 +44,17 @@ public data class Execution<T : CommandEvent<*>>(val arguments: List<Argument<*,
  * @property description A brief description of the command - used in documentation.
  * @property requiredPermissions The permission level required to use this command.
  * @property category The category that this command belongs to - set automatically by CommandSet.
- * @property executions The list of [Execution] that this command can be run with.
+ * @property execution The [Execution] that this command can be run with.
  */
 public sealed interface Command {
     public val name: String
     public val description: String
     public val category: String
     public val requiredPermissions: Permissions
-    public val executions: MutableList<Execution<CommandEvent<*>>>
+    public var execution: Execution<CommandEvent<*>>
 
     public val names: List<String>
         get() = listOf(name)
-
-    /**
-     * Whether the command can parse the given arguments into a container.
-     *
-     * @param args The raw string arguments to be provided to the command.
-     *
-     * @return The result of the parsing operation.
-     */
-    public suspend fun canParse(context: DiscordContext, execution: Execution<*>, args: List<String>): Boolean = parseArguments(context, execution.arguments, args) is Success
 
     /**
      * Whether this command has permission to run with the given event.
@@ -87,53 +68,12 @@ public sealed interface Command {
             false //TODO Handle global message commands
 
     /**
-     * Invoke this command with the given args.
-     */
-    @OptIn(DelicateCoroutinesApi::class)
-    public fun invoke(event: CommandEvent<TypeContainer>, args: List<String>) {
-        GlobalScope.launch {
-            val parseResults = executions.map { it to parseArguments(event.context, it.arguments, args) }
-            val successfulParse = parseResults.firstOrNull { it.second is Success }
-
-            if (successfulParse == null) {
-                val failString = parseResults.joinToString("\n") {
-                    val invocationExample =
-                        if (parseResults.size > 1)
-                            "${event.rawInputs.rawMessageContent.substringBefore(" ")} ${it.first.structure}\n"
-                        else ""
-
-                    invocationExample + (it.second as Error).error
-                }
-
-                event.respond(internalLocale.badArgs.inject(event.rawInputs.commandName) + "\n$failString")
-                return@launch
-            }
-
-            val (execution, success) = successfulParse
-            val transformedInput = transformArgs(execution.arguments.zip((success as Success).result), event.context)
-
-            if (transformedInput is Success<*>)
-                event.args = transformedInput.result as TypeContainer
-            else {
-                event.respond(transformedInput)
-                return@launch
-            }
-
-            try {
-                execution.execute(event)
-            } catch (e: Exception) {
-                event.discord.configuration.exceptionHandler.invoke(CommandException(e, event))
-            }
-        }
-    }
-
-    /**
      * Add an [Execution] to this [Command].
      * Called automatically by each execute block.
      * You should not need to call this manually.
      */
     public fun <T : CommandEvent<*>> addExecution(argTypes: List<Argument<*, *>>, execute: suspend T.() -> Unit) {
-        executions.add(Execution(argTypes, execute) as Execution<CommandEvent<*>>)
+        execution = Execution(argTypes, execute) as Execution<CommandEvent<*>>
     }
 }
 
@@ -146,7 +86,7 @@ public class GlobalSlashCommand(override val name: String,
                                 override val description: String,
                                 override val category: String,
                                 override val requiredPermissions: Permissions,
-                                override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : Command {
+                                override var execution: Execution<CommandEvent<*>> = Execution(listOf(), {})) : Command {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend SlashCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -181,7 +121,7 @@ public open class GuildSlashCommand(override val name: String,
                                     override val description: String,
                                     override val category: String,
                                     override val requiredPermissions: Permissions,
-                                    override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : Command {
+                                    override var execution: Execution<CommandEvent<*>> = Execution(listOf(), {})) : Command {
     /** @suppress */
     @NestedDSL
     public fun execute(execute: suspend GuildSlashCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
@@ -212,12 +152,14 @@ public open class GuildSlashCommand(override val name: String,
  *
  * @property displayText The text shown in the context menu.
  */
-public class ContextCommand(override val name: String,
-                            public val displayText: String,
-                            override val description: String,
-                            override val category: String,
-                            override val requiredPermissions: Permissions,
-                            override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : GuildSlashCommand(name, description, category, requiredPermissions, executions) {
+public class ContextCommand<A>(override val name: String,
+                               public val displayText: String,
+                               override val description: String,
+                               override val category: String,
+                               override val requiredPermissions: Permissions,
+                               public val argument: Argument<*, A>,
+                               public val execute: suspend GuildSlashCommandEvent<Args1<A>>.() -> Unit,
+                               override var execution: Execution<CommandEvent<*>> = Execution(listOf(argument), execute) as Execution<CommandEvent<*>>) : GuildSlashCommand(name, description, category, requiredPermissions, execution) {
     /** @suppress */
     @NestedDSL
     public override fun <A> execute(a: Argument<*, A>, execute: suspend GuildSlashCommandEvent<Args1<A>>.() -> Unit): Unit = addExecution(listOf(a), execute)
