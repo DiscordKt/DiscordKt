@@ -19,7 +19,7 @@ public fun precondition(priority: Int = 5, construct: suspend PreconditionBuilde
 /**
  * @suppress Used in DSL
  */
-public data class PreconditionBuilder(private val event: CommandEvent<*>) : CommandEvent<TypeContainer>(event.discord, event.message, event.author, event.channel, event.guild) {
+public data class PreconditionBuilder(private val event: CommandEvent<*>) : CommandEvent<TypeContainer>(event.command, event.discord, event.message, event.author, event.channel, event.guild) {
     /**
      * Fail this precondition.
      *
