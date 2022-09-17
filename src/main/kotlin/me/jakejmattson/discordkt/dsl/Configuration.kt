@@ -30,7 +30,6 @@ public data class BotConfiguration(
     val defaultPermissions: Permissions,
     val entitySupplyStrategy: EntitySupplyStrategy<*>,
 
-    internal val prefix: suspend (DiscordContext) -> String,
     internal val mentionEmbed: Pair<String?, (suspend EmbedBuilder.(DiscordContext) -> Unit)?>,
 
     @PublishedApi

@@ -28,7 +28,6 @@ internal lateinit var internalLocale: Locale
 
 /**
  * Create an instance of your Discord bot! You can use the following blocks to modify bot configuration:
- * [prefix][Bot.prefix],
  * [configure][Bot.configure],
  * [mentionEmbed][Bot.mentionEmbed],
  * [presence][Bot.presence],
@@ -73,7 +72,6 @@ private val defaultMentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)
  */
 public class Bot(private val token: String, private val packageName: String) {
     private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
-                                        var prefix: suspend DiscordContext.() -> String = { "" },
                                         var mentionEmbed: Pair<String?, (suspend EmbedBuilder.(DiscordContext) -> Unit)?> = "info" to defaultMentionEmbed,
                                         var exceptionHandler: suspend DktException<*>.() -> Unit = { exception.printStackTrace() },
                                         var locale: Locale = Language.EN.locale,
@@ -84,7 +82,6 @@ public class Bot(private val token: String, private val packageName: String) {
 
     internal suspend fun buildBot() {
         val (configureFun,
-            prefixFun,
             mentionEmbedFun,
             exceptionHandlerFun,
             locale,
@@ -103,7 +100,6 @@ public class Bot(private val token: String, private val packageName: String) {
                 intents = intents + intentsOf<MessageCreateEvent>() + intentsOf<InteractionCreateEvent>(),
                 defaultPermissions = defaultPermissions,
                 entitySupplyStrategy = entitySupplyStrategy,
-                prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun,
                 exceptionHandler = exceptionHandlerFun
             )
@@ -161,14 +157,6 @@ public class Bot(private val token: String, private val packageName: String) {
     @ConfigurationDSL
     public fun configure(config: suspend SimpleConfiguration.() -> Unit) {
         startupBundle.configure = config
-    }
-
-    /**
-     * Determine the prefix in a given context.
-     */
-    @ConfigurationDSL
-    public fun prefix(construct: suspend DiscordContext.() -> String) {
-        startupBundle.prefix = construct
     }
 
     /**

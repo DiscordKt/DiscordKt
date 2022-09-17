@@ -68,7 +68,7 @@ private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String,
         if (this@sendHelpEmbed.description.isNotBlank())
             description = this@sendHelpEmbed.description
 
-        val commandInvocation = "${event.prefix()}$input"
+        val commandInvocation = "/$input"
 
         val helpBundle = this@sendHelpEmbed.executions.map {
             """$commandInvocation ${it.structure}

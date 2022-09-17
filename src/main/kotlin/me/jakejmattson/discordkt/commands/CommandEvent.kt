@@ -14,21 +14,6 @@ import me.jakejmattson.discordkt.dsl.Responder
 import me.jakejmattson.discordkt.dsl.SlashResponder
 
 /**
- * Data class containing the raw information from the command execution.
- *
- * @property rawMessageContent The message as it was sent from the user - no modifications.
- * @property commandName The command name parses from the raw content. This is not necessarily a valid command.
- * @property commandArgs The arguments provided to the command execution.
- * @property prefixCount The number of prefixes used to invoke this command.
- */
-public data class RawInputs(
-    val rawMessageContent: String,
-    val commandName: String,
-    val prefixCount: Int,
-    val commandArgs: List<String> = rawMessageContent.split(" ").drop(1)
-)
-
-/**
  * The discord context of the command execution.
  *
  * @property discord The [Discord] instance.
@@ -36,23 +21,16 @@ public data class RawInputs(
  * @property guild The Guild this command was invoked in.
  * @property author The User who invoked this command.
  * @property channel The MessageChannel this command was invoked in.
- * @property prefix The prefix used to invoke this command.
  */
 public open class DiscordContext(public val discord: Discord,
                                  public open val message: Message?,
                                  public val author: User,
                                  override val channel: MessageChannelBehavior,
-                                 public open val guild: Guild?) : Responder {
-    /**
-     * Determine the relevant prefix from the configured prefix block.
-     */
-    public suspend fun prefix(): String = discord.configuration.prefix.invoke(this)
-}
+                                 public open val guild: Guild?) : Responder
 
 /**
  * A generic command execution event.
  *
- * @property rawInputs The [RawInputs] of the command.
  * @property discord The [Discord] instance.
  * @property message The Message that invoked this command.
  * @property author The User who invoked this command.
@@ -82,12 +60,6 @@ public open class CommandEvent<T : TypeContainer>(
      * Try to resolve the member from the user/guild data.
      */
     public suspend fun getMember(): Member? = guild?.getMember(author.id)
-
-    /**
-     * Determine the relevant prefix in the current context.
-     */
-    public suspend fun prefix(): String = message?.let { discord.configuration.prefix.invoke(DiscordContext(discord, it, author, channel, guild)) }
-        ?: "/"
 
     /**
      * Add a reaction to the command invocation message.
