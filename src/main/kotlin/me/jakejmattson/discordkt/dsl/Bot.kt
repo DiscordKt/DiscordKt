@@ -11,7 +11,6 @@ import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.Command
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.commands.SubCommandSet
-import me.jakejmattson.discordkt.util.*
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.services.InjectionService
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
@@ -19,6 +18,7 @@ import me.jakejmattson.discordkt.internal.utils.Reflection
 import me.jakejmattson.discordkt.internal.utils.ReflectionUtils
 import me.jakejmattson.discordkt.locale.Language
 import me.jakejmattson.discordkt.locale.Locale
+import me.jakejmattson.discordkt.util.*
 import java.io.File
 
 @PublishedApi
@@ -97,14 +97,8 @@ public class Bot(private val token: String, private val packageName: String) {
         val botConfiguration = with(simpleConfiguration) {
             BotConfiguration(
                 packageName = packageName,
-                mentionAsPrefix = mentionAsPrefix,
                 logStartup = logStartup,
                 documentCommands = documentCommands,
-                recommendCommands = recommendCommands,
-                searchCommands = searchCommands,
-                deleteInvocation = deleteInvocation,
-                dualRegistry = dualRegistry,
-                commandReaction = commandReaction,
                 theme = theme?.kColor,
                 intents = intents + intentsOf<MessageCreateEvent>() + intentsOf<InteractionCreateEvent>(),
                 defaultPermissions = defaultPermissions,

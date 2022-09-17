@@ -8,13 +8,10 @@ import dev.kord.core.entity.channel.Channel
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
-import dev.kord.x.emoji.Emojis
-import dev.kord.x.emoji.addReaction
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.conversations.Conversations
-import me.jakejmattson.discordkt.internal.command.stripMentionInvocation
 import me.jakejmattson.discordkt.internal.command.stripPrefixInvocation
 import me.jakejmattson.discordkt.internal.utils.Recommender
 import me.jakejmattson.discordkt.util.trimToID
@@ -29,17 +26,6 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     val channel = message.channel.asChannel()
     val content = message.content
 
-    fun String.isBotMention() = config.mentionAsPrefix && (startsWith("<@!$self>") || startsWith("<@$self>"))
-    fun String.isSearch() = config.searchCommands && lowercase().startsWith("search") && split(" ").size == 2
-    suspend fun search() {
-        val query = content.split(" ")[1]
-
-        if (discord.commands.findByName(query) != null)
-            message.addReaction(Emojis.whiteCheckMark)
-        else if (discord.commands.any { command -> command.names.any { it.contains(query, ignoreCase = true) } })
-            message.addReaction(Emojis.ballotBoxWithCheck)
-    }
-
     val rawInputs = when {
         content.startsWith(prefix) -> stripPrefixInvocation(content, prefix)
         content.trimToID() == self.toString() -> {
@@ -52,8 +38,6 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
             return@on
         }
 
-        content.isBotMention() -> stripMentionInvocation(content)
-        content.isSearch() -> return@on search()
         else -> return@on Conversations.handleMessage(message)
     }
 
@@ -72,15 +56,8 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
 
     if (!arePreconditionsPassing(event)) return@on
 
-    val isValidInvocationType = potentialCommand !is SlashCommand || discord.configuration.dualRegistry
-
-    val command = potentialCommand.takeIf { isValidInvocationType && it.hasPermissionToRun(discord, author, guild) }
+    val command = potentialCommand.takeIf { it.hasPermissionToRun(discord, author, guild) }
         ?: return@on Recommender.sendRecommendation(event, commandName)
-
-    if (!config.deleteInvocation)
-        config.commandReaction?.let {
-            message.addReaction(it)
-        }
 
     command.invoke(event, rawInputs.commandArgs)
 }

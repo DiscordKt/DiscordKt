@@ -16,10 +16,6 @@ internal object Recommender {
 
     suspend fun sendRecommendation(event: CommandEvent<*>, input: String) {
         val discord = event.discord
-        val config = discord.configuration
-
-        if (!config.recommendCommands)
-            return
 
         val possibilities = discord.commands
             .filter { it.hasPermissionToRun(discord, event.author, event.guild) }
