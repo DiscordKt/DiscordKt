@@ -14,11 +14,11 @@ import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.dsl.BotConfiguration
 import me.jakejmattson.discordkt.dsl.Precondition
 import me.jakejmattson.discordkt.dsl.diService
-import me.jakejmattson.discordkt.util.pluralize
 import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
 import me.jakejmattson.discordkt.internal.listeners.registerInteractionListener
 import me.jakejmattson.discordkt.internal.utils.*
 import me.jakejmattson.discordkt.locale.Locale
+import me.jakejmattson.discordkt.util.pluralize
 import java.time.Instant
 import java.util.*
 import kotlin.reflect.KClass
@@ -139,7 +139,6 @@ public abstract class Discord {
 
             InternalLogger.log(header)
             InternalLogger.log(commands.filterIsInstance<SlashCommand>().size.pluralize("Slash Command"))
-            InternalLogger.log(commands.filterIsInstance<TextCommand>().size.pluralize("Text Command"))
             InternalLogger.log(subcommands.flatMap { it.commands }.size.pluralize("Subcommand"))
             InternalLogger.log(services.size.pluralize("Service"))
             InternalLogger.log(preconditions.size.pluralize("Precondition"))

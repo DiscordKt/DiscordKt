@@ -3,7 +3,6 @@ package me.jakejmattson.discordkt.internal.utils
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.commands.SlashCommand
-import me.jakejmattson.discordkt.commands.TextCommand
 import me.jakejmattson.discordkt.util.DiscordRegex
 
 internal fun Discord.validate() {
@@ -45,14 +44,6 @@ internal fun Discord.validate() {
                         .map { this to it }
                     )
                 }
-
-                is TextCommand -> {
-                    errors.spaceTxtCmd.addAll(names.filter { it.contains(" ") })
-
-                    errors.spaceTxtArg.addAll(executions.flatMap { execution ->
-                        execution.arguments.filter { " " in it.name }.map { this to it }
-                    })
-                }
             }
         }
     }
@@ -68,7 +59,6 @@ private data class Errors(
     //Naming
     val blankCmdName: MutableSet<String> = mutableSetOf(),
     val spaceTxtCmd: MutableList<String> = mutableListOf(),
-    val spaceTxtArg: MutableList<Pair<TextCommand, Argument<*, *>>> = mutableListOf(),
     val badRegexSlashCmd: MutableList<SlashCommand> = mutableListOf(),
     val badRegexSlashArg: MutableList<Pair<SlashCommand, Argument<*, *>>> = mutableListOf()
 ) {
@@ -104,13 +94,6 @@ private data class Errors(
                 } + "\n")
             }
         }
-
-        if (spaceTxtArg.isNotEmpty())
-            InternalLogger.error("Arguments with spaces are not recommended:\n" +
-                spaceTxtArg.joinToString("\n") { (cmd, arg) ->
-                    "$indent${cmd.category}-${cmd.name}-${arg::class.simplerName}(\"${arg.name}\")"
-                } + "\n"
-            )
 
         if (fatalErrors.isNotEmpty())
             InternalLogger.fatalError("Invalid command configuration:\n${fatalErrors.lines().joinToString("\n") { "$indent$it" }}")

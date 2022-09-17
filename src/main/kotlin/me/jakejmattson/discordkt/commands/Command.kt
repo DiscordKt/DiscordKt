@@ -80,16 +80,11 @@ public sealed interface Command {
      *
      * @param discord The event context that will attempt to run the command.
      */
-    public suspend fun hasPermissionToRun(discord: Discord, author: User, guild: Guild?): Boolean = when {
-        this is DmTextCommand && guild != null -> false
-        this is GuildTextCommand && guild == null -> false
-        else -> {
-            if (guild != null)
-                author.asMember(guild.id).getPermissions().contains(requiredPermissions)
-            else
-                false //TODO Handle global message commands
-        }
-    }
+    public suspend fun hasPermissionToRun(discord: Discord, author: User, guild: Guild?): Boolean =
+        if (guild != null)
+            author.asMember(guild.id).getPermissions().contains(requiredPermissions)
+        else
+            false //TODO Handle global message commands
 
     /**
      * Invoke this command with the given args.
@@ -146,16 +141,6 @@ public sealed interface Command {
 }
 
 /**
- * Abstract text command representation.
- *
- * @property name The first provided name for a TextCommand.
- */
-public sealed interface TextCommand : Command {
-    override val name: String
-        get() = names.first()
-}
-
-/**
  * Abstract slash command representation.
  *
  * @property execution The single execution of slash command.
@@ -163,105 +148,6 @@ public sealed interface TextCommand : Command {
 public sealed interface SlashCommand : Command {
     public val execution: Execution<CommandEvent<*>>
         get() = executions.first()
-}
-
-/**
- * A text command that can be executed from anywhere.
- */
-public class GlobalTextCommand(override val names: List<String>,
-                               override var description: String = "",
-                               override val category: String,
-                               override var requiredPermissions: Permissions,
-                               override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : TextCommand {
-    /** @suppress */
-    @NestedDSL
-    public fun execute(execute: suspend CommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A> execute(a: Argument<*, A>, execute: suspend CommandEvent<Args1<A>>.() -> Unit): Unit = addExecution(listOf(a), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A, B> execute(a: Argument<*, A>, b: Argument<*, B>, execute: suspend CommandEvent<Args2<A, B>>.() -> Unit): Unit = addExecution(listOf(a, b), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A, B, C> execute(a: Argument<*, A>, b: Argument<*, B>, c: Argument<*, C>, execute: suspend CommandEvent<Args3<A, B, C>>.() -> Unit): Unit = addExecution(listOf(a, b, c), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A, B, C, D> execute(a: Argument<*, A>, b: Argument<*, B>, c: Argument<*, C>, d: Argument<*, D>, execute: suspend CommandEvent<Args4<A, B, C, D>>.() -> Unit): Unit = addExecution(listOf(a, b, c, d), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A, B, C, D, E> execute(a: Argument<*, A>, b: Argument<*, B>, c: Argument<*, C>, d: Argument<*, D>, e: Argument<*, E>, execute: suspend CommandEvent<Args5<A, B, C, D, E>>.() -> Unit): Unit = addExecution(listOf(a, b, c, d, e), execute)
-}
-
-/**
- * A text command that can only be executed in a guild.
- */
-public class GuildTextCommand(override val names: List<String>,
-                              override var description: String = "",
-                              override val category: String,
-                              override var requiredPermissions: Permissions,
-                              override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : TextCommand {
-    /** @suppress */
-    @NestedDSL
-    public fun execute(execute: suspend GuildCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A> execute(a: Argument<*, A>, execute: suspend GuildCommandEvent<Args1<A>>.() -> Unit): Unit = addExecution(listOf(a), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A, B> execute(a: Argument<*, A>, b: Argument<*, B>, execute: suspend GuildCommandEvent<Args2<A, B>>.() -> Unit): Unit = addExecution(listOf(a, b), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A, B, C> execute(a: Argument<*, A>, b: Argument<*, B>, c: Argument<*, C>, execute: suspend GuildCommandEvent<Args3<A, B, C>>.() -> Unit): Unit = addExecution(listOf(a, b, c), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A, B, C, D> execute(a: Argument<*, A>, b: Argument<*, B>, c: Argument<*, C>, d: Argument<*, D>, execute: suspend GuildCommandEvent<Args4<A, B, C, D>>.() -> Unit): Unit = addExecution(listOf(a, b, c, d), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A, B, C, D, E> execute(a: Argument<*, A>, b: Argument<*, B>, c: Argument<*, C>, d: Argument<*, D>, e: Argument<*, E>, execute: suspend GuildCommandEvent<Args5<A, B, C, D, E>>.() -> Unit): Unit = addExecution(listOf(a, b, c, d, e), execute)
-}
-
-/**
- * A text command that can only be executed in a DM.
- */
-public class DmTextCommand(override val names: List<String>,
-                           override var description: String = "",
-                           override val category: String,
-                           override var requiredPermissions: Permissions,
-                           override val executions: MutableList<Execution<CommandEvent<*>>> = mutableListOf()) : TextCommand {
-    /** @suppress */
-    @NestedDSL
-    public fun execute(execute: suspend DmCommandEvent<NoArgs>.() -> Unit): Unit = addExecution(listOf(), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A> execute(a: Argument<*, A>, execute: suspend DmCommandEvent<Args1<A>>.() -> Unit): Unit = addExecution(listOf(a), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A, B> execute(a: Argument<*, A>, b: Argument<*, B>, execute: suspend DmCommandEvent<Args2<A, B>>.() -> Unit): Unit = addExecution(listOf(a, b), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A, B, C> execute(a: Argument<*, A>, b: Argument<*, B>, c: Argument<*, C>, execute: suspend DmCommandEvent<Args3<A, B, C>>.() -> Unit): Unit = addExecution(listOf(a, b, c), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A, B, C, D> execute(a: Argument<*, A>, b: Argument<*, B>, c: Argument<*, C>, d: Argument<*, D>, execute: suspend DmCommandEvent<Args4<A, B, C, D>>.() -> Unit): Unit = addExecution(listOf(a, b, c, d), execute)
-
-    /** @suppress */
-    @NestedDSL
-    public fun <A, B, C, D, E> execute(a: Argument<*, A>, b: Argument<*, B>, c: Argument<*, C>, d: Argument<*, D>, e: Argument<*, E>, execute: suspend DmCommandEvent<Args5<A, B, C, D, E>>.() -> Unit): Unit = addExecution(listOf(a, b, c, d, e), execute)
 }
 
 /**
@@ -353,8 +239,4 @@ public class ContextCommand(override val name: String,
 /**
  * Find a command by its name (case-insensitive).
  */
-public fun <T : Command> List<T>.findByName(name: String): T? =
-    if (this is TextCommand)
-        find { cmd -> cmd.names.any { it.equals(name, true) } }
-    else
-        find { it.name.equals(name, true) }
+public fun <T : Command> List<T>.findByName(name: String): T? = find { it.name.equals(name, true) }

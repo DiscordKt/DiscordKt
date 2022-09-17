@@ -31,45 +31,6 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
     private val commands = mutableListOf<Command>()
 
     /**
-     * Create a guild text command.
-     *
-     * @param names The names of this command.
-     * @param action The command action.
-     */
-    @InnerDSL
-    public fun text(vararg names: String, action: GuildTextCommand.() -> Unit) {
-        val command = GuildTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
-        command.action()
-        commands.add(command)
-    }
-
-    /**
-     * Create a dm text command.
-     *
-     * @param names The names of this command.
-     * @param action The command action.
-     */
-    @InnerDSL
-    public fun dmText(vararg names: String, action: DmTextCommand.() -> Unit) {
-        val command = DmTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
-        command.action()
-        commands.add(command)
-    }
-
-    /**
-     * Create a global text command.
-     *
-     * @param names The names of this command.
-     * @param action The command action.
-     */
-    @InnerDSL
-    public fun globalText(vararg names: String, action: GlobalTextCommand.() -> Unit) {
-        val command = GlobalTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
-        command.action()
-        commands.add(command)
-    }
-
-    /**
      * Create a guild slash command.
      *
      * @param name The name of this command.

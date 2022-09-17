@@ -4,7 +4,8 @@ import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.entity.Guild
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
-import dev.kord.core.entity.channel.*
+import dev.kord.core.entity.channel.Channel
+import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
 import dev.kord.x.emoji.Emojis
@@ -13,10 +14,10 @@ import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.conversations.Conversations
-import me.jakejmattson.discordkt.util.trimToID
 import me.jakejmattson.discordkt.internal.command.stripMentionInvocation
 import me.jakejmattson.discordkt.internal.command.stripPrefixInvocation
 import me.jakejmattson.discordkt.internal.utils.Recommender
+import me.jakejmattson.discordkt.util.trimToID
 
 internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on<MessageCreateEvent> {
     val config = discord.configuration
@@ -87,9 +88,6 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
 private fun Command.buildRequiredEvent(discord: Discord, rawInputs: RawInputs, message: Message?, author: User, channel: Channel, guild: Guild?): CommandEvent<TypeContainer>? {
     return try {
         when (this) {
-            is GlobalTextCommand -> CommandEvent(rawInputs, discord, message, author, channel as MessageChannel, guild)
-            is GuildTextCommand -> GuildCommandEvent(rawInputs, discord, message!!, author, channel as GuildMessageChannel, guild!!)
-            is DmTextCommand -> DmCommandEvent(rawInputs, discord, message!!, author, channel as DmChannel)
             is GuildSlashCommand -> GuildSlashCommandEvent(rawInputs, discord, message, author, channel as MessageChannel, guild!!, null)
             is SlashCommand -> SlashCommandEvent(rawInputs, discord, message, author, channel as MessageChannel, guild, null)
         }
