@@ -53,9 +53,6 @@ public sealed interface Command {
     public val requiredPermissions: Permissions
     public var execution: Execution<CommandEvent<*>>
 
-    public val names: List<String>
-        get() = listOf(name)
-
     /**
      * Whether this command has permission to run with the given event.
      *

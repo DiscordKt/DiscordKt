@@ -20,5 +20,5 @@ public open class CommandArg(override val name: String = "Command",
         return Success(command)
     }
 
-    override suspend fun generateExamples(context: DiscordContext): List<String> = context.discord.commands.mapNotNull { it.names.firstOrNull() }
+    override suspend fun generateExamples(context: DiscordContext): List<String> = context.discord.commands.map { it.name }
 }

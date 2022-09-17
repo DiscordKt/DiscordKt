@@ -13,7 +13,7 @@ internal fun produceHelpCommand(category: String) = commands(category) {
             .autocomplete {
                 discord.commands
                     .filter { it.hasPermissionToRun(discord, interaction.user, (interaction as GuildAutoCompleteInteraction).getGuild()) }
-                    .map { it.names }.flatten()
+                    .map { it.name }
                     .filter { it.contains(input, true) }
             }.optional("")) {
             val input = args.first
@@ -50,10 +50,7 @@ private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
                 field {
                     name = category
                     value = "```\n" +
-                        commands
-                            .sortedBy { it.names.joinToString() }
-                            .joinToString("\n")
-                            { it.names.joinToString() } +
+                        commands.sortedBy { it.name }.joinToString("\n") { it.name } +
                         "\n```"
                     inline = true
                 }
@@ -62,7 +59,7 @@ private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
 
 private suspend fun Command.sendHelpEmbed(event: CommandEvent<*>, input: String, embedColor: Color?) =
     event.respond {
-        title = names.joinToString()
+        title = name
         color = embedColor
 
         if (this@sendHelpEmbed.description.isNotBlank())

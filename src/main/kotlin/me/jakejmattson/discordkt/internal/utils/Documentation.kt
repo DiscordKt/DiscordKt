@@ -29,7 +29,7 @@ internal fun createDocumentation(commands: List<Command>, subcommands: MutableLi
     fun List<CommandData>.maxLength(field: (CommandData) -> String) = maxOf { field.invoke(it).length }
 
     fun extractCommandData(command: Command): CommandData {
-        val nameString = command.names.joinToString().sanitizePipe()
+        val nameString = command.name.sanitizePipe()
 
         val expectedArgs = listOf(command.execution.arguments
             .joinToString { arg -> if (arg.isOptional()) "[${arg.name}]" else arg.name }

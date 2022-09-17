@@ -7,7 +7,7 @@ import me.jakejmattson.discordkt.util.DiscordRegex
 
 internal fun Discord.validate() {
     val duplicates = commands
-        .flatMap { it.names }
+        .map { it.name }
         .filter { it.isNotBlank() }
         .groupingBy { it }
         .eachCount()
@@ -22,7 +22,7 @@ internal fun Discord.validate() {
 
     commands.forEach { command ->
         with(command) {
-            if (names.any { it.isBlank() })
+            if (name.isBlank())
                 errors.blankCmdName.add(category)
 
             with(this) {
