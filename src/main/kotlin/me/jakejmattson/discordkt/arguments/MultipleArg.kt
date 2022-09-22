@@ -1,7 +1,6 @@
 package me.jakejmattson.discordkt.arguments
 
 import me.jakejmattson.discordkt.Args1
-import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.internal.command.transformArgs
@@ -16,29 +15,6 @@ public class MultipleArg<Input, Output>(override val type: Argument<Input, Outpu
                                         override val name: String = type.name,
                                         description: String = "") : WrappedArgument<Input, Output, List<Input>, List<Output>> {
     override val description: String = description.ifBlank { internalLocale.multipleArgDescription.inject(type.name) }
-
-    override suspend fun parse(args: MutableList<String>, discord: Discord): List<Input>? {
-        val totalResult = mutableListOf<Input>()
-        val remainingArgs = args.toMutableList()
-
-        complete@ while (remainingArgs.isNotEmpty()) {
-            val conversion = type.parse(remainingArgs, discord)
-
-            if (conversion != null) {
-                totalResult.add(conversion)
-            } else {
-                if (totalResult.isEmpty())
-                    return null
-
-                break@complete
-            }
-        }
-
-        args.clear()
-        args.addAll(remainingArgs)
-
-        return totalResult
-    }
 
     override suspend fun transform(input: List<Input>, context: DiscordContext): Result<List<Output>> {
         val transformation = input.map {

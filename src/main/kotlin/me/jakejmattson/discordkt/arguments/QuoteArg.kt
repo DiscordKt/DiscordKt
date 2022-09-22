@@ -1,6 +1,5 @@
 package me.jakejmattson.discordkt.arguments
 
-import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 
@@ -22,31 +21,6 @@ public open class QuoteArg(override val name: String = "Quote",
         '\u2018', //English single left
         '\u2019', //English single right
     )
-
-    override suspend fun parse(args: MutableList<String>, discord: Discord): String? {
-        val arg = args.first()
-        val first = arg.first()
-        val last = arg.last()
-
-        if (first !in quotationMarks)
-            return null
-
-        val rawQuote = if (last !in quotationMarks)
-            args.takeUntil { it.last() !in quotationMarks }.joinToString(" ")
-        else
-            arg
-
-        if (rawQuote.last() !in quotationMarks)
-            return null
-
-        val quote = rawQuote.trim(*quotationMarks.toCharArray())
-
-        args.removeAll(args.filterIndexed { index: Int, _: String ->
-            index < quote.split(" ").size
-        })
-
-        return quote
-    }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("\"A Quote\"")
 }

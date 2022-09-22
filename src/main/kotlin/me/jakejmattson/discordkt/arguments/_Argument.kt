@@ -2,7 +2,6 @@
 
 package me.jakejmattson.discordkt.arguments
 
-import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.CommandEvent
 import me.jakejmattson.discordkt.commands.DiscordContext
 
@@ -48,14 +47,6 @@ public sealed interface Argument<Input, Output> : Cloneable {
      * @param default A default value matching the expected type - can also be null.
      */
     public fun optionalNullable(default: suspend (DiscordContext) -> Output?): OptionalArg<Input, Output, Output?> = OptionalArg(name, this, default)
-
-    /**
-     * Parse string input into the correct type handled by this argument.
-     *
-     * @param args A list of string arguments.
-     * @param discord The [Discord] object used to resolve discord entities.
-     */
-    public suspend fun parse(args: MutableList<String>, discord: Discord): Input?
 
     /**
      * Transforms a value produced by a slash command or by the [parse] function.
