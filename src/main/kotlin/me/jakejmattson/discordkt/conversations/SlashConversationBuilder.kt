@@ -27,24 +27,23 @@ public class SlashConversationBuilder<T : TypeContainer>(
         get() = responders.map { it.promptMessage.id }.toMutableList()
 
     @Throws(DmException::class)
-    public override suspend fun <T> promptUntil(argument: Argument<*, T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
-        var value: T = prompt(argument, prompt)
+    public override suspend fun promptUntil(prompt: String, error: String, isValid: (String) -> Boolean): String {
+        var value: String = prompt(prompt)
 
         while (!isValid.invoke(value)) {
             respond(error)
-            value = prompt(argument, prompt)
+            value = prompt(prompt)
         }
 
         return value
     }
 
     @Throws(DmException::class, TimeoutException::class)
-    public override suspend fun <I, O> prompt(argument: Argument<I, O>, text: String, embed: (suspend EmbedBuilder.() -> Unit)?): O {
-        require(!argument.isOptional()) { "Conversation arguments cannot be optional" }
+    public override suspend fun prompt(text: String, embed: (suspend EmbedBuilder.() -> Unit)?): String {
 
         createMessage(text, embed)
 
-        return retrieveValidTextResponse(argument)
+        return retrieveValidTextResponse()
     }
 
     @Throws(DmException::class, TimeoutException::class)

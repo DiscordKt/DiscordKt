@@ -14,11 +14,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.Discord
-import me.jakejmattson.discordkt.arguments.*
-import me.jakejmattson.discordkt.commands.DiscordContext
+import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.conversations.responders.ConversationResponder
 import me.jakejmattson.discordkt.dsl.Responder
-import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.prompts.SimpleSelectBuilder
 import me.jakejmattson.discordkt.util.uuid
 import java.util.*
@@ -80,7 +78,7 @@ public abstract class ConversationBuilder(
      * @param isValid A predicate to determine whether the input is accepted.
      */
     @Throws(DmException::class)
-    public abstract suspend fun <T> promptUntil(argument: Argument<*, T>, prompt: String, error: String, isValid: (T) -> Boolean): T
+    public abstract suspend fun promptUntil(prompt: String, error: String, isValid: (String) -> Boolean): String
 
     /**
      * Prompt the user with text and/or embed.
@@ -90,7 +88,7 @@ public abstract class ConversationBuilder(
      * @param embed The embed sent as part of the prompt.
      */
     @Throws(DmException::class, TimeoutException::class)
-    public abstract suspend fun <I, O> prompt(argument: Argument<I, O>, text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): O
+    public abstract suspend fun prompt(text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): String
 
     /**
      * Prompt the user with an embed and the provided buttons.
@@ -135,11 +133,11 @@ public abstract class ConversationBuilder(
         }
     }
 
-    protected fun <T> retrieveValidTextResponse(argument: Argument<*, T>): T = runBlocking {
-        retrieveTextResponse(argument) ?: retrieveValidTextResponse(argument)
+    protected fun retrieveValidTextResponse(): String = runBlocking {
+        retrieveTextResponse() ?: retrieveValidTextResponse()
     }
 
-    private suspend fun <T> retrieveTextResponse(argument: Argument<*, T>): T? = select {
+    private suspend fun retrieveTextResponse(): String? = select {
         val timer = createTimer()
 
         exceptionBuffer.onReceive { timeoutException ->
@@ -155,13 +153,7 @@ public abstract class ConversationBuilder(
 
             timer?.cancel()
 
-            when (val result = parseResponse(argument, message)) {
-                is Success<T> -> result.result
-                is Error<T> -> {
-                    respond(result.error)
-                    null
-                }
-            }
+            return@onReceive message.content
         }
     }
 
@@ -198,16 +190,6 @@ public abstract class ConversationBuilder(
             else
                 listOf(buttons[interaction.componentId]!!)
         }
-    }
-
-    private suspend fun <I, O> parseResponse(argument: Argument<I, O>, message: Message): Result<O> {
-        val context = DiscordContext(discord, message, message.author!!, message.channel.asChannel(), message.getGuildOrNull())
-        val parseResult = argument.parse(message.content.split(" ").toMutableList(), discord)
-
-        return if (parseResult != null)
-            argument.transform(parseResult, context)
-        else
-            Error(internalLocale.invalidFormat)
     }
 
     private fun createTimer(): TimerTask? =
