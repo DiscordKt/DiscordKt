@@ -22,19 +22,13 @@ internal fun Discord.validate() {
 
     commands.forEach { command ->
         with(command) {
-            if (name.isBlank())
-                errors.blankCmdName.add(category)
+            if (!name.matches(DiscordRegex.slashName))
+                errors.badRegexSlashCmd.add(this)
 
-            with(this) {
-                if (!name.matches(DiscordRegex.slashName))
-                    errors.badRegexSlashCmd.add(this)
-
-                errors.badRegexSlashArg.addAll(execution
-                    .arguments
-                    .filter { !it.name.matches(DiscordRegex.slashName) }
-                    .map { this to it }
-                )
-            }
+            errors.badRegexSlashArg.addAll(execution.arguments
+                .filter { !it.name.matches(DiscordRegex.slashName) }
+                .map { this to it }
+            )
         }
     }
 
@@ -42,8 +36,6 @@ internal fun Discord.validate() {
 }
 
 private data class Errors(
-    val blankCmdName: MutableSet<String> = mutableSetOf(),
-    val spaceTxtCmd: MutableList<String> = mutableListOf(),
     val badRegexSlashCmd: MutableList<Command> = mutableListOf(),
     val badRegexSlashArg: MutableList<Pair<Command, Argument<*, *>>> = mutableListOf()
 ) {
@@ -51,15 +43,8 @@ private data class Errors(
 
     private fun String.toIndicator() = map { if (DiscordRegex.slashName.matches(it.toString())) ' ' else '^' }.joinToString("")
 
-    private fun StringBuilder.appendError(list: List<String>, message: String) {
-        if (list.isNotEmpty())
-            appendLine("$message: \n${list.joinToString("\n") { "$indent$it" }}\n")
-    }
-
     fun display() {
         val fatalErrors = buildString {
-            appendError(blankCmdName.toList(), "Command names cannot be blank")
-            appendError(spaceTxtCmd, "Command names cannot have spaces")
 
             if (badRegexSlashCmd.isNotEmpty()) {
                 appendLine("Slash command names must follow regex ${DiscordRegex.slashName.pattern}")
