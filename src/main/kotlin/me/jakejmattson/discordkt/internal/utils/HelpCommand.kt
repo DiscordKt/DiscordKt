@@ -23,7 +23,7 @@ internal fun produceHelpCommand(category: String) = commands(category) {
                 sendDefaultEmbed(theme)
             else
                 discord.commands.findByName(input)?.sendHelpEmbed(this, input, theme)
-                    ?: Recommender.sendRecommendation(this, input)
+                    ?: respond("Unknown command!") //TODO Use Locale
         }
     }
 }
