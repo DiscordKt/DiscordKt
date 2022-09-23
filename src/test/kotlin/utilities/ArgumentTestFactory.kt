@@ -16,10 +16,10 @@ private val contextMock = mockk<DiscordContext> {
     every { discord } returns discordMockk
 }
 
-interface ArgumentTestFactory {
-    val argument: Argument<*, *>
-    val validArgs: List<Pair<String, *>>
-    val invalidArgs: List<String>
+interface ArgumentTestFactory <A, B> {
+    val argument: Argument<A, B>
+    val validArgs: List<Pair<A, B>>
+    val invalidArgs: List<A>
 
     @TestFactory
     fun `valid input`() = validArgs.map { (input, expected) ->
@@ -29,6 +29,7 @@ interface ArgumentTestFactory {
                     Assertions.assertEquals(conversionResult.result, expected)
                 }
             }
+
             is Error<*> -> {
                 DynamicTest.dynamicTest("\"$input\" -> ${conversionResult.error}") {
                     fail { conversionResult.error }
@@ -45,6 +46,7 @@ interface ArgumentTestFactory {
                     Assertions.assertTrue(true)
                 }
             }
+
             is Success<*> -> {
                 DynamicTest.dynamicTest("\"$input\" -> ${conversionResult.result}") {
                     fail { "Conversion succeeded, but was expected to fail." }
@@ -62,15 +64,6 @@ interface ArgumentTestFactory {
     }
 }
 
-private fun <A, B> Argument<A, B>.attemptConvert(input: String): Result<*> {
-    val split = input.split(" ").toMutableList()
+interface StringArgumentTestFactory<O> : ArgumentTestFactory<String, O>
 
-    return runBlocking {
-        val parseResult = parse(split, contextMock.discord)
-
-        if (parseResult != null)
-            transform(parseResult, contextMock)
-        else
-            Error(internalLocale.invalidFormat)
-    }
-}
+private fun <A, B> Argument<A, B>.attemptConvert(input: A): Result<*> = runBlocking { transform(input, contextMock) }

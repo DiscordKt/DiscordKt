@@ -3,7 +3,7 @@ package arguments
 import me.jakejmattson.discordkt.arguments.AnyArg
 import utilities.ArgumentTestFactory
 
-class AnyArgTest : ArgumentTestFactory {
+class AnyArgTest : ArgumentTestFactory<String, String> {
     override val argument = AnyArg
 
     override val validArgs = listOf(

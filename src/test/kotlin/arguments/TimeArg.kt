@@ -1,7 +1,7 @@
 package arguments
 
 import me.jakejmattson.discordkt.arguments.TimeArg
-import utilities.ArgumentTestFactory
+import utilities.StringArgumentTestFactory
 
 private const val second = 1.0
 private const val minute = 60.0
@@ -11,7 +11,7 @@ private const val week = 604800.0
 private const val month = 2592000.0
 private const val year = 31536000.0
 
-class TimeArgTest : ArgumentTestFactory {
+class TimeArgTest : StringArgumentTestFactory<Double> {
     override val argument = TimeArg
 
     override val validArgs = listOf(

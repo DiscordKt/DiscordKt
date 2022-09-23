@@ -1,9 +1,9 @@
 package arguments
 
 import me.jakejmattson.discordkt.arguments.EveryArg
-import utilities.ArgumentTestFactory
+import utilities.StringArgumentTestFactory
 
-class EveryArgTest : ArgumentTestFactory {
+class EveryArgTest : StringArgumentTestFactory<String> {
     override val argument = EveryArg
 
     override val validArgs = listOf(

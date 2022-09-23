@@ -1,9 +1,9 @@
 package arguments
 
 import me.jakejmattson.discordkt.arguments.SplitterArg
-import utilities.ArgumentTestFactory
+import utilities.StringArgumentTestFactory
 
-class SplitterArgTest : ArgumentTestFactory {
+class SplitterArgTest : StringArgumentTestFactory<List<String>> {
     override val argument = SplitterArg
 
     override val validArgs = listOf(

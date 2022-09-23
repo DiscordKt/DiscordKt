@@ -1,10 +1,10 @@
 package arguments
 
 import me.jakejmattson.discordkt.arguments.HexColorArg
-import utilities.ArgumentTestFactory
+import utilities.StringArgumentTestFactory
 import java.awt.Color
 
-class HexColorArgTest : ArgumentTestFactory {
+class HexColorArgTest : StringArgumentTestFactory<Color> {
     override val argument = HexColorArg
 
     override val validArgs = listOf(
