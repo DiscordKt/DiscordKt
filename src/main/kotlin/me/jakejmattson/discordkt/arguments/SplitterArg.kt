@@ -18,7 +18,10 @@ public open class SplitterArg(private val splitter: String = "|",
     public companion object : SplitterArg()
 
     override suspend fun transform(input: String, context: DiscordContext): Result<List<String>> {
-        return Success(input.split(splitter).toList())
+        return if (input.contains(splitter))
+            Success(input.split(splitter).toList())
+        else
+            Error("Missing splitter character `$splitter`") //TODO Use Locale
     }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("A${splitter}B${splitter}C")

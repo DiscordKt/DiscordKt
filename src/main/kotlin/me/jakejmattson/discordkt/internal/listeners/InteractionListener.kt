@@ -57,10 +57,7 @@ private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction,
                     else -> options[argName]?.value
                 }
 
-                if (argument is MultipleArg<*, *>)
-                    argument to listOf(value)
-                else
-                    argument to value
+                argument to value
             }
         }, context)
     }

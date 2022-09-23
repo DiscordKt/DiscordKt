@@ -1,6 +1,5 @@
 package me.jakejmattson.discordkt.internal.utils
 
-import me.jakejmattson.discordkt.arguments.MultipleArg
 import me.jakejmattson.discordkt.commands.Command
 import me.jakejmattson.discordkt.commands.SubCommandSet
 import java.io.File
@@ -59,9 +58,6 @@ internal fun createDocumentation(commands: List<Command>, subcommands: MutableLi
 
         if (argumentSet.any { it.isOptional() })
             appendLine("| [Argument]  | Argument is not required.      |")
-
-        if (argumentSet.any { it is MultipleArg<*, *> })
-            appendLine("| Argument... | Accepts many of this argument. |")
 
         if (subcommands.isNotEmpty())
             appendLine("| /Category   | This is a subcommand group.    |")

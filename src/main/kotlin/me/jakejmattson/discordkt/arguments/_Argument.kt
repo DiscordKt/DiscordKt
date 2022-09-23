@@ -16,11 +16,6 @@ public sealed interface Argument<Input, Output> : Cloneable {
     public val description: String
 
     /**
-     * Accept multiple inputs of this Argument.
-     */
-    public fun multiple(): MultipleArg<Input, Output> = MultipleArg(this)
-
-    /**
      * Make this argument optional and fall back to the default value if the conversion fails.
      *
      * @param default A default value matching the expected type.
