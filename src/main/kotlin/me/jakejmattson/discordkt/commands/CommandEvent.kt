@@ -40,19 +40,14 @@ public open class DiscordContext(public val discord: Discord,
  * @property command The [Command] that is resolved from the invocation.
  * @property context The [DiscordContext] of this event.
  */
-public open class CommandEvent<T : TypeContainer>(
-    public open val command: Command,
-    public open val discord: Discord,
-    public open val message: Message?,
-    public open val author: User,
-    override val channel: MessageChannel,
-    public open val guild: Guild?) : Responder {
-
-    public lateinit var args: T
-
-    //TODO Require Command to build event
-    //public val command: Command?
-    //get() = discord.commands.findByName(rawInputs.commandName)
+public interface CommandEvent<T : TypeContainer> : SlashResponder {
+    public val command: Command
+    public val discord: Discord
+    public val message: Message?
+    public val author: User
+    override val channel: MessageChannel
+    public val guild: Guild?
+    public val args: T
 
     public val context: DiscordContext
         get() = DiscordContext(discord, message, author, channel, guild)
@@ -67,12 +62,7 @@ public open class CommandEvent<T : TypeContainer>(
      */
     public suspend fun reactWith(emoji: DiscordEmoji): Unit? = message?.addReaction(emoji)
 
-    /**
-     * Clone this event's context data with new inputs.
-     */
-    public open fun clone(): CommandEvent<T> = CommandEvent(command, discord, message, author, channel, guild)
-
-    internal fun isFromGuild() = guild != null
+    public fun isFromGuild(): Boolean = guild != null
 }
 
 /**
@@ -87,7 +77,8 @@ public open class SlashCommandEvent<T : TypeContainer>(
     override val author: User,
     override val channel: MessageChannel,
     override val guild: Guild? = null,
-    public override val interaction: ApplicationCommandInteraction?) : CommandEvent<T>(command, discord, message, author, channel, guild), SlashResponder
+    public override val interaction: ApplicationCommandInteraction,
+    override val args: T) : CommandEvent<T>
 
 /**
  * An event fired by a guild slash command.
@@ -100,8 +91,9 @@ public data class GuildSlashCommandEvent<T : TypeContainer>(
     override val author: User,
     override val channel: MessageChannel,
     override val guild: Guild,
-    override val interaction: GuildApplicationCommandInteraction?
-) : SlashCommandEvent<T>(command, discord, message, author, channel, guild, interaction), SlashResponder {
+    override val interaction: GuildApplicationCommandInteraction,
+    override val args: T
+) : SlashCommandEvent<T>(command, discord, message, author, channel, guild, interaction, args), SlashResponder {
     internal fun <A> toContextual(arg: A) = ContextEvent(command, discord, null, author, channel, guild, interaction, arg)
 }
 
@@ -118,6 +110,6 @@ public data class ContextEvent<T>(
     override val author: User,
     override val channel: MessageChannel,
     override val guild: Guild,
-    override val interaction: GuildApplicationCommandInteraction?,
+    override val interaction: GuildApplicationCommandInteraction,
     val arg: T
-) : SlashCommandEvent<Args1<T>>(command, discord, message, author, channel, guild, interaction), SlashResponder
+) : SlashCommandEvent<Args1<T>>(command, discord, message, author, channel, guild, interaction, Args1(arg)), SlashResponder

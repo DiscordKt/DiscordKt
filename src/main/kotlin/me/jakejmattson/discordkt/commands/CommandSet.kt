@@ -76,7 +76,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
                     requiredPermissions: Permissions = this.requiredPermissions,
                     action: suspend ContextEvent<User>.() -> Unit) {
         val command = ContextCommand(slashName, displayText, description, category, requiredPermissions, UserArg,
-            { this.toContextual(args.first).also { it.args = args }.action() }
+            { this.toContextual(args.first).action() }
         )
 
         commands.add(command)
@@ -98,7 +98,7 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
                        requiredPermissions: Permissions = this.requiredPermissions,
                        action: suspend ContextEvent<Message>.() -> Unit) {
         val command = ContextCommand(slashName, displayText, description, category, requiredPermissions, MessageArg,
-            { this.toContextual(args.first).also { it.args = args }.action() }
+            { this.toContextual(args.first).action() }
         )
 
         commands.add(command)
