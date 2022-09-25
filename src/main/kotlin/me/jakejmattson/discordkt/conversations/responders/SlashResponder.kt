@@ -13,8 +13,8 @@ public class SlashResponder<T : TypeContainer>(private val event: SlashCommandEv
     override val promptMessage: Message
         get() = runBlocking {
             getMessageOfBotResponse(
-                event.interaction!!.applicationId,
-                event.interaction!!.token
+                event.interaction.applicationId,
+                event.interaction.token
             )
         } // FIXME don't use runBlocking
 
@@ -27,10 +27,7 @@ public class SlashResponder<T : TypeContainer>(private val event: SlashCommandEv
     }
 
     override suspend fun respond(builder: suspend MessageCreateBuilder.() -> Unit): ConversationResponder {
-        val responseBehavior = event.interaction!!.respondPublic {
-            builder.invoke(this)
-        }
-
+        val responseBehavior = event.interaction.respondPublic { builder.invoke(this) }
         return FollowupResponder(responseBehavior)
     }
 }

@@ -91,16 +91,7 @@ public class Conversation(public var exitString: String? = null, public var prom
         if (Conversations.hasConversation(user, event.channel))
             return ConversationResult.HAS_CONVERSATION
 
-        val state = if (event.interaction == null) {
-            /*
-             * TODO remove with text commands
-             * startSlashResponse wasn't actually called because of a slash command, but because of a slash conversation
-             * invoked via the old-school message command system.
-             */
-            TextConversationBuilder(discord, user, event.channel, exitString, promptTimeout)
-        } else {
-            SlashConversationBuilder(discord, user, event, exitString, promptTimeout)
-        }
+        val state = SlashConversationBuilder(discord, user, event, exitString, promptTimeout)
 
         return start(state)
     }

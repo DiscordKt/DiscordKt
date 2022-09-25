@@ -10,7 +10,6 @@ import dev.kord.x.emoji.addReaction
 import me.jakejmattson.discordkt.Args1
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
-import me.jakejmattson.discordkt.dsl.Responder
 import me.jakejmattson.discordkt.dsl.SlashResponder
 
 /**
@@ -25,8 +24,8 @@ import me.jakejmattson.discordkt.dsl.SlashResponder
 public open class DiscordContext(public val discord: Discord,
                                  public open val message: Message?,
                                  public val author: User,
-                                 override val channel: MessageChannelBehavior,
-                                 public open val guild: Guild?) : Responder
+                                 public val channel: MessageChannelBehavior,
+                                 public open val guild: Guild?)
 
 /**
  * A generic command execution event.
@@ -45,7 +44,7 @@ public interface CommandEvent<T : TypeContainer> : SlashResponder {
     public val discord: Discord
     public val message: Message?
     public val author: User
-    override val channel: MessageChannel
+    public val channel: MessageChannel
     public val guild: Guild?
     public val args: T
 
@@ -93,7 +92,7 @@ public data class GuildSlashCommandEvent<T : TypeContainer>(
     override val guild: Guild,
     override val interaction: GuildApplicationCommandInteraction,
     override val args: T
-) : SlashCommandEvent<T>(command, discord, message, author, channel, guild, interaction, args), SlashResponder {
+) : SlashCommandEvent<T>(command, discord, message, author, channel, guild, interaction, args) {
     internal fun <A> toContextual(arg: A) = ContextEvent(command, discord, null, author, channel, guild, interaction, arg)
 }
 
@@ -112,4 +111,4 @@ public data class ContextEvent<T>(
     override val guild: Guild,
     override val interaction: GuildApplicationCommandInteraction,
     val arg: T
-) : SlashCommandEvent<Args1<T>>(command, discord, message, author, channel, guild, interaction, Args1(arg)), SlashResponder
+) : SlashCommandEvent<Args1<T>>(command, discord, message, author, channel, guild, interaction, Args1(arg))

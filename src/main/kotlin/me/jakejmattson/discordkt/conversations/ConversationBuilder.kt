@@ -16,7 +16,6 @@ import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.conversations.responders.ConversationResponder
-import me.jakejmattson.discordkt.dsl.Responder
 import me.jakejmattson.discordkt.prompts.SimpleSelectBuilder
 import me.jakejmattson.discordkt.util.uuid
 import java.util.*
@@ -28,10 +27,10 @@ import kotlin.concurrent.schedule
 public abstract class ConversationBuilder(
     public val discord: Discord,
     public val user: User,
-    override val channel: MessageChannel,
+    public val channel: MessageChannel,
     private val exitString: String? = null,
     private val timeout: Long,
-) : Responder {
+) {
     private val messageBuffer = Channel<Message>()
 
     private val interactionBuffer = Channel<ComponentInteraction>()

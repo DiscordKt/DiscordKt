@@ -8,7 +8,6 @@ import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.rest.builder.message.create.embed
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
-import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.commands.SlashCommandEvent
 import me.jakejmattson.discordkt.conversations.responders.SlashResponder
 import me.jakejmattson.discordkt.prompts.SimpleSelectBuilder
@@ -31,7 +30,7 @@ public class SlashConversationBuilder<T : TypeContainer>(
         var value: String = prompt(prompt)
 
         while (!isValid.invoke(value)) {
-            respond(error)
+            respond(error, null)
             value = prompt(prompt)
         }
 
@@ -73,7 +72,7 @@ public class SlashConversationBuilder<T : TypeContainer>(
     private fun getResponder() =
         responders.lastOrNull() ?: SlashResponder(event)
 
-    override suspend fun respond(message: Any, embed: (suspend EmbedBuilder.() -> Unit)?): Message {
+    public suspend fun respond(message: Any, embed: (suspend EmbedBuilder.() -> Unit)?): Message {
         createMessage(message.toString(), embed)
 
         return responders.last().promptMessage

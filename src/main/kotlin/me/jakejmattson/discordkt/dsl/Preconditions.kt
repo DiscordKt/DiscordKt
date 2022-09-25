@@ -33,7 +33,7 @@ public data class PreconditionBuilder(private val event: CommandEvent<*>) : Comm
     override val channel: MessageChannel = event.channel
     override val guild: Guild? = event.guild
     override val args: TypeContainer = event.args
-    override val interaction: ApplicationCommandInteraction? = event.interaction
+    override val interaction: ApplicationCommandInteraction = event.interaction
 
     /**
      * Fail this precondition.
