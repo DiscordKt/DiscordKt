@@ -2,7 +2,6 @@ package me.jakejmattson.discordkt.conversations
 
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
-import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ComponentInteraction
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
@@ -19,62 +18,12 @@ public fun conversation(exitString: String? = null, promptTimeout: Long = 0, blo
     Conversation(exitString, promptTimeout * 1000, block)
 
 /**
- * This block builds a slash conversation.
- */
-@BuilderDSL
-public fun slashConversation(exitString: String? = null, promptTimeout: Long = 0, block: suspend ConversationBuilder.() -> Unit): Conversation =
-    Conversation(exitString, promptTimeout, block)
-
-/**
  * A class that represent a conversation.
  *
  * @param exitString A String entered by the user to exit the conversation.
  * @param promptTimeout The amount of time (in seconds) before a prompt times out and is aborted.
  */
 public class Conversation(public var exitString: String? = null, public var promptTimeout: Long, private val block: suspend ConversationBuilder.() -> Unit) {
-    /**
-     * Start a conversation with someone in their private messages.
-     *
-     * @param user The user to start a conversation with.
-     *
-     * @return The result of the conversation indicated by an enum.
-     * @sample me.jakejmattson.discordkt.conversations.ConversationResult
-     */
-    public suspend inline fun startPrivately(discord: Discord, user: User): ConversationResult {
-        if (user.isBot)
-            return ConversationResult.INVALID_USER
-
-        val channel = user.getDmChannel()
-
-        if (Conversations.hasConversation(user, channel))
-            return ConversationResult.HAS_CONVERSATION
-
-        val state = TextConversationBuilder(discord, user, channel, exitString, promptTimeout)
-
-        return start(state)
-    }
-
-    /**
-     * Start a conversation with someone in a public channel.
-     *
-     * @param user The user to start a conversation with.
-     * @param channel The guild channel to start the conversation in.
-     *
-     * @return The result of the conversation indicated by an enum.
-     * @sample me.jakejmattson.discordkt.conversations.ConversationResult
-     */
-    public suspend inline fun startPublicly(discord: Discord, user: User, channel: MessageChannel): ConversationResult {
-        if (user.isBot)
-            return ConversationResult.INVALID_USER
-
-        if (Conversations.hasConversation(user, channel))
-            return ConversationResult.HAS_CONVERSATION
-
-        val state = TextConversationBuilder(discord, user, channel, exitString, promptTimeout)
-
-        return start(state)
-    }
-
     /**
      * Start a conversation with someone from a slash command.
      *
