@@ -81,9 +81,9 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
 
     val event =
         if (dktCommand is GuildSlashCommand)
-            GuildSlashCommandEvent(dktCommand, discord, message, author, channel, guild!!, interaction as GuildApplicationCommandInteraction, args)
+            GuildSlashCommandEvent(dktCommand, discord, author, channel, guild!!, interaction as GuildApplicationCommandInteraction, args)
         else
-            SlashCommandEvent(dktCommand, discord, message, author, channel, guild, interaction, args)
+            SlashCommandEvent(dktCommand, discord, author, channel, guild, interaction, args)
 
     if (!arePreconditionsPassing(event)) return
 

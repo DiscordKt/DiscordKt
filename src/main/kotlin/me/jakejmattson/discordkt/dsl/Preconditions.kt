@@ -3,7 +3,6 @@
 package me.jakejmattson.discordkt.dsl
 
 import dev.kord.core.entity.Guild
-import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ApplicationCommandInteraction
@@ -28,7 +27,6 @@ public fun precondition(priority: Int = 5, construct: suspend PreconditionBuilde
 public data class PreconditionBuilder(private val event: CommandEvent<*>) : CommandEvent<TypeContainer> {
     override val command: Command = event.command
     override val discord: Discord = event.discord
-    override val message: Message? = event.message
     override val author: User = event.author
     override val channel: MessageChannel = event.channel
     override val guild: Guild? = event.guild
