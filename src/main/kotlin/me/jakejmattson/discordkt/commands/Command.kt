@@ -40,7 +40,6 @@ public data class Execution<T : CommandEvent<*>>(val arguments: List<Argument<*,
 /**
  *
  * @property name The name of this command.
- * @property names All names (aliases) of this command.
  * @property description A brief description of the command - used in documentation.
  * @property requiredPermissions The permission level required to use this command.
  * @property category The category that this command belongs to - set automatically by CommandSet.
@@ -62,7 +61,7 @@ public sealed interface Command {
         if (guild != null)
             author.asMember(guild.id).getPermissions().contains(requiredPermissions)
         else
-            false //TODO Handle global message commands
+            true
 
     /**
      * Add an [Execution] to this [Command].
@@ -154,8 +153,8 @@ public class ContextCommand<A>(override val name: String,
                                override val description: String,
                                override val category: String,
                                override val requiredPermissions: Permissions,
-                               public val argument: Argument<*, A>,
-                               public val execute: suspend GuildSlashCommandEvent<Args1<A>>.() -> Unit,
+                               private val argument: Argument<*, A>,
+                               private val execute: suspend GuildSlashCommandEvent<Args1<A>>.() -> Unit,
                                override var execution: Execution<CommandEvent<*>> = Execution(listOf(argument), execute) as Execution<CommandEvent<*>>) : GuildSlashCommand(name, description, category, requiredPermissions, execution) {
     /** @suppress */
     @NestedDSL

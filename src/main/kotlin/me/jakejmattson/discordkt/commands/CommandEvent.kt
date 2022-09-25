@@ -29,7 +29,6 @@ public open class DiscordContext(public val discord: Discord,
  * A generic command execution event.
  *
  * @property discord The [Discord] instance.
- * @property message The Message that invoked this command.
  * @property author The User who invoked this command.
  * @property channel The MessageChannel this command was invoked in.
  * @property guild The (nullable) guild this command was invoked in.
@@ -52,8 +51,6 @@ public interface CommandEvent<T : TypeContainer> : SlashResponder {
      * Try to resolve the member from the user/guild data.
      */
     public suspend fun getMember(): Member? = guild?.getMember(author.id)
-
-    public fun isFromGuild(): Boolean = guild != null
 }
 
 /**

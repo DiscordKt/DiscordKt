@@ -44,7 +44,7 @@ public sealed interface Argument<Input, Output> : Cloneable {
     public fun optionalNullable(default: suspend (DiscordContext) -> Output?): OptionalArg<Input, Output, Output?> = OptionalArg(name, this, default)
 
     /**
-     * Transforms a value produced by a slash command or by the [parse] function.
+     * Transforms a value produced by a slash input.
      *
      * @param input The input data of the type [Input]
      * @param context The [DiscordContext] created by the execution of the command.

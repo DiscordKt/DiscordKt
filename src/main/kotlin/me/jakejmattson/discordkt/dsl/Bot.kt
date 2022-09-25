@@ -11,7 +11,8 @@ import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.Command
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.commands.SubCommandSet
-import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
+import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
+import me.jakejmattson.discordkt.internal.annotations.InnerDSL
 import me.jakejmattson.discordkt.internal.services.InjectionService
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
 import me.jakejmattson.discordkt.internal.utils.Reflection
@@ -30,13 +31,14 @@ internal lateinit var internalLocale: Locale
  * Create an instance of your Discord bot! You can use the following blocks to modify bot configuration:
  * [configure][Bot.configure],
  * [mentionEmbed][Bot.mentionEmbed],
- * [presence][Bot.presence],
+ * [onException][Bot.onException]
  * [localeOf][Bot.localeOf],
+ * [presence][Bot.presence],
  * [onStart][Bot.onStart]
  *
  * @param token Your Discord bot token.
  */
-@ConfigurationDSL
+@BuilderDSL
 public fun bot(token: String?, configure: suspend Bot.() -> Unit) {
     val packageName = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
 
@@ -135,7 +137,7 @@ public class Bot(private val token: String, private val packageName: String) {
     /**
      * Inject objects into the dependency injection pool.
      */
-    @ConfigurationDSL
+    @InnerDSL
     public fun inject(vararg injectionObjects: Any): Unit = injectionObjects.forEach { diService.inject(it) }
 
     /**
@@ -144,7 +146,7 @@ public class Bot(private val token: String, private val packageName: String) {
      * @param path The file path to load/save the data.
      * @param fallback An instance to be used if the file does not exist.
      */
-    @ConfigurationDSL
+    @InnerDSL
     public inline fun <reified T : Data> data(path: String, fallback: () -> T): T {
         return readDataOrDefault(File(path), fallback.invoke()).also { inject(it) }
     }
@@ -154,7 +156,7 @@ public class Bot(private val token: String, private val packageName: String) {
      *
      * @sample me.jakejmattson.discordkt.dsl.SimpleConfiguration
      */
-    @ConfigurationDSL
+    @InnerDSL
     public fun configure(config: suspend SimpleConfiguration.() -> Unit) {
         startupBundle.configure = config
     }
@@ -162,7 +164,7 @@ public class Bot(private val token: String, private val packageName: String) {
     /**
      * An embed that will be sent anytime someone (solely) mentions the bot.
      */
-    @ConfigurationDSL
+    @InnerDSL
     public fun mentionEmbed(slashName: String? = "info", construct: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = defaultMentionEmbed) {
         startupBundle.mentionEmbed = slashName to construct
     }
@@ -170,7 +172,7 @@ public class Bot(private val token: String, private val packageName: String) {
     /**
      * Function to handle any exception that occur during runtime.
      */
-    @ConfigurationDSL
+    @InnerDSL
     public fun onException(handler: suspend DktException<*>.() -> Unit) {
         startupBundle.exceptionHandler = handler
     }
@@ -180,7 +182,7 @@ public class Bot(private val token: String, private val packageName: String) {
      *
      * @param language The initial [Language] pack.
      */
-    @ConfigurationDSL
+    @InnerDSL
     public fun localeOf(language: Language, localeBuilder: Locale.() -> Unit) {
         val localeType = language.locale
         localeBuilder.invoke(localeType)
@@ -190,7 +192,7 @@ public class Bot(private val token: String, private val packageName: String) {
     /**
      * Configure the Discord presence for this bot.
      */
-    @ConfigurationDSL
+    @InnerDSL
     public fun presence(presence: PresenceBuilder.() -> Unit) {
         startupBundle.presence = presence
     }
@@ -198,7 +200,7 @@ public class Bot(private val token: String, private val packageName: String) {
     /**
      * When setup is complete, execute this block.
      */
-    @ConfigurationDSL
+    @InnerDSL
     public fun onStart(start: suspend Discord.() -> Unit) {
         startupBundle.onStart = start
     }
