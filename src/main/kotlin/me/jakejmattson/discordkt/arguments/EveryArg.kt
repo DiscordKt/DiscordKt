@@ -13,5 +13,7 @@ public open class EveryArg(override val name: String = "Text",
      */
     public companion object : EveryArg()
 
+    override suspend fun transform(input: String, context: DiscordContext): Result<String> = Success(input)
+
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("This is a sample sentence.")
 }

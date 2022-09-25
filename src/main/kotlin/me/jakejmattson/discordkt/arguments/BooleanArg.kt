@@ -1,5 +1,6 @@
 package me.jakejmattson.discordkt.arguments
 
+import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.locale.inject
 
@@ -22,4 +23,6 @@ public open class BooleanArg(override val name: String = "Boolean",
         require(truthValue.isNotEmpty() && falseValue.isNotEmpty()) { "Custom BooleanArg ($name) options cannot be empty!" }
         require(!truthValue.equals(falseValue, ignoreCase = true)) { "Custom BooleanArg ($name) options cannot be the same!" }
     }
+
+    override suspend fun transform(input: Boolean, context: DiscordContext): Result<Boolean> = Success(input)
 }

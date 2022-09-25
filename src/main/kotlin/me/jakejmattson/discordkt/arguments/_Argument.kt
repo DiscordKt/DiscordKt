@@ -50,7 +50,7 @@ public sealed interface Argument<Input, Output> : Cloneable {
      * @param context The [DiscordContext] created by the execution of the command.
      * @return [Result] subtype [Success] or [Error].
      */
-    public suspend fun transform(input: Input, context: DiscordContext): Result<Output> = Success(input as Output)
+    public suspend fun transform(input: Input, context: DiscordContext): Result<Output>
 
     /**
      * A function called whenever an example of this type is needed.

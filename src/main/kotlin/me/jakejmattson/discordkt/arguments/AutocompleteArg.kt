@@ -1,6 +1,7 @@
 package me.jakejmattson.discordkt.arguments
 
 import dev.kord.core.entity.interaction.AutoCompleteInteraction
+import me.jakejmattson.discordkt.commands.DiscordContext
 
 /**
  * The data provided to process autocomplete interactions.
@@ -16,4 +17,7 @@ public data class AutocompleteData(public val interaction: AutoCompleteInteracti
 public open class AutocompleteArg<Input, Output>(override val name: String,
                                                  override val description: String,
                                                  override val type: PrimitiveArgument<Input, Output>,
-                                                 internal val autocomplete: suspend AutocompleteData.() -> List<Input>) : WrappedArgument<Input, Output, Input, Output>
+                                                 internal val autocomplete: suspend AutocompleteData.() -> List<Input>) : WrappedArgument<Input, Output, Input, Output> {
+
+    override suspend fun transform(input: Input, context: DiscordContext): Result<Output> = Success(input as Output)
+}

@@ -15,7 +15,6 @@ public interface EntityArgument<Input, Output> : Argument<Input, Output>
  * An [Argument] that accepts a [User].
  */
 public interface UserArgument<Output> : EntityArgument<User, Output> {
-
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(context.author.mention)
 }
 
@@ -23,7 +22,6 @@ public interface UserArgument<Output> : EntityArgument<User, Output> {
  * An [Argument] that accepts a [Role].
  */
 public interface RoleArgument<Output> : EntityArgument<Role, Output> {
-
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("@everyone")
 }
 
@@ -31,7 +29,6 @@ public interface RoleArgument<Output> : EntityArgument<Role, Output> {
  * An [Argument] that accepts a [Channel].
  */
 public interface ChannelArgument<Output> : EntityArgument<Channel, Output> {
-
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(context.channel.mention)
 }
 

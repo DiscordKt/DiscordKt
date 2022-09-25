@@ -14,5 +14,7 @@ public open class AttachmentArg(override val name: String = "Attachment",
      */
     public companion object : AttachmentArg()
 
+    override suspend fun transform(input: Attachment, context: DiscordContext): Result<Attachment> = Success(input)
+
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("Attachment")
 }
