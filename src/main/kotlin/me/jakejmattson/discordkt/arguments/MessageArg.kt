@@ -29,7 +29,7 @@ public open class MessageArg(override val name: String = "Message",
                 if (!allowsGlobal && guildId != context.guild?.id)
                     return Error("Must be from this guild")
 
-                val guild = guildId?.let { context.discord.kord.getGuild(it) } ?: return Error("Invalid guild")
+                val guild = guildId?.let { context.discord.kord.getGuildOrNull(it) } ?: return Error("Invalid guild")
 
                 val channel = channelId?.let { guild.getChannelOfOrNull<GuildMessageChannel>(it) }
                     ?: return Error("Invalid channel")
