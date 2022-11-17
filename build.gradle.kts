@@ -29,8 +29,7 @@ dependencies {
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
-    testImplementation(platform("org.junit:junit-bom:5.9.1"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.1")
+    testImplementation("io.kotest:kotest-runner-junit5:5.5.4")
     testImplementation("io.mockk:mockk:1.13.2")
 }
 
