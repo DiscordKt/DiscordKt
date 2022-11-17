@@ -1,14 +1,17 @@
 package utilities
 
+import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.Discord
-import me.jakejmattson.discordkt.arguments.*
+import me.jakejmattson.discordkt.arguments.Argument
+import me.jakejmattson.discordkt.arguments.Error
+import me.jakejmattson.discordkt.arguments.Success
 import me.jakejmattson.discordkt.commands.DiscordContext
-import me.jakejmattson.discordkt.dsl.internalLocale
-import me.jakejmattson.discordkt.locale.LocaleEN
-import org.junit.jupiter.api.*
+import me.jakejmattson.discordkt.internal.utils.simplerName
 
 private val discordMockk = mockk<Discord>()
 
@@ -16,61 +19,28 @@ private val contextMock = mockk<DiscordContext> {
     every { discord } returns discordMockk
 }
 
-interface ArgumentTestFactory {
-    val argument: Argument<*, *>
-    val validArgs: List<Pair<String, *>>
-    val invalidArgs: List<String>
 
-    @TestFactory
-    fun `valid input`() = validArgs.map { (input, expected) ->
-        when (val conversionResult = argument.attemptConvert(input)) {
-            is Success<*> -> {
-                DynamicTest.dynamicTest("\"$input\" -> $expected") {
-                    Assertions.assertEquals(conversionResult.result, expected)
-                }
-            }
-            is Error<*> -> {
-                DynamicTest.dynamicTest("\"$input\" -> ${conversionResult.error}") {
-                    fail { conversionResult.error }
-                }
-            }
-        }
-    }
+fun <A, B> DescribeSpec.generatePassTests(arg: Argument<A, B>, inputs: List<Pair<A, B>>) {
+    describe(arg::class.simplerName) {
+        inputs.forEach { (input, expected) ->
+            val result = runBlocking { arg.transform(input, contextMock) }
 
-    @TestFactory
-    fun `invalid input`() = invalidArgs.map { input ->
-        when (val conversionResult = argument.attemptConvert(input)) {
-            is Error<*> -> {
-                DynamicTest.dynamicTest("\"$input\" -> ${conversionResult.error}") {
-                    Assertions.assertTrue(true)
-                }
+            it("$input -> $expected") {
+                result.shouldBeTypeOf<Success<*>>()
+                result.result.shouldBe(expected)
             }
-            is Success<*> -> {
-                DynamicTest.dynamicTest("\"$input\" -> ${conversionResult.result}") {
-                    fail { "Conversion succeeded, but was expected to fail." }
-                }
-            }
-        }
-    }
-
-    companion object {
-        @BeforeAll
-        @JvmStatic
-        fun initLocale() {
-            internalLocale = LocaleEN()
         }
     }
 }
 
-private fun <A, B> Argument<A, B>.attemptConvert(input: String): Result<*> {
-    val split = input.split(" ").toMutableList()
+fun <A, B> DescribeSpec.generateFailTests(arg: Argument<A, B>, inputs: List<A>) {
+    describe(arg::class.simplerName) {
+        inputs.forEach { input ->
+            val result = runBlocking { arg.transform(input, contextMock) }
 
-    return runBlocking {
-        val parseResult = parse(split, contextMock.discord)
-
-        if (parseResult != null)
-            transform(parseResult, contextMock)
-        else
-            Error(internalLocale.invalidFormat)
+            it("Fail: '$input'") {
+                result.shouldBeTypeOf<Error<*>>()
+            }
+        }
     }
 }
