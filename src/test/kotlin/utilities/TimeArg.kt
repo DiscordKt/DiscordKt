@@ -1,12 +1,12 @@
 package utilities
 
-private const val second = 1.0
-private const val minute = 60.0
-private const val hour = 3600.0
-private const val day = 86400.0
-private const val week = 604800.0
-private const val month = 2592000.0
-private const val year = 31536000.0
+private const val second = 1
+private const val minute = 60
+private const val hour = 3600
+private const val day = 86400
+private const val week = 604800
+private const val month = 2592000
+private const val year = 31536000
 
 val validTime = listOf(
     "1s" to second,
