@@ -1,11 +1,9 @@
-package regex
-
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import me.jakejmattson.discordkt.util.containsInvite
 
-class InviteRegexTest: DescribeSpec( {
+class InviteRegexTest : DescribeSpec({
     describe("Valid Invites") {
         listOf(
             "https://discord.gg/discordkttest",
@@ -17,9 +15,9 @@ class InviteRegexTest: DescribeSpec( {
             "https://www.discord.io/discordkttest",
             "https://www.discord.com/invite/discordkttest",
             "lorem ipsum https://discord.gg/discordkttest lorem ipsum"
-        ).forEach {
-            it(it) {
-                it.containsInvite().shouldBeTrue()
+        ).forEach { input ->
+            it(input) {
+                input.containsInvite().shouldBeTrue()
             }
         }
     }
@@ -30,9 +28,9 @@ class InviteRegexTest: DescribeSpec( {
             "https://discord.me",
             "https://discord.io",
             "https://discord.com"
-        ).forEach {
-            it(it) {
-                it.containsInvite().shouldBeFalse()
+        ).forEach { input ->
+            it(input) {
+                input.containsInvite().shouldBeFalse()
             }
         }
     }
