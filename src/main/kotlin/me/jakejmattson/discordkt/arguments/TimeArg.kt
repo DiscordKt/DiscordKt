@@ -13,16 +13,16 @@ public open class TimeArg(override val name: String = "Time",
      */
     public companion object : TimeArg()
 
-    override suspend fun transform(rawInput: String, context: DiscordContext): Result<Int> {
-        val input = rawInput.filter { it != ' ' }
+    override suspend fun transform(input: String, context: DiscordContext): Result<Int> {
+        val cleanInput = input.filter { it != ' ' }.lowercase()
 
-        if (!input.matches(fullRegex)) {
+        if (!cleanInput.matches(fullRegex)) {
             return Error(internalLocale.invalidFormat)
         }
 
-        val timePairs = elementRegex.findAll(input).map {
+        val timePairs = elementRegex.findAll(cleanInput).map {
             val quantity = it.groupValues[1].toInt()
-            val quantifier = it.groupValues[2].lowercase()
+            val quantifier = it.groupValues[2]
             TimePair(quantity, quantifier)
         }.toList()
 
@@ -43,8 +43,8 @@ private data class TimePair(val quantity: Int, val quantifier: String) {
         get() = quantity * quantifierValues.getValue(quantifier)
 }
 
-private val fullRegex = Regex("^(\\d+[A-Za-z]+)+\$")
-private val elementRegex = Regex("(\\d+)([A-Za-z]+)")
+private val fullRegex = Regex("^(\\d+[a-z]+)+\$")
+private val elementRegex = Regex("(\\d+)([a-z]+)")
 
 private val quantifierValues = listOf(
     1 to listOf("s", "sec", "second", "seconds"),
