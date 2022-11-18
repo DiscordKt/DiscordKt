@@ -1,10 +1,8 @@
-package arguments
-
 import io.kotest.core.spec.style.DescribeSpec
 import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.locale.LocaleEN
-import utilities.generateFailTests
+import util.generateFailTests
 
 class InvalidInput : DescribeSpec({
     internalLocale = LocaleEN()

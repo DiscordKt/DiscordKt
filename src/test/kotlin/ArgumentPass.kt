@@ -1,11 +1,8 @@
-package arguments
-
 import io.kotest.core.spec.style.DescribeSpec
 import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.locale.LocaleEN
-import utilities.generatePassTests
-import utilities.validTime
+import util.*
 import java.awt.Color
 
 class ValidInput : DescribeSpec({
@@ -56,5 +53,28 @@ class ValidInput : DescribeSpec({
         "A|B|C" to listOf("A", "B", "C")
     )
 
-    TimeArg passesWith validTime
+    TimeArg passesWith listOf(
+        "1second" to second,
+        "1minute" to minute,
+        "1hour" to hour,
+        "1day" to day,
+        "1week" to week,
+        "1month" to month,
+
+        "1y" to year,
+        "1yr" to year,
+        "1yrs" to year,
+        "1year" to year,
+        "1years" to year,
+
+        "5s" to second * 5,
+        "10minutes8seconds" to (10 * minute) + (8 * second),
+        "1h2m10seconds" to (hour) + (2 * minute) + (10 * second),
+        "1y1w1d1hr1m1s" to year + week + day + hour + minute + second,
+        "1y 1w 1d 1hr 1m 1s" to year + week + day + hour + minute + second,
+        "1 m i n u t e" to minute,
+
+        "1SeCoNd" to second,
+        "1DAY" to day,
+    )
 })
