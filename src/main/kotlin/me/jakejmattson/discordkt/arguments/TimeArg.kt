@@ -7,19 +7,19 @@ import me.jakejmattson.discordkt.dsl.internalLocale
  * Accepts a group of time elements and returns the number of seconds as a double.
  */
 public open class TimeArg(override val name: String = "Time",
-                          override val description: String = internalLocale.timeArgDescription) : StringArgument<Double> {
+                          override val description: String = internalLocale.timeArgDescription) : StringArgument<Int> {
     /**
      * Accepts a group of time elements and returns the number of seconds as a double.
      */
     public companion object : TimeArg()
 
-    override suspend fun transform(input: String, context: DiscordContext): Result<Double> {
+    override suspend fun transform(input: String, context: DiscordContext): Result<Int> {
         if (!input.matches(fullRegex)) {
             return Error(internalLocale.invalidFormat)
         }
 
         val timePairs = elementRegex.findAll(input).map {
-            val quantity = it.groupValues[1].toDouble()
+            val quantity = it.groupValues[1].toInt()
             val quantifier = it.groupValues[2].lowercase()
             TimePair(quantity, quantifier)
         }.toList()
@@ -36,8 +36,8 @@ public open class TimeArg(override val name: String = "Time",
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("1h15m5s")
 }
 
-private data class TimePair(val quantity: Double, val quantifier: String) {
-    val seconds: Double
+private data class TimePair(val quantity: Int, val quantifier: String) {
+    val seconds: Int
         get() = quantity * quantifierValues.getValue(quantifier)
 }
 
