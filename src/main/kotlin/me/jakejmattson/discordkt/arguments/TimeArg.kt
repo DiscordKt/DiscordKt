@@ -13,7 +13,9 @@ public open class TimeArg(override val name: String = "Time",
      */
     public companion object : TimeArg()
 
-    override suspend fun transform(input: String, context: DiscordContext): Result<Int> {
+    override suspend fun transform(rawInput: String, context: DiscordContext): Result<Int> {
+        val input = rawInput.filter { it != ' ' }
+
         if (!input.matches(fullRegex)) {
             return Error(internalLocale.invalidFormat)
         }
