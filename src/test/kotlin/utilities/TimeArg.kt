@@ -47,6 +47,8 @@ val validTime = listOf(
     "10minutes8seconds" to (10 * minute) + (8 * second),
     "1h2m10seconds" to (hour) + (2 * minute) + (10 * second),
     "1y1w1d1hr1m1s" to year + week + day + hour + minute + second,
+    "1y 1w 1d 1hr 1m 1s" to year + week + day + hour + minute + second,
+    "1 m i n u t e" to minute,
 
     "1SeCoNd" to second,
     "1DAY" to day,
