@@ -3,7 +3,7 @@ import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import me.jakejmattson.discordkt.util.containsInvite
 
-class InviteRegexTest : DescribeSpec({
+class InviteRegex : DescribeSpec({
     describe("Valid Invites") {
         listOf(
             "https://discord.gg/discordkttest",

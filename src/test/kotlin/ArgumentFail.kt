@@ -4,7 +4,7 @@ import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.locale.LocaleEN
 import util.generateFailTests
 
-class InvalidInput : DescribeSpec({
+class ArgumentFail : DescribeSpec({
     internalLocale = LocaleEN()
 
     infix fun <A, B> Argument<A, B>.failsWith(inputs: List<A>) = generateFailTests(this, inputs)

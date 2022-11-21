@@ -1,80 +1,86 @@
 import io.kotest.core.spec.style.DescribeSpec
 import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.dsl.internalLocale
+import me.jakejmattson.discordkt.internal.utils.simplerName
 import me.jakejmattson.discordkt.locale.LocaleEN
 import util.*
 import java.awt.Color
 
-class ValidInput : DescribeSpec({
+class ArgumentPass : DescribeSpec({
     internalLocale = LocaleEN()
 
-    infix fun <A, B> Argument<A, B>.passesWith(inputs: List<Pair<A, B>>) = generatePassTests(this, inputs)
+    fun <A, B> Argument<A, B>.testFor(builder: suspend ArgTestBuilder<A, B>.() -> Unit) {
+        describe(this::class.simplerName) {
+            val argTester = ArgTestBuilder(this@testFor, this)
+            builder.invoke(argTester)
+        }
+    }
 
-    AnyArg passesWith listOf(
-        "Hello" to "Hello",
-        "z" to "z",
-        "12345" to "12345",
-        "12.45" to "12.45"
-    )
+    AnyArg.testFor {
+        "z" becomes "z"
+        "Hello" becomes "Hello"
+        "12345" becomes "12345"
+        "12.45" becomes "12.45"
+    }
 
-    CharArg passesWith listOf(
-        "a" to 'a',
-        "1" to '1'
-    )
+    CharArg.testFor {
+        "a" becomes 'a'
+        "1" becomes '1'
+    }
 
-    ChoiceArg("Choices", "", "a", "b", "c") passesWith listOf(
-        "a" to "a",
-        "B" to "b"
-    )
+    ChoiceArg("Choices", "", "a", "b", "c").testFor {
+        "a" becomes "a"
+        "B" becomes "b"
+    }
 
-    EveryArg passesWith listOf(
-        "HELLO" to "HELLO",
-        "world" to "world",
-        "hello world" to "hello world"
-    )
+    EveryArg.testFor {
+        "HELLO" becomes "HELLO"
+        "world" becomes "world"
+        "hello world" becomes "hello world"
+    }
 
-    HexColorArg passesWith listOf(
-        "#000000" to Color(0x000000),
-        "000000" to Color(0x000000),
-        "#FFFFFF" to Color(0xFFFFFF),
-        "FFFFFF" to Color(0xFFFFFF),
-        "#00bFfF" to Color(0x00BFFF)
-    )
+    HexColorArg.testFor {
+        "#000000" becomes Color(0x000000)
+        "#FFFFFF" becomes Color(0xFFFFFF)
+        "#00bFfF" becomes Color(0x00BFFF)
+        "000000" becomes Color(0x000000)
+        "FFFFFF" becomes Color(0xFFFFFF)
+    }
 
-    IntegerRangeArg(0, 10) passesWith listOf(
-        0 to 0,
-        10 to 10,
-        5 to 5
-    )
+    IntegerRangeArg(0, 10).testFor {
+        0 becomes 0
+        10 becomes 10
+        5 becomes 5
+    }
 
-    SplitterArg passesWith listOf(
-        "Hello|World" to listOf("Hello", "World"),
-        "Hello there|Curious coder" to listOf("Hello there", "Curious coder"),
-        "A|B|C" to listOf("A", "B", "C")
-    )
+    SplitterArg.testFor {
+        "Hello|World" becomes listOf("Hello", "World")
+        "Hello there|Curious coder" becomes listOf("Hello there", "Curious coder")
+        "A|B|C" becomes listOf("A", "B", "C")
+    }
 
-    TimeArg passesWith listOf(
-        "1second" to second,
-        "1minute" to minute,
-        "1hour" to hour,
-        "1day" to day,
-        "1week" to week,
-        "1month" to month,
+    TimeArg.testFor {
+        "1second" becomes second
+        "1minute" becomes minute
+        "1hour" becomes hour
+        "1day" becomes day
+        "1week" becomes week
+        "1month" becomes month
 
-        "1y" to year,
-        "1yr" to year,
-        "1yrs" to year,
-        "1year" to year,
-        "1years" to year,
+        "1y" becomes year
+        "1yr" becomes year
+        "1yrs" becomes year
+        "1year" becomes year
+        "1years" becomes year
 
-        "5s" to second * 5,
-        "10minutes8seconds" to (10 * minute) + (8 * second),
-        "1h2m10seconds" to (hour) + (2 * minute) + (10 * second),
-        "1y1w1d1hr1m1s" to year + week + day + hour + minute + second,
-        "1y 1w 1d 1hr 1m 1s" to year + week + day + hour + minute + second,
-        "1 m i n u t e" to minute,
+        "5s" becomes second * 5
+        "10minutes8seconds" becomes (10 * minute) + (8 * second)
+        "1h2m10seconds" becomes (hour) + (2 * minute) + (10 * second)
+        "1y1w1d1hr1m1s" becomes year + week + day + hour + minute + second
+        "1y 1w 1d 1hr 1m 1s" becomes year + week + day + hour + minute + second
+        "1 m i n u t e" becomes minute
 
-        "1SeCoNd" to second,
-        "1DAY" to day,
-    )
+        "1SeCoNd" becomes second
+        "1DAY" becomes day
+    }
 })

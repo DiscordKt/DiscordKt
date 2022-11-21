@@ -1,6 +1,7 @@
 package util
 
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.core.spec.style.scopes.DescribeSpecContainerScope
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.every
@@ -18,15 +19,13 @@ private val contextMock = mockk<DiscordContext> {
     every { discord } returns discordMockk
 }
 
-fun <A, B> DescribeSpec.generatePassTests(arg: Argument<A, B>, inputs: List<Pair<A, B>>) {
-    describe(arg::class.simplerName) {
-        inputs.forEach { (input, expected) ->
-            val result = io.kotest.common.runBlocking { arg.transform(input, contextMock) }
+class ArgTestBuilder<A, B>(private val arg: Argument<A, B>, private val spec: DescribeSpecContainerScope) {
+    suspend infix fun A.becomes(expected: B) {
+        val result = io.kotest.common.runBlocking { arg.transform(this, contextMock) }
 
-            it("$input -> $expected") {
-                result.shouldBeTypeOf<Success<*>>()
-                result.result.shouldBe(expected)
-            }
+        spec.it("$this -> $result") {
+            result.shouldBeTypeOf<Success<*>>()
+            result.result.shouldBe(expected)
         }
     }
 }
