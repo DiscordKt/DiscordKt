@@ -3,11 +3,7 @@
 package me.jakejmattson.discordkt
 
 import dev.kord.core.Kord
-import dev.kord.core.behavior.createApplicationCommands
 import dev.kord.rest.builder.interaction.*
-import dev.kord.rest.request.KtorRequestException
-import dev.kord.x.emoji.Emojis
-import kotlinx.coroutines.flow.toList
 import me.jakejmattson.discordkt.annotations.Service
 import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.commands.*
@@ -15,10 +11,12 @@ import me.jakejmattson.discordkt.dsl.BotConfiguration
 import me.jakejmattson.discordkt.dsl.Precondition
 import me.jakejmattson.discordkt.dsl.diService
 import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
+import me.jakejmattson.discordkt.internal.listeners.registerGuildJoinListener
 import me.jakejmattson.discordkt.internal.listeners.registerInteractionListener
 import me.jakejmattson.discordkt.internal.utils.*
 import me.jakejmattson.discordkt.locale.Locale
 import me.jakejmattson.discordkt.util.pluralize
+import me.jakejmattson.discordkt.util.register
 import java.time.Instant
 import java.util.*
 import kotlin.reflect.KClass
@@ -165,7 +163,7 @@ public abstract class Discord {
                 }
             }.register(this)
 
-        registerSlashCommands()
+        registerGlobalSlashCommands()
 
         if (configuration.documentCommands)
             createDocumentation(commands, subcommands)
@@ -176,93 +174,16 @@ public abstract class Discord {
     private suspend fun registerListeners(discord: Discord) {
         registerInteractionListener(discord)
         registerCommandListener(discord)
+        registerGuildJoinListener(discord)
     }
 
-    private suspend fun registerSlashCommands() {
-        fun BaseInputChatBuilder.mapArgs(command: Command) {
-            command.execution.arguments.forEach { argument ->
-                val name = argument.name.lowercase()
-                val description = argument.description
-
-                data class ArgumentData(val argument: Argument<*, *>, val isRequired: Boolean, val isAutocomplete: Boolean)
-
-                val (arg, isRequired, isAuto) = if (argument is WrappedArgument<*, *, *, *>) {
-                    ArgumentData(
-                        argument.innerType,
-                        !argument.containsType<OptionalArg<*, *, *>>(),
-                        argument.containsType<AutocompleteArg<*, *>>()
-                    )
-                } else
-                    ArgumentData(argument, isRequired = true, isAutocomplete = false)
-
-                when (arg) {
-                    is ChoiceArg<*> -> string(name, description) {
-                        required = isRequired
-
-                        arg.choices.forEach {
-                            choice(it.toString(), it.toString())
-                        }
-                    }
-
-                    is AttachmentArgument<*> -> attachment(name, description) { required = isRequired }
-                    is UserArgument<*> -> user(name, description) { required = isRequired }
-                    is RoleArgument<*> -> role(name, description) { required = isRequired }
-                    is ChannelArgument<*> -> channel(name, description) { required = isRequired }
-                    is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
-                    is IntegerArgument<*> -> int(name, description) { required = isRequired; autocomplete = isAuto }
-                    is DoubleArgument<*> -> number(name, description) { required = isRequired; autocomplete = isAuto }
-                    else -> string(name, description) { required = isRequired; autocomplete = isAuto }
-                }
-            }
-        }
-
-        fun MultiApplicationCommandBuilder.register(command: Command) {
-            if (command is ContextCommand<*>) {
-                when (command.execution.arguments.first()) {
-                    is MessageArg -> message(command.displayText) { defaultMemberPermissions = command.requiredPermissions }
-                    is UserArg -> user(command.displayText) { defaultMemberPermissions = command.requiredPermissions }
-                    else -> {}
-                }
-            }
-
-            input(command.name.lowercase(), command.description.ifBlank { "<No Description>" }) {
-                mapArgs(command)
-                defaultMemberPermissions = command.requiredPermissions
-            }
-        }
-
+    private suspend fun registerGlobalSlashCommands() {
         val globalSlashCommands = commands.filterIsInstance<GlobalSlashCommand>()
-        val guildSlashCommands = commands.filterIsInstance<GuildSlashCommand>()
 
         if (globalSlashCommands.isNotEmpty())
             kord.createGlobalApplicationCommands {
                 globalSlashCommands.forEach {
                     register(it)
-                }
-            }
-
-        if (guildSlashCommands.isNotEmpty())
-            kord.guilds.toList().forEach { guild ->
-                try {
-                    guild.createApplicationCommands {
-                        guildSlashCommands.forEach {
-                            register(it)
-                        }
-
-                        subcommands.forEach {
-                            input(it.name.lowercase(), it.name) {
-                                defaultMemberPermissions = it.requiredPermissionLevel
-
-                                it.commands.forEach { command ->
-                                    subCommand(command.name.lowercase(), command.description.ifBlank { "<No Description>" }) {
-                                        mapArgs(command)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (e: KtorRequestException) {
-                    InternalLogger.error("[SLASH] ${Emojis.x.unicode} ${guild.name} - ${e.message}")
                 }
             }
     }
