@@ -38,28 +38,35 @@ tasks {
         explicitApi()
     }
 
-    compileKotlin {
-        kotlinOptions {
-            jvmTarget = "1.8"
-            freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
-        }
-
-        dependsOn("writeProperties")
+    java {
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
-    register<WriteProperties>("writeProperties") {
-        property("version", project.version.toString())
-        property("kotlin", Constants.kotlin)
-        property("kord", Constants.kord)
-        setOutputFile("src/main/resources/library.properties")
+    compileKotlin {
+        kotlinOptions {
+            jvmTarget = "11"
+            freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+        }
     }
 
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = "11"
     }
 
     test {
         useJUnitPlatform()
+    }
+
+    build {
+        finalizedBy("writeProperties")
+    }
+
+    register<WriteProperties>("writeProperties") {
+        outputs.upToDateWhen { false }
+        property("version", project.version.toString())
+        property("kotlin", Constants.kotlin)
+        property("kord", Constants.kord)
+        setOutputFile("src/main/resources/library.properties")
     }
 
     dokkaHtml.configure {
@@ -112,7 +119,7 @@ tasks {
         description = "Print dependency sizes for the default configuration"
         doLast {
             val sizes = buildString {
-                val configuration = configurations["default"]
+                val configuration = configurations["runtimeClasspath"]
                 val size = configuration.sumOf { it.length() / (1024.0 * 1024.0) }
                 val longestName = configuration.maxOfOrNull { it.name.length }
                 val formatStr = "%-${longestName}s   %5d KB"
