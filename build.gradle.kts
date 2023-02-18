@@ -14,7 +14,7 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 
     //Misc
-    id("com.github.ben-manes.versions") version "0.44.0"
+    id("com.github.ben-manes.versions") version "0.45.0"
 }
 
 repositories {
@@ -29,8 +29,8 @@ dependencies {
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
-    testImplementation("io.kotest:kotest-runner-junit5:5.5.4")
-    testImplementation("io.mockk:mockk:1.13.3")
+    testImplementation("io.kotest:kotest-runner-junit5:5.5.5")
+    testImplementation("io.mockk:mockk:1.13.4")
 }
 
 tasks {
