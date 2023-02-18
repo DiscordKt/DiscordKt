@@ -38,11 +38,13 @@ public suspend fun Message.edit(menu: Menu): Message {
                         is SimpleButton<*> -> interactionButton(button.style, button.id) {
                             this.label = button.label
                             this.emoji = button.emoji?.toPartialEmoji()
+                            this.disabled = button.disabled
                         }
 
                         is LinkButton -> linkButton(button.url) {
                             this.label = button.label
                             this.emoji = button.emoji?.toPartialEmoji()
+                            this.disabled = button.disabled
                         }
                     }
                 }
@@ -217,11 +219,13 @@ public data class Menu(internal val pages: MutableList<EmbedBuilder>,
                             is SimpleButton<*> -> interactionButton(button.style, button.id) {
                                 this.label = button.label
                                 this.emoji = button.emoji?.toPartialEmoji()
+                                this.disabled = button.disabled
                             }
 
                             is LinkButton -> linkButton(button.url) {
                                 this.label = button.label
                                 this.emoji = button.emoji?.toPartialEmoji()
+                                this.disabled = button.disabled
                             }
                         }
                     }
