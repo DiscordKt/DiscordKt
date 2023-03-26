@@ -5,6 +5,7 @@ import dev.kord.core.behavior.interaction.respondEphemeral
 import dev.kord.core.behavior.interaction.response.DeferredEphemeralMessageInteractionResponseBehavior
 import dev.kord.core.entity.interaction.ApplicationCommandInteraction
 import dev.kord.core.entity.interaction.SelectMenuInteraction
+import dev.kord.rest.builder.component.option
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.rest.builder.message.create.actionRow
 import dev.kord.rest.builder.message.create.embed
@@ -76,8 +77,8 @@ public suspend fun promptSelect(interaction: ApplicationCommandInteraction, buil
         content = selectBuilder.textContent
         selectBuilder.embedContent?.let { embed { it.invoke(this) } }
 
-        actionRow {
-            selectMenu(id) {
+        actionRow{
+            stringSelect(id) {
                 this.allowedValues = selectBuilder.selectionCount
 
                 selectBuilder.options.forEach {

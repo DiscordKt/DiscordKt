@@ -35,7 +35,7 @@ internal fun BaseInputChatBuilder.mapArgs(command: Command) {
             is RoleArgument<*> -> role(name, description) { required = isRequired }
             is ChannelArgument<*> -> channel(name, description) { required = isRequired }
             is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
-            is IntegerArgument<*> -> int(name, description) { required = isRequired; autocomplete = isAuto }
+            is IntegerArgument<*> -> integer(name, description) { required = isRequired; autocomplete = isAuto }
             is DoubleArgument<*> -> number(name, description) { required = isRequired; autocomplete = isAuto }
             else -> string(name, description) { required = isRequired; autocomplete = isAuto }
         }

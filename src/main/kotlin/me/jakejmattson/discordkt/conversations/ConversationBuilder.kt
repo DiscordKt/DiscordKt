@@ -6,6 +6,7 @@ import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ComponentInteraction
 import dev.kord.core.entity.interaction.SelectMenuInteraction
+import dev.kord.rest.builder.component.option
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.rest.builder.message.create.MessageCreateBuilder
 import dev.kord.rest.builder.message.create.actionRow
@@ -118,7 +119,7 @@ public abstract class ConversationBuilder(
             selectBuilder.embedContent?.let { embed { it.invoke(this) } }
 
             actionRow {
-                selectMenu(uuid()) {
+                stringSelect(uuid()) {
                     this.allowedValues = selectBuilder.selectionCount
 
                     selectBuilder.options.forEach {
