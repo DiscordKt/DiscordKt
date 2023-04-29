@@ -4,17 +4,17 @@ val projectGroup = group.toString()
 
 plugins {
     //Core
-    kotlin("jvm") version Constants.kotlin
-    kotlin("plugin.serialization") version Constants.kotlin
-    id("org.jetbrains.dokka") version Constants.dokka
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.dokka)
 
     //Publishing
     signing
     `maven-publish`
-    id("io.github.gradle-nexus.publish-plugin") version "1.3.0"
+    alias(libs.plugins.publish)
 
     //Misc
-    id("com.github.ben-manes.versions") version "0.46.0"
+    alias(libs.plugins.versions)
 }
 
 repositories {
@@ -22,15 +22,15 @@ repositories {
 }
 
 dependencies {
-    api("dev.kord:kord-core:${Constants.kord}")
-    api("dev.kord.x:emoji:0.5.0")
-    api("org.slf4j:slf4j-simple:2.0.7")
+    api(libs.kord.core)
+    api(libs.kord.emoji)
+    api(libs.slf4j)
 
-    implementation("org.reflections:reflections:0.10.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation(libs.reflections)
+    implementation(libs.kotlinx.serialization)
 
-    testImplementation("io.kotest:kotest-runner-junit5:5.5.5")
-    testImplementation("io.mockk:mockk:1.13.4")
+    testImplementation(libs.kotest)
+    testImplementation(libs.mockk)
 }
 
 tasks {
@@ -64,8 +64,8 @@ tasks {
     register<WriteProperties>("writeProperties") {
         outputs.upToDateWhen { false }
         property("version", project.version.toString())
-        property("kotlin", Constants.kotlin)
-        property("kord", Constants.kord)
+        property("kotlin", libs.versions.kotlin.get())
+        property("kord", libs.versions.kord.core.get())
         setOutputFile("src/main/resources/library.properties")
     }
 
@@ -91,8 +91,8 @@ tasks {
         into(file("."))
         rename { "README.md" }
         expand(
-            "kotlin" to Constants.kotlin.replace("-", "--"),
-            "kord" to Constants.kord.replace("-", "--"),
+            "kotlin" to libs.versions.kotlin.get().replace("-", "--"),
+            "kord" to libs.versions.kord.core.get().replace("-", "--"),
             "discordkt" to version.toString().replace("-", "--"),
             "imports" to Docs.generateImports(projectGroup, version.toString())
         )

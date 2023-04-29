@@ -1,0 +1,30 @@
+[versions]
+kotlin = "1.8.10"
+dokka = "1.8.10"
+kord-core = "0.8.1"
+kord-emoji = "0.5.0"
+kotest = "5.5.5"
+kotlinx-serialization = "1.5.0"
+mockk = "1.13.4"
+plugin-publish = "1.3.0"
+plugin-versions = "0.46.0"
+reflections = "0.10.2"
+slf4j = "2.0.7"
+
+[libraries]
+kord-core = { module = "dev.kord:kord-core", version.ref = "kord-core" }
+kord-emoji = { module = "dev.kord.x:emoji", version.ref = "kord-emoji" }
+kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
+slf4j = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+
+# Testing
+kotest = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+publish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "plugin-publish" }
+versions = { id = "com.github.ben-manes.versions", version.ref = "plugin-versions" }
