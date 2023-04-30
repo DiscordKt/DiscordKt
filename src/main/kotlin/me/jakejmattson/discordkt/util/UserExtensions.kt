@@ -29,7 +29,7 @@ public val UserBehavior.profileLink: String
  * A link to this user's profile picture (or default).
  */
 public val User.pfpUrl: String
-    get() = avatar?.url ?: defaultPfpUrl
+    get() = avatar?.cdnUrl?.toUrl() ?: defaultPfpUrl
 
 /**
  * A link to this user's default profile picture.
