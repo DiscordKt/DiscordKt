@@ -75,7 +75,7 @@ private val defaultMentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)
  */
 public class Bot(private val token: String, private val packageName: String) {
     private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
-                                        var prefix: suspend DiscordContext.() -> String = { "" },
+                                        var prefix: suspend DiscordContext.() -> String = { "!" },
                                         var mentionEmbed: Pair<String?, (suspend EmbedBuilder.(DiscordContext) -> Unit)?> = "info" to defaultMentionEmbed,
                                         var exceptionHandler: suspend DktException<*>.() -> Unit = { exception.printStackTrace() },
                                         var locale: Locale = Language.EN.locale,
@@ -174,6 +174,9 @@ public class Bot(private val token: String, private val packageName: String) {
 
     /**
      * Determine the prefix in a given context.
+     * Default prefix: '!'.
+     * **Warning!: Don't set empty string!**
+     * https://github.com/DiscordKt/DiscordKt/issues/32
      */
     @ConfigurationDSL
     public fun prefix(construct: suspend DiscordContext.() -> String) {
