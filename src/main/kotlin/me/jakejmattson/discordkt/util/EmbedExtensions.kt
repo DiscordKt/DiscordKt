@@ -10,7 +10,7 @@ import dev.kord.rest.builder.message.EmbedBuilder
  */
 public fun EmbedBuilder.author(user: User) {
     author {
-        this.name = user.fullName
+        this.name = user.username
         this.icon = user.pfpUrl
         this.url = user.profileLink
     }

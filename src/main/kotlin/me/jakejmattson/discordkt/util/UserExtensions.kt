@@ -41,8 +41,9 @@ public val User.defaultPfpUrl: String
  * A User's name and discriminator
  * username#1234
  */
+@Deprecated("Without a discriminator, this is not needed", ReplaceWith("username"))
 public val User.fullName: String
-    get() = "$username#$discriminator"
+    get() = username
 
 /**
  * Send a private message to a user if possible.
@@ -67,18 +68,18 @@ public fun UserBehavior.isSelf(): Boolean = id == kord.selfId
 
 /**
  * User entity formatted to a readable String.
- * username#1234 :: <@username>
+ * username :: <@username>
  */
-public fun User.descriptor(): String = "$fullName :: $mention"
+public fun User.descriptor(): String = "$username :: $mention"
 
 /**
  * User entity formatted to a readable String.
- * <@username> (username#1234)
+ * <@username> (username)
  */
-public fun User.simpleDescriptor(): String = "$mention ($fullName)"
+public fun User.simpleDescriptor(): String = "$mention ($username)"
 
 /**
  * User entity formatted to a readable String.
- * username#1234 :: 123456789123456789
+ * username :: 123456789123456789
  */
-public fun User.idDescriptor(): String = "$fullName :: ${id.value}"
+public fun User.idDescriptor(): String = "$username :: ${id.value}"

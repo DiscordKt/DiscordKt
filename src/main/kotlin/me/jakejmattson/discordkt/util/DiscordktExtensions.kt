@@ -3,9 +3,7 @@ package me.jakejmattson.discordkt.util
 import dev.kord.core.Kord
 import dev.kord.core.entity.Guild
 import kotlinx.coroutines.flow.toList
-import me.jakejmattson.discordkt.commands.Command
-import me.jakejmattson.discordkt.commands.GlobalSlashCommand
-import me.jakejmattson.discordkt.commands.GuildSlashCommand
+import me.jakejmattson.discordkt.commands.*
 
 /**
  * Create a discord mention for this command.
@@ -13,6 +11,9 @@ import me.jakejmattson.discordkt.commands.GuildSlashCommand
 public suspend fun Command.mentionOrNull(guild: Guild): String? = when (this) {
     is GuildSlashCommand -> mentionOrNull(guild)
     is GlobalSlashCommand -> mentionOrNull(guild.kord)
+    is DmTextCommand -> this.name
+    is GlobalTextCommand -> this.name
+    is GuildTextCommand -> this.name
 }
 
 /**

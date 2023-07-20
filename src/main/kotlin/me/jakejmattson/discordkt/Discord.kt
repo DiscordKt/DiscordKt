@@ -14,11 +14,11 @@ import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.dsl.BotConfiguration
 import me.jakejmattson.discordkt.dsl.Precondition
 import me.jakejmattson.discordkt.dsl.diService
-import me.jakejmattson.discordkt.util.pluralize
 import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
 import me.jakejmattson.discordkt.internal.listeners.registerInteractionListener
 import me.jakejmattson.discordkt.internal.utils.*
 import me.jakejmattson.discordkt.locale.Locale
+import me.jakejmattson.discordkt.util.pluralize
 import java.time.Instant
 import java.util.*
 import kotlin.reflect.KClass
@@ -210,7 +210,7 @@ public abstract class Discord {
                     is RoleArgument<*> -> role(name, description) { required = isRequired }
                     is ChannelArgument<*> -> channel(name, description) { required = isRequired }
                     is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
-                    is IntegerArgument<*> -> int(name, description) { required = isRequired; autocomplete = isAuto }
+                    is IntegerArgument<*> -> integer(name, description) { required = isRequired; autocomplete = isAuto }
                     is DoubleArgument<*> -> number(name, description) { required = isRequired; autocomplete = isAuto }
                     else -> string(name, description) { required = isRequired; autocomplete = isAuto }
                 }
