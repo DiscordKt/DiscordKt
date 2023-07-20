@@ -12,7 +12,7 @@ import me.jakejmattson.discordkt.arguments.Error
 import me.jakejmattson.discordkt.arguments.Success
 import me.jakejmattson.discordkt.commands.Command
 import java.awt.Color
-import java.util.*
+import java.util.UUID
 
 /**
  * Remove and return the first element in a mutable list.
@@ -107,7 +107,7 @@ private suspend fun String.cleanseUsers(discord: Discord): String {
     val userMentions = DiscordRegex.user.findAll(this).map {
         runBlocking {
             val mention = it.value
-            val replacement = mention.toSnowflakeOrNull()?.let { discord.kord.getUser(it)?.tag } ?: ""
+            val replacement = mention.toSnowflakeOrNull()?.let { discord.kord.getUser(it)?.username } ?: ""
 
             mention to replacement
         }
