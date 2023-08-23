@@ -212,6 +212,17 @@ public class Bot(private val token: String, private val packageName: String) {
     }
 
     /**
+     * Configure the locale for this bot.
+     *
+     * @param locale The initial custom [Locale].
+     */
+    @ConfigurationDSL
+    public fun localeOf(locale: Locale, localeBuilder: Locale.() -> Unit) {
+        localeBuilder.invoke(locale)
+        startupBundle.locale = locale
+    }
+
+    /**
      * Configure the Discord presence for this bot.
      */
     @ConfigurationDSL
