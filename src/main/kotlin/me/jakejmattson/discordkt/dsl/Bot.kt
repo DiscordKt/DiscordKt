@@ -201,14 +201,14 @@ public class Bot(private val token: String, private val packageName: String) {
 
     /**
      * Configure the locale for this bot.
+     * You can find predefined locales in the [Language]
      *
-     * @param language The initial [Language] pack.
+     * @param locale The initial [Locale].
      */
     @ConfigurationDSL
-    public fun localeOf(language: Language, localeBuilder: Locale.() -> Unit) {
-        val localeType = language.locale
-        localeBuilder.invoke(localeType)
-        startupBundle.locale = localeType
+    public fun localeOf(locale: Locale, localeBuilder: Locale.() -> Unit) {
+        localeBuilder.invoke(locale)
+        startupBundle.locale = locale
     }
 
     /**
