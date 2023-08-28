@@ -3,8 +3,8 @@ object Constants {
     const val projectDescription = "A Discord bot framework for Kotlin."
     const val projectUrl = "https://github.com/discordkt/$projectName/"
 
-    const val kotlin = "1.7.10"
-    const val dokka = "1.7.10"
+    const val kotlin = "1.9.10"
+    const val dokka = "1.8.20"
     const val kord = "0.8.0-M16"
 }
 

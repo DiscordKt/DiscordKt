@@ -14,7 +14,7 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 
     //Misc
-    id("com.github.ben-manes.versions") version "0.42.0"
+    id("com.github.ben-manes.versions") version "0.47.0"
 }
 
 repositories {
@@ -24,14 +24,14 @@ repositories {
 dependencies {
     api("dev.kord:kord-core:${Constants.kord}")
     api("dev.kord.x:emoji:0.5.0")
-    api("org.slf4j:slf4j-simple:2.0.0")
+    api("org.slf4j:slf4j-simple:2.0.7")
 
     implementation("org.reflections:reflections:0.10.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
-    testImplementation(platform("org.junit:junit-bom:5.9.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
-    testImplementation("io.mockk:mockk:1.12.5")
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testImplementation("io.mockk:mockk:1.13.7")
 }
 
 tasks {
@@ -39,24 +39,24 @@ tasks {
         explicitApi()
     }
 
+    kotlin {
+        jvmToolchain(11)
+    }
+
     compileKotlin {
-        kotlinOptions {
-            jvmTarget = "1.8"
-            freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+        compilerOptions {
+            freeCompilerArgs.add("-Xopt-in=kotlin.RequiresOptIn")
         }
 
-        dependsOn("writeProperties")
+        doLast("writeProperties") {}
     }
 
     register<WriteProperties>("writeProperties") {
+        dependsOn(processResources)
         property("version", project.version.toString())
         property("kotlin", Constants.kotlin)
         property("kord", Constants.kord)
         setOutputFile("src/main/resources/library.properties")
-    }
-
-    compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
     }
 
     test {
