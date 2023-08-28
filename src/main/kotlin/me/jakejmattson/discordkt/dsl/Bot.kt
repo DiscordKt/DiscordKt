@@ -2,6 +2,7 @@ package me.jakejmattson.discordkt.dsl
 
 import dev.kord.common.kColor
 import dev.kord.core.Kord
+import dev.kord.core.builder.kord.KordBuilder
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.gateway.builder.PresenceBuilder
@@ -11,7 +12,6 @@ import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.Command
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.commands.SubCommandSet
-import me.jakejmattson.discordkt.util.*
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.services.InjectionService
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
@@ -19,6 +19,7 @@ import me.jakejmattson.discordkt.internal.utils.Reflection
 import me.jakejmattson.discordkt.internal.utils.ReflectionUtils
 import me.jakejmattson.discordkt.locale.Language
 import me.jakejmattson.discordkt.locale.Locale
+import me.jakejmattson.discordkt.util.*
 import java.io.File
 
 @PublishedApi
@@ -72,13 +73,16 @@ private val defaultMentionEmbed: (suspend EmbedBuilder.(DiscordContext) -> Unit)
  * Backing class for [bot] function.
  */
 public class Bot(private val token: String, private val packageName: String) {
-    private data class StartupFunctions(var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
-                                        var prefix: suspend DiscordContext.() -> String = { "!" },
-                                        var mentionEmbed: Pair<String?, (suspend EmbedBuilder.(DiscordContext) -> Unit)?> = "info" to defaultMentionEmbed,
-                                        var exceptionHandler: suspend DktException<*>.() -> Unit = { exception.printStackTrace() },
-                                        var locale: Locale = Language.EN.locale,
-                                        var presence: PresenceBuilder.() -> Unit = {},
-                                        var onStart: suspend Discord.() -> Unit = {})
+    private data class StartupFunctions(
+        var configure: suspend SimpleConfiguration.() -> Unit = { SimpleConfiguration() },
+        var prefix: suspend DiscordContext.() -> String = { "!" },
+        var mentionEmbed: Pair<String?, (suspend EmbedBuilder.(DiscordContext) -> Unit)?> = "info" to defaultMentionEmbed,
+        var exceptionHandler: suspend DktException<*>.() -> Unit = { exception.printStackTrace() },
+        var kordBuilder: KordBuilder.() -> Unit = {},
+        var locale: Locale = Language.EN.locale,
+        var presence: PresenceBuilder.() -> Unit = {},
+        var onStart: suspend Discord.() -> Unit = {}
+    )
 
     private val startupBundle = StartupFunctions()
 
@@ -87,6 +91,7 @@ public class Bot(private val token: String, private val packageName: String) {
             prefixFun,
             mentionEmbedFun,
             exceptionHandlerFun,
+            kordBuilder,
             locale,
             presenceFun,
             startupFun) = startupBundle
@@ -117,6 +122,7 @@ public class Bot(private val token: String, private val packageName: String) {
 
         val kord = Kord(token) {
             defaultStrategy = botConfiguration.entitySupplyStrategy
+            kordBuilder.invoke(this)
         }
 
         internalLocale = locale
@@ -184,7 +190,10 @@ public class Bot(private val token: String, private val packageName: String) {
      * An embed that will be sent anytime someone (solely) mentions the bot.
      */
     @ConfigurationDSL
-    public fun mentionEmbed(slashName: String? = "info", construct: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = defaultMentionEmbed) {
+    public fun mentionEmbed(
+        slashName: String? = "info",
+        construct: (suspend EmbedBuilder.(DiscordContext) -> Unit)? = defaultMentionEmbed
+    ) {
         startupBundle.mentionEmbed = slashName to construct
     }
 
@@ -206,6 +215,14 @@ public class Bot(private val token: String, private val packageName: String) {
     public fun localeOf(locale: Locale, localeBuilder: Locale.() -> Unit) {
         localeBuilder.invoke(locale)
         startupBundle.locale = locale
+    }
+
+    /**
+     * Configure Kord options via the [KordBuilder].
+     */
+    @ConfigurationDSL
+    public fun kord(builder: KordBuilder.() -> Unit) {
+        startupBundle.kordBuilder = builder
     }
 
     /**
