@@ -113,7 +113,7 @@ tasks {
         description = "Print dependency sizes for the default configuration"
         doLast {
             val sizes = buildString {
-                val configuration = configurations["default"]
+                val configuration = configurations.first()
                 val size = configuration.sumOf { it.length() / (1024.0 * 1024.0) }
                 val longestName = configuration.maxOfOrNull { it.name.length }
                 val formatStr = "%-${longestName}s   %5d KB"
