@@ -4,7 +4,6 @@ import dev.kord.common.kColor
 import dev.kord.core.Kord
 import dev.kord.core.builder.kord.KordBuilder
 import dev.kord.core.event.interaction.InteractionCreateEvent
-import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.gateway.builder.PresenceBuilder
 import dev.kord.rest.builder.message.EmbedBuilder
 import kotlinx.coroutines.runBlocking
@@ -111,7 +110,7 @@ public class Bot(private val token: String, private val packageName: String) {
                 dualRegistry = dualRegistry,
                 commandReaction = commandReaction,
                 theme = theme?.kColor,
-                intents = intents + intentsOf<MessageCreateEvent>() + intentsOf<InteractionCreateEvent>(),
+                intents = intents + intentsOf<InteractionCreateEvent>(),
                 defaultPermissions = defaultPermissions,
                 entitySupplyStrategy = entitySupplyStrategy,
                 prefix = prefixFun,
