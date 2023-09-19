@@ -39,10 +39,13 @@ internal lateinit var internalLocale: Locale
  */
 @ConfigurationDSL
 public fun bot(token: String?, configure: suspend Bot.() -> Unit) {
-    val packageName = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
-
     if (token.isNullOrEmpty())
         return InternalLogger.fatalError("Missing token!")
+
+    val packageName = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
+
+    if (packageName.isEmpty())
+        return InternalLogger.fatalError("DiscordKt uses reflection and requires your code to have a package")
 
     Reflection = ReflectionUtils(packageName)
     val bot = Bot(token, packageName)
