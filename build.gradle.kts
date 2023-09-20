@@ -14,7 +14,7 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 
     //Misc
-    id("com.github.ben-manes.versions") version "0.47.0"
+    id("com.github.ben-manes.versions") version "0.48.0"
 }
 
 repositories {
@@ -24,12 +24,12 @@ repositories {
 dependencies {
     api("dev.kord:kord-core:${Constants.kord}")
     api("dev.kord.x:emoji:0.5.0")
-    api("org.slf4j:slf4j-simple:2.0.7")
+    api("org.slf4j:slf4j-simple:2.0.9")
 
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
-    testImplementation("io.kotest:kotest-runner-junit5:5.6.2")
+    testImplementation("io.kotest:kotest-runner-junit5:5.7.2")
     testImplementation("io.mockk:mockk:1.13.7")
 }
 

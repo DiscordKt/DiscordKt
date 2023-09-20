@@ -4,8 +4,8 @@ object Constants {
     const val projectUrl = "https://github.com/discordkt/$projectName/"
 
     const val kotlin = "1.9.10"
-    const val dokka = "1.8.20"
-    const val kord = "0.10.0"
+    const val dokka = "1.9.0"
+    const val kord = "0.11.1"
 }
 
 object Docs {
