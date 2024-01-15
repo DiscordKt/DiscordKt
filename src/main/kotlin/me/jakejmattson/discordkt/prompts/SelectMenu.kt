@@ -7,8 +7,8 @@ import dev.kord.core.entity.interaction.ApplicationCommandInteraction
 import dev.kord.core.entity.interaction.SelectMenuInteraction
 import dev.kord.rest.builder.component.option
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.rest.builder.message.create.actionRow
-import dev.kord.rest.builder.message.create.embed
+import dev.kord.rest.builder.message.actionRow
+import dev.kord.rest.builder.message.embed
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
@@ -24,7 +24,12 @@ import me.jakejmattson.discordkt.util.uuid
  * @param description The text show under the label.
  * @param emoji The emoji shown next to the option.
  */
-internal data class SelectOption(val label: String, val value: String, val description: String?, val emoji: DiscordPartialEmoji?)
+internal data class SelectOption(
+    val label: String,
+    val value: String,
+    val description: String?,
+    val emoji: DiscordPartialEmoji?
+)
 
 /**
  * A simplified builder for a select menu.
@@ -58,7 +63,12 @@ public class SimpleSelectBuilder {
      * @param emoji The emoji shown next to the option.
      */
     @BuilderDSL
-    public fun option(label: String, value: String = label, description: String? = null, emoji: DiscordPartialEmoji? = null) {
+    public fun option(
+        label: String,
+        value: String = label,
+        description: String? = null,
+        emoji: DiscordPartialEmoji? = null
+    ) {
         options.add(SelectOption(label, value, description, emoji))
     }
 }
@@ -68,23 +78,28 @@ internal val selectBuffer = Channel<SelectMenuInteraction>()
 /**
  * Create a discord select menu.
  */
-public suspend fun promptSelect(interaction: ApplicationCommandInteraction, builder: SimpleSelectBuilder.() -> Unit): Args2<DeferredEphemeralMessageInteractionResponseBehavior, List<String>> {
+public suspend fun promptSelect(
+    interaction: ApplicationCommandInteraction,
+    builder: SimpleSelectBuilder.() -> Unit
+): Args2<DeferredEphemeralMessageInteractionResponseBehavior, List<String>> {
     val id = uuid()
     val selectBuilder = SimpleSelectBuilder()
     selectBuilder.builder()
 
     interaction.respondEphemeral {
         content = selectBuilder.textContent
-        selectBuilder.embedContent?.let { embed { it.invoke(this) } }
+        selectBuilder.embedContent?.let {
+            embed { it.invoke(this) }
+        }
 
-        actionRow{
+        actionRow {
             stringSelect(id) {
-                this.allowedValues = selectBuilder.selectionCount
+                allowedValues = selectBuilder.selectionCount
 
                 selectBuilder.options.forEach {
                     option(it.label, it.value) {
-                        this.description = it.description
-                        this.emoji = it.emoji
+                        description = it.description
+                        emoji = it.emoji
                     }
                 }
             }
@@ -94,13 +109,15 @@ public suspend fun promptSelect(interaction: ApplicationCommandInteraction, buil
     return retrieveValidModalResponse(id)
 }
 
-private fun retrieveValidModalResponse(modalId: String): Args2<DeferredEphemeralMessageInteractionResponseBehavior, List<String>> = runBlocking {
-    retrieveModalResponse(modalId) ?: retrieveValidModalResponse(modalId)
-}
-
-private suspend fun retrieveModalResponse(selectId: String): Args2<DeferredEphemeralMessageInteractionResponseBehavior, List<String>>? = select {
-    selectBuffer.onReceive { interaction ->
-        if (interaction.componentId != selectId) return@onReceive null
-        Args2(interaction.deferEphemeralResponse(), interaction.values)
+private fun retrieveValidModalResponse(modalId: String): Args2<DeferredEphemeralMessageInteractionResponseBehavior, List<String>> =
+    runBlocking {
+        retrieveModalResponse(modalId) ?: retrieveValidModalResponse(modalId)
     }
-}
+
+private suspend fun retrieveModalResponse(selectId: String): Args2<DeferredEphemeralMessageInteractionResponseBehavior, List<String>>? =
+    select {
+        selectBuffer.onReceive { interaction ->
+            if (interaction.componentId != selectId) return@onReceive null
+            Args2(interaction.deferEphemeralResponse(), interaction.values)
+        }
+    }

@@ -5,8 +5,8 @@ package me.jakejmattson.discordkt.util
 import dev.kord.core.behavior.reply
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.ReactionEmoji
+import dev.kord.rest.builder.message.allowedMentions
 import dev.kord.rest.builder.message.create.UserMessageCreateBuilder
-import dev.kord.rest.builder.message.create.allowedMentions
 import kotlinx.coroutines.flow.count
 
 /**
@@ -53,6 +53,6 @@ public suspend fun Message.addReactions(reactions: List<ReactionEmoji>): Unit = 
  * Reply to this message with no mentions allowed.
  */
 public suspend fun Message.replySilently(builder: suspend UserMessageCreateBuilder.() -> Unit): Message = reply {
-    allowedMentions()
+    allowedMentions {}
     builder.invoke(this)
 }

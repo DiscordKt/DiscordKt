@@ -49,7 +49,7 @@ public class TextConversationBuilder(
             if (embed != null) {
                 val builder = EmbedBuilder()
                 embed.invoke(builder)
-                embeds.add(builder)
+                embeds?.add(builder)
             }
         }
 

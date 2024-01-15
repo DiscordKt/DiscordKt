@@ -9,7 +9,7 @@ import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import dev.kord.rest.Image
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.rest.builder.message.create.embed
+import dev.kord.rest.builder.message.embed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 
@@ -50,7 +50,10 @@ public val User.fullName: String
  *
  * @return The [Message] object or null if you cannot DM.
  */
-public suspend fun UserBehavior.sendPrivateMessage(message: Any = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): Message? =
+public suspend fun UserBehavior.sendPrivateMessage(
+    message: Any = "",
+    embed: (suspend EmbedBuilder.() -> Unit)? = null
+): Message? =
     getDmChannelOrNull()?.createMessage {
         val responseContent = message.toString()
 
