@@ -5,9 +5,8 @@ import dev.kord.core.entity.Message
 import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.rest.builder.message.EmbedBuilder
+import dev.kord.rest.builder.message.actionRow
 import dev.kord.rest.builder.message.create.MessageCreateBuilder
-import dev.kord.rest.builder.message.create.actionRow
-import dev.kord.rest.builder.message.create.embed
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
 import me.jakejmattson.discordkt.TypeContainer
@@ -77,8 +76,8 @@ public open class ButtonPromptBuilder<T> {
                 actionRow {
                     buttons.forEach { button ->
                         interactionButton(button.style, button.id) {
-                            this.label = button.label
-                            this.emoji = button.emoji?.toPartialEmoji()
+                            label = button.label
+                            emoji = button.emoji?.toPartialEmoji()
                         }
                     }
                 }

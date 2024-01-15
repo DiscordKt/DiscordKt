@@ -47,11 +47,13 @@ public data class LibraryProperties(val version: String, val kotlin: String, val
  * @param url The repo url of the bot, retrieved by "url".
  * @param version The version of the bot, retrieved by "version".
  */
-public data class BotProperties(val raw: Properties,
-                                val name: String?,
-                                val description: String?,
-                                val url: String?,
-                                val version: String?) {
+public data class BotProperties(
+    val raw: Properties,
+    val name: String?,
+    val description: String?,
+    val url: String?,
+    val version: String?
+) {
     /**
      * Get the provided property from the raw Properties value.
      */
@@ -65,7 +67,11 @@ public data class BotProperties(val raw: Properties,
  * @property bot Properties for the current bot.
  * @property startup The [Instant] this bot started.
  */
-public data class CodeProperties(val library: LibraryProperties, val bot: BotProperties, val startup: Instant = Instant.now())
+public data class CodeProperties(
+    val library: LibraryProperties,
+    val bot: BotProperties,
+    val startup: Instant = Instant.now()
+)
 
 /**
  * @property kord A Kord instance used to access the Discord API.
@@ -95,7 +101,13 @@ public abstract class Discord {
                 BotProperties(Properties(), null, null, null, null)
             else
                 with(Properties().apply { load(res) }) {
-                    BotProperties(this, getProperty("name"), getProperty("description"), getProperty("url"), getProperty("version"))
+                    BotProperties(
+                        this,
+                        getProperty("name"),
+                        getProperty("description"),
+                        getProperty("url"),
+                        getProperty("version")
+                    )
                 }
         }
     )
@@ -108,22 +120,28 @@ public abstract class Discord {
 
     /** Fetch an object from the DI pool by its type */
     public inline fun <reified A : Any, reified B : Any>
-        getInjectionObjects(a: KClass<A>, b: KClass<B>): Args2<A, B> =
+            getInjectionObjects(a: KClass<A>, b: KClass<B>): Args2<A, B> =
         Args2(diService[a], diService[b])
 
     /** Fetch an object from the DI pool by its type */
     public inline fun <reified A : Any, reified B : Any, reified C : Any>
-        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>): Args3<A, B, C> =
+            getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>): Args3<A, B, C> =
         Args3(diService[a], diService[b], diService[c])
 
     /** Fetch an object from the DI pool by its type */
     public inline fun <reified A : Any, reified B : Any, reified C : Any, reified D : Any>
-        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>): Args4<A, B, C, D> =
+            getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>): Args4<A, B, C, D> =
         Args4(diService[a], diService[b], diService[c], diService[d])
 
     /** Fetch an object from the DI pool by its type */
     public inline fun <reified A : Any, reified B : Any, reified C : Any, reified D : Any, reified E : Any>
-        getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>, e: KClass<E>): Args5<A, B, C, D, E> =
+            getInjectionObjects(
+        a: KClass<A>,
+        b: KClass<B>,
+        c: KClass<C>,
+        d: KClass<D>,
+        e: KClass<E>
+    ): Args5<A, B, C, D, E> =
         Args5(diService[a], diService[b], diService[c], diService[d], diService[e])
 
     @KordPreview
@@ -174,7 +192,8 @@ public abstract class Discord {
             createDocumentation(commands, subcommands)
     }
 
-    private fun registerServices() = Reflection.detectClassesWith<Service>().apply { diService.buildAllRecursively(this) }
+    private fun registerServices() =
+        Reflection.detectClassesWith<Service>().apply { diService.buildAllRecursively(this) }
 
     @KordPreview
     private suspend fun registerListeners(discord: Discord) {
@@ -189,7 +208,11 @@ public abstract class Discord {
                 val name = argument.name.lowercase()
                 val description = argument.description
 
-                data class ArgumentData(val argument: Argument<*, *>, val isRequired: Boolean, val isAutocomplete: Boolean)
+                data class ArgumentData(
+                    val argument: Argument<*, *>,
+                    val isRequired: Boolean,
+                    val isAutocomplete: Boolean
+                )
 
                 val (arg, isRequired, isAuto) = if (argument is WrappedArgument<*, *, *, *>) {
                     ArgumentData(
@@ -214,7 +237,7 @@ public abstract class Discord {
                     is RoleArgument<*> -> role(name, description) { required = isRequired }
                     is ChannelArgument<*> -> channel(name, description) { required = isRequired }
                     is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
-                    is IntegerArgument<*> -> int(name, description) { required = isRequired; autocomplete = isAuto }
+                    is IntegerArgument<*> -> integer(name, description) { required = isRequired; autocomplete = isAuto }
                     is DoubleArgument<*> -> number(name, description) { required = isRequired; autocomplete = isAuto }
                     else -> string(name, description) { required = isRequired; autocomplete = isAuto }
                 }
@@ -224,7 +247,10 @@ public abstract class Discord {
         fun MultiApplicationCommandBuilder.register(command: SlashCommand) {
             if (command is ContextCommand) {
                 when (command.execution.arguments.first()) {
-                    is MessageArg -> message(command.displayText) { defaultMemberPermissions = command.requiredPermissions }
+                    is MessageArg -> message(command.displayText) {
+                        defaultMemberPermissions = command.requiredPermissions
+                    }
+
                     is UserArg -> user(command.displayText) { defaultMemberPermissions = command.requiredPermissions }
                     else -> {}
                 }
@@ -259,7 +285,9 @@ public abstract class Discord {
                                 defaultMemberPermissions = it.requiredPermissionLevel
 
                                 it.commands.forEach { command ->
-                                    subCommand(command.name.lowercase(), command.description.ifBlank { "<No Description>" }) {
+                                    subCommand(
+                                        command.name.lowercase(),
+                                        command.description.ifBlank { "<No Description>" }) {
                                         mapArgs(command)
                                     }
                                 }

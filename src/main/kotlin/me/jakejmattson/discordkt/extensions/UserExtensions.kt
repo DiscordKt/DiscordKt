@@ -27,7 +27,7 @@ public val UserBehavior.profileLink: String
  * A link to this user's profile picture.
  */
 public val User.pfpUrl: String
-    get() = avatar?.url ?: defaultAvatar.url
+    get() = avatar?.cdnUrl?.toUrl() ?: defaultAvatar.cdnUrl.toUrl()
 
 /**
  * A User's name and discriminator
@@ -44,7 +44,8 @@ public suspend fun UserBehavior.sendPrivateMessage(message: String): Message = g
 /**
  * Send the user a private embed message.
  */
-public suspend fun UserBehavior.sendPrivateMessage(embed: suspend EmbedBuilder.() -> Unit): Message = getDmChannel().createEmbed { embed.invoke(this) }
+public suspend fun UserBehavior.sendPrivateMessage(embed: suspend EmbedBuilder.() -> Unit): Message =
+    getDmChannel().createEmbed { embed.invoke(this) }
 
 /**
  * Checks if this [User] is itself.

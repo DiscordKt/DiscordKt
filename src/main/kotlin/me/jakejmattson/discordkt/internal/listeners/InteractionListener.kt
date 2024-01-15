@@ -110,7 +110,7 @@ private suspend fun handleAutocomplete(interaction: AutoCompleteInteraction, dis
     val suggestions = arg.autocomplete.invoke(autocompleteData).take(25)
 
     when (arg.innerType) {
-        is IntegerArgument -> interaction.suggestInt { suggestions.forEach { choice(it.toString(), (it as Int).toLong()) } }
+        is IntegerArgument -> interaction.suggestInteger { suggestions.forEach { choice(it.toString(), (it as Int).toLong()) } }
         is DoubleArgument -> interaction.suggestNumber { suggestions.forEach { choice(it.toString(), it as Double) } }
         is StringArgument -> interaction.suggestString { suggestions.forEach { choice(it.toString(), it as String) } }
         else -> {}

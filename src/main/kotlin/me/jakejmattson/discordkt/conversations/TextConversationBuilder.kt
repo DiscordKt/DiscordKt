@@ -28,7 +28,12 @@ public class TextConversationBuilder(
     public override val botMessageIds: MutableList<Snowflake> = mutableListOf()
 
     @Throws(DmException::class)
-    public override suspend fun <T> promptUntil(argument: Argument<*, T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
+    public override suspend fun <T> promptUntil(
+        argument: Argument<*, T>,
+        prompt: String,
+        error: String,
+        isValid: (T) -> Boolean
+    ): T {
         var value: T = prompt(argument, prompt)
 
         while (!isValid.invoke(value)) {
@@ -40,7 +45,11 @@ public class TextConversationBuilder(
     }
 
     @Throws(DmException::class, TimeoutException::class)
-    public override suspend fun <I, O> prompt(argument: Argument<I, O>, text: String, embed: (suspend EmbedBuilder.() -> Unit)?): O {
+    public override suspend fun <I, O> prompt(
+        argument: Argument<I, O>,
+        text: String,
+        embed: (suspend EmbedBuilder.() -> Unit)?
+    ): O {
         require(!argument.isOptional()) { "Conversation arguments cannot be optional" }
 
         val message = channel.createMessage {
@@ -49,7 +58,7 @@ public class TextConversationBuilder(
             if (embed != null) {
                 val builder = EmbedBuilder()
                 embed.invoke(builder)
-                embeds.add(builder)
+                embeds?.add(builder) ?: run { embeds = mutableListOf(builder) }
             }
         }
 
