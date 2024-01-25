@@ -14,7 +14,7 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 
     //Misc
-    id("com.github.ben-manes.versions") version "0.50.0"
+    id("com.github.ben-manes.versions") version "0.51.0"
 }
 
 repositories {
