@@ -38,12 +38,11 @@ public val User.defaultPfpUrl: String
     get() = defaultAvatar.cdnUrl.toUrl { format = Image.Format.PNG }
 
 /**
- * A User's name and discriminator
- * username#1234
+ * A User's name and discriminator (if one exists)
+ * username or username#1234
  */
-@Deprecated("Without a discriminator, this is not needed", ReplaceWith("username"))
 public val User.fullName: String
-    get() = username
+    get() = "$username${discriminatorTagOrEmpty()}"
 
 /**
  * Send a private message to a user if possible.
@@ -73,16 +72,21 @@ public fun UserBehavior.isSelf(): Boolean = id == kord.selfId
  * User entity formatted to a readable String.
  * username :: <@username>
  */
-public fun User.descriptor(): String = "$username :: $mention"
+public fun User.descriptor(): String = "$fullName :: $mention"
 
 /**
  * User entity formatted to a readable String.
  * <@username> (username)
  */
-public fun User.simpleDescriptor(): String = "$mention ($username)"
+public fun User.simpleDescriptor(): String = "$fullName ($username)"
 
 /**
  * User entity formatted to a readable String.
  * username :: 123456789123456789
  */
-public fun User.idDescriptor(): String = "$username :: ${id.value}"
+public fun User.idDescriptor(): String = "$fullName :: ${id.value}"
+
+/**
+ * Get the user discriminator and create a tag if it exists, otherwise return an empty String.
+ */
+private fun User.discriminatorTagOrEmpty() = discriminator.takeIf { it != "0" }?.let { "#$it" } ?: ""
