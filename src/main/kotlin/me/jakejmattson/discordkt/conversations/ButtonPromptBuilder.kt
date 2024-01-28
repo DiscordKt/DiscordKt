@@ -7,6 +7,7 @@ import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.rest.builder.message.actionRow
 import dev.kord.rest.builder.message.create.MessageCreateBuilder
+import dev.kord.rest.builder.message.embed
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
 import me.jakejmattson.discordkt.TypeContainer
@@ -68,7 +69,7 @@ public open class ButtonPromptBuilder<T> {
 
     protected suspend fun createMessage(messageBuilder: MessageCreateBuilder) {
         with(messageBuilder) {
-            embed {
+            this.embed {
                 promptEmbed.invoke(this)
             }
 

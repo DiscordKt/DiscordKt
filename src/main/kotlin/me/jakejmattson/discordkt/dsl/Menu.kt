@@ -208,7 +208,7 @@ public data class Menu(
         require(pages.isNotEmpty()) { "A menu must have at least one page." }
 
         val message = channel.createMessage {
-            embeds?.add(pages.first())
+            embeds = mutableListOf(pages.first())
 
             buttons.forEach {
                 actionRow {
