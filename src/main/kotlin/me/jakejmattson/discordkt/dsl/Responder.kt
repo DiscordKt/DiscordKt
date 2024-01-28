@@ -10,7 +10,7 @@ import dev.kord.core.behavior.interaction.response.InteractionResponseBehavior
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.interaction.ApplicationCommandInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.rest.builder.message.create.embed
+import dev.kord.rest.builder.message.embed
 
 /**
  * An interface for responding to input in a given context.
@@ -27,15 +27,16 @@ public interface Responder {
      * @param message Message text content.
      * @param embed Message embed content.
      */
-    public suspend fun respond(message: Any = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): Message? = channel.createMessage {
-        val responseContent = message.toString()
+    public suspend fun respond(message: Any = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): Message? =
+        channel.createMessage {
+            val responseContent = message.toString()
 
-        if (responseContent.isNotEmpty())
-            content = responseContent
+            if (responseContent.isNotEmpty())
+                content = responseContent
 
-        if (embed != null)
-            embed { embed.invoke(this) }
-    }
+            if (embed != null)
+                embed { embed.invoke(this) }
+        }
 
     /**
      * Respond with a [Menu].
@@ -83,7 +84,10 @@ public interface SlashResponder : Responder {
      * @param message Message text content.
      * @param embed Message embed content.
      */
-    public suspend fun respondPublic(message: Any = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): InteractionResponseBehavior? =
+    public suspend fun respondPublic(
+        message: Any = "",
+        embed: (suspend EmbedBuilder.() -> Unit)? = null
+    ): InteractionResponseBehavior? =
         if (interaction != null) {
             interaction!!.respondPublic {
                 val responseContent = message.toString()

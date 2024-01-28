@@ -31,17 +31,6 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
     private val commands = mutableListOf<Command>()
 
     /**
-     * Create a guild command.
-     */
-    @InnerDSL
-    @Deprecated("Generic 'command' functions will be replaced with explicit names.", ReplaceWith("text(*names) { body() }"))
-    public fun command(vararg names: String, body: (GuildTextCommand.() -> Unit)) {
-        val command = GuildTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
-        command.body()
-        commands.add(command)
-    }
-
-    /**
      * Create a guild text command.
      *
      * @param names The names of this command.
@@ -55,17 +44,6 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
     }
 
     /**
-     * Create a dm command.
-     */
-    @InnerDSL
-    @Deprecated("Generic 'command' functions will be replaced with explicit names.", ReplaceWith("dmText(*names) { body() }"))
-    public fun dmCommand(vararg names: String, body: DmTextCommand.() -> Unit) {
-        val command = DmTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
-        command.body()
-        commands.add(command)
-    }
-
-    /**
      * Create a dm text command.
      *
      * @param names The names of this command.
@@ -75,17 +53,6 @@ public data class CommandSetBuilder(val discord: Discord, val category: String, 
     public fun dmText(vararg names: String, action: DmTextCommand.() -> Unit) {
         val command = DmTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
         command.action()
-        commands.add(command)
-    }
-
-    /**
-     * Create a global command.
-     */
-    @InnerDSL
-    @Deprecated("Generic 'command' functions will be replaced with explicit names.", ReplaceWith("globalText(*names) { body() }"))
-    public fun globalCommand(vararg names: String, body: GlobalTextCommand.() -> Unit) {
-        val command = GlobalTextCommand(names.toList(), category = category, requiredPermissions = requiredPermissions)
-        command.body()
         commands.add(command)
     }
 

@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.arguments
 
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
-import me.jakejmattson.discordkt.extensions.containsURl
+import me.jakejmattson.discordkt.util.containsURl
 
 /**
  * Accepts a string that matches the URL regex.

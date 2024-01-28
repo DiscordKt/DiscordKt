@@ -5,7 +5,7 @@ import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import dev.kord.core.entity.interaction.ComponentInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.rest.builder.message.create.embed
+import dev.kord.rest.builder.message.embed
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.arguments.Argument
@@ -27,7 +27,12 @@ public class SlashConversationBuilder<T : TypeContainer>(
         get() = responders.map { it.promptMessage.id }.toMutableList()
 
     @Throws(DmException::class)
-    public override suspend fun <T> promptUntil(argument: Argument<*, T>, prompt: String, error: String, isValid: (T) -> Boolean): T {
+    public override suspend fun <T> promptUntil(
+        argument: Argument<*, T>,
+        prompt: String,
+        error: String,
+        isValid: (T) -> Boolean
+    ): T {
         var value: T = prompt(argument, prompt)
 
         while (!isValid.invoke(value)) {
@@ -39,7 +44,11 @@ public class SlashConversationBuilder<T : TypeContainer>(
     }
 
     @Throws(DmException::class, TimeoutException::class)
-    public override suspend fun <I, O> prompt(argument: Argument<I, O>, text: String, embed: (suspend EmbedBuilder.() -> Unit)?): O {
+    public override suspend fun <I, O> prompt(
+        argument: Argument<I, O>,
+        text: String,
+        embed: (suspend EmbedBuilder.() -> Unit)?
+    ): O {
         require(!argument.isOptional()) { "Conversation arguments cannot be optional" }
 
         createMessage(text, embed)

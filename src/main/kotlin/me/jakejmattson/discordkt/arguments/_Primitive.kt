@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.arguments
 
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.DiscordContext
-import me.jakejmattson.discordkt.extensions.consumeFirst
+import me.jakejmattson.discordkt.util.consumeFirst
 import kotlin.random.Random
 
 /**

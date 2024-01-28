@@ -10,15 +10,13 @@ import dev.kord.core.behavior.edit
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.entity.interaction.ButtonInteraction
-import dev.kord.core.entity.interaction.ComponentInteraction
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.rest.builder.message.create.actionRow
-import dev.kord.rest.builder.message.modify.actionRow
+import dev.kord.rest.builder.message.actionRow
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
-import me.jakejmattson.discordkt.extensions.toPartialEmoji
-import me.jakejmattson.discordkt.extensions.uuid
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
+import me.jakejmattson.discordkt.util.toPartialEmoji
+import me.jakejmattson.discordkt.util.uuid
 
 private val menus = mutableMapOf<Snowflake, Menu>()
 
@@ -35,14 +33,16 @@ public suspend fun Message.edit(menu: Menu): Message {
             actionRow {
                 it.forEach { button ->
                     when (button) {
-                        is SimpleButton<*> -> interactionButton(button.style, button.id) {
-                            this.label = button.label
-                            this.emoji = button.emoji?.toPartialEmoji()
+                        is SimpleButton -> interactionButton(button.style, button.id) {
+                            label = button.label
+                            emoji = button.emoji?.toPartialEmoji()
+                            disabled = button.disabled
                         }
 
                         is LinkButton -> linkButton(button.url) {
-                            this.label = button.label
-                            this.emoji = button.emoji?.toPartialEmoji()
+                            label = button.label
+                            emoji = button.emoji?.toPartialEmoji()
+                            disabled = button.disabled
                         }
                     }
                 }
@@ -69,7 +69,13 @@ public class MenuButtonRowBuilder {
      * @param style The Button [style][ButtonStyle]
      * @param disabled Whether this button is disabled
      */
-    public fun button(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend Menu.() -> Unit) {
+    public fun button(
+        label: String?,
+        emoji: DiscordEmoji?,
+        style: ButtonStyle = ButtonStyle.Secondary,
+        disabled: Boolean = false,
+        action: suspend Menu.() -> Unit
+    ) {
         val button = SimpleButton(label, emoji?.toReaction(), disabled, uuid(), Nav(action), style)
         buttons.add(button)
     }
@@ -83,22 +89,14 @@ public class MenuButtonRowBuilder {
      * @param style The Button [style][ButtonStyle]
      * @param disabled Whether this button is disabled
      */
-    public fun editButton(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend EmbedBuilder.() -> Unit) {
+    public fun editButton(
+        label: String?,
+        emoji: DiscordEmoji?,
+        style: ButtonStyle = ButtonStyle.Secondary,
+        disabled: Boolean = false,
+        action: suspend EmbedBuilder.(ButtonInteraction) -> Unit
+    ) {
         val button = SimpleButton(label, emoji?.toReaction(), disabled, uuid(), Edit(action), style)
-        buttons.add(button)
-    }
-
-    /**
-     * A Discord button component.
-     * Exposes the button press interaction.
-     *
-     * @param label The Button text
-     * @param emoji The Button [emoji][DiscordEmoji]
-     * @param style The Button [style][ButtonStyle]
-     * @param disabled Whether this button is disabled
-     */
-    public fun actionButton(label: String?, emoji: DiscordEmoji?, style: ButtonStyle = ButtonStyle.Secondary, disabled: Boolean = false, action: suspend ComponentInteraction.() -> Unit) {
-        val button = SimpleButton(label, emoji?.toReaction(), disabled, uuid(), Action(action), style)
         buttons.add(button)
     }
 
@@ -158,8 +156,10 @@ public suspend fun menu(menuBuilder: suspend MenuBuilder.() -> Unit): Menu {
 /**
  * Contains menu data and navigation functions.
  */
-public data class Menu(internal val pages: MutableList<EmbedBuilder>,
-                       internal val buttons: MutableList<MutableList<DktButton>>) {
+public data class Menu(
+    internal val pages: MutableList<EmbedBuilder>,
+    internal val buttons: MutableList<MutableList<DktButton>>
+) {
     private var index = 0
 
     internal val page: EmbedBuilder
@@ -208,20 +208,22 @@ public data class Menu(internal val pages: MutableList<EmbedBuilder>,
         require(pages.isNotEmpty()) { "A menu must have at least one page." }
 
         val message = channel.createMessage {
-            embeds.add(pages.first())
+            embeds = mutableListOf(pages.first())
 
             buttons.forEach {
                 actionRow {
                     it.forEach { button ->
                         when (button) {
-                            is SimpleButton<*> -> interactionButton(button.style, button.id) {
+                            is SimpleButton -> interactionButton(button.style, button.id) {
                                 this.label = button.label
                                 this.emoji = button.emoji?.toPartialEmoji()
+                                this.disabled = button.disabled
                             }
 
                             is LinkButton -> linkButton(button.url) {
                                 this.label = button.label
                                 this.emoji = button.emoji?.toPartialEmoji()
+                                this.disabled = button.disabled
                             }
                         }
                     }
@@ -242,13 +244,13 @@ public data class Menu(internal val pages: MutableList<EmbedBuilder>,
 
             val message = interaction.message
             val menu = menus[message.id] ?: return
-            val simpleButtons = menu.buttons.flatten().filterIsInstance<SimpleButton<*>>()
+            val simpleButtons = menu.buttons.flatten().filterIsInstance<SimpleButton>()
             val simpleButton = simpleButtons.find { firedButton.data.customId.value == it.id } ?: return
 
-            when (val action = simpleButton.action) {
+            when (val actionButton = simpleButton.actionButton) {
                 is Nav -> {
                     interaction.deferEphemeralMessageUpdate()
-                    action.invoke(menu)
+                    actionButton.action.invoke(menu)
 
                     message.edit {
                         embeds = mutableListOf(menu.page)
@@ -258,15 +260,13 @@ public data class Menu(internal val pages: MutableList<EmbedBuilder>,
                 is Edit -> {
                     interaction.deferEphemeralMessageUpdate()
                     val page = menu.page
-                    action.invoke(page)
+                    actionButton.action.invoke(page, interaction)
                     menu.updatePage(page)
 
                     message.edit {
                         embeds = mutableListOf(page)
                     }
                 }
-
-                is Action -> action.invoke(interaction)
             }
         }
     }
@@ -285,28 +285,20 @@ public interface DktButton {
     public var disabled: Boolean
 }
 
-private class SimpleButton<T>(
+private class SimpleButton(
     override val label: String?,
     override val emoji: ReactionEmoji?,
     override var disabled: Boolean,
     val id: String,
-    val action: ButtonAction<T>,
+    val actionButton: ActionButton,
     val style: ButtonStyle
 ) : DktButton
 
-private sealed class ButtonAction<T> {
-    abstract val action: suspend T.() -> Unit
+private sealed interface ActionButton
+private class Edit(val action: suspend EmbedBuilder.(ButtonInteraction) -> Unit) : ActionButton
+private class Nav(val action: suspend Menu.() -> Unit) : ActionButton
 
-    suspend fun invoke(data: T) {
-        action.invoke(data)
-    }
-}
-
-private class Action(override val action: suspend ComponentInteraction.() -> Unit) : ButtonAction<ComponentInteraction>()
-private class Edit(override val action: suspend EmbedBuilder.() -> Unit) : ButtonAction<EmbedBuilder>()
-private class Nav(override val action: suspend Menu.() -> Unit) : ButtonAction<Menu>()
-
-private data class LinkButton constructor(
+private data class LinkButton(
     override val label: String?,
     override val emoji: ReactionEmoji?,
     override var disabled: Boolean,

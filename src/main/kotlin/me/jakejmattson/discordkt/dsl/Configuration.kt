@@ -7,6 +7,7 @@ import dev.kord.common.entity.Permission
 import dev.kord.common.entity.Permissions
 import dev.kord.core.supplier.EntitySupplyStrategy
 import dev.kord.gateway.Intents
+import dev.kord.gateway.NONE
 import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.Emojis
@@ -77,7 +78,7 @@ public data class SimpleConfiguration(
     var dualRegistry: Boolean = true,
     var commandReaction: DiscordEmoji? = Emojis.eyes,
     var theme: java.awt.Color? = null,
-    var intents: Intents = Intents.none,
+    var intents: Intents = Intents.NONE,
     var defaultPermissions: Permissions = Permissions(Permission.UseApplicationCommands),
     var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback,
 )

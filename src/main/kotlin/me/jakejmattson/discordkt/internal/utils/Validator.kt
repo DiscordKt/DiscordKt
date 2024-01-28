@@ -4,7 +4,7 @@ import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.commands.SlashCommand
 import me.jakejmattson.discordkt.commands.TextCommand
-import me.jakejmattson.discordkt.extensions.DiscordRegex
+import me.jakejmattson.discordkt.util.DiscordRegex
 
 internal fun Discord.validate() {
     val duplicates = commands

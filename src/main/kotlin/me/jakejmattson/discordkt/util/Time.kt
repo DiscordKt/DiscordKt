@@ -1,4 +1,4 @@
-package me.jakejmattson.discordkt.extensions
+package me.jakejmattson.discordkt.util
 
 import java.time.Instant
 

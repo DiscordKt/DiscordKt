@@ -14,7 +14,7 @@
     </a>
     <br>
     <a href="https://discord.com/users/254786431656919051/">
-      <img alt="Discord JakeyWakey#1569" src="https://img.shields.io/badge/Personal-JakeyWakey%231569-%2300BFFF.svg?logo=discord">
+      <img alt="Discord _jakeywakey" src="https://img.shields.io/badge/Personal-__jakeywakey-%2300BFFF.svg?logo=discord">
     </a>
 </p>
 

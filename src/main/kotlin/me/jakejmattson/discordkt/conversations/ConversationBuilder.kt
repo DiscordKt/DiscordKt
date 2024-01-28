@@ -6,10 +6,11 @@ import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ComponentInteraction
 import dev.kord.core.entity.interaction.SelectMenuInteraction
+import dev.kord.rest.builder.component.option
 import dev.kord.rest.builder.message.EmbedBuilder
+import dev.kord.rest.builder.message.actionRow
 import dev.kord.rest.builder.message.create.MessageCreateBuilder
-import dev.kord.rest.builder.message.create.actionRow
-import dev.kord.rest.builder.message.create.embed
+import dev.kord.rest.builder.message.embed
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
@@ -19,8 +20,8 @@ import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.conversations.responders.ConversationResponder
 import me.jakejmattson.discordkt.dsl.Responder
 import me.jakejmattson.discordkt.dsl.internalLocale
-import me.jakejmattson.discordkt.extensions.uuid
 import me.jakejmattson.discordkt.prompts.SimpleSelectBuilder
+import me.jakejmattson.discordkt.util.uuid
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -80,7 +81,12 @@ public abstract class ConversationBuilder(
      * @param isValid A predicate to determine whether the input is accepted.
      */
     @Throws(DmException::class)
-    public abstract suspend fun <T> promptUntil(argument: Argument<*, T>, prompt: String, error: String, isValid: (T) -> Boolean): T
+    public abstract suspend fun <T> promptUntil(
+        argument: Argument<*, T>,
+        prompt: String,
+        error: String,
+        isValid: (T) -> Boolean
+    ): T
 
     /**
      * Prompt the user with text and/or embed.
@@ -90,7 +96,11 @@ public abstract class ConversationBuilder(
      * @param embed The embed sent as part of the prompt.
      */
     @Throws(DmException::class, TimeoutException::class)
-    public abstract suspend fun <I, O> prompt(argument: Argument<I, O>, text: String = "", embed: (suspend EmbedBuilder.() -> Unit)? = null): O
+    public abstract suspend fun <I, O> prompt(
+        argument: Argument<I, O>,
+        text: String = "",
+        embed: (suspend EmbedBuilder.() -> Unit)? = null
+    ): O
 
     /**
      * Prompt the user with an embed and the provided buttons.
@@ -118,16 +128,18 @@ public abstract class ConversationBuilder(
 
         with(builder) {
             content = selectBuilder.textContent
-            selectBuilder.embedContent?.let { embed { it.invoke(this) } }
+            selectBuilder.embedContent?.let {
+                embed { it.invoke(this) }
+            }
 
             actionRow {
-                selectMenu(uuid()) {
-                    this.allowedValues = selectBuilder.selectionCount
+                stringSelect(uuid()) {
+                    allowedValues = selectBuilder.selectionCount
 
                     selectBuilder.options.forEach {
                         option(it.label, it.value) {
-                            this.description = it.description
-                            this.emoji = it.emoji
+                            description = it.description
+                            emoji = it.emoji
                         }
                     }
                 }
@@ -201,7 +213,8 @@ public abstract class ConversationBuilder(
     }
 
     private suspend fun <I, O> parseResponse(argument: Argument<I, O>, message: Message): Result<O> {
-        val context = DiscordContext(discord, message, message.author!!, message.channel.asChannel(), message.getGuildOrNull())
+        val context =
+            DiscordContext(discord, message, message.author!!, message.channel.asChannel(), message.getGuildOrNull())
         val parseResult = argument.parse(message.content.split(" ").toMutableList(), discord)
 
         return if (parseResult != null)

@@ -5,8 +5,8 @@ import dev.kord.core.entity.Message
 import dev.kord.core.entity.channel.GuildMessageChannel
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
-import me.jakejmattson.discordkt.extensions.DiscordRegex
-import me.jakejmattson.discordkt.extensions.toSnowflakeOrNull
+import me.jakejmattson.discordkt.util.DiscordRegex
+import me.jakejmattson.discordkt.util.toSnowflakeOrNull
 
 /**
  * Accepts a Discord Message entity as an ID or a link.

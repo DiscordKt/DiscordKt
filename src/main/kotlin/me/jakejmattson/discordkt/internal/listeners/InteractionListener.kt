@@ -1,7 +1,9 @@
 package me.jakejmattson.discordkt.internal.listeners
 
-import dev.kord.common.annotation.KordPreview
-import dev.kord.core.behavior.interaction.*
+import dev.kord.core.behavior.interaction.GuildInteractionBehavior
+import dev.kord.core.behavior.interaction.suggestInteger
+import dev.kord.core.behavior.interaction.suggestNumber
+import dev.kord.core.behavior.interaction.suggestString
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.interaction.*
 import dev.kord.core.event.interaction.InteractionCreateEvent
@@ -13,11 +15,11 @@ import me.jakejmattson.discordkt.bundleToContainer
 import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.conversations.Conversations
 import me.jakejmattson.discordkt.dsl.Menu
-import me.jakejmattson.discordkt.prompts.modalBuffer
 import me.jakejmattson.discordkt.internal.command.transformArgs
 import me.jakejmattson.discordkt.internal.utils.InternalLogger
+import me.jakejmattson.discordkt.prompts.modalBuffer
+import me.jakejmattson.discordkt.prompts.selectBuffer
 
-@KordPreview
 internal suspend fun registerInteractionListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
     when (val interaction = interaction) {
         is MessageCommandInteraction -> handleApplicationCommand(interaction, discord) { Success(bundleToContainer(listOf(interaction.messages.values.first()))) }
@@ -25,7 +27,12 @@ internal suspend fun registerInteractionListener(discord: Discord) = discord.kor
         is ChatInputCommandInteraction -> handleSlashCommand(interaction, discord)
         is AutoCompleteInteraction -> handleAutocomplete(interaction, discord)
         is ModalSubmitInteraction -> modalBuffer.send(interaction)
-        is SelectMenuInteraction -> Conversations.handleInteraction(interaction)
+        is SelectMenuInteraction -> {
+            // If these lines switch order, conversation promptSelect doesn't work. No idea why.
+            Conversations.handleInteraction(interaction)
+            selectBuffer.send(interaction)
+        }
+
         is ButtonInteraction -> {
             Menu.handleButtonPress(interaction)
             Conversations.handleInteraction(interaction)
@@ -110,7 +117,7 @@ private suspend fun handleAutocomplete(interaction: AutoCompleteInteraction, dis
     val suggestions = arg.autocomplete.invoke(autocompleteData).take(25)
 
     when (arg.innerType) {
-        is IntegerArgument -> interaction.suggestInt { suggestions.forEach { choice(it.toString(), (it as Int).toLong()) } }
+        is IntegerArgument -> interaction.suggestInteger { suggestions.forEach { choice(it.toString(), (it as Int).toLong()) } }
         is DoubleArgument -> interaction.suggestNumber { suggestions.forEach { choice(it.toString(), it as Double) } }
         is StringArgument -> interaction.suggestString { suggestions.forEach { choice(it.toString(), it as String) } }
         else -> {}

@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.extensions
+package me.jakejmattson.discordkt.util
 
 import dev.kord.common.entity.ButtonStyle
 import dev.kord.common.entity.DiscordPartialEmoji
@@ -8,7 +8,6 @@ import dev.kord.common.entity.Snowflake
 import dev.kord.core.enableEvent
 import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.event.Event
-import dev.kord.gateway.Intent
 import dev.kord.gateway.Intents
 import dev.kord.rest.builder.component.ActionRowBuilder
 import dev.kord.rest.builder.component.ButtonBuilder
@@ -30,11 +29,6 @@ public fun String.toSnowflake(): Snowflake = Snowflake(this)
  * Convert an ID or mention to a [Snowflake].
  */
 public fun String.toSnowflakeOrNull(): Snowflake? = trimToID().toLongOrNull()?.let { Snowflake(it) }
-
-/**
- * Combine two [Intent] into [Intents].
- */
-public operator fun Intent.plus(intent: Intent): Intents = Intents(this, intent)
 
 /**
  * Convert an [Event] to its [Intents].

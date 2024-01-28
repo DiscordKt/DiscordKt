@@ -2,7 +2,6 @@
 
 package me.jakejmattson.discordkt
 
-import dev.kord.common.annotation.KordPreview
 import dev.kord.core.Kord
 import dev.kord.core.behavior.createApplicationCommands
 import dev.kord.rest.builder.interaction.*
@@ -15,11 +14,11 @@ import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.dsl.BotConfiguration
 import me.jakejmattson.discordkt.dsl.Precondition
 import me.jakejmattson.discordkt.dsl.diService
-import me.jakejmattson.discordkt.extensions.pluralize
 import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
 import me.jakejmattson.discordkt.internal.listeners.registerInteractionListener
 import me.jakejmattson.discordkt.internal.utils.*
 import me.jakejmattson.discordkt.locale.Locale
+import me.jakejmattson.discordkt.util.pluralize
 import java.time.Instant
 import java.util.*
 import kotlin.reflect.KClass
@@ -126,7 +125,6 @@ public abstract class Discord {
         getInjectionObjects(a: KClass<A>, b: KClass<B>, c: KClass<C>, d: KClass<D>, e: KClass<E>): Args5<A, B, C, D, E> =
         Args5(diService[a], diService[b], diService[c], diService[d], diService[e])
 
-    @KordPreview
     internal suspend fun initCore() {
         diService.inject(this)
         val services = registerServices()
@@ -176,13 +174,11 @@ public abstract class Discord {
 
     private fun registerServices() = Reflection.detectClassesWith<Service>().apply { diService.buildAllRecursively(this) }
 
-    @KordPreview
     private suspend fun registerListeners(discord: Discord) {
         registerInteractionListener(discord)
         registerCommandListener(discord)
     }
 
-    @KordPreview
     private suspend fun registerSlashCommands() {
         fun BaseInputChatBuilder.mapArgs(command: SlashCommand) {
             command.execution.arguments.forEach { argument ->
@@ -214,7 +210,7 @@ public abstract class Discord {
                     is RoleArgument<*> -> role(name, description) { required = isRequired }
                     is ChannelArgument<*> -> channel(name, description) { required = isRequired }
                     is BooleanArgument<*> -> boolean(name, description) { required = isRequired }
-                    is IntegerArgument<*> -> int(name, description) { required = isRequired; autocomplete = isAuto }
+                    is IntegerArgument<*> -> integer(name, description) { required = isRequired; autocomplete = isAuto }
                     is DoubleArgument<*> -> number(name, description) { required = isRequired; autocomplete = isAuto }
                     else -> string(name, description) { required = isRequired; autocomplete = isAuto }
                 }

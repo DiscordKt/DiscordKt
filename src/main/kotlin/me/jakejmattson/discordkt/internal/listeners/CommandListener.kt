@@ -13,7 +13,7 @@ import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.conversations.Conversations
-import me.jakejmattson.discordkt.extensions.trimToID
+import me.jakejmattson.discordkt.util.trimToID
 import me.jakejmattson.discordkt.internal.command.stripMentionInvocation
 import me.jakejmattson.discordkt.internal.command.stripPrefixInvocation
 import me.jakejmattson.discordkt.internal.utils.Recommender
@@ -22,7 +22,7 @@ internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on
     val config = discord.configuration
     val self = kord.selfId.value
     val author = message.author ?: return@on
-    val guild = getGuild()
+    val guild = getGuildOrNull()
     val context = DiscordContext(discord, message, author, message.channel, guild)
     val prefix = config.prefix.invoke(context)
     val channel = message.channel.asChannel()

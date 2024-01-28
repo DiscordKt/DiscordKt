@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package me.jakejmattson.discordkt.extensions
+package me.jakejmattson.discordkt.util
 
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.entity.*
@@ -12,7 +12,7 @@ import me.jakejmattson.discordkt.arguments.Error
 import me.jakejmattson.discordkt.arguments.Success
 import me.jakejmattson.discordkt.commands.Command
 import java.awt.Color
-import java.util.*
+import java.util.UUID
 
 /**
  * Remove and return the first element in a mutable list.
@@ -42,19 +42,19 @@ public fun String.unwrapMessageLink(): MessageParts? {
 
 /**
  * Whether this string matches a URL regex.
- * @sample me.jakejmattson.discordkt.extensions.DiscordRegex.url
+ * @sample me.jakejmattson.discordkt.util.DiscordRegex.url
  */
 public fun String.containsURl(): Boolean = DiscordRegex.url.any { replace("\n", "").contains(it) }
 
 /**
  * Whether this string contains a discord invite.
- * @sample me.jakejmattson.discordkt.extensions.DiscordRegex.invite
+ * @sample me.jakejmattson.discordkt.util.DiscordRegex.invite
  */
 public fun String.containsInvite(): Boolean = DiscordRegex.invite.containsMatchIn(this)
 
 /**
  * Return all discord invites in this string.
- * @sample me.jakejmattson.discordkt.extensions.DiscordRegex.invite
+ * @sample me.jakejmattson.discordkt.util.DiscordRegex.invite
  */
 public fun String.getInvites(): List<String> = DiscordRegex.invite.findAll(this).map { it.value }.toList()
 
@@ -107,7 +107,7 @@ private suspend fun String.cleanseUsers(discord: Discord): String {
     val userMentions = DiscordRegex.user.findAll(this).map {
         runBlocking {
             val mention = it.value
-            val replacement = mention.toSnowflakeOrNull()?.let { discord.kord.getUser(it)?.tag } ?: ""
+            val replacement = mention.toSnowflakeOrNull()?.let { discord.kord.getUser(it)?.username } ?: ""
 
             mention to replacement
         }
