@@ -1,6 +1,9 @@
 package me.jakejmattson.discordkt.internal.listeners
 
-import dev.kord.core.behavior.interaction.*
+import dev.kord.core.behavior.interaction.GuildInteractionBehavior
+import dev.kord.core.behavior.interaction.suggestInteger
+import dev.kord.core.behavior.interaction.suggestNumber
+import dev.kord.core.behavior.interaction.suggestString
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.interaction.*
 import dev.kord.core.event.interaction.InteractionCreateEvent
@@ -25,8 +28,9 @@ internal suspend fun registerInteractionListener(discord: Discord) = discord.kor
         is AutoCompleteInteraction -> handleAutocomplete(interaction, discord)
         is ModalSubmitInteraction -> modalBuffer.send(interaction)
         is SelectMenuInteraction -> {
-            selectBuffer.send(interaction)
+            // If these lines switch order, conversation promptSelect doesn't work. No idea why.
             Conversations.handleInteraction(interaction)
+            selectBuffer.send(interaction)
         }
 
         is ButtonInteraction -> {
