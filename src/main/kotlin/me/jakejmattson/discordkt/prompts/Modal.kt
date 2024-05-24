@@ -1,9 +1,9 @@
 package me.jakejmattson.discordkt.prompts
 
 import dev.kord.common.entity.TextInputStyle
+import dev.kord.core.behavior.interaction.ModalParentInteractionBehavior
 import dev.kord.core.behavior.interaction.modal
 import dev.kord.core.behavior.interaction.response.DeferredEphemeralMessageInteractionResponseBehavior
-import dev.kord.core.entity.interaction.ApplicationCommandInteraction
 import dev.kord.core.entity.interaction.ModalSubmitInteraction
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
@@ -64,7 +64,7 @@ internal val modalBuffer = Channel<ModalSubmitInteraction>()
 /**
  * Create a discord modal and collect the input.
  */
-public suspend fun promptModal(interaction: ApplicationCommandInteraction, title: String, builder: SimpleModalBuilder.() -> Unit): Args2<DeferredEphemeralMessageInteractionResponseBehavior, Array<String?>> {
+public suspend fun promptModal(interaction: ModalParentInteractionBehavior, title: String, builder: SimpleModalBuilder.() -> Unit): Args2<DeferredEphemeralMessageInteractionResponseBehavior, Array<String?>> {
     val modalId = uuid()
     val modal = SimpleModalBuilder()
     modal.builder()
