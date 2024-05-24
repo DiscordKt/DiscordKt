@@ -66,6 +66,8 @@ public class MenuButtonRowBuilder {
      * @param emoji The Button [emoji][DiscordEmoji]
      * @param style The Button [style][ButtonStyle]
      * @param disabled Whether this button is disabled
+     * @param bypassDefer If true, do not defer interaction
+     * @param action Lambda to be executed when button is pressed
      */
     public fun button(
         label: String?,
@@ -87,6 +89,8 @@ public class MenuButtonRowBuilder {
      * @param emoji The Button [emoji][DiscordEmoji]
      * @param style The Button [style][ButtonStyle]
      * @param disabled Whether this button is disabled
+     * @param bypassDefer If true, do not defer interaction
+     * @param action Lambda to be executed when button is pressed
      */
     public fun editButton(
         label: String?,
