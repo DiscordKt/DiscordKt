@@ -72,9 +72,10 @@ public class MenuButtonRowBuilder {
         emoji: DiscordEmoji?,
         style: ButtonStyle = ButtonStyle.Secondary,
         disabled: Boolean = false,
+        bypassDefer: Boolean = false,
         action: suspend Menu.() -> Unit
     ) {
-        val button = SimpleButton(label, emoji?.toReaction(), disabled, uuid(), Nav(action), style)
+        val button = SimpleButton(label, emoji?.toReaction(), disabled, uuid(), Nav(action), style, bypassDefer)
         buttons.add(button)
     }
 
@@ -92,9 +93,10 @@ public class MenuButtonRowBuilder {
         emoji: DiscordEmoji?,
         style: ButtonStyle = ButtonStyle.Secondary,
         disabled: Boolean = false,
+        bypassDefer: Boolean = false,
         action: suspend EmbedBuilder.(ButtonInteraction) -> Unit
     ) {
-        val button = SimpleButton(label, emoji?.toReaction(), disabled, uuid(), Edit(action), style)
+        val button = SimpleButton(label, emoji?.toReaction(), disabled, uuid(), Edit(action), style, bypassDefer)
         buttons.add(button)
     }
 
@@ -247,7 +249,7 @@ public data class Menu(
 
             when (val actionButton = simpleButton.actionButton) {
                 is Nav -> {
-                    interaction.deferEphemeralMessageUpdate()
+                    if (!simpleButton.bypassDefer) interaction.deferEphemeralMessageUpdate()
                     actionButton.action.invoke(menu)
 
                     message.edit {
@@ -256,7 +258,7 @@ public data class Menu(
                 }
 
                 is Edit -> {
-                    interaction.deferEphemeralMessageUpdate()
+                    if (!simpleButton.bypassDefer) interaction.deferEphemeralMessageUpdate()
                     val page = menu.page
                     actionButton.action.invoke(page, interaction)
                     menu.updatePage(page)
@@ -289,7 +291,8 @@ private class SimpleButton(
     override var disabled: Boolean,
     val id: String,
     val actionButton: ActionButton,
-    val style: ButtonStyle
+    val style: ButtonStyle,
+    val bypassDefer: Boolean = false
 ) : DktButton
 
 private sealed interface ActionButton
