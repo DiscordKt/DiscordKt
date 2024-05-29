@@ -19,6 +19,7 @@ internal suspend fun transformArgs(args: List<Pair<Argument<*, *>, Any?>>, conte
         } else {
             val arg = when (rawArg) {
                 is OptionalArg<*, *, *> -> rawArg.type
+                is WrappedArgument<*, *, *, *> -> rawArg.innerType
                 else -> rawArg
             }
 
