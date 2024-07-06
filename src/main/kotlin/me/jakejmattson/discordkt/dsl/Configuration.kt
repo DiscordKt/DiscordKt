@@ -12,6 +12,7 @@ import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.Emojis
 import me.jakejmattson.discordkt.commands.DiscordContext
+import org.slf4j.Logger
 
 /**
  * Contains all properties configured when the bot is created.
@@ -44,6 +45,7 @@ public data class BotConfiguration(
     val intents: Intents,
     val defaultPermissions: Permissions,
     val entitySupplyStrategy: EntitySupplyStrategy<*>,
+    val logger: Logger?,
 
     internal val prefix: suspend (DiscordContext) -> String,
     internal val mentionEmbed: Pair<String?, (suspend EmbedBuilder.(DiscordContext) -> Unit)?>,
@@ -81,4 +83,5 @@ public data class SimpleConfiguration(
     var intents: Intents = Intents.NONE,
     var defaultPermissions: Permissions = Permissions(Permission.UseApplicationCommands),
     var entitySupplyStrategy: EntitySupplyStrategy<*> = EntitySupplyStrategy.cacheWithCachingRestFallback,
+    var logger: Logger? = null
 )

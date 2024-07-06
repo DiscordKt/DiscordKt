@@ -118,8 +118,13 @@ public class Bot(private val token: String, private val packageName: String) {
                 entitySupplyStrategy = entitySupplyStrategy,
                 prefix = prefixFun,
                 mentionEmbed = mentionEmbedFun,
-                exceptionHandler = exceptionHandlerFun
+                exceptionHandler = exceptionHandlerFun,
+                logger = logger
             )
+        }
+
+        if (botConfiguration.logger != null) {
+            InternalLogger.logger = botConfiguration.logger
         }
 
         val kord = Kord(token) {
