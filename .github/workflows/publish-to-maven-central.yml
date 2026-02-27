@@ -9,9 +9,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          show-progress: false
+      - name: Checkout sources
+        uses: actions/checkout@v4
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -20,14 +19,10 @@ jobs:
           java-version: '17'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          cache-read-only: false
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Compile Source
-        shell: bash
-        run: |-
-          ./gradlew assemble
+        run: ./gradlew assemble
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
