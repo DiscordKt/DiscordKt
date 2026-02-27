@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package me.jakejmattson.discordkt.dsl
 
 import dev.kord.core.event.Event

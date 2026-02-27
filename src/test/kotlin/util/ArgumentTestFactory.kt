@@ -6,7 +6,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.arguments.Error
@@ -34,7 +33,7 @@ class ArgTestBuilder<A, B>(private val arg: Argument<A, B>, private val spec: De
 fun <A, B> DescribeSpec.generateFailTests(arg: Argument<A, B>, inputs: List<A>) {
     describe(arg::class.simplerName) {
         inputs.forEach { input ->
-            val result = runBlocking { arg.transform(input, contextMock) }
+            val result = arg.transform(input, contextMock)
 
             it("Fail: '$input'") {
                 result.shouldBeTypeOf<Error<*>>()

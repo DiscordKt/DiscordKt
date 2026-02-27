@@ -4,7 +4,10 @@ import dev.kord.core.behavior.channel.createEmbed
 import dev.kord.core.entity.Guild
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
-import dev.kord.core.entity.channel.*
+import dev.kord.core.entity.channel.Channel
+import dev.kord.core.entity.channel.DmChannel
+import dev.kord.core.entity.channel.GuildMessageChannel
+import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.event.message.MessageCreateEvent
 import dev.kord.core.on
 import dev.kord.x.emoji.Emojis
@@ -13,12 +16,12 @@ import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.conversations.Conversations
-import me.jakejmattson.discordkt.util.trimToID
 import me.jakejmattson.discordkt.internal.command.stripMentionInvocation
 import me.jakejmattson.discordkt.internal.command.stripPrefixInvocation
 import me.jakejmattson.discordkt.internal.utils.Recommender
+import me.jakejmattson.discordkt.util.trimToID
 
-internal suspend fun registerCommandListener(discord: Discord) = discord.kord.on<MessageCreateEvent> {
+internal fun registerCommandListener(discord: Discord) = discord.kord.on<MessageCreateEvent> {
     val config = discord.configuration
     val self = kord.selfId.value
     val author = message.author ?: return@on

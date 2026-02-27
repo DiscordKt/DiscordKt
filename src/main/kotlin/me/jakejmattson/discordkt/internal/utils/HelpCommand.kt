@@ -13,7 +13,7 @@ internal fun produceHelpCommand(category: String) = commands(category) {
             .autocomplete {
                 discord.commands
                     .filter { it.hasPermissionToRun(discord, interaction.user, (interaction as GuildAutoCompleteInteraction).getGuild()) }
-                    .map { it.names }.flatten()
+                    .flatMap { it.names }
                     .filter { it.contains(input, true) }
             }.optional("")) {
             val input = args.first
@@ -46,7 +46,7 @@ private suspend fun CommandEvent<*>.sendDefaultEmbed(embedColor: Color?) =
 
         (commandGroups + subcommandGroups)
             .sortedBy { (_, commands) -> -commands.size }
-            .map { (category, commands) ->
+            .forEach { (category, commands) ->
                 field {
                     name = category
                     value = "```\n" +

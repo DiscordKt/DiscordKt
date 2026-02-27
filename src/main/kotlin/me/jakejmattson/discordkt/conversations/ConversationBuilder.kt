@@ -15,7 +15,10 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.Discord
-import me.jakejmattson.discordkt.arguments.*
+import me.jakejmattson.discordkt.arguments.Argument
+import me.jakejmattson.discordkt.arguments.Error
+import me.jakejmattson.discordkt.arguments.Result
+import me.jakejmattson.discordkt.arguments.Success
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.conversations.responders.ConversationResponder
 import me.jakejmattson.discordkt.dsl.Responder
@@ -147,9 +150,8 @@ public abstract class ConversationBuilder(
         }
     }
 
-    protected fun <T> retrieveValidTextResponse(argument: Argument<*, T>): T = runBlocking {
+    protected suspend fun <T> retrieveValidTextResponse(argument: Argument<*, T>): T =
         retrieveTextResponse(argument) ?: retrieveValidTextResponse(argument)
-    }
 
     private suspend fun <T> retrieveTextResponse(argument: Argument<*, T>): T? = select {
         val timer = createTimer()
@@ -177,9 +179,8 @@ public abstract class ConversationBuilder(
         }
     }
 
-    protected fun <T> retrieveValidInteractionResponse(buttons: Map<String, T>): List<T> = runBlocking {
+    protected suspend fun <T> retrieveValidInteractionResponse(buttons: Map<String, T>): List<T> =
         retrieveInteractionResponse(buttons) ?: retrieveValidInteractionResponse(buttons)
-    }
 
     protected abstract suspend fun interactionIsOnLastBotMessage(interaction: ComponentInteraction): Boolean
 

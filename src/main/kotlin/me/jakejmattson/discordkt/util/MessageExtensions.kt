@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package me.jakejmattson.discordkt.util
 
 import dev.kord.core.behavior.reply

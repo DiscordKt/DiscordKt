@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package me.jakejmattson.discordkt
 
 import dev.kord.core.Kord
@@ -174,7 +172,7 @@ public abstract class Discord {
 
     private fun registerServices() = Reflection.detectClassesWith<Service>().apply { diService.buildAllRecursively(this) }
 
-    private suspend fun registerListeners(discord: Discord) {
+    private fun registerListeners(discord: Discord) {
         registerInteractionListener(discord)
         registerCommandListener(discord)
     }

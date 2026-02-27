@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package me.jakejmattson.discordkt.commands
 
 import dev.kord.common.entity.Permissions

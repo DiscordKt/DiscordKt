@@ -5,7 +5,6 @@ import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ComponentInteraction
-import kotlinx.coroutines.runBlocking
 
 /**
  * Object to keep tracking of running conversations.
@@ -35,15 +34,11 @@ public object Conversations {
      */
     public fun hasConversation(user: User, channel: MessageChannel): Boolean = getConversation(user, channel) != null
 
-    internal fun handleMessage(message: Message) {
-        runBlocking {
-            getConversation(message.author!!, message.channel.asChannel())?.acceptMessage(message)
-        }
+    internal suspend fun handleMessage(message: Message) {
+        getConversation(message.author!!, message.channel.asChannel())?.acceptMessage(message)
     }
 
-    internal fun handleInteraction(interaction: ComponentInteraction) {
-        runBlocking {
-            getConversation(interaction.user, interaction.getChannel())?.acceptInteraction(interaction)
-        }
+    internal suspend fun handleInteraction(interaction: ComponentInteraction) {
+        getConversation(interaction.user, interaction.getChannel())?.acceptInteraction(interaction)
     }
 }

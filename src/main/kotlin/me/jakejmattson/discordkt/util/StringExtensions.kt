@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package me.jakejmattson.discordkt.util
 
 import dev.kord.common.entity.Snowflake
@@ -12,7 +10,7 @@ import me.jakejmattson.discordkt.arguments.Error
 import me.jakejmattson.discordkt.arguments.Success
 import me.jakejmattson.discordkt.commands.Command
 import java.awt.Color
-import java.util.UUID
+import java.util.*
 
 /**
  * Remove and return the first element in a mutable list.
@@ -71,7 +69,7 @@ public fun String.isBooleanValue(): Boolean =
 /**
  * Sanitize all mentions and replace them with their resolved discord names.
  */
-public suspend fun String.sanitiseMentions(discord: Discord): String = cleanseRoles(discord)
+public fun String.sanitiseMentions(discord: Discord): String = cleanseRoles(discord)
     .cleanseUsers(discord)
     .cleanseHere()
     .cleanseEveryone()
@@ -89,7 +87,7 @@ private fun String.replaceAll(replacements: List<Pair<String, String>>): String 
     return result
 }
 
-private suspend fun String.cleanseRoles(discord: Discord): String {
+private fun String.cleanseRoles(discord: Discord): String {
     val roleMentions = DiscordRegex.role.findAll(this).map {
         runBlocking {
             val mention = it.value
@@ -103,7 +101,7 @@ private suspend fun String.cleanseRoles(discord: Discord): String {
     return replaceAll(roleMentions)
 }
 
-private suspend fun String.cleanseUsers(discord: Discord): String {
+private fun String.cleanseUsers(discord: Discord): String {
     val userMentions = DiscordRegex.user.findAll(this).map {
         runBlocking {
             val mention = it.value

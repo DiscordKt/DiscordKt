@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package me.jakejmattson.discordkt.arguments
 
 import me.jakejmattson.discordkt.Discord

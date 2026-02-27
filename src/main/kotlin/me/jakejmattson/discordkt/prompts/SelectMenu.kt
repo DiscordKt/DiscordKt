@@ -10,7 +10,6 @@ import dev.kord.rest.builder.message.EmbedBuilder
 import dev.kord.rest.builder.message.actionRow
 import dev.kord.rest.builder.message.embed
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.Args2
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
@@ -109,10 +108,9 @@ public suspend fun promptSelect(
     return retrieveValidModalResponse(id)
 }
 
-private fun retrieveValidModalResponse(modalId: String): Args2<DeferredEphemeralMessageInteractionResponseBehavior, List<String>> =
-    runBlocking {
-        retrieveModalResponse(modalId) ?: retrieveValidModalResponse(modalId)
-    }
+private suspend fun retrieveValidModalResponse(modalId: String): Args2<DeferredEphemeralMessageInteractionResponseBehavior, List<String>> =
+    retrieveModalResponse(modalId) ?: retrieveValidModalResponse(modalId)
+
 
 private suspend fun retrieveModalResponse(selectId: String): Args2<DeferredEphemeralMessageInteractionResponseBehavior, List<String>>? =
     select {

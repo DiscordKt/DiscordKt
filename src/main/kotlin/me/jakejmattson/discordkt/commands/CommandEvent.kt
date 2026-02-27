@@ -1,7 +1,10 @@
 package me.jakejmattson.discordkt.commands
 
 import dev.kord.core.behavior.channel.MessageChannelBehavior
-import dev.kord.core.entity.*
+import dev.kord.core.entity.Guild
+import dev.kord.core.entity.Member
+import dev.kord.core.entity.Message
+import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.DmChannel
 import dev.kord.core.entity.channel.GuildMessageChannel
 import dev.kord.core.entity.channel.MessageChannel
@@ -100,8 +103,6 @@ public open class CommandEvent<T : TypeContainer>(
      * Clone this event's context data with new inputs.
      */
     public open fun clone(input: RawInputs): CommandEvent<T> = CommandEvent(input, discord, message, author, channel, guild)
-
-    internal fun isFromGuild() = guild != null
 }
 
 /**

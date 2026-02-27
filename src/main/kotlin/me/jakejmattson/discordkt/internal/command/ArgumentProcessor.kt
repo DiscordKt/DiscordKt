@@ -4,7 +4,6 @@ import dev.kord.core.entity.Attachment
 import dev.kord.core.entity.Role
 import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.Channel
-import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.arguments.*
 import me.jakejmattson.discordkt.bundleToContainer
 import me.jakejmattson.discordkt.commands.DiscordContext
@@ -15,7 +14,7 @@ internal suspend fun transformArgs(args: List<Pair<Argument<*, *>, Any?>>, conte
     val transformations = args.map { (rawArg, value) ->
         if (value == null) {
             require(rawArg is OptionalArg<*, *, *>) { "Missing required arguments" }
-            runBlocking { Success(rawArg.default.invoke(context)) }
+            Success(rawArg.default.invoke(context))
         } else {
             val arg = when (rawArg) {
                 is OptionalArg<*, *, *> -> rawArg.type

@@ -6,11 +6,10 @@ import dev.kord.core.behavior.interaction.response.DeferredEphemeralMessageInter
 import dev.kord.core.entity.interaction.ApplicationCommandInteraction
 import dev.kord.core.entity.interaction.ModalSubmitInteraction
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.Args2
-import me.jakejmattson.discordkt.util.uuid
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
+import me.jakejmattson.discordkt.util.uuid
 
 /**
  * @property label The prompt displayed above a text input field.
@@ -91,9 +90,8 @@ public suspend fun promptModal(interaction: ApplicationCommandInteraction, title
     return retrieveValidModalResponse(modalId, inputIds.toList())
 }
 
-private fun retrieveValidModalResponse(modalId: String, textInputIds: List<String>): Args2<DeferredEphemeralMessageInteractionResponseBehavior, Array<String?>> = runBlocking {
+private suspend fun retrieveValidModalResponse(modalId: String, textInputIds: List<String>): Args2<DeferredEphemeralMessageInteractionResponseBehavior, Array<String?>> =
     retrieveModalResponse(modalId, textInputIds) ?: retrieveValidModalResponse(modalId, textInputIds)
-}
 
 private suspend fun retrieveModalResponse(modalId: String, textInputIds: List<String>): Args2<DeferredEphemeralMessageInteractionResponseBehavior, Array<String?>>? = select {
     modalBuffer.onReceive { interaction ->

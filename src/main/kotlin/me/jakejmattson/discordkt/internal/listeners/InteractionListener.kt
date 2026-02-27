@@ -16,11 +16,10 @@ import me.jakejmattson.discordkt.commands.*
 import me.jakejmattson.discordkt.conversations.Conversations
 import me.jakejmattson.discordkt.dsl.Menu
 import me.jakejmattson.discordkt.internal.command.transformArgs
-import me.jakejmattson.discordkt.internal.utils.InternalLogger
 import me.jakejmattson.discordkt.prompts.modalBuffer
 import me.jakejmattson.discordkt.prompts.selectBuffer
 
-internal suspend fun registerInteractionListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
+internal fun registerInteractionListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
     when (val interaction = interaction) {
         is MessageCommandInteraction -> handleApplicationCommand(interaction, discord) { Success(bundleToContainer(listOf(interaction.messages.values.first()))) }
         is UserCommandInteraction -> handleApplicationCommand(interaction, discord) { Success(bundleToContainer(listOf(interaction.users.values.first()))) }
@@ -37,8 +36,6 @@ internal suspend fun registerInteractionListener(discord: Discord) = discord.kor
             Menu.handleButtonPress(interaction)
             Conversations.handleInteraction(interaction)
         }
-
-        else -> InternalLogger.error("Unknown interaction received: ${interaction.javaClass.simpleName}")
     }
 }
 
@@ -105,10 +102,7 @@ private suspend fun handleAutocomplete(interaction: AutoCompleteInteraction, dis
     val rawArg = dktCommand.execution.arguments.first { it.name.equals(argName, true) }
 
     val arg: AutocompleteArg<*, *> = if (rawArg is WrappedArgument<*, *, *, *>)
-        if (rawArg is AutocompleteArg<*, *>)
-            rawArg
-        else
-            rawArg.type as AutocompleteArg<*, *>
+        rawArg as? AutocompleteArg<*, *> ?: rawArg.type as AutocompleteArg<*, *>
     else
         return
 

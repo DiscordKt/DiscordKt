@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package me.jakejmattson.discordkt.dsl
 
 import me.jakejmattson.discordkt.Discord
