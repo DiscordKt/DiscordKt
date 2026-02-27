@@ -1,0 +1,71 @@
+name: Publish Release
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+
+      - name: Compile Source
+        shell: bash
+        run: |-
+          ./gradlew assemble
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: library-jar
+          path: build/libs
+          retention-days: 1
+
+  release-please:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          release-type: go # Using Go mode to get a changelog file
+          package-name: release-please-action
+          changelog-types: '[{ "type": "feat", "section": "Features" }, { "type": "fix", "section": "Bug Fixes" }, { "type": "chore", "section": "Miscellaneous Chores", "hidden": false }, { "type": "docs", "section": "Documentation", "hidden": false }, { "type": "refactor", "section": "Code Refactoring", "hidden": false }, { "type": "test", "section": "Tests", "hidden": false }, { "type": "build", "section": "Build System", "hidden": false }, { "type": "ci", "section": "Continuous Integration", "hidden": false }]'
+          include-v-in-tag: false
+
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+        if: ${{ steps.release.outputs.release_created }}
+
+      - name: Retrieve JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: library-jar
+          path: build/libs
+        if: ${{ steps.release.outputs.release_created }}
+
+      - name: Publish to Maven Central
+        shell: bash
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -x test
+        if: ${{ steps.release.outputs.release_created }}
