@@ -6,9 +6,17 @@ on:
       - main
 
 jobs:
-  build:
+  release-please:
     runs-on: ubuntu-latest
     steps:
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          release-type: go # Using Go mode to get a changelog file
+          package-name: release-please-action
+          changelog-types: '[{ "type": "feat", "section": "Features" }, { "type": "fix", "section": "Bug Fixes" }, { "type": "chore", "section": "Miscellaneous Chores", "hidden": false }, { "type": "docs", "section": "Documentation", "hidden": false }, { "type": "refactor", "section": "Code Refactoring", "hidden": false }, { "type": "test", "section": "Tests", "hidden": false }, { "type": "build", "section": "Build System", "hidden": false }, { "type": "ci", "section": "Continuous Integration", "hidden": false }]'
+          include-v-in-tag: false
+
       - name: Checkout sources
         uses: actions/checkout@v4
 
@@ -24,6 +32,9 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Generate files
+        run: ./gradlew -Pversion=${{ steps.release.outputs.version }} writeProperties generateReadme
+
       - name: Compile Source
         run: ./gradlew assemble
 
@@ -33,22 +44,6 @@ jobs:
           name: library-jar
           path: build/libs
           retention-days: 1
-
-  release-please:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: google-github-actions/release-please-action@v3
-        id: release
-        with:
-          release-type: go # Using Go mode to get a changelog file
-          package-name: release-please-action
-          changelog-types: '[{ "type": "feat", "section": "Features" }, { "type": "fix", "section": "Bug Fixes" }, { "type": "chore", "section": "Miscellaneous Chores", "hidden": false }, { "type": "docs", "section": "Documentation", "hidden": false }, { "type": "refactor", "section": "Code Refactoring", "hidden": false }, { "type": "test", "section": "Tests", "hidden": false }, { "type": "build", "section": "Build System", "hidden": false }, { "type": "ci", "section": "Continuous Integration", "hidden": false }]'
-          include-v-in-tag: false
-
-      - uses: actions/checkout@v4
-        with:
-          show-progress: false
         if: ${{ steps.release.outputs.release_created }}
 
       - name: Retrieve JAR

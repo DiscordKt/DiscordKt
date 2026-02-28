@@ -1,7 +1,6 @@
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
 group = "me.jakejmattson"
-version = "0.24.0"
 
 plugins {
     //Core
@@ -42,23 +41,21 @@ tasks {
         compilerOptions {
             freeCompilerArgs.add("-Xopt-in=kotlin.RequiresOptIn")
         }
-
-        doLast("writeProperties") {}
-    }
-
-    register<WriteProperties>("writeProperties") {
-        dependsOn(processResources)
-        property("version", project.version.toString())
-        property("kotlin", Constants.kotlin)
-        property("kord", Constants.kord)
-        destinationFile = file("src/main/resources/library.properties")
     }
 
     test {
         useJUnitPlatform()
     }
 
-    copy {
+    register<WriteProperties>("writeProperties") {
+        property("version", project.version.toString())
+        property("kotlin", Constants.kotlin)
+        property("kord", Constants.kord)
+        destinationFile = file("src/main/resources/library.properties")
+    }
+
+    register<Copy>("generateReadme") {
+        doNotTrackState("there's an error without this line")
         from(file("templates/readme.md"))
         into(file("."))
         rename { "README.md" }
@@ -66,7 +63,7 @@ tasks {
             "kotlin" to Constants.kotlin.replace("-", "--"),
             "kord" to Constants.kord.replace("-", "--"),
             "discordkt" to version.toString().replace("-", "--"),
-            "imports" to Docs.generateImports(group.toString(), version.toString())
+            "imports" to Docs.generateImports(project.group.toString(), version.toString())
         )
     }
 
