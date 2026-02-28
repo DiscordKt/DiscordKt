@@ -10,9 +10,7 @@ plugins {
     id("org.jetbrains.dokka") version Constants.dokka
 
     //Publishing
-    signing
-    `maven-publish`
-    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+    id("com.vanniktech.maven.publish") version "0.36.0"
 
     //Misc
     id("com.github.ben-manes.versions") version "0.51.0"
@@ -114,11 +112,11 @@ tasks {
 
 dokka {
     dokkaPublications.html {
-        outputDirectory.set(layout.buildDirectory.dir("dokka"))
+        outputDirectory = layout.buildDirectory.dir("dokka")
     }
 
     dokkaSourceSets.main {
-        documentedVisibilities.set(setOf(VisibilityModifier.Public))
+        documentedVisibilities = setOf(VisibilityModifier.Public)
 
         skipEmptyPackages = true
         reportUndocumented = true
@@ -128,63 +126,41 @@ dokka {
     }
 }
 
-val sourcesJar by tasks.registering(Jar::class) {
-    dependsOn("writeProperties")
-    archiveClassifier.set("sources")
-    from(sourceSets["main"].allSource)
-}
+mavenPublishing {
+    coordinates(group.toString(), Constants.projectName, version.toString())
 
-val dokkaJar by tasks.registering(Jar::class) {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    archiveClassifier.set("javadoc")
-    from(tasks.dokkaJavadoc)
-    dependsOn(tasks.dokkaJavadoc)
-}
+    publishToMavenCentral()
+    signAllPublications()
 
-publishing {
-    publications {
-        create<MavenPublication>(Constants.projectName) {
-            from(components["kotlin"])
-            artifact(sourcesJar)
-            artifact(dokkaJar)
+    pom {
+        name = Constants.projectName
+        description = Constants.projectDescription
+        url = Constants.projectUrl
 
-            pom {
-                name.set(Constants.projectName)
-                description.set(Constants.projectDescription)
-                url.set(Constants.projectUrl)
-                developers {
-                    developer {
-                        id.set("JakeJMattson")
-                        name.set("Jake Mattson")
-                        email.set("JakeJMattson@gmail.com")
-                    }
-                }
-                licenses {
-                    license {
-                        name.set("MIT")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
-                scm {
-                    connection.set("scm:git:ssh://github.com/discordkt/discordkt.git")
-                    developerConnection.set("scm:git:ssh://git@github.com:discordkt/discordkt.git")
-                    url.set(Constants.projectUrl)
-                }
+        organization {
+            name = Constants.projectName
+            url = "https://github.com/discordkt"
+        }
+
+        developers {
+            developer {
+                id = "JakeJMattson"
+                name = "Jake Mattson"
+                email = "JakeJMattson@gmail.com"
             }
         }
-    }
-}
 
-signing {
-    setRequired({
-        gradle.taskGraph.hasTask("publish")
-    })
+        licenses {
+            license {
+                name = "MIT"
+                url = "https://opensource.org/licenses/MIT"
+            }
+        }
 
-    sign(publishing.publications[Constants.projectName])
-}
-
-nexusPublishing {
-    this.repositories {
-        sonatype()
+        scm {
+            connection = "scm:git:ssh://github.com/discordkt/discordkt.git"
+            developerConnection = "scm:git:ssh://git@github.com:discordkt/discordkt.git"
+            url = Constants.projectUrl
+        }
     }
 }
