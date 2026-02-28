@@ -2,7 +2,6 @@ import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
 group = "me.jakejmattson"
 version = "0.24.0"
-val projectGroup = group.toString()
 
 plugins {
     //Core
@@ -38,9 +37,6 @@ dependencies {
 tasks {
     kotlin {
         explicitApi()
-    }
-
-    kotlin {
         jvmToolchain(11)
     }
 
@@ -57,7 +53,7 @@ tasks {
         property("version", project.version.toString())
         property("kotlin", Constants.kotlin)
         property("kord", Constants.kord)
-        setOutputFile("src/main/resources/library.properties")
+        destinationFile = file("src/main/resources/library.properties")
     }
 
     test {
@@ -72,23 +68,23 @@ tasks {
             "kotlin" to Constants.kotlin.replace("-", "--"),
             "kord" to Constants.kord.replace("-", "--"),
             "discordkt" to version.toString().replace("-", "--"),
-            "imports" to Docs.generateImports(projectGroup, version.toString())
+            "imports" to Docs.generateImports(group.toString(), version.toString())
         )
     }
 
     register("generateDocs") {
         description = "Generate documentation for discordkt.github.io"
-        dependsOn(dokkaHtml)
+        dependsOn(dokka.dokkaPublications.html)
 
         copy {
             val docsPath = "../discordkt.github.io/docs/"
 
             delete(file("$docsPath/api"))
-            from(buildDir.resolve("dokka"))
+            from(layout.buildDirectory.dir("dokka"))
             into(file("$docsPath/api"))
 
             file("$docsPath/install.md").writeText(
-                Docs.generateImports(projectGroup, version.toString(), true)
+                Docs.generateImports(group.toString(), version.toString(), true)
             )
         }
     }
@@ -132,13 +128,13 @@ dokka {
     }
 }
 
-val sourcesJar by tasks.creating(Jar::class) {
+val sourcesJar by tasks.registering(Jar::class) {
     dependsOn("writeProperties")
     archiveClassifier.set("sources")
     from(sourceSets["main"].allSource)
 }
 
-val dokkaJar by tasks.creating(Jar::class) {
+val dokkaJar by tasks.registering(Jar::class) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     archiveClassifier.set("javadoc")
     from(tasks.dokkaJavadoc)
