@@ -1,3 +1,5 @@
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
+
 group = "me.jakejmattson"
 version = "0.24.0"
 val projectGroup = group.toString()
@@ -62,23 +64,6 @@ tasks {
         useJUnitPlatform()
     }
 
-    dokkaHtml.configure {
-        outputDirectory.set(buildDir.resolve("dokka"))
-
-        dokkaSourceSets {
-            configureEach {
-                platform.set(org.jetbrains.dokka.Platform.jvm)
-
-                includeNonPublic.set(false)
-                skipEmptyPackages.set(true)
-                reportUndocumented.set(true)
-
-                includes.from("packages.md")
-                suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\TypeContainers.kt")
-            }
-        }
-    }
-
     copy {
         from(file("templates/readme.md"))
         into(file("."))
@@ -128,6 +113,22 @@ tasks {
 
             println(sizes)
         }
+    }
+}
+
+dokka {
+    dokkaPublications.html {
+        outputDirectory.set(layout.buildDirectory.dir("dokka"))
+    }
+
+    dokkaSourceSets.main {
+        documentedVisibilities.set(setOf(VisibilityModifier.Public))
+
+        skipEmptyPackages = true
+        reportUndocumented = true
+
+        includes.from("packages.md")
+        suppressedFiles.from("src\\main\\kotlin\\me\\jakejmattson\\discordkt\\TypeContainers.kt")
     }
 }
 
