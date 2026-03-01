@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.25.1](https://github.com/DiscordKt/DiscordKt/compare/0.25.0...0.25.1) (2026-03-01)
+
+
+### Bug Fixes
+
+* Specify project version always ([e0d03b9](https://github.com/DiscordKt/DiscordKt/commit/e0d03b9ebd906ad70075c2aa39d47b24a547e25b))
+
+
+### Miscellaneous Chores
+
+* regen readme and properties ([f6a8ae9](https://github.com/DiscordKt/DiscordKt/commit/f6a8ae907f836af562081bbf9dbdd9f181e3e415))
+
 ## [0.25.0](https://github.com/DiscordKt/DiscordKt/compare/0.24.0...0.25.0) (2026-03-01)
 
 
