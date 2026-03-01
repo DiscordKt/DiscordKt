@@ -21,7 +21,7 @@ private val contextMock = mockk<DiscordContext> {
 
 class ArgTestBuilder<A, B>(private val arg: Argument<A, B>, private val spec: DescribeSpecContainerScope) {
     suspend infix fun A.becomes(expected: B) {
-        val result = io.kotest.common.runBlocking { arg.transform(this, contextMock) }
+        val result = arg.transform(this, contextMock)
 
         spec.it("$this -> $result") {
             result.shouldBeTypeOf<Success<*>>()

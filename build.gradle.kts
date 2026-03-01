@@ -1,3 +1,4 @@
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
 group = "me.jakejmattson"
@@ -12,7 +13,7 @@ plugins {
     id("com.vanniktech.maven.publish") version "0.36.0"
 
     //Misc
-    id("com.github.ben-manes.versions") version "0.51.0"
+    id("com.github.ben-manes.versions") version "0.53.0"
 }
 
 repositories {
@@ -22,13 +23,13 @@ repositories {
 dependencies {
     api("dev.kord:kord-core:${Constants.kord}")
     api("dev.kord.x:emoji:0.5.0")
-    api("org.slf4j:slf4j-simple:2.0.9")
+    api("org.slf4j:slf4j-simple:2.0.17")
 
     implementation("org.reflections:reflections:0.10.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
 
-    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
-    testImplementation("io.mockk:mockk:1.13.9")
+    testImplementation("io.kotest:kotest-runner-junit5:6.1.4")
+    testImplementation("io.mockk:mockk:1.14.9")
 }
 
 tasks {
@@ -65,6 +66,16 @@ tasks {
             "discordkt" to version.toString().replace("-", "--"),
             "imports" to Docs.generateImports(project.group.toString(), version.toString())
         )
+    }
+
+    withType<DependencyUpdatesTask> {
+        rejectVersionIf {
+            val version = candidate.version
+            val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
+            val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+            val isStable = stableKeyword || regex.matches(version)
+            !isStable
+        }
     }
 
     register("generateDocs") {
