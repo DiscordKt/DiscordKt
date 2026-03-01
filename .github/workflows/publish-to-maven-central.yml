@@ -36,7 +36,7 @@ jobs:
         run: ./gradlew -Pversion=${{ steps.release.outputs.version }} writeProperties generateReadme
 
       - name: Compile Source
-        run: ./gradlew assemble
+        run: ./gradlew -Pversion=${{ steps.release.outputs.version }} assemble
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
@@ -61,5 +61,5 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
         run: |
-          ./gradlew publishToMavenCentral -x test
+          ./gradlew -Pversion=${{ steps.release.outputs.version }} publishToMavenCentral -x test
         if: ${{ steps.release.outputs.release_created }}
