@@ -137,7 +137,7 @@ dokka {
 mavenPublishing {
     coordinates(group.toString(), Constants.projectName, version.toString())
 
-    publishToMavenCentral()
+    publishToMavenCentral(automaticRelease = true)
     signAllPublications()
 
     pom {
