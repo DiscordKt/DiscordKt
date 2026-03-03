@@ -94,28 +94,6 @@ tasks {
             )
         }
     }
-
-    register("dependencySizes") {
-        description = "Print dependency sizes for the default configuration"
-        doLast {
-            val sizes = buildString {
-                val configuration = configurations.first()
-                val size = configuration.sumOf { it.length() / (1024.0 * 1024.0) }
-                val longestName = configuration.maxOfOrNull { it.name.length }
-                val formatStr = "%-${longestName}s   %5d KB"
-
-                appendLine("Total Size: %.2f MB\n".format(size))
-
-                configuration
-                    .sortedBy { -it.length() }
-                    .forEach {
-                        appendLine(formatStr.format(it.name, it.length() / 1024))
-                    }
-            }
-
-            println(sizes)
-        }
-    }
 }
 
 dokka {
