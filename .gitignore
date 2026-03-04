@@ -9,6 +9,9 @@
 build/
 gradle.properties
 
+# Kotlin
+.kotlin/
+
 # Other
 *.hprof
 *.log
