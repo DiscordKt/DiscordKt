@@ -72,10 +72,10 @@ public suspend fun promptModal(interaction: ModalParentInteractionBehavior, titl
 
     interaction.modal(title, modalId) {
         modal.inputs.forEach { input ->
-            actionRow {
+            label(input.label) {
                 val inputId = uuid()
 
-                textInput(input.style, inputId, input.label) {
+                textInput(input.style, inputId) {
                     this.required = input.required
                     this.value = input.value
                     this.placeholder = input.placeholder
