@@ -116,7 +116,10 @@ mavenPublishing {
     coordinates(group.toString(), Constants.projectName, version.toString())
 
     publishToMavenCentral(automaticRelease = true)
-    signAllPublications()
+
+    if (project.version.toString() != "local") {
+        signAllPublications()
+    }
 
     pom {
         name = Constants.projectName
