@@ -13,12 +13,12 @@ import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.commands.SubCommandSet
 import me.jakejmattson.discordkt.internal.annotations.ConfigurationDSL
 import me.jakejmattson.discordkt.internal.services.InjectionService
-import me.jakejmattson.discordkt.internal.utils.InternalLogger
 import me.jakejmattson.discordkt.internal.utils.Reflection
 import me.jakejmattson.discordkt.internal.utils.ReflectionUtils
 import me.jakejmattson.discordkt.locale.Language
 import me.jakejmattson.discordkt.locale.Locale
 import me.jakejmattson.discordkt.util.*
+import org.slf4j.LoggerFactory
 import java.io.File
 
 @PublishedApi
@@ -39,13 +39,15 @@ internal lateinit var internalLocale: Locale
  */
 @ConfigurationDSL
 public fun bot(token: String?, configure: suspend Bot.() -> Unit) {
+    val logger = LoggerFactory.getLogger(Bot::class.java)
+
     if (token.isNullOrEmpty())
-        return InternalLogger.fatalError("Missing token!")
+        return logger.error("[FATAL] Missing token!")
 
     val packageName = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).callerClass.`package`.name
 
     if (packageName.isEmpty())
-        return InternalLogger.fatalError("DiscordKt uses reflection and requires your code to have a package")
+        return logger.error("[FATAL] DiscordKt uses reflection and requires your code to have a package")
 
     Reflection = ReflectionUtils(packageName)
     val bot = Bot(token, packageName)

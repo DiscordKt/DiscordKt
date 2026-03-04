@@ -3,12 +3,13 @@ package me.jakejmattson.discordkt.dsl
 import dev.kord.core.event.Event
 import dev.kord.core.on
 import me.jakejmattson.discordkt.Discord
-import me.jakejmattson.discordkt.util.intentsOf
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL
 import me.jakejmattson.discordkt.internal.annotations.InnerDSL
 import me.jakejmattson.discordkt.internal.utils.BuilderRegister
-import me.jakejmattson.discordkt.internal.utils.InternalLogger
 import me.jakejmattson.discordkt.internal.utils.simplerName
+import me.jakejmattson.discordkt.util.intentsOf
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * Create a block for registering listeners.
@@ -32,8 +33,10 @@ public data class ListenerBuilder(val discord: Discord) {
         val requiredIntents = intentsOf<T>()
         val intentNames = requiredIntents.values.joinToString { it::class.simpleName!! }
 
-        if (requiredIntents !in discord.configuration.intents)
-            InternalLogger.error("${T::class.simplerName} missing intent: $intentNames")
+        if (requiredIntents !in discord.configuration.intents) {
+            val logger: Logger = LoggerFactory.getLogger(ListenerBuilder::class.java)!!
+            logger.error("${T::class.simplerName} missing intent: $intentNames")
+        }
 
         discord.kord.on<T> {
             try {

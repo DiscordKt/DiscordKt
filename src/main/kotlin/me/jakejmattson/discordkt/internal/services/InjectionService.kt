@@ -1,8 +1,8 @@
 package me.jakejmattson.discordkt.internal.services
 
-import me.jakejmattson.discordkt.internal.utils.InternalLogger
 import me.jakejmattson.discordkt.internal.utils.signature
 import me.jakejmattson.discordkt.internal.utils.simplerName
+import org.slf4j.LoggerFactory
 import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
@@ -47,7 +47,7 @@ internal class InjectionService {
             .map { (clazz, constructor) -> FailureBundle(clazz, constructor.parameterTypes.toList()) }
 
         if (failed.size == last)
-            InternalLogger.fatalError(generateBadInjectionReport(sortedFailures))
+            logger.error("[FATAL] " + generateBadInjectionReport(sortedFailures))
 
         buildAllRecursively(failed, failed.size)
     }
@@ -97,6 +97,10 @@ internal class InjectionService {
             appendLine("Infinite loop detected:")
             append(failPaths)
         }
+    }
+
+    internal companion object {
+        val logger = LoggerFactory.getLogger(InjectionService::class.java)!!
     }
 }
 

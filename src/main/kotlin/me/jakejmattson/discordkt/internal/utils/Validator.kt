@@ -5,6 +5,7 @@ import me.jakejmattson.discordkt.arguments.Argument
 import me.jakejmattson.discordkt.commands.SlashCommand
 import me.jakejmattson.discordkt.commands.TextCommand
 import me.jakejmattson.discordkt.util.DiscordRegex
+import org.slf4j.LoggerFactory
 
 internal fun Discord.validate() {
     val duplicates = commands
@@ -16,8 +17,10 @@ internal fun Discord.validate() {
         .map { it.key }
         .joinToString { "\"$it\"" }
 
-    if (duplicates.isNotEmpty())
-        InternalLogger.error("Found commands with duplicate names: $duplicates")
+    if (duplicates.isNotEmpty()) {
+        val logger = LoggerFactory.getLogger("me.jakejmattson.discordkt.internal.utils.Validator")!!
+        logger.error("Found commands with duplicate names: $duplicates")
+    }
 
     val errors = Errors()
 
@@ -106,13 +109,17 @@ private data class Errors(
         }
 
         if (spaceTxtArg.isNotEmpty())
-            InternalLogger.error("Arguments with spaces are not recommended:\n" +
+            logger.error("Arguments with spaces are not recommended:\n" +
                 spaceTxtArg.joinToString("\n") { (cmd, arg) ->
                     "$indent${cmd.category}-${cmd.name}-${arg::class.simplerName}(\"${arg.name}\")"
                 } + "\n"
             )
 
         if (fatalErrors.isNotEmpty())
-            InternalLogger.fatalError("Invalid command configuration:\n${fatalErrors.lines().joinToString("\n") { "$indent$it" }}")
+            logger.error("[FATAL] Invalid command configuration:\n${fatalErrors.lines().joinToString("\n") { "$indent$it" }}")
+    }
+
+    companion object {
+        val logger = LoggerFactory.getLogger("me.jakejmattson.discordkt.internal.utils.Validator")!!
     }
 }

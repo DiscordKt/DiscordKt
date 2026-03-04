@@ -2,7 +2,7 @@ package me.jakejmattson.discordkt.arguments
 
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
-import me.jakejmattson.discordkt.internal.utils.InternalLogger
+import org.slf4j.LoggerFactory
 
 /**
  * Accepts a choice from the provided list.
@@ -21,7 +21,7 @@ public open class ChoiceArg<T>(override val name: String,
 
     init {
         if (choices.size != choices.distinct().size)
-            InternalLogger.error("ChoiceArg elements must be unique.")
+            logger.error("ChoiceArg elements must be unique.")
     }
 
     override suspend fun transform(input: String, context: DiscordContext): Result<T> {
@@ -32,4 +32,8 @@ public open class ChoiceArg<T>(override val name: String,
     }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = choices.map { it.toString() }
+
+    internal companion object {
+        val logger = LoggerFactory.getLogger(ChoiceArg::class.java)!!
+    }
 }

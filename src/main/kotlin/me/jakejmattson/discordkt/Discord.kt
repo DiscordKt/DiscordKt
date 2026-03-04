@@ -14,9 +14,13 @@ import me.jakejmattson.discordkt.dsl.Precondition
 import me.jakejmattson.discordkt.dsl.diService
 import me.jakejmattson.discordkt.internal.listeners.registerCommandListener
 import me.jakejmattson.discordkt.internal.listeners.registerInteractionListener
-import me.jakejmattson.discordkt.internal.utils.*
+import me.jakejmattson.discordkt.internal.utils.Reflection
+import me.jakejmattson.discordkt.internal.utils.createDocumentation
+import me.jakejmattson.discordkt.internal.utils.produceHelpCommand
+import me.jakejmattson.discordkt.internal.utils.validate
 import me.jakejmattson.discordkt.locale.Locale
 import me.jakejmattson.discordkt.util.pluralize
+import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
 import kotlin.reflect.KClass
@@ -135,16 +139,16 @@ public abstract class Discord {
             val version = bot.version ?: properties.library.version
             val header = "------- $name $version -------"
 
-            InternalLogger.log(header)
-            InternalLogger.log(commands.filterIsInstance<SlashCommand>().size.pluralize("Slash Command"))
-            InternalLogger.log(commands.filterIsInstance<TextCommand>().size.pluralize("Text Command"))
-            InternalLogger.log(subcommands.flatMap { it.commands }.size.pluralize("Subcommand"))
-            InternalLogger.log(services.size.pluralize("Service"))
-            InternalLogger.log(preconditions.size.pluralize("Precondition"))
-            InternalLogger.log("-".repeat(header.length))
+            println(header)
+            println(commands.filterIsInstance<SlashCommand>().size.pluralize("Slash Command"))
+            println(commands.filterIsInstance<TextCommand>().size.pluralize("Text Command"))
+            println(subcommands.flatMap { it.commands }.size.pluralize("Subcommand"))
+            println(services.size.pluralize("Service"))
+            println(preconditions.size.pluralize("Precondition"))
+            println("-".repeat(header.length))
 
             if (properties.bot.raw.isEmpty)
-                InternalLogger.error("Missing resources/bot.properties")
+                logger.error("Missing resources/bot.properties")
         }
 
         validate()
@@ -261,8 +265,12 @@ public abstract class Discord {
                         }
                     }
                 } catch (e: KtorRequestException) {
-                    InternalLogger.error("[SLASH] ${Emojis.x.unicode} ${guild.name} - ${e.message}")
+                    logger.error("[SLASH] ${Emojis.x.unicode} ${guild.name} - ${e.message}")
                 }
             }
+    }
+    
+    private companion object {
+        val logger = LoggerFactory.getLogger(Discord::class.java)!!
     }
 }
