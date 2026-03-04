@@ -38,12 +38,6 @@ tasks {
         jvmToolchain(11)
     }
 
-    compileKotlin {
-        compilerOptions {
-            freeCompilerArgs.add("-Xopt-in=kotlin.RequiresOptIn")
-        }
-    }
-
     test {
         useJUnitPlatform()
     }
