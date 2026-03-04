@@ -11,29 +11,18 @@ object Constants {
 object Docs {
     fun generateImports(group: String, version: String, isDocs: Boolean = false) = buildString {
         val gradleTag = "${group}:${Constants.projectName}:${version}"
-        val snapshotUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-        val isSnapshot = version.endsWith("SNAPSHOT")
 
-        createGradleKts(snapshotUrl, gradleTag, isSnapshot, isDocs)
-        createGradleGroovy(snapshotUrl, gradleTag, isSnapshot, isDocs)
-        createMaven(snapshotUrl, group, version, isSnapshot, isDocs)
+        createGradleKts(gradleTag, isDocs)
+        createGradleGroovy(gradleTag, isDocs)
+        createMaven(group, version, isDocs)
     }
 
-    private fun StringBuilder.createGradleKts(snapshotUrl: String, gradleTag: String, isSnapshot: Boolean, isDocs: Boolean) = apply {
+    private fun StringBuilder.createGradleKts(gradleTag: String, isDocs: Boolean) = apply {
         appendLine(if (isDocs) "=== \"build.gradle.kts\"" else "### Gradle (Kotlin)")
 
         val block = StringBuilder()
 
         block.appendLine("```kotlin")
-
-        if (isSnapshot)
-            block.appendLine("""
-                repositories {
-                    mavenCentral()
-                    maven("$snapshotUrl")
-                }
-                
-            """.trimIndent())
 
         block.appendLine("""
             dependencies {
@@ -50,23 +39,12 @@ object Docs {
         )
     }
 
-    private fun StringBuilder.createGradleGroovy(snapshotUrl: String, gradleTag: String, isSnapshot: Boolean, isDocs: Boolean) = apply {
+    private fun StringBuilder.createGradleGroovy(gradleTag: String, isDocs: Boolean) = apply {
         appendLine(if (isDocs) "=== \"build.gradle\"" else "### Gradle (Groovy)")
 
         val block = StringBuilder()
 
         block.appendLine("```groovy")
-
-        if (isSnapshot)
-            block.appendLine("""
-                repositories {
-                    mavenCentral()
-                    maven {
-                        url '${snapshotUrl}'
-                    }
-                }
-                
-            """.trimIndent())
 
         block.appendLine("""
             dependencies {
@@ -83,23 +61,12 @@ object Docs {
         )
     }
 
-    private fun StringBuilder.createMaven(snapshotUrl: String, group: String, version: String, isSnapshot: Boolean, isDocs: Boolean) = apply {
+    private fun StringBuilder.createMaven(group: String, version: String, isDocs: Boolean) = apply {
         appendLine(if (isDocs) "=== \"pom.xml\"" else "### Maven")
 
         val block = StringBuilder()
 
         block.appendLine("```xml")
-
-        if (isSnapshot)
-            block.appendLine("""
-                <repositories>
-                    <repository>
-                        <id>Sonatype Snapshots</id>
-                        <url>$snapshotUrl</url>
-                    </repository>
-                </repositories>
-                
-            """.trimIndent())
 
         block.appendLine("""
             <dependencies>
