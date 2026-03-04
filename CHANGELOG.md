@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.26.0](https://github.com/DiscordKt/DiscordKt/compare/0.25.1...0.26.0) (2026-03-04)
+
+
+### Features
+
+* Kord 0.18.0 ([e1030cf](https://github.com/DiscordKt/DiscordKt/commit/e1030cfa02ad9f787d0c1b730d754c5cf6cbfce6))
+* replace InternalLogger with slf4j ([f6f11a3](https://github.com/DiscordKt/DiscordKt/commit/f6f11a3bf400b8e18281d4248c310da64446f27f))
+
+
+### Bug Fixes
+
+* replace deprecated modal actionRow with label ([bb848b3](https://github.com/DiscordKt/DiscordKt/commit/bb848b3628da05436b6e56db491f2612bc8c8098))
+
+
+### Miscellaneous Chores
+
+* Automatically release artifact ([ad89eb0](https://github.com/DiscordKt/DiscordKt/commit/ad89eb0c96f6275a96776c28cc84b38108ec8962))
+* don't sign local publication ([7c54610](https://github.com/DiscordKt/DiscordKt/commit/7c54610cb671abdd85317a0c9d7203d49cd4d8ca))
+* generate release files ([1b4f557](https://github.com/DiscordKt/DiscordKt/commit/1b4f5578c3696582873f7a4fc0db18d87e1e0e75))
+* Ignore .kotlin ([e81b0b5](https://github.com/DiscordKt/DiscordKt/commit/e81b0b575a9f5eacfec872d80514faffe65366dd))
+* remove dependencySizes gradle task ([8c07112](https://github.com/DiscordKt/DiscordKt/commit/8c0711215c5db361e812d631ca38167169285990))
+* Remove RequiresOptIn ([e644cdc](https://github.com/DiscordKt/DiscordKt/commit/e644cdcd34f3770dcce2be2e3780bcd667fbfa14))
+* remove shapshot logic from readme gen ([06f5787](https://github.com/DiscordKt/DiscordKt/commit/06f5787d5d39ddec7d39595cbe1a780591af0c28))
+
 ## [0.25.1](https://github.com/DiscordKt/DiscordKt/compare/0.25.0...0.25.1) (2026-03-01)
 
 
