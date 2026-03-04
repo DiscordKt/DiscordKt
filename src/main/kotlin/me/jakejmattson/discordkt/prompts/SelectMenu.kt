@@ -5,9 +5,9 @@ import dev.kord.core.behavior.interaction.respondEphemeral
 import dev.kord.core.behavior.interaction.response.DeferredEphemeralMessageInteractionResponseBehavior
 import dev.kord.core.entity.interaction.ApplicationCommandInteraction
 import dev.kord.core.entity.interaction.SelectMenuInteraction
+import dev.kord.rest.builder.component.actionRow
 import dev.kord.rest.builder.component.option
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.rest.builder.message.actionRow
 import dev.kord.rest.builder.message.embed
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.selects.select

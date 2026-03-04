@@ -8,8 +8,8 @@ import dev.kord.core.behavior.edit
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.ReactionEmoji
 import dev.kord.core.entity.interaction.ButtonInteraction
+import dev.kord.rest.builder.component.actionRow
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.rest.builder.message.actionRow
 import dev.kord.x.emoji.DiscordEmoji
 import dev.kord.x.emoji.toReaction
 import me.jakejmattson.discordkt.internal.annotations.BuilderDSL

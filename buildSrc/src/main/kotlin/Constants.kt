@@ -5,7 +5,7 @@ object Constants {
 
     const val kotlin = "2.3.10"
     const val dokka = "2.1.0"
-    const val kord = "0.17.0"
+    const val kord = "0.18.0"
 }
 
 object Docs {

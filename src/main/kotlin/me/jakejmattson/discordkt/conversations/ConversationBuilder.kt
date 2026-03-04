@@ -6,9 +6,9 @@ import dev.kord.core.entity.User
 import dev.kord.core.entity.channel.MessageChannel
 import dev.kord.core.entity.interaction.ComponentInteraction
 import dev.kord.core.entity.interaction.SelectMenuInteraction
+import dev.kord.rest.builder.component.actionRow
 import dev.kord.rest.builder.component.option
 import dev.kord.rest.builder.message.EmbedBuilder
-import dev.kord.rest.builder.message.actionRow
 import dev.kord.rest.builder.message.create.MessageCreateBuilder
 import dev.kord.rest.builder.message.embed
 import kotlinx.coroutines.channels.Channel
