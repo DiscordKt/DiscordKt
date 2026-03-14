@@ -77,7 +77,7 @@ tasks {
 
     register("generateDocs") {
         description = "Generate documentation for discordkt.github.io"
-        dependsOn(dokka.dokkaPublications.html)
+        dependsOn(dokkaGeneratePublicationHtml)
 
         copy {
             val docsPath = "../discordkt.github.io/docs/"
