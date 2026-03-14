@@ -27,9 +27,9 @@ dependencies {
 
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
-    implementation("io.arrow-kt:arrow-core:2.2.1.1")
+    implementation("io.arrow-kt:arrow-core:2.2.2")
 
-    testImplementation("io.kotest:kotest-runner-junit5:6.1.4")
+    testImplementation("io.kotest:kotest-runner-junit5:6.1.6")
     testImplementation("io.mockk:mockk:1.14.9")
     testImplementation("io.kotest.extensions:kotest-assertions-arrow:2.0.0")
 }
