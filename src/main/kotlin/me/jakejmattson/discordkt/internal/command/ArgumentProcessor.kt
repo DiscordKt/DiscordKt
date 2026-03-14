@@ -1,5 +1,9 @@
 package me.jakejmattson.discordkt.internal.command
 
+import arrow.core.Either
+import arrow.core.raise.either
+import arrow.core.raise.ensure
+import arrow.core.right
 import dev.kord.core.entity.Attachment
 import dev.kord.core.entity.Role
 import dev.kord.core.entity.User
@@ -10,11 +14,11 @@ import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.util.stringify
 
-internal suspend fun transformArgs(args: List<Pair<Argument<*, *>, Any?>>, context: DiscordContext): Result<*> {
+internal suspend fun transformArgs(args: List<Pair<Argument<*, *>, Any?>>, context: DiscordContext): Either<String, *> = either {
     val transformations = args.map { (rawArg, value) ->
         if (value == null) {
             require(rawArg is OptionalArg<*, *, *>) { "Missing required arguments" }
-            Success(rawArg.default.invoke(context))
+            rawArg.default.invoke(context).right()
         } else {
             val arg = when (rawArg) {
                 is OptionalArg<*, *, *> -> rawArg.type
@@ -38,16 +42,19 @@ internal suspend fun transformArgs(args: List<Pair<Argument<*, *>, Any?>>, conte
                 is AttachmentArgument -> arg.transform(value as Attachment, context)
 
                 //Unknown
-                else -> Success(value)
+                else -> value.right()
             }
         }
     }
 
-    return transformations.firstOrNull { it is Error }
-        ?: Success(bundleToContainer(transformations.map { (it as Success<*>).result }))
+    ensure(transformations.all { it.isRight() })  {
+        (transformations.first { it.isLeft() } as Either.Left).value
+    }
+
+    bundleToContainer(transformations.map { it.getOrNull() })
 }
 
-internal suspend fun parseArguments(context: DiscordContext, expected: List<Argument<*, *>>, actual: List<String>): Result<List<Any?>> {
+internal suspend fun parseArguments(context: DiscordContext, expected: List<Argument<*, *>>, actual: List<String>): Either<String, List<Any?>> = either {
     val remainingArgs = actual.filter { it.isNotBlank() }.toMutableList()
     var hasFatalError = false
     expected as List<Argument<Any, Any>>
@@ -76,10 +83,11 @@ internal suspend fun parseArguments(context: DiscordContext, expected: List<Argu
             "\n\nUnused: " + remainingArgs.joinToString(" ")
         } else ""
 
-    if (hasFatalError)
-        return Error("```$error```")
+    ensure(!hasFatalError) {
+        "```$error```"
+    }
 
-    return Success(conversionData.filterIsInstance<SuccessData<*>>().map { it.value })
+    conversionData.filterIsInstance<SuccessData<*>>().map { it.value }
 }
 
 private fun formatDataMap(successData: List<DataMap>): String {

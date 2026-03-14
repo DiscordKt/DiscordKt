@@ -1,13 +1,13 @@
 package me.jakejmattson.discordkt.util
 
+import arrow.core.Either
+import arrow.core.getOrElse
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.entity.*
 import dev.kord.core.entity.channel.GuildChannel
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.Discord
-import me.jakejmattson.discordkt.arguments.Error
-import me.jakejmattson.discordkt.arguments.Success
 import me.jakejmattson.discordkt.commands.Command
 import java.awt.Color
 import java.util.*
@@ -145,8 +145,7 @@ public fun <T> stringify(entity: T): String =
 
         //DiscordKt
         is Command -> entity.name
-        is Success<*> -> stringify(entity.result)
-        is Error<*> -> entity.error
+        is Either<*, *> -> stringify(entity.getOrElse { it.toString() })
 
         //Standard Library
         is Color -> with(entity) { "#%02X%02X%02X".format(red, green, blue) }

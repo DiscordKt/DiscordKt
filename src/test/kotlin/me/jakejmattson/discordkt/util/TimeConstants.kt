@@ -1,4 +1,4 @@
-package util
+package me.jakejmattson.discordkt.util
 
 internal const val second = 1
 internal const val minute = 60

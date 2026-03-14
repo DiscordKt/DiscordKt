@@ -25,7 +25,9 @@ public interface WrappedArgument<Input, Output, Input2, Output2> : Argument<Inpu
             return inner as Argument<Input, Output>
         }
 
-    override suspend fun parse(args: MutableList<String>, discord: Discord): Input2? = type.parse(args, discord) as Input2?
+    override suspend fun parse(args: MutableList<String>, discord: Discord): Input2? =
+        type.parse(args, discord) as Input2?
+
     override suspend fun generateExamples(context: DiscordContext): List<String> = type.generateExamples(context)
 }
 

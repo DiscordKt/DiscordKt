@@ -8,8 +8,10 @@ import me.jakejmattson.discordkt.dsl.internalLocale
 /**
  * Accepts a message attachment.
  */
-public open class AttachmentArg(override val name: String = "Attachment",
-                                override val description: String = internalLocale.attachmentArgDescription) : AttachmentArgument<Attachment> {
+public open class AttachmentArg(
+    override val name: String = "Attachment",
+    override val description: String = internalLocale.attachmentArgDescription
+) : AttachmentArgument<Attachment> {
     /**
      * Accepts a message attachment.
      */

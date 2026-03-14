@@ -1,5 +1,8 @@
 package me.jakejmattson.discordkt.conversations
 
+import arrow.core.Either
+import arrow.core.raise.either
+import arrow.core.raise.ensureNotNull
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.entity.Message
 import dev.kord.core.entity.User
@@ -16,9 +19,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.selects.select
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.arguments.Argument
-import me.jakejmattson.discordkt.arguments.Error
-import me.jakejmattson.discordkt.arguments.Result
-import me.jakejmattson.discordkt.arguments.Success
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.conversations.responders.ConversationResponder
 import me.jakejmattson.discordkt.dsl.Responder
@@ -169,13 +169,9 @@ public abstract class ConversationBuilder(
 
             timer?.cancel()
 
-            when (val result = parseResponse(argument, message)) {
-                is Success<T> -> result.result
-                is Error<T> -> {
-                    respond(result.error)
-                    null
-                }
-            }
+            parseResponse(argument, message)
+                .onLeft { respond(it) }
+                .getOrNull()
         }
     }
 
@@ -213,15 +209,16 @@ public abstract class ConversationBuilder(
         }
     }
 
-    private suspend fun <I, O> parseResponse(argument: Argument<I, O>, message: Message): Result<O> {
+    private suspend fun <I, O> parseResponse(argument: Argument<I, O>, message: Message): Either<String, O> = either {
         val context =
             DiscordContext(discord, message, message.author!!, message.channel.asChannel(), message.getGuildOrNull())
         val parseResult = argument.parse(message.content.split(" ").toMutableList(), discord)
 
-        return if (parseResult != null)
-            argument.transform(parseResult, context)
-        else
-            Error(internalLocale.invalidFormat)
+        ensureNotNull(parseResult) {
+            internalLocale.invalidFormat
+        }
+
+        argument.transform(parseResult, context).bind()
     }
 
     private fun createTimer(): TimerTask? =

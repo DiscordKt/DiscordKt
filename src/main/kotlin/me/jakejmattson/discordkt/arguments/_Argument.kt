@@ -1,5 +1,7 @@
 package me.jakejmattson.discordkt.arguments
 
+import arrow.core.Either
+import arrow.core.right
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.CommandEvent
 import me.jakejmattson.discordkt.commands.DiscordContext
@@ -31,21 +33,24 @@ public sealed interface Argument<Input, Output> : Cloneable {
      *
      * @param default A default value matching the expected type.
      */
-    public fun optional(default: suspend (DiscordContext) -> Output): OptionalArg<Input, Output, Output> = OptionalArg(name, this, default)
+    public fun optional(default: suspend (DiscordContext) -> Output): OptionalArg<Input, Output, Output> =
+        OptionalArg(name, this, default)
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails.
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    public fun optionalNullable(default: Output? = null): OptionalArg<Input, Output, Output?> = OptionalArg(name, this) { default }
+    public fun optionalNullable(default: Output? = null): OptionalArg<Input, Output, Output?> =
+        OptionalArg(name, this) { default }
 
     /**
      * Make this argument optional and fall back to the default value if the conversion fails. Exposes a [CommandEvent].
      *
      * @param default A default value matching the expected type - can also be null.
      */
-    public fun optionalNullable(default: suspend (DiscordContext) -> Output?): OptionalArg<Input, Output, Output?> = OptionalArg(name, this, default)
+    public fun optionalNullable(default: suspend (DiscordContext) -> Output?): OptionalArg<Input, Output, Output?> =
+        OptionalArg(name, this, default)
 
     /**
      * Parse string input into the correct type handled by this argument.
@@ -62,7 +67,8 @@ public sealed interface Argument<Input, Output> : Cloneable {
      * @param context The [DiscordContext] created by the execution of the command.
      * @return [Result] subtype [Success] or [Error].
      */
-    public suspend fun transform(input: Input, context: DiscordContext): Result<Output> = Success(input as Output)
+    public suspend fun transform(input: Input, context: DiscordContext): Either<String, Output> =
+        (input as Output).right()
 
     /**
      * A function called whenever an example of this type is needed.
@@ -74,24 +80,6 @@ public sealed interface Argument<Input, Output> : Cloneable {
     /**
      * Utility function to check that this Argument is an [OptionalArg].
      */
-    public fun isOptional(): Boolean = if (this is WrappedArgument<*, *, *, *>) this.containsType<OptionalArg<*, *, *>>() else false
+    public fun isOptional(): Boolean =
+        if (this is WrappedArgument<*, *, *, *>) this.containsType<OptionalArg<*, *, *>>() else false
 }
-
-/**
- * The result of some conversion.
- */
-public sealed class Result<T>
-
-/**
- * Result indicating that a conversion was successful.
- *
- * @param result The conversion result of the appropriate type.
- */
-public data class Success<T>(val result: T) : Result<T>()
-
-/**
- * Result indicating that a conversion was failed.
- *
- * @param error The reason why the conversion failed.
- */
-public data class Error<T>(val error: String) : Result<T>()

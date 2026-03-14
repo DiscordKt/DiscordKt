@@ -7,8 +7,10 @@ import me.jakejmattson.discordkt.dsl.internalLocale
 /**
  * Accepts a group of arguments surrounded by quotation marks.
  */
-public open class QuoteArg(override val name: String = "Quote",
-                           override val description: String = internalLocale.quoteArgDescription) : StringArgument<String> {
+public open class QuoteArg(
+    override val name: String = "Quote",
+    override val description: String = internalLocale.quoteArgDescription
+) : StringArgument<String> {
     /**
      * Accepts a group of arguments surrounded by quotation marks.
      */

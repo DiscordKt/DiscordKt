@@ -1,5 +1,7 @@
 package me.jakejmattson.discordkt.commands
 
+import arrow.core.Either
+import arrow.core.getOrElse
 import dev.kord.common.entity.Permissions
 import dev.kord.core.entity.Guild
 import dev.kord.core.entity.User
@@ -8,8 +10,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.jakejmattson.discordkt.*
 import me.jakejmattson.discordkt.arguments.Argument
-import me.jakejmattson.discordkt.arguments.Error
-import me.jakejmattson.discordkt.arguments.Success
 import me.jakejmattson.discordkt.dsl.CommandException
 import me.jakejmattson.discordkt.dsl.internalLocale
 import me.jakejmattson.discordkt.internal.annotations.NestedDSL
@@ -71,7 +71,7 @@ public sealed interface Command {
      *
      * @return The result of the parsing operation.
      */
-    public suspend fun canParse(context: DiscordContext, execution: Execution<*>, args: List<String>): Boolean = parseArguments(context, execution.arguments, args) is Success
+    public suspend fun canParse(context: DiscordContext, execution: Execution<*>, args: List<String>): Boolean = parseArguments(context, execution.arguments, args).isRight()
 
     /**
      * Whether this command has permission to run with the given event.
@@ -96,7 +96,7 @@ public sealed interface Command {
     public fun invoke(event: CommandEvent<TypeContainer>, args: List<String>) {
         GlobalScope.launch {
             val parseResults = executions.map { it to parseArguments(event.context, it.arguments, args) }
-            val successfulParse = parseResults.firstOrNull { it.second is Success }
+            val successfulParse = parseResults.firstOrNull { it.second.isRight() }
 
             if (successfulParse == null) {
                 val failString = parseResults.joinToString("\n") {
@@ -105,7 +105,7 @@ public sealed interface Command {
                             "${event.rawInputs.rawMessageContent.substringBefore(" ")} ${it.first.structure}\n"
                         else ""
 
-                    invocationExample + (it.second as Error).error
+                    invocationExample + (it.second as Either.Left).value
                 }
 
                 event.respond(internalLocale.badArgs.inject(event.rawInputs.commandName) + "\n$failString")
@@ -113,14 +113,12 @@ public sealed interface Command {
             }
 
             val (execution, success) = successfulParse
-            val transformedInput = transformArgs(execution.arguments.zip((success as Success).result), event.context)
+            val transformedInput = transformArgs(execution.arguments.zip((success as Either.Right).value), event.context)
 
-            if (transformedInput is Success<*>)
-                event.args = transformedInput.result as TypeContainer
-            else {
+            event.args = transformedInput.getOrElse {
                 event.respond(transformedInput)
                 return@launch
-            }
+            } as TypeContainer
 
             try {
                 execution.execute(event)
@@ -352,7 +350,4 @@ public class ContextCommand(override val name: String,
  * Find a command by its name (case-insensitive).
  */
 public fun <T : Command> List<T>.findByName(name: String): T? =
-    if (this is TextCommand)
-        find { cmd -> cmd.names.any { it.equals(name, true) } }
-    else
-        find { it.name.equals(name, true) }
+    find { cmd -> cmd.names.any { it.equals(name, true) } }

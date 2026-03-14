@@ -1,5 +1,8 @@
 package me.jakejmattson.discordkt.arguments
 
+import arrow.core.Either
+import arrow.core.raise.either
+import arrow.core.raise.ensure
 import me.jakejmattson.discordkt.Args1
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.DiscordContext
@@ -12,9 +15,11 @@ import me.jakejmattson.discordkt.locale.inject
  *
  * @param type The [Argument] that you expect to be used to create the list.
  */
-public class MultipleArg<Input, Output>(override val type: Argument<Input, Output>,
-                                        override val name: String = type.name,
-                                        description: String = "") : WrappedArgument<Input, Output, List<Input>, List<Output>> {
+public class MultipleArg<Input, Output>(
+    override val type: Argument<Input, Output>,
+    override val name: String = type.name,
+    description: String = ""
+) : WrappedArgument<Input, Output, List<Input>, List<Output>> {
     override val description: String = description.ifBlank { internalLocale.multipleArgDescription.inject(type.name) }
 
     override suspend fun parse(args: MutableList<String>, discord: Discord): List<Input>? {
@@ -40,16 +45,16 @@ public class MultipleArg<Input, Output>(override val type: Argument<Input, Outpu
         return totalResult
     }
 
-    override suspend fun transform(input: List<Input>, context: DiscordContext): Result<List<Output>> {
+    override suspend fun transform(input: List<Input>, context: DiscordContext): Either<String, List<Output>> = either {
         val transformation = input.map {
             transformArgs(listOf(type to it), context)
         }
 
-        return if (transformation.all { it is Success })
-            Success(transformation.map { (((it as Success).result) as Args1<*>).first as Output })
-        else {
-            transformation.first { it is Error } as Error<List<Output>>
+        ensure(transformation.all { it.isRight() }) {
+            (transformation.first { it is Either.Left } as Either.Left).value
         }
+
+        transformation.map { (((it as Either.Right).value) as Args1<*>).first as Output }
     }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> =

@@ -1,5 +1,8 @@
 package me.jakejmattson.discordkt.arguments
 
+import arrow.core.Either
+import arrow.core.raise.either
+import arrow.core.raise.ensureNotNull
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 import org.slf4j.LoggerFactory
@@ -9,9 +12,11 @@ import org.slf4j.LoggerFactory
  *
  * @param choices The available choices. Can be any type, but associated by toString value.
  */
-public open class ChoiceArg<T>(override val name: String,
-                               override val description: String = internalLocale.choiceArgDescription,
-                               vararg choices: T) : StringArgument<T> {
+public open class ChoiceArg<T>(
+    override val name: String,
+    override val description: String = internalLocale.choiceArgDescription,
+    vararg choices: T
+) : StringArgument<T> {
     private val enumerations = choices.associateBy { it.toString().lowercase() }
 
     /**
@@ -24,11 +29,10 @@ public open class ChoiceArg<T>(override val name: String,
             logger.error("ChoiceArg elements must be unique.")
     }
 
-    override suspend fun transform(input: String, context: DiscordContext): Result<T> {
-        val selection = enumerations[input.lowercase()]
-            ?: return Error("Invalid selection")
-
-        return Success(selection)
+    override suspend fun transform(input: String, context: DiscordContext): Either<String, T> = either {
+        ensureNotNull(enumerations[input.lowercase()]) {
+            "Invalid selection"
+        }
     }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = choices.map { it.toString() }

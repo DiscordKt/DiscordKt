@@ -1,23 +1,28 @@
 package me.jakejmattson.discordkt.arguments
 
+import arrow.core.Either
+import arrow.core.raise.either
+import arrow.core.raise.ensure
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
 
 /**
  * Accepts a group of time elements and returns the number of seconds as a double.
  */
-public open class TimeArg(override val name: String = "Time",
-                          override val description: String = internalLocale.timeArgDescription) : StringArgument<Int> {
+public open class TimeArg(
+    override val name: String = "Time",
+    override val description: String = internalLocale.timeArgDescription
+) : StringArgument<Int> {
     /**
      * Accepts a group of time elements and returns the number of seconds as a double.
      */
     public companion object : TimeArg()
 
-    override suspend fun transform(input: String, context: DiscordContext): Result<Int> {
+    override suspend fun transform(input: String, context: DiscordContext): Either<String, Int> = either {
         val cleanInput = input.filter { it != ' ' }.lowercase()
 
-        if (!cleanInput.matches(fullRegex)) {
-            return Error(internalLocale.invalidFormat)
+        ensure(cleanInput.matches(fullRegex)) {
+            internalLocale.invalidFormat
         }
 
         val timePairs = elementRegex.findAll(cleanInput).map {
@@ -28,11 +33,13 @@ public open class TimeArg(override val name: String = "Time",
 
         val unknownQuantifiers = timePairs.filter { it.quantifier !in quantifierValues.keys }.map { it.quantifier }
 
-        if (unknownQuantifiers.isNotEmpty())
-            return Error("Unknown quantifier: ${unknownQuantifiers.first()}")
+        ensure(unknownQuantifiers.isEmpty()) {
+            "Unknown quantifier: ${unknownQuantifiers.first()}"
+        }
 
         val timeInSeconds = timePairs.sumOf { it.seconds }
-        return Success(timeInSeconds)
+
+        timeInSeconds
     }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("1h15m5s")

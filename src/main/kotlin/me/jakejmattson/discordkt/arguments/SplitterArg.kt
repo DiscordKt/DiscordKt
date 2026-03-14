@@ -1,5 +1,7 @@
 package me.jakejmattson.discordkt.arguments
 
+import arrow.core.Either
+import arrow.core.raise.either
 import me.jakejmattson.discordkt.Discord
 import me.jakejmattson.discordkt.commands.DiscordContext
 import me.jakejmattson.discordkt.dsl.internalLocale
@@ -10,9 +12,11 @@ import me.jakejmattson.discordkt.locale.inject
  *
  * @param splitter The character used to split the input.
  */
-public open class SplitterArg(private val splitter: String = "|",
-                              override val name: String = "TextWithSplitter",
-                              override val description: String = internalLocale.splitterArgDescription.inject(splitter)) : StringArgument<List<String>> {
+public open class SplitterArg(
+    private val splitter: String = "|",
+    override val name: String = "TextWithSplitter",
+    override val description: String = internalLocale.splitterArgDescription.inject(splitter)
+) : StringArgument<List<String>> {
     /**
      * Consumes all arguments and returns a list of the results (split by splitter character).
      */
@@ -29,8 +33,8 @@ public open class SplitterArg(private val splitter: String = "|",
         return joined
     }
 
-    override suspend fun transform(input: String, context: DiscordContext): Result<List<String>> {
-        return Success(input.split(splitter).toList())
+    override suspend fun transform(input: String, context: DiscordContext): Either<String, List<String>> = either {
+        input.split(splitter).toList()
     }
 
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("A${splitter}B${splitter}C")

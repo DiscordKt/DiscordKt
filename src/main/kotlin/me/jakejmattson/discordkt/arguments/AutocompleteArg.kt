@@ -13,7 +13,9 @@ public data class AutocompleteData(public val interaction: AutoCompleteInteracti
 /**
  * Provides autocomplete options to slash input.
  */
-public open class AutocompleteArg<Input, Output>(override val name: String,
-                                                 override val description: String,
-                                                 override val type: PrimitiveArgument<Input, Output>,
-                                                 internal val autocomplete: suspend AutocompleteData.() -> List<Input>) : WrappedArgument<Input, Output, Input, Output>
+public open class AutocompleteArg<Input, Output>(
+    override val name: String,
+    override val description: String,
+    override val type: PrimitiveArgument<Input, Output>,
+    internal val autocomplete: suspend AutocompleteData.() -> List<Input>
+) : WrappedArgument<Input, Output, Input, Output>

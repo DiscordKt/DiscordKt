@@ -21,7 +21,9 @@ public interface PrimitiveArgument<Input, Output> : Argument<Input, Output> {
  * An [Argument] that accepts a [String].
  */
 public interface StringArgument<Output> : PrimitiveArgument<String, Output> {
-    override suspend fun parse(args: MutableList<String>, discord: Discord): String? = args.consumeFirst().takeIf { it.isNotEmpty() }
+    override suspend fun parse(args: MutableList<String>, discord: Discord): String? =
+        args.consumeFirst().takeIf { it.isNotEmpty() }
+
     override suspend fun generateExamples(context: DiscordContext): List<String> = listOf(name)
 }
 
@@ -37,8 +39,11 @@ public interface IntegerArgument<Output> : PrimitiveArgument<Int, Output> {
  * An [Argument] that accepts a [Double].
  */
 public interface DoubleArgument<Output> : PrimitiveArgument<Double, Output> {
-    override suspend fun parse(args: MutableList<String>, discord: Discord): Double? = args.consumeFirst().toDoubleOrNull()
-    override suspend fun generateExamples(context: DiscordContext): List<String> = listOf("%.2f".format(Random.nextDouble(0.00, 9.99)))
+    override suspend fun parse(args: MutableList<String>, discord: Discord): Double? =
+        args.consumeFirst().toDoubleOrNull()
+
+    override suspend fun generateExamples(context: DiscordContext): List<String> =
+        listOf("%.2f".format(Random.nextDouble(0.00, 9.99)))
 }
 
 /**

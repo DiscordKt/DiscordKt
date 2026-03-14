@@ -7,8 +7,10 @@ import me.jakejmattson.discordkt.dsl.internalLocale
 /**
  * Consumes all remaining arguments. Does not accept empty strings.
  */
-public open class EveryArg(override val name: String = "Text",
-                           override val description: String = internalLocale.everyArgDescription) : StringArgument<String> {
+public open class EveryArg(
+    override val name: String = "Text",
+    override val description: String = internalLocale.everyArgDescription
+) : StringArgument<String> {
     /**
      * Consumes all remaining arguments. Does not accept empty strings.
      */

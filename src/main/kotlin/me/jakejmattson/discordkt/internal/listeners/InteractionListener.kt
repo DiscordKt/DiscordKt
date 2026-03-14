@@ -1,5 +1,7 @@
 package me.jakejmattson.discordkt.internal.listeners
 
+import arrow.core.Either
+import arrow.core.right
 import dev.kord.core.behavior.interaction.GuildInteractionBehavior
 import dev.kord.core.behavior.interaction.suggestInteger
 import dev.kord.core.behavior.interaction.suggestNumber
@@ -21,8 +23,8 @@ import me.jakejmattson.discordkt.prompts.selectBuffer
 
 internal fun registerInteractionListener(discord: Discord) = discord.kord.on<InteractionCreateEvent> {
     when (val interaction = interaction) {
-        is MessageCommandInteraction -> handleApplicationCommand(interaction, discord) { Success(bundleToContainer(listOf(interaction.messages.values.first()))) }
-        is UserCommandInteraction -> handleApplicationCommand(interaction, discord) { Success(bundleToContainer(listOf(interaction.users.values.first()))) }
+        is MessageCommandInteraction -> handleApplicationCommand(interaction, discord) { bundleToContainer(listOf(interaction.messages.values.first())).right() }
+        is UserCommandInteraction -> handleApplicationCommand(interaction, discord) { bundleToContainer(listOf(interaction.users.values.first())).right() }
         is ChatInputCommandInteraction -> handleSlashCommand(interaction, discord)
         is AutoCompleteInteraction -> handleAutocomplete(interaction, discord)
         is ModalSubmitInteraction -> modalBuffer.send(interaction)
@@ -67,7 +69,7 @@ private suspend fun handleSlashCommand(interaction: ChatInputCommandInteraction,
     }
 }
 
-private suspend fun handleApplicationCommand(interaction: ApplicationCommandInteraction, discord: Discord, input: suspend SlashCommand.(DiscordContext) -> Result<*>) {
+private suspend fun handleApplicationCommand(interaction: ApplicationCommandInteraction, discord: Discord, input: suspend SlashCommand.(DiscordContext) -> Either<*, *>) {
     val dktCommand = findDktCommand(interaction, discord) ?: return
     val author = interaction.user.asUser()
     val guild = (interaction as? GuildInteractionBehavior)?.getGuild()
@@ -85,13 +87,10 @@ private suspend fun handleApplicationCommand(interaction: ApplicationCommandInte
 
     if (!arePreconditionsPassing(event)) return
 
-    event.args = when (transformResults) {
-        is Success<*> -> transformResults.result as TypeContainer
-        is Error -> {
-            event.respond(transformResults.error)
-            return
-        }
-    }
+    event.args = transformResults.onLeft {
+        event.respond(it.toString())
+        return
+    }.getOrNull() as TypeContainer
 
     dktCommand.execution.execute(event)
 }
