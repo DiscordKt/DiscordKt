@@ -1,5 +1,43 @@
 # Changelog
 
+## [0.27.0](https://github.com/DiscordKt/DiscordKt/compare/0.26.0...0.27.0) (2026-03-14)
+
+
+### Features
+
+* Include Arrow in downstream projects ([b70eb5d](https://github.com/DiscordKt/DiscordKt/commit/b70eb5d476430d5cd30d88eb1cc2bacb14ad4041))
+
+
+### Bug Fixes
+
+* Dokka publication ([226f2f0](https://github.com/DiscordKt/DiscordKt/commit/226f2f09c9656fe4969f72787e4608a0ab486bb2))
+
+
+### Miscellaneous Chores
+
+* Generate 0.27.0 files ([314d944](https://github.com/DiscordKt/DiscordKt/commit/314d9448cc0309e6ea3c20f827b36a7284a2412a))
+* Kord 0.18.1 ([f83e9a0](https://github.com/DiscordKt/DiscordKt/commit/f83e9a00fe5a6603d045b000368a032876597001))
+
+
+### Documentation
+
+* Add missing documentation ([13f5ef4](https://github.com/DiscordKt/DiscordKt/commit/13f5ef45e8b020ee17b4d5a9b89f6fe5161d082d))
+
+
+### Code Refactoring
+
+* Replace Success/Error with Arrow Either ([ae7b562](https://github.com/DiscordKt/DiscordKt/commit/ae7b562f1e6661d4cfd2fe4a808c0296200ccef1))
+
+
+### Build System
+
+* Gradle 9.4.0 ([f973830](https://github.com/DiscordKt/DiscordKt/commit/f97383098ba8ee9631eef73ae81ebd8c450ab46b))
+
+
+### Continuous Integration
+
+* Remove file generation step ([373fa00](https://github.com/DiscordKt/DiscordKt/commit/373fa00fa200f7daab09063381ff20202cdcb28a))
+
 ## [0.26.0](https://github.com/DiscordKt/DiscordKt/compare/0.25.1...0.26.0) (2026-03-04)
 
 
