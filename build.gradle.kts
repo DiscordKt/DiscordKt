@@ -24,10 +24,10 @@ dependencies {
     api("dev.kord:kord-core:${Constants.kord}")
     api("dev.kord.x:emoji:0.5.0")
     api("org.slf4j:slf4j-simple:2.0.17")
+    api("io.arrow-kt:arrow-core:2.2.2")
 
     implementation("org.reflections:reflections:0.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
-    implementation("io.arrow-kt:arrow-core:2.2.2")
 
     testImplementation("io.kotest:kotest-runner-junit5:6.1.6")
     testImplementation("io.mockk:mockk:1.14.9")
