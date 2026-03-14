@@ -32,8 +32,9 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Generate files
-        run: ./gradlew -Pversion=${{ steps.release.outputs.version }} writeProperties generateReadme
+# This doesn't add the files to the release-please commit, so it's pointless currently
+#      - name: Generate files
+#        run: ./gradlew -Pversion=${{ steps.release.outputs.version }} writeProperties generateReadme
 
       - name: Compile Source
         run: ./gradlew -Pversion=${{ steps.release.outputs.version }} assemble
