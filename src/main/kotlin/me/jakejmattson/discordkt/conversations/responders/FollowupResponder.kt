@@ -9,6 +9,9 @@ import dev.kord.core.entity.interaction.followup.PublicFollowupMessage
 import dev.kord.rest.builder.message.create.MessageCreateBuilder
 import kotlinx.coroutines.runBlocking
 
+/**
+ * Create a followup response to a conversation that uses interactions
+ */
 public class FollowupResponder(
     private val botResponse: PublicMessageInteractionResponseBehavior,
     private val followupMessage: PublicFollowupMessage? = null,

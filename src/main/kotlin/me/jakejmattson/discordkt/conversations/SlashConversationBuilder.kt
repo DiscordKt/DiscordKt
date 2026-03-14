@@ -13,6 +13,13 @@ import me.jakejmattson.discordkt.commands.SlashCommandEvent
 import me.jakejmattson.discordkt.conversations.responders.SlashResponder
 import me.jakejmattson.discordkt.prompts.SimpleSelectBuilder
 
+/** @suppress DSL backing
+ *
+ * @param discord The discord instance.
+ * @param user The user that the conversation is happening with.
+ * @param channel The channel that the conversation is happening in.
+ * @param exitString A String entered by the user to exit the conversation.
+ */
 public class SlashConversationBuilder<T : TypeContainer>(
     discord: Discord,
     user: User,

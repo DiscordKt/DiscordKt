@@ -65,7 +65,7 @@ public sealed interface Argument<Input, Output> : Cloneable {
      *
      * @param input The input data of the type [Input]
      * @param context The [DiscordContext] created by the execution of the command.
-     * @return [Result] subtype [Success] or [Error].
+     * @return An [Either.Left] with an error string or an [Either.Right] with a good result.
      */
     public suspend fun transform(input: Input, context: DiscordContext): Either<String, Output> =
         (input as Output).right()

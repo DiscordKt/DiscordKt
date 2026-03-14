@@ -30,6 +30,9 @@ import kotlin.concurrent.schedule
 
 /**
  * DSL for building a conversation.
+ *
+ * @param discord The discord instance.
+ * @param user The user that the conversation is happening with.
  */
 public abstract class ConversationBuilder(
     public val discord: Discord,

@@ -9,6 +9,9 @@ import kotlinx.coroutines.runBlocking
 import me.jakejmattson.discordkt.TypeContainer
 import me.jakejmattson.discordkt.commands.SlashCommandEvent
 
+/**
+ * Create responses to conversations that use interactions
+ */
 public class SlashResponder<T : TypeContainer>(private val event: SlashCommandEvent<T>) : ConversationResponder {
     override val promptMessage: Message
         get() = runBlocking {
